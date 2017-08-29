@@ -1,0 +1,213 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Include">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Source">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Include\Thread">
+      <UniqueIdentifier>{21905131-ad6b-41b8-bf82-b56caf6c2725}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Thread">
+      <UniqueIdentifier>{65029b2f-ffea-4a8f-9f80-92dd5d839fce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\Public">
+      <UniqueIdentifier>{541dd53a-926a-4017-86b9-205ec82645d1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Include\Thread\CMutex.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\CThread.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\CThreadEvent.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\CThreadPool.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\IRunnable.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\HConfig.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\CEncoderAES.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\CEncoderMD5.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\CFileList.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\CFileSystem.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\CLimitReadFile.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\CMemoryFile.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\CMemoryHub.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\CMemoryPool.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\coreutil.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\CQueueRing.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\CReadFile.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\CReadShareMemFile.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\CUtility.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\CWriteFile.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\CWriteShareMemFile.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\CXMLReader.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\CXMLReaderImpl.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\CXMLWriter.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\fast_atof.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\heapsort.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\IAppLogger.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\IFileArchive.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\IFileList.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\IFileSystem.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\IReadFile.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\IReferenceCounted.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\irrAllocator.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\irrArray.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\irrList.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\irrMap.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\irrMath.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\irrString.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\irrTypes.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\irrXML.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\IWriteFile.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\IXMLReader.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\IXMLWriter.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\IAppTimer.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\CNamedMutex.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\CPipe.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\CProcess.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\CProcessManager.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\CReadWriteLock.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\CSemaphore.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\Source\Thread\CMutex.cpp">
+      <Filter>Source\Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Thread\CThread.cpp">
+      <Filter>Source\Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Thread\CThreadEvent.cpp">
+      <Filter>Source\Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Thread\CThreadPool.cpp">
+      <Filter>Source\Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Thread\CNamedMutex.cpp">
+      <Filter>Source\Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Thread\CReadWriteLock.cpp">
+      <Filter>Source\Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Thread\CSemaphore.cpp">
+      <Filter>Source\Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Thread\CPipe.cpp">
+      <Filter>Source\Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Thread\CProcessManager.cpp">
+      <Filter>Source\Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Thread\CProcessHandle.cpp">
+      <Filter>Source\Thread</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
