@@ -9,122 +9,69 @@
 #define APP_CTHREADPOOL_H
 
 #include "irrList.h"
-#include "irrArray.h"
 #include "IRunnable.h"
 #include "CThread.h"
+#include "CCondition.h"
 
 namespace irr {
 
+/**
+*@class CThreadPool
+*@brief A thread pool work on Windows, Linux, and Android.
+*/
+class CThreadPool : public IRunnable {
+public:
+    CThreadPool(u32 iThreadCount);
+
+    virtual ~CThreadPool();
+
+    virtual void run()override;
+
     /**
-    *@class CThreadPool
-    *@brief A thread pool.
+    *@param it 0: no limit
     */
-    class CThreadPool {
-    private:
-        class CThreadWorker : public IRunnable {
-        public:
-            CThreadWorker(CThreadPool* iPool,u32 id) : mRunning(false),
-                mPool(iPool),
-                mID(id),
-                mCallTask(0,0),
-                mTask(0) {
-            }
+    void setMaxHoldTasks(u32 it) {
+        mMaxTasks = it;
+    }
 
-            virtual ~CThreadWorker() {
-                stop();
-            }
+    void start();
 
-            virtual void run();
+    void stop();
 
+    void join();
 
-            void start() {
-                if (!mRunning) {
-                    mRunning = true;
-                    mThread.start(*this);
-                }
-            }
+    bool start(AppCallable iFunc, void* iData = 0);
+
+    bool start(IRunnable* it);
+
+    u32 getMaxThreads()const {
+        return mThreadCount;
+    }
 
 
-            void stop() {
-                if (mRunning) {
-                    mRunning = false;
-                    mThread.join();
-                }
-            }
-
-            void setTask(IRunnable* it) {
-                mTask = it;
-            }
-
-            void setTask(AppCallable iFunc, void* iData) {
-                mCallTask.mData = iData;				//step 1
-                mCallTask.mCallback = iFunc;		//step 2
-            }
-
-            u32 getID()const {
-                return mID;
-            }
-
-        private:
-            CThreadWorker(){
-            }
-
-            CThreadWorker(const CThreadWorker& other){
-            }
-
-            CThreadWorker& operator = (const CThreadWorker& other){
-            }
-
-            bool mRunning;
-            u32 mID;
-            IRunnable* mTask;
-            volatile SCallbackData mCallTask;
-            CThreadPool* mPool;
-            CThread mThread;
-        };
-
-
-    public:
-        CThreadPool(u32 iThreadCount);
-
-        ~CThreadPool();
-
-        /**
-        *@param it 0: no limit
-        */
-        void setMaxHoldTasks(u32 it){
-            mMaxTasks = it;
-        }
-
-        void start();
-
-        void stop();
-
-        bool start(AppCallable iFunc, void* iData = 0);
-
-        bool start(IRunnable* it);
-
-        void onTask(CThreadWorker* it);
-
-
-    private:
-        CThreadPool() {
-        }
-
-        void creatThread(u32 iCount);
-
-        void removeAll();
-
-
-        bool mRunning;
-        u32 mThreadCount;
-        u32 mMaxTasks;          ///<0: disable limit, else limit the max tasks saved in list. default: 0
-        CMutex mMutex;
-        core::list<IRunnable*> mHoldTasks;
-        core::list<SCallbackData> mHoldCallTasks;
-        core::array<CThreadWorker*> mBusyWorker;
-        core::array<CThreadWorker*> mIdleWorker;
+private:
+    enum {
+        ESTATUS_STOPED = 1,
+        ESTATUS_RUNNIG = 1<<1,
+        ESTATUS_JOINING = 1<<2,
     };
+    CThreadPool() {
+    }
+
+    void creatThread(u32 iCount);
+
+    void removeAll();
+
+    u16 mActiveCount;
+    u16 mStatus;
+    u32 mThreadCount;
+    u32 mMaxTasks;          ///<0: disable limit, else limit the max tasks saved in list. default: 0
+    CMutex mMutex;          ///<note: mutex type PTHREAD_MUTEX_TIMED_NP,PTHREAD_MUTEX_ADAPTIVE_NP
+    CCondition mCondition;
+    core::list<IRunnable*> mHoldTasks;
+    core::list<SCallbackData> mHoldCallTasks;
+    CThread** mWorker;
+};
 
 }//irr
 

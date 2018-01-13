@@ -14,63 +14,59 @@
 
 
 namespace irr {
-    /**
-    *@class CProcessHandle
-    *@brief A handle for a process created with CProcessManager::launch().
-    *
-    * This handle can be used to determine the process ID of
-    * the newly created process and it can be used to wait for
-    * the completion of a process.
-    */
-    class CProcessHandle : public IReferenceCounted{
-    public:
+/**
+*@class CProcessHandle
+*@brief A handle for a process created with CProcessManager::launch().
+*
+* This handle can be used to determine the process ID of
+* the newly created process and it can be used to wait for
+* the completion of a process.
+*/
+class CProcessHandle : public IReferenceCounted {
+public:
 #if defined(APP_PLATFORM_WINDOWS)
-        typedef u32 PID;
-        CProcessHandle(void* handle, PID id);
+    typedef u32 PID;
+    CProcessHandle(void* handle, PID id);
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
-        typedef s32 PID;
-        CProcessHandle(PID id);
+    typedef s32 PID;
+    CProcessHandle(PID id);
 #endif //APP_PLATFORM_LINUX & APP_PLATFORM_ANDROID
 
 
-        /// Destructor.
-        ~CProcessHandle();
+    /// Destructor.
+    ~CProcessHandle();
 
-        /**
-        *@brief Get process ID.
-        *@return The process ID.
-        */
-        PID getID() const;
+    /**
+    *@brief Get process ID.
+    *@return The process ID.
+    */
+    PID getID() const;
 
-        /**
-        *@brief Wait for the process to terminate.
-        *@return The exit code of the process.
-        */
-        s32 wait() const;
+    /**
+    *@brief Wait for the process to terminate.
+    *@return The exit code of the process.
+    */
+    s32 wait() const;
 
 
 #if defined(APP_PLATFORM_WINDOWS)
-        void* getHandle() const;
-        void closeHandle();
+    void* getHandle() const;
+    void closeHandle();
 #endif //APP_PLATFORM_WINDOWS
 
 
-    private:
-        CProcessHandle();
+private:
+    CProcessHandle();
 
-        /// Prevent creates a CProcessHandle by copying another one.
-        CProcessHandle(const CProcessHandle& it);
+    CProcessHandle(const CProcessHandle& it);
+    CProcessHandle& operator= (const CProcessHandle& it);
 
-        /// Prevent assigns an other process handle.
-        CProcessHandle& operator = (const CProcessHandle& it);
-
-
-        PID mID;
+    PID mID;
 #if defined(APP_PLATFORM_WINDOWS)
-        void* mProcess;
+    void* mProcess;
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
 #endif //APP_PLATFORM_LINUX & APP_PLATFORM_ANDROID
-    };
+};
 
 
 } //end namespace irr

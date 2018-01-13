@@ -6,125 +6,96 @@
 #include "irrString.h"
 #include "CNetProtocal.h"
 #include "CNetPacket.h"
+#include "CNetSocket.h"
 
-#if defined(APP_PLATFORM_WINDOWS)
-#include <winsock2.h>
-#include <Windows.h>
-#elif defined(APP_PLATFORM_LINUX)
-#include <errno.h>
-#include <netinet/in.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <fcntl.h>
-#endif
 
 namespace irr {
-	class CThread;
-
-    namespace net {
-        class CNetClientUDP : public INetClient, public INetDataSender {
-        public:
-
-            CNetClientUDP();
-
-            virtual ~CNetClientUDP();
+namespace net {
 
 
-            virtual ENetNodeType getType() const {
-				return ENET_UDP_CLIENT;
-			}
+class CNetClientUDP : public INetClient, public INetDataSender {
+public:
+
+    CNetClientUDP();
+
+    virtual ~CNetClientUDP();
 
 
-            virtual void setNetEventer(INetEventer* it){
-                mReceiver = it;
-            }
-
-            /**
-            *@brief Low level send function for CNetProtocal;
-            *@override INetDataSender::sendBuffer();
-            *@see INetDataSender
-            */
-            virtual s32 sendBuffer(void* iUserPointer, const s8* iData, s32 iLength);
-
-            bool update(u32 iTime);
-
-            virtual bool start();
-
-            virtual bool stop();
-
-            virtual void setIP(const c8* ip);
-
-            virtual void setPort(u16 port);
-
-            virtual s32 sendData(const c8* iData, s32 iLength);
-
-            virtual s32 sendData(const net::CNetPacket& iData);
-
-            virtual const c8* getIP() const {
-                return mRemoteIP.c_str();
-            }
-
-            virtual u16 getPort() const {
-                return mRemotePort;
-            }
-            
-            virtual const c8* getLocalIP() const {
-                return mMyIP.c_str();
-            }
-
-            virtual u16 getLocalPort() const{
-                return mMyPort;
-            }
-
-            void setID(u32 id);
+    virtual ENetNodeType getType() const override {
+        return ENET_UDP_CLIENT;
+    }
 
 
-            u32 getID() const {
-                return mProtocal.getID();
-            }
+    virtual void setNetEventer(INetEventer* it)override {
+        mReceiver = it;
+    }
+
+    bool update(u64 iTime)override;
+
+    virtual bool start()override;
+
+    virtual bool stop()override;
+
+    virtual s32 sendData(const c8* iData, s32 iLength) override;
+
+    virtual void setLocalAddress(const SNetAddress& it)override {
+        mAddressLocal = it;
+    }
+
+    virtual void setRemoteAddress(const SNetAddress& it)override {
+        mAddressRemote = it;
+    }
+
+    virtual const SNetAddress& getRemoteAddress() const override {
+        return mAddressRemote;
+    }
+
+    virtual const SNetAddress& getLocalAddress() const override {
+        return mAddressLocal;
+    }
+
+    void setID(u32 id);
 
 
-        private:
-            /**
-            *@return True if not really error, else false.
-            */
-            bool clearError();
+    u32 getID() const {
+        return mProtocal.getID();
+    }
 
-            bool bindLocal();
-
-            void setNetPackage(ENetMessage it, net::CNetPacket& out);
-
-            void resetSocket();
-
-            void sendTick();
-
-            void sendBye();
-
-            /**
-            *@param iStepTime relative time step
-            */
-            void step(u32 iStepTime);
+    s32 sendBuffer(void* iUserPointer, const c8* iData, s32 iLength)override;
 
 
-            bool mRunning;
-            u8 mStatus;
-			u16 mMyPort;
-            u16 mRemotePort;
-            u32 mUpdateTime;
-            u32 mTickTime;
-            u32 mTickCount;
-            netsocket mSocket;
-            sockaddr_in mRemoteAddress;
-            INetEventer* mReceiver;
-            CNetProtocal mProtocal;
-            CNetPacket mPacket;
-			core::stringc mMyIP;
-            core::stringc mRemoteIP;
-        };
+private:
+    bool clearError();
 
-    }// end namespace net
+    void resetSocket();
+
+    void sendTick();
+
+    void sendBye();
+
+    APP_INLINE void onPacket(CNetPacket& it);
+    /**
+    *@param iStepTime relative time step
+    */
+    void step(u64 iStepTime);
+
+    bool bindLocal();
+
+    bool mRunning;
+    u8 mStatus;
+    u32 mTickCount;
+    u64 mUpdateTime;
+    u64 mTickTime;
+    INetEventer* mReceiver;
+    CNetProtocal mProtocal;
+    CNetPacket mPacket;
+    SNetAddress mAddressRemote;
+    SNetAddress mAddressLocal;
+    CNetSocket mConnector;
+};
+
+
+}// end namespace net
 }// end namespace irr
 
 #endif //APP_CNETCLIENTUDP_H

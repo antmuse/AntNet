@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -22,29 +22,34 @@
     <ProjectGuid>{01F8D505-77A7-4D41-97BC-8F60A381548E}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>AntNet</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -105,7 +110,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\Include;..\..\..\Include\Net;..\..\..\Include\Public;..\..\..\Include\Thread</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Include;..\..\..\Include\Net;..\..\..\Include\Net\HTTP;..\..\..\Include\Net\Mail;..\..\..\Include\Public;..\..\..\Include\Thread</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -120,7 +125,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN64;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\Include;..\..\..\Include\Net;..\..\..\Include\Public;..\..\..\Include\Thread</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Include;..\..\..\Include\Net;..\..\..\Include\Net\HTTP;..\..\..\Include\Net\Mail;..\..\..\Include\Public;..\..\..\Include\Thread</AdditionalIncludeDirectories>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
@@ -138,7 +143,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\Include;..\..\..\Include\Net;..\..\..\Include\Public;..\..\..\Include\Thread</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Include;..\..\..\Include\Net;..\..\..\Include\Net\HTTP;..\..\..\Include\Net\Mail;..\..\..\Include\Public;..\..\..\Include\Thread</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -157,7 +162,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN64;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\Include;..\..\..\Include\Net;..\..\..\Include\Public;..\..\..\Include\Thread</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Include;..\..\..\Include\Net;..\..\..\Include\Net\HTTP;..\..\..\Include\Net\Mail;..\..\..\Include\Public;..\..\..\Include\Thread</AdditionalIncludeDirectories>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
@@ -211,17 +216,37 @@
     <ClInclude Include="..\..\..\Include\Thread\IRunnable.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\Source\Net\CBase64Coder.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\CCheckSum.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\CEventPoller.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\CNetClientNatPuncher.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\CNetClientSeniorTCP.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetClientTCP.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetClientUDP.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetManager.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetPacket.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetProtocal.cpp" />
-    <ClCompile Include="..\..\..\Source\Net\CNetServerNormalTCP.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\CNetServerAcceptor.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\CNetServerNatPuncher.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetServerSeniorTCP.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetServerSeniorUDP.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\CNetServerTCP.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\CNetSession.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\CNetSocket.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetUtility.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\CSuperFastHash.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\CTimerHeap.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\CTimerWheel.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\HTTP\CNetClientHttp.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\HTTP\CNetHttpHead.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\HTTP\CNetHttpRequest.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\HTTP\CNetHttpResponse.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\HTTP\CNetHttpURL.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\Mail\CNetMailClient.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\Mail\CNetMailMessage.cpp" />
     <ClCompile Include="..\..\..\Source\Net\SClientContext.cpp" />
-    <ClCompile Include="..\..\..\Source\Public\CQueueRing.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\SNetAddress.cpp" />
+    <ClCompile Include="..\..\..\Source\Public\CQueueNode.cpp" />
     <ClCompile Include="..\..\..\Source\Public\CStreamFile.cpp" />
     <ClCompile Include="..\..\..\Source\Public\IAppLogger.cpp" />
     <ClCompile Include="..\..\..\Source\Public\IAppTimer.cpp" />

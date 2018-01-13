@@ -5,27 +5,19 @@
 #include "irrTypes.h"
 
 
-#if defined(APP_PLATFORM_WINDOWS)
-#if defined(APP_OS_64BIT)
-typedef irr::u64 netsocket;
-#else
-typedef irr::u32 netsocket;
-#endif
-#define APP_INVALID_SOCKET  (~0)
-#define APP_SOCKET_ERROR     (-1)
-#elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
-typedef irr::s32 netsocket;
-#define APP_INVALID_SOCKET  (-1)
-#define APP_SOCKET_ERROR     (-1)
-#endif
+namespace irr {
+namespace net {
 
+//#define APP_NET_USE_IPV6
 
 
 ///Socket IO cache size is 8K (8192=1024*8)
 #define APP_NET_MAX_BUFFER_LEN     8192
-#define APP_NET_DEFAULT_PORT           9011
-#define APP_NET_DEFAULT_IP                ("127.0.0.1")
-#define APP_NET_LOCAL_HOST              ("localhost")
+#define APP_NET_DEFAULT_PORT       9011
+#define APP_NET_DEFAULT_IP         ("127.0.0.1")
+#define APP_NET_ANY_IP             ("0.0.0.0")
+#define APP_NET_ANY_PORT           (0)
+#define APP_NET_LOCAL_HOST         ("localhost")
 
 ///Server default threads count
 #define APP_NET_DEFAULT_SERVER_THREAD   2
@@ -36,63 +28,74 @@ typedef irr::s32 netsocket;
 ///We will relink the socket if tick count >= APP_NET_TICK_MAX_COUNT
 #define APP_NET_TICK_MAX_COUNT  (4)
 
+///Http timeout
+#define APP_NET_HTTP_TIMEOUT  (10*1000)
+
+///connect time inteval
+#define APP_NET_CONNECT_TIME_INTERVAL  (5*1000)
 
 
-namespace irr {
-    namespace net {
-
-        enum ENetMessage {
-            ENET_NULL = 0,
-            ENET_ERROR,
-            ENET_WAIT,
-            ENET_HI,
-            ENET_BYE,
-            ENET_DATA,
-            ENET_LINK,
-            ENET_RESET,
-            ENET_CLEAR,
-            ENET_COUNT
-        };
-
-        const c8* const AppNetMessageNames[] = {
-            "NetInit",
-            "NetError",
-            "NetWait",
-            "NetHi",
-            "NetBye",
-            "NetData",
-            "NetLink",
-            "NetReset",
-            "NetClear",
-            0
-        };
+///Net packet head size
+#define APP_NET_PACKET_HEAD_SIZE (sizeof(u32))
 
 
 
-        enum ENetNodeType {
-            ENET_UNKNOWN = 0,
-            ENET_TCP_CLIENT,
-            ENET_UDP_CLIENT,
-            ENET_TCP_SERVER_NORMALL,
-            ENET_UDP_SERVER_NORMALL,
-            ENET_TCP_SERVER_SENIOR,
-            ENET_UDP_SERVER_SENIOR,
-            ENET_NODE_TYPE_COUNT
-        };
+///Define net message types
+enum ENetMessage {
+    ENM_INVALID = 0,
+    ENM_WAIT,
+    ENM_HELLO,
+    ENM_BYE,
+    ENM_DATA,
+    ENM_LINK,
+    ENM_RESET,
+    ENM_CLEAR,
+    ENM_NAT_PUNCH,
+    ENM_COUNT
+};
 
-        const c8* const AppNetNodeNames[] = {
-            "Unknown",
-            "ClientTCP",
-            "ClientUDP",
-            "ServerNormalTCP",
-            "ServerNormalUDP",
-            "ServerSeniorTCP",
-            "ServerSeniorUDP",
-            0
-        };
+///Define net message typenames
+const c8* const AppNetMessageNames[] = {
+    "NetInit",
+    "NetWait",
+    "NetHello",
+    "NetBye",
+    "NetData",
+    "NetLink",
+    "NetReset",
+    "NetClear",
+    "NetNatPunch",
+    0
+};
 
 
-    } // end namespace net
+///Define net peer types
+enum ENetNodeType {
+    ENET_UNKNOWN = 0,
+    ENET_TCP_CLIENT,
+    ENET_UDP_CLIENT,
+    ENET_TCP_SERVER_LOW,
+    ENET_TCP_SERVER,
+    ENET_UDP_SERVER,
+    ENET_HTTP_CLIENT,
+    ENET_NODE_TYPE_COUNT
+};
+
+
+///Define net peer typenames
+const c8* const AppNetNodeNames[] = {
+    "Unknown",
+    "ClientTCP",
+    "ClientUDP",
+    "LowServerTCP",
+    "ServerTCP",
+    "ServerUDP",
+    "ClientHTTP",
+    0
+};
+
+
+} // end namespace net
 } // end namespace irr
 
 

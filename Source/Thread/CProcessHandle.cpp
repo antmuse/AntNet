@@ -16,84 +16,84 @@
 #if defined(APP_PLATFORM_WINDOWS)
 namespace irr {
 
-    CProcessHandle::CProcessHandle(void* hProcess, CProcessHandle::PID pid) :	mProcess(hProcess),
-        mID(pid){
+CProcessHandle::CProcessHandle(void* hProcess, CProcessHandle::PID pid) : mProcess(hProcess),
+mID(pid) {
+}
+
+
+CProcessHandle::~CProcessHandle() {
+    closeHandle();
+}
+
+
+void CProcessHandle::closeHandle() {
+    if(mProcess) {
+        ::CloseHandle(mProcess);
+        mProcess = 0;
+    }
+}
+
+
+/*CProcessHandle& CProcessHandle::operator = (const CProcessHandle& handle) {
+    if (&handle != this) {
+    }
+    return *this;
+}*/
+
+
+CProcessHandle::PID CProcessHandle::getID() const {
+    return mID;
+}
+
+
+void* CProcessHandle::getHandle() const {
+    return mProcess;
+}
+
+
+s32 CProcessHandle::wait() const {
+    DWORD rc = ::WaitForSingleObject(mProcess, INFINITE);
+    if(rc != WAIT_OBJECT_0) {
+        return -1; //"Wait failed for process"
     }
 
+    DWORD exitCode;
 
-    CProcessHandle::~CProcessHandle(){
-        closeHandle();
+    if(::GetExitCodeProcess(mProcess, &exitCode) == 0) {
+        return -1; //"Cannot get exit code for process"
     }
-
-
-    void CProcessHandle::closeHandle(){
-        if (mProcess){
-            CloseHandle(mProcess);
-            mProcess = 0;
-        }
-    }
-
-
-    /*CProcessHandle& CProcessHandle::operator = (const CProcessHandle& handle) {
-        if (&handle != this) {
-        }
-        return *this;
-    }*/
-
-
-    CProcessHandle::PID CProcessHandle::getID() const{
-        return mID;
-    }
-
-
-    void* CProcessHandle::getHandle() const{
-        return mProcess;
-    }
-
-
-    s32 CProcessHandle::wait() const {
-        DWORD rc = WaitForSingleObject(mProcess, INFINITE);
-        if (rc != WAIT_OBJECT_0){
-            return -1; //"Wait failed for process"
-        }
-
-        DWORD exitCode;
-
-        if (GetExitCodeProcess(mProcess, &exitCode) == 0){
-            return -1; //"Cannot get exit code for process"
-        }
-        return exitCode;
-    }
+    return exitCode;
+}
 
 
 } //end namespace irr
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
 namespace irr {
 
-CProcessHandle::CProcessHandle(CProcessHandle::PID pid):	mID(pid){
+CProcessHandle::CProcessHandle(CProcessHandle::PID pid) : mID(pid) {
 }
 
 
-CProcessHandle::~CProcessHandle(){
+CProcessHandle::~CProcessHandle() {
 }
 
 
-CProcessHandle::PID CProcessHandle::getID() const{
-	return mID;
+CProcessHandle::PID CProcessHandle::getID() const {
+    return mID;
 }
 
 
-s32 CProcessHandle::wait() const{
-	s32 status;
-	s32 rc;
-	do{
-		rc = waitpid(mID, &status, 0);
-	}while (rc < 0 && errno == EINTR);
+s32 CProcessHandle::wait() const {
+    s32 status;
+    s32 rc;
+    do {
+        rc = waitpid(mID, &status, 0);
+    } while(rc < 0 && errno == EINTR);
 
-	if (rc != mID){
-		//("Cannot wait for process", NumberFormatter::format(mID));
+    if(rc != mID) {
+        //("Cannot wait for process", NumberFormatter::format(mID));
     }
-	return WEXITSTATUS(status);
+    return WEXITSTATUS(status);
 }
 
 } //end namespace irr

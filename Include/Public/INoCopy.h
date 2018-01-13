@@ -3,16 +3,21 @@
 
 namespace irr {
 
-    class INoCopy {
-        //INoCopy(const INoCopy& other) = delete;
-        //INoCopy& operator = (const INoCopy& other) = delete;
-    private:
-        INoCopy(const INoCopy& other){
-        };
+class INoCopy {
+public:
+    INoCopy() {
+    }
 
-        INoCopy& operator = (const INoCopy& other){
-        };
+private:
+    //INoCopy(const INoCopy& other) = delete;
+    //INoCopy& operator = (const INoCopy& other) = delete;
+
+    INoCopy(const INoCopy& other) {
     };
+
+    INoCopy& operator= (const INoCopy& other) {
+    };
+};
 
 } //namespace irr
 

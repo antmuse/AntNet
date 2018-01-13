@@ -28,6 +28,12 @@
     <Filter Include="Source\Public">
       <UniqueIdentifier>{aa95cccc-bf33-4e93-a0a6-c97bd43b1ff7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Net\HTTP">
+      <UniqueIdentifier>{0c0fb9e4-78ad-4a62-aafc-c5a2d630736c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Net\Mail">
+      <UniqueIdentifier>{71ac2cf7-8396-4604-a006-c063740e471d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -167,16 +173,10 @@
     <ClCompile Include="..\..\..\Source\Net\CNetServerSeniorTCP.cpp">
       <Filter>Source\Net</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\Net\CNetServerNormalTCP.cpp">
-      <Filter>Source\Net</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\Source\Net\CNetProtocal.cpp">
       <Filter>Source\Net</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Source\Public\CStreamFile.cpp">
-      <Filter>Source\Public</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Source\Public\CQueueRing.cpp">
       <Filter>Source\Public</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Source\Public\IAppLogger.cpp">
@@ -190,6 +190,72 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Source\Public\IAppTimer.cpp">
       <Filter>Source\Public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Public\CQueueNode.cpp">
+      <Filter>Source\Public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\CBase64Coder.cpp">
+      <Filter>Source\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\CCheckSum.cpp">
+      <Filter>Source\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\CEventPoller.cpp">
+      <Filter>Source\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\CNetClientNatPuncher.cpp">
+      <Filter>Source\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\CNetClientSeniorTCP.cpp">
+      <Filter>Source\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\CNetServerAcceptor.cpp">
+      <Filter>Source\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\CNetServerNatPuncher.cpp">
+      <Filter>Source\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\CNetServerTCP.cpp">
+      <Filter>Source\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\CNetSession.cpp">
+      <Filter>Source\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\CNetSocket.cpp">
+      <Filter>Source\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\CSuperFastHash.cpp">
+      <Filter>Source\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\CTimerHeap.cpp">
+      <Filter>Source\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\CTimerWheel.cpp">
+      <Filter>Source\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\SNetAddress.cpp">
+      <Filter>Source\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\HTTP\CNetClientHttp.cpp">
+      <Filter>Source\Net\HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\HTTP\CNetHttpHead.cpp">
+      <Filter>Source\Net\HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\HTTP\CNetHttpRequest.cpp">
+      <Filter>Source\Net\HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\HTTP\CNetHttpResponse.cpp">
+      <Filter>Source\Net\HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\HTTP\CNetHttpURL.cpp">
+      <Filter>Source\Net\HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\Mail\CNetMailClient.cpp">
+      <Filter>Source\Net\Mail</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\Mail\CNetMailMessage.cpp">
+      <Filter>Source\Net\Mail</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

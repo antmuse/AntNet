@@ -7,54 +7,50 @@
 #include "CMutex.h"
 
 namespace irr {
-    class CThread;
+class CThread;
 
-    namespace net {
+namespace net {
 
-        class CNetManager : public IRunnable, public INetManager{
-        public:
-            static INetManager* getInstance();
+class CNetManager : public IRunnable, public INetManager {
+public:
+    static INetManager* getInstance();
 
-            virtual INetServer* createServerNormalTCP();
+    virtual INetServer* createServer(ENetNodeType type)override;
 
-            virtual INetServer* createServerNormalUDP();
+    virtual INetClient* createClient(ENetNodeType type)override;
 
-            virtual INetServer* createServerSeniorTCP();
+    //virtual INetClientHttp* createClientHttp()override;
+    virtual INetClientSeniorTCP* createClientSeniorTCP();
 
-            virtual INetServer* createServerSeniorUDP();
+    virtual INetClient* addClient(ENetNodeType type)override;
 
-            virtual INetClient* addClientTCP();
+    virtual INetClient* getClientTCP(u32 index)override;
 
-            virtual INetClient* addClientUDP();
+    virtual INetClient* getClientUDP(u32 index)override;
 
-            virtual INetClient* getClientTCP(u32 index);
+    virtual void run() override;
 
-            virtual INetClient* getClientUDP(u32 index);
+    virtual bool start()override;
 
-            //override
-            virtual void run();
+    virtual bool stop()override;
 
-            virtual bool start();
+protected:
+    void stopAll();
 
-            virtual bool stop();
+    bool mRunning;
+    core::array<INetClient*> mAllConnectionTCP;
+    core::array<INetClient*> mAllConnectionUDP;
+    core::array<INetServer*> mAllServerTCP;
+    core::array<INetServer*> mAllServerUDP;
+    CMutex mMutex;
+    CThread* mThread;
 
-        protected:
-            void stopAll();
+private:
+    CNetManager();
+    virtual ~CNetManager();
+};
 
-            bool mRunning;
-            core::array<INetClient*> mAllConnectionTCP;
-            core::array<INetClient*> mAllConnectionUDP;
-            core::array<INetServer*> mAllServerTCP;
-            core::array<INetServer*> mAllServerUDP;
-            CMutex mMutex;
-            CThread* mThread;
-
-        private:
-            CNetManager();
-            virtual ~CNetManager();
-        };
-
-    }// end namespace net
+}// end namespace net
 }// end namespace irr
 
 #endif //APP_CNETMANAGER_H

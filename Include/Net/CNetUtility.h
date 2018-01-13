@@ -3,56 +3,39 @@
 
 #include "HNetConfig.h"
 
-namespace irr{
-    namespace net{
+namespace irr {
+namespace net {
 
-        class CNetUtility{
-        public:
+class CNetUtility {
+public:
+    /**
+    *@brief Load the socket lib, windows only, else useless.
+    *@return 0 if successed, else failed.
+    */
+    static s32 loadSocketLib();
 
-            static bool setReuseIP(netsocket iSocket);
+    /**
+    *@brief Unload the socket lib, windows only, else useless.
+    *@return 0 if successed, else failed.
+    */
+    static s32 unloadSocketLib();
 
-            static bool setReusePort(netsocket iSocket);
+    static s32 getSocketError();
 
-            static bool setNoblock(netsocket iSocket);
+    static s32 getLastError();
 
-            /**
-            *@brief Close a valid socket.
-            *@param iSocket The socket.
-            *@return 0 if success, else if failed.
-            */
-            static s32 closeSocket(netsocket iSocket);
+    static void setLastError(s32 it);
 
-            /**
-            *@brief Set send cache size of socket.
-            *@param iSocket The socket.
-            *@return 0 if success, else if failed.
-            */
-            static s32 setSendCache(netsocket iSocket, s32 size);
+private:
+    CNetUtility() {
+    };
 
-            /**
-            *@brief Set receive cache size of socket.
-            *@param iSocket The socket.
-            *@return 0 if success, else if failed.
-            */
-            static s32 setReceiveCache(netsocket iSocket, s32 size);
+    ~CNetUtility() {
+    };
+};
 
 
-#if defined(APP_PLATFORM_WINDOWS)
-            static s32 loadSocketLib();
-            static s32 unloadSocketLib();
-#endif  //APP_PLATFORM_WINDOWS
-
-
-        private:
-            CNetUtility(){
-            };
-
-            ~CNetUtility(){
-            };
-        };
-
-
-    }// end namespace net
+}// end namespace net
 }// end namespace irr
 
 

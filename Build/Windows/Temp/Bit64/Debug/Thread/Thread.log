@@ -1,5 +1,2 @@
-﻿Build started 2017/8/29 17:23:19.
-
-Build succeeded.
-
-Time Elapsed 00:00:00.00
+﻿D:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(372,5): warning MSB8004: Intermediate Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Intermediate Directory.
+  Thread.vcxproj -> E:\Share\AntNet\Build\Windows\..\..\Lib\Bit64\Windows\Thread-64D.lib

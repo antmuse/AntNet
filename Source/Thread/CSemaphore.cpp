@@ -11,47 +11,59 @@
 #if defined( APP_PLATFORM_WINDOWS )
 
 namespace irr {
+CSemaphore::CSemaphore() : mSema(0) {
+}
 
-    CSemaphore::CSemaphore(s32 n, s32 max){
-        APP_ASSERT (n >= 0 && max > 0 && n <= max);
-        mSema = CreateSemaphoreW(NULL, n, max, NULL);
-        if (!mSema){
-            //("cannot create semaphore");
-        }
+
+bool CSemaphore::open(fschar_t* iName, bool inherit) {
+    APP_ASSERT(iName);
+    if(0 == mSema) {
+        mSema = ::OpenSemaphore(SEMAPHORE_ALL_ACCESS, inherit ? TRUE : FALSE, iName);
     }
+    return 0 != mSema;
+}
 
 
-    CSemaphore::~CSemaphore(){
-        CloseHandle(mSema);
+bool CSemaphore::init(fschar_t* iName, s32 n, s32 max) {
+    APP_ASSERT(n >= 0 && max > 0 && n <= max);
+    if(0 == mSema) {
+        mSema = ::CreateSemaphore(0, n, max, iName);
     }
+    return 0 != mSema;
+}
 
 
-    void CSemaphore::set(){
-        if (!ReleaseSemaphore(mSema, 1, NULL))	{
-            //("cannot signal semaphore");
-        }
+CSemaphore::~CSemaphore() {
+    ::CloseHandle(mSema);
+}
+
+
+void CSemaphore::set() {
+    if(!::ReleaseSemaphore(mSema, 1, NULL)) {
+        //("cannot signal semaphore");
     }
+}
 
-    void CSemaphore::wait(){
-        switch (WaitForSingleObject(mSema, INFINITE))	{
-        case WAIT_OBJECT_0:
-            return;
-        default:
-            break;//("wait for semaphore failed");
-        }
+void CSemaphore::wait() {
+    switch(::WaitForSingleObject(mSema, INFINITE)) {
+    case WAIT_OBJECT_0:
+        return;
+    default:
+        break;//("wait for semaphore failed");
     }
+}
 
 
-    bool CSemaphore::wait(long milliseconds){
-        switch (WaitForSingleObject(mSema, milliseconds + 1)) {
-        case WAIT_TIMEOUT:
-            return false;
-        case WAIT_OBJECT_0:
-            return true;
-        default:
-            return false; //("wait for semaphore failed");
-        }
+bool CSemaphore::wait(long milliseconds) {
+    switch(::WaitForSingleObject(mSema, milliseconds + 1)) {
+    case WAIT_TIMEOUT:
+        return false;
+    case WAIT_OBJECT_0:
+        return true;
+    default:
+        return false; //("wait for semaphore failed");
     }
+}
 
 
 } //namespace irr
@@ -82,133 +94,154 @@ namespace irr {
 
 
 namespace irr {
+CSemaphore::CSemaphore() : mValue(0), mMax(1) {
+}
 
-    CSemaphore::CSemaphore(s32 n, s32 max): mValue(n), mMax(max) {
-        APP_ASSERT (n >= 0 && max > 0 && n <= max);
-        if (pthread_mutex_init(&mMutex, NULL)){
-            //("cannot create semaphore (mutex)");
-        }
+bool CSemaphore::open(fschar_t* iName, bool inherit) {
+    //TODO>>
+    //mValue = n;
+    //mMax = ?
+    return true;
+}
+
+
+bool CSemaphore::init(fschar_t* iName, s32 n, s32 max) {
+    APP_ASSERT(n >= 0 && max > 0 && n <= max);
+    mValue = n;
+    mMax = max;
+    pthread_mutexattr_t mutexattr;
+    pthread_mutexattr_init(&mutexattr);
+    pthread_mutexattr_setpshared(&mutexattr, iName ? PTHREAD_PROCESS_SHARED : PTHREAD_PROCESS_PRIVATE);
+
+    if(pthread_mutex_init(&mMutex, &mutexattr)) {
+        pthread_mutexattr_destroy(&mutexattr);
+        return false;//("cannot create semaphore (mutex)");
+    }
+
+    pthread_mutexattr_destroy(&mutexattr);
+
 #if defined(APP_HAVE_MONOTONIC_PTHREAD_COND_TIMEDWAIT)
-        pthread_condattr_t attr;
-        if (pthread_condattr_init(&attr)) {
-            pthread_mutex_destroy(&mMutex);
-            //("cannot create semaphore (condition attribute)");
-        }
-        if (pthread_condattr_setclock(&attr, CLOCK_MONOTONIC)){
-            pthread_condattr_destroy(&attr);
-            pthread_mutex_destroy(&mMutex);
-            //("cannot create semaphore (condition attribute clock)");
-        }
-        if (pthread_cond_init(&mCond, &attr)){
-            pthread_condattr_destroy(&attr);
-            pthread_mutex_destroy(&mMutex);
-            //("cannot create semaphore (condition)");
-        }
-        pthread_condattr_destroy(&attr);
-#else
-        if (pthread_cond_init(&mCond, NULL)) {
-            pthread_mutex_destroy(&mMutex);
-            //("cannot create semaphore (condition)");
-        }
-#endif
-    }
-
-
-    CSemaphore::~CSemaphore(){
-        pthread_cond_destroy(&mCond);
+    pthread_condattr_t attr;
+    if(pthread_condattr_init(&attr)) {
         pthread_mutex_destroy(&mMutex);
+        return false;//("cannot create semaphore (condition attribute)");
     }
-
-
-    void CSemaphore::wait() {
-        if (pthread_mutex_lock(&mMutex)){
-            return; //("wait for semaphore failed (lock)");
-        }
-        s32 ret;
-        while (mValue < 1) {
-            if (ret = pthread_cond_wait(&mCond, &mMutex)) {
-                pthread_mutex_unlock(&mMutex);
-                break;//("wait for semaphore failed");
-            }
-        }
-        if(0 == ret){
-            --mValue;
-        }
-        pthread_mutex_unlock(&mMutex);
+    if(pthread_condattr_setclock(&attr, CLOCK_MONOTONIC)) {
+        pthread_condattr_destroy(&attr);
+        pthread_mutex_destroy(&mMutex);
+        return false;//("cannot create semaphore (condition attribute clock)");
     }
+    if(pthread_cond_init(&mCond, &attr)) {
+        pthread_condattr_destroy(&attr);
+        pthread_mutex_destroy(&mMutex);
+        return false;//("cannot create semaphore (condition)");
+    }
+    pthread_condattr_destroy(&attr);
+#else
+    if(pthread_cond_init(&mCond, NULL)) {
+        pthread_mutex_destroy(&mMutex);
+        return false;//("cannot create semaphore (condition)");
+    }
+#endif
+    return true;
+}
 
 
-    bool CSemaphore::wait(long milliseconds){
-        s32 rc = 0;
-        struct timespec abstime;
+CSemaphore::~CSemaphore() {
+    pthread_cond_destroy(&mCond);
+    pthread_mutex_destroy(&mMutex);
+}
+
+
+void CSemaphore::wait() {
+    if(pthread_mutex_lock(&mMutex)) {
+        return; //("wait for semaphore failed (lock)");
+    }
+    s32 ret;
+    while(mValue < 1) {
+        if(ret = pthread_cond_wait(&mCond, &mMutex)) {
+            pthread_mutex_unlock(&mMutex);
+            break;//("wait for semaphore failed");
+        }
+    }
+    if(0 == ret) {
+        --mValue;
+    }
+    pthread_mutex_unlock(&mMutex);
+}
+
+
+bool CSemaphore::wait(long milliseconds) {
+    s32 rc = 0;
+    struct timespec abstime;
 
 #if defined(__VMS)
-        struct timespec delta;
-        delta.tv_sec  = milliseconds / 1000;
-        delta.tv_nsec = (milliseconds % 1000)*1000000;
-        pthread_get_expiration_np(&delta, &abstime);
+    struct timespec delta;
+    delta.tv_sec = milliseconds / 1000;
+    delta.tv_nsec = (milliseconds % 1000) * 1000000;
+    pthread_get_expiration_np(&delta, &abstime);
 #elif defined(APP_HAVE_MONOTONIC_PTHREAD_COND_TIMEDWAIT)
-        clock_gettime(CLOCK_MONOTONIC, &abstime);
-        abstime.tv_sec  += milliseconds / 1000;
-        abstime.tv_nsec += (milliseconds % 1000)*1000000;
-        if (abstime.tv_nsec >= 1000000000) {
-            abstime.tv_nsec -= 1000000000;
-            abstime.tv_sec++;
-        }
+    clock_gettime(CLOCK_MONOTONIC, &abstime);
+    abstime.tv_sec += milliseconds / 1000;
+    abstime.tv_nsec += (milliseconds % 1000) * 1000000;
+    if(abstime.tv_nsec >= 1000000000) {
+        abstime.tv_nsec -= 1000000000;
+        abstime.tv_sec++;
+    }
 #elif defined(APP_HAVE_CLOCK_GETTIME)
-        clock_gettime(CLOCK_REALTIME, &abstime);
-        abstime.tv_sec  += milliseconds / 1000;
-        abstime.tv_nsec += (milliseconds % 1000)*1000000;
-        if (abstime.tv_nsec >= 1000000000){
-            abstime.tv_nsec -= 1000000000;
-            abstime.tv_sec++;
-        }
+    clock_gettime(CLOCK_REALTIME, &abstime);
+    abstime.tv_sec += milliseconds / 1000;
+    abstime.tv_nsec += (milliseconds % 1000) * 1000000;
+    if(abstime.tv_nsec >= 1000000000) {
+        abstime.tv_nsec -= 1000000000;
+        abstime.tv_sec++;
+    }
 #else
-        struct timeval tv;
-        gettimeofday(&tv, NULL);
-        abstime.tv_sec  = tv.tv_sec + milliseconds / 1000;
-        abstime.tv_nsec = tv.tv_usec*1000 + (milliseconds % 1000)*1000000;
-        if (abstime.tv_nsec >= 1000000000){
-            abstime.tv_nsec -= 1000000000;
-            abstime.tv_sec++;
-        }
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    abstime.tv_sec = tv.tv_sec + milliseconds / 1000;
+    abstime.tv_nsec = tv.tv_usec * 1000 + (milliseconds % 1000) * 1000000;
+    if(abstime.tv_nsec >= 1000000000) {
+        abstime.tv_nsec -= 1000000000;
+        abstime.tv_sec++;
+    }
 #endif
 
-        if (pthread_mutex_lock(&mMutex) != 0)
-            return false; //("wait for semaphore failed (lock)");
+    if(pthread_mutex_lock(&mMutex) != 0)
+        return false; //("wait for semaphore failed (lock)");
 
-        while (mValue < 1) {
-            if ((rc = pthread_cond_timedwait(&mCond, &mMutex, &abstime))) {
+    while(mValue < 1) {
+        if((rc = pthread_cond_timedwait(&mCond, &mMutex, &abstime))) {
 
-                if (rc == ETIMEDOUT) break;
+            if(rc == ETIMEDOUT) break;
 
-                pthread_mutex_unlock(&mMutex);
-                return false; //("cannot wait for semaphore");
-            }
+            pthread_mutex_unlock(&mMutex);
+            return false; //("cannot wait for semaphore");
         }
-
-        if (rc == 0) --mValue;
-
-        pthread_mutex_unlock(&mMutex);
-        return rc == 0;
     }
 
-    void CSemaphore::set(){
-        if (pthread_mutex_lock(&mMutex))
-            return; //("cannot signal semaphore (lock)");
+    if(rc == 0) --mValue;
 
-        if (mValue < mMax){
-            ++mValue;
-        } else {
-            pthread_mutex_unlock(&mMutex);
-            return; //("cannot signal semaphore: count would exceed maximum");
-        }
-        if (pthread_cond_signal(&mCond)) {
-            pthread_mutex_unlock(&mMutex);
-            return; //("cannot signal semaphore");
-        }
+    pthread_mutex_unlock(&mMutex);
+    return rc == 0;
+}
+
+void CSemaphore::set() {
+    if(pthread_mutex_lock(&mMutex))
+        return; //("cannot signal semaphore (lock)");
+
+    if(mValue < mMax) {
+        ++mValue;
+    } else {
         pthread_mutex_unlock(&mMutex);
+        return; //("cannot signal semaphore: count would exceed maximum");
     }
+    if(pthread_cond_signal(&mCond)) {
+        pthread_mutex_unlock(&mMutex);
+        return; //("cannot signal semaphore");
+    }
+    pthread_mutex_unlock(&mMutex);
+}
 
 
 } //namespace irr

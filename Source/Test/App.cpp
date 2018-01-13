@@ -3,6 +3,8 @@
 #include "CThread.h"
 #include "CProcessManager.h"
 #include "CDefaultNetEventer.h"
+#include "CNetClientSeniorTCP.h"
+#include "CNetServerAcceptor.h"
 
 
 #if defined(APP_PLATFORM_WINDOWS)
@@ -33,73 +35,87 @@
 
 namespace irr {
 
-    void AppQuit(){
-        c8 key = '\0';
-        while('*' != key){
-            printf("@Please input [*] to quit\n");
-            scanf("%c", &key);
+void AppQuit() {
+    c8 key = '\0';
+    while('*' != key) {
+        printf("@Please input [*] to quit\n");
+        scanf("%c", &key);
+    }
+}
+
+//test net
+void AppStartServerSenior() {
+    net::CNetServerAcceptor accpetor;
+    net::SNetAddress addr("127.0.0.1", 9901);
+    accpetor.setLocalAddress(addr);
+    accpetor.start();
+    AppQuit();
+    accpetor.stop();
+}
+
+//test net
+void AppStartClientSenior() {
+    const s32 max = 10;
+    net::CDefaultNetEventer evt[max];
+    net::INetSession* session[max];
+    net::CNetClientSeniorTCP chub;
+    chub.start();
+    net::SNetAddress addr("127.0.0.1", 9901);
+    s32 i;
+    for(i = 0; i < max; ++i) {
+        evt[i].setHub(&chub);
+        session[i] = chub.getSession(&evt[i]);
+        if(session[i]) {
+            evt[i].setSession(session[i]);
+        } else {
+            break;
         }
+        //CThread::sleep(100);
     }
 
-    //test net
-    void AppStartNetNodes(){
-        net::CDefaultNetEventer eventer;
-        net::AppGetNetManagerInstance()->start();
-        net::INetServer* iNetServer = net::AppGetNetManagerInstance()->createServerSeniorUDP();
-        iNetServer->setNetEventer(&eventer);
-        //iNetServer->setPort(9012);
-        iNetServer->start();
-
-        //client
-        net::INetClient* iNet = net::AppGetNetManagerInstance()->addClientUDP();
-        iNet->setNetEventer(&eventer);
-        iNet->setIP("127.0.0.1");
-        iNet->start();
-        CThread::sleep(1000);
-        net::CNetPacket pack(1024);
-
-        for(u32 i=0; i<200; ++i){
-            pack.clear();
-            pack.add(u8(net::ENET_DATA));
-            core::stringc idstr(i);
-            idstr.append("------------udp test------------");
-            pack.add(idstr.c_str(), idstr.size());
-            pack.finish();
-            iNet->sendData(pack);
-        }
-        //printf("KCP segment size = [%u], per packet size = [%u]\n", sizeof(net::CNetProtocal::SKCPSegment), pack.getSize());
-        AppQuit();
-        iNet->stop();
-        iNetServer->stop();
-        delete iNetServer;
-        net::AppGetNetManagerInstance()->stop();
-    }
+    AppQuit();
+    chub.stop();
+}
 
 
-    //test process
-    void AppStartProcesses(){
-        CProcessManager::DProcessParam params;
+//test process
+void AppStartProcesses() {
+    CProcessManager::DProcessParam params;
 #if defined(APP_PLATFORM_WINDOWS)
-        //params.push_back(io::path("f:\\test.txt"));
-        CProcessHandle* proc = CProcessManager::launch("notepad.exe", params);
+    //params.push_back(io::path("f:\\test.txt"));
+    CProcessHandle* proc = CProcessManager::launch("notepad.exe", params);
 #elif
-        CProcessHandle* proc = CProcessManager::launch("/usr/bin/gnome-calculator", params);
+    CProcessHandle* proc = CProcessManager::launch("/usr/bin/gnome-calculator", params);
 #endif
-        if(proc){
-            printf("AppStartProcesses success\n");
-            proc->wait();
-        }else{
-            printf("AppStartProcesses failed\n");
-        }
-        //AppQuit();
+    if(proc) {
+        printf("AppStartProcesses success\n");
+        proc->wait();
+    } else {
+        printf("AppStartProcesses failed\n");
     }
+    //AppQuit();
+}
 
 }; //namespace irr
 
 
 int main(int argc, char** argv) {
-    //irr::AppStartProcesses();
-    irr::AppStartNetNodes();
-    printf("@Test quit success.\n"); 
+    int key;
+    printf("1. start server\n");
+    printf("2. start client\n");
+    printf("3. start process\n");
+    scanf_s("%d", &key);
+    switch(key) {
+    case 1:
+        irr::AppStartServerSenior();
+        break;
+    case 2:
+        irr::AppStartClientSenior();
+        break;
+    case 3:
+        irr::AppStartProcesses();
+        break;
+    }
+    printf("@Test quit success.\n");
     return 0;
 }//main

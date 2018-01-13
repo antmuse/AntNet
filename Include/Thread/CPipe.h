@@ -10,56 +10,57 @@
 
 #include "HConfig.h"
 #include "IReferenceCounted.h"
+//#include "INoCopy.h"
 
 
 namespace irr {
 
+/**
+*@class CPipe
+*@brief A pipe for processes.
+*/
+class CPipe : public IReferenceCounted {
+public:
+    CPipe();
+
+    ~CPipe();
+
+    s32 writeBytes(const void* buffer, s32 length);
+
+    s32 readBytes(void* buffer, s32 length);
+
+    void closeRead();
+
+    void closeWrite();
+
     /**
-    *@class CPipe
-    *@brief A pipe for processes.
+    *@brief Close both read and write.
     */
-    class CPipe: public IReferenceCounted{
-    public:
-        CPipe();
-
-        ~CPipe();
-
-        s32 writeBytes(const void* buffer, s32 length);
-
-        s32 readBytes(void* buffer, s32 length);
-
-        void closeRead();
-
-        void closeWrite();
-
-        /**
-        *@brief Close both read and write.
-        */
-        void closeAll(){
-            closeRead();
-            closeWrite();
-        }
+    void closeAll() {
+        closeRead();
+        closeWrite();
+    }
 
 #if defined(APP_PLATFORM_WINDOWS)
-        void* getReadHandle() const;
-        void* getWriteHandle() const;
+    void* getReadHandle() const;
+    void* getWriteHandle() const;
 #elif defined( APP_PLATFORM_ANDROID )  || defined( APP_PLATFORM_LINUX )
-        s32 getReadHandle() const;
-        s32 getWriteHandle() const;
+    s32 getReadHandle() const;
+    s32 getWriteHandle() const;
 #endif //APP_PLATFORM_WINDOWS
 
 
 
-    private:
+private:
 
 #if defined(APP_PLATFORM_WINDOWS)
-        void* mReadHandle;
-        void* mWriteHandle;
+    void* mReadHandle;
+    void* mWriteHandle;
 #elif defined( APP_PLATFORM_ANDROID )  || defined( APP_PLATFORM_LINUX )
-        s32 mReadFD;
-        s32 mWriteFD;
+    s32 mReadFD;
+    s32 mWriteFD;
 #endif //APP_PLATFORM_WINDOWS
-    };
+};
 
 
 } // namespace irr

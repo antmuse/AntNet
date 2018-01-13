@@ -4,16 +4,35 @@
 #define APP_USE_DATABASE
 
 // Define the system
-#if defined(_WIN32) || defined(_WIN64) || defined(WIN32) || defined(WIN64)
+#if !defined( APP_PLATFORM_WINDOWS )
+#if defined(_WIN64)  || defined(WIN64) || defined(_WIN32) || defined(WIN32)
 #define APP_PLATFORM_WINDOWS
-#define _IRR_WINDOWS_API_
 #define APP_INLINE inline
 #define APP_FORCE_INLINE __forceinline
-#else
+#define APP_ALIGN(N) __declspec(align(N))
+#endif
+#endif
+
+
+#if !defined( APP_PLATFORM_LINUX )
+#if (defined(_UNIX) || defined(__linux)) && !defined(ANDROID_NDK) && !defined(__ANDROID__)
 #define APP_PLATFORM_LINUX
-#define _IRR_POSIX_API_
 #define APP_INLINE inline
-#define APP_FORCE_INLINE  __inline__ __attribute__((always_inline))
+#define APP_FORCE_INLINE inline
+#define APP_ALIGN(N) __attribute__((__aligned__((N))))
+#endif
+#endif
+
+
+#if !defined( APP_PLATFORM_ANDROID )
+#if defined(ANDROID_NDK) || defined(__ANDROID__)
+#define APP_PLATFORM_ANDROID
+#define APP_INLINE inline
+#define APP_FORCE_INLINE inline
+#define APP_ALIGN(N) __attribute__((__aligned__((N))))
+// On Android platform, i use irrlicht1.8
+#define APP_USE_IRRLICHT_OLD
+#endif
 #endif
 
 
@@ -123,6 +142,8 @@
 #endif
 
 
+#define APP_OFFSET(_TYPE_, _ELEMENT_NAME_) ((size_t)(&(((_TYPE_*)0)->_ELEMENT_NAME_)))
+#define APP_GET_OFFSET(_POINTER_, _ELEMENT_NAME_) (((size_t)(&(_POINTER_->_ELEMENT_NAME_))) - ((size_t)(_POINTER_)))
 #define APP_GET_VALUE_POINTER(_POINTER_, _TYPE_, _ELEMENT_NAME_)   \
     ((_TYPE_*)(((s8*)((_TYPE_*)_POINTER_)) - ((size_t) &((_TYPE_*)0)->_ELEMENT_NAME_)))
 

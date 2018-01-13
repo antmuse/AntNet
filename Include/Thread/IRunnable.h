@@ -8,26 +8,28 @@
 #ifndef APP_IRUNNABLE_H
 #define APP_IRUNNABLE_H
 
-#include "HConfig.h"
-
 namespace irr {
 
+/**
+*@class IRunnable
+*@brief A runnable interface of threads.
+*/
+
+class IRunnable {
+public:
+    IRunnable() {
+    }
+
+    virtual ~IRunnable() {
+    }
+
     /**
-    *@class IRunnable
-    *@brief A runnable interface of threads.
+    *@brief This function run in thread.
     */
+    virtual void run() = 0;
+};
 
-    class IRunnable {
-    public:
-        IRunnable(){
-        }
 
-        virtual ~IRunnable(){
-        }
-
-        virtual void run() = 0;
-    };
-
-} //end namespace irr 
+} //namespace irr 
 
 #endif	/* APP_IRUNNABLE_H */

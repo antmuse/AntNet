@@ -118,8 +118,8 @@ typedef double				f64;
 //! These should be int snprintf(char *str, size_t size, const char *format, ...);
 //! and int swprintf(wchar_t *wcs, size_t maxlen, const wchar_t *format, ...);
 #if defined(_MSC_VER) && _MSC_VER > 1310 && !defined (_WIN32_WCE)
-#define swprintf swprintf_s
-#define snprintf sprintf_s
+///#define swprintf swprintf_s
+///#define snprintf sprintf_s
 #elif !defined(__CYGWIN__)
 #define swprintf _snwprintf
 #define snprintf _snprintf

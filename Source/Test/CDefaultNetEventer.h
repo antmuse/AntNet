@@ -3,17 +3,36 @@
 
 #include "INetEventer.h"
 
-namespace irr{
-    namespace net{
-        //for net test
-        class CDefaultNetEventer : public INetEventer {
-        public:
-            CDefaultNetEventer();
-            virtual ~CDefaultNetEventer();
-            virtual void onReceive(CNetPacket& pack);
-        };
+namespace irr {
+namespace net {
+class INetSession;
+class INetClientSeniorTCP;
 
-    }//namespace net{
-}//namespace irr{
+//for net test
+class CDefaultNetEventer : public INetEventer {
+public:
+    CDefaultNetEventer();
+
+    void setHub(INetClientSeniorTCP* hub) {
+        mHub = hub;
+    }
+
+    void setSession(INetSession* it) {
+        mSession = it;
+    }
+
+    virtual ~CDefaultNetEventer();
+
+    virtual void onReceive(CNetPacket& pack)override;
+
+    virtual void onEvent(ENetEventType iEvent)override;
+
+private:
+    INetSession* mSession;
+    INetClientSeniorTCP* mHub;
+};
+
+}//namespace net
+}//namespace irr
 
 #endif //APP_CDEFAULTNETEVENTER_H
