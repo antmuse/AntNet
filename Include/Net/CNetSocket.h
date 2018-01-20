@@ -20,10 +20,20 @@ typedef irr::u64 netsocket;
 #else
 typedef irr::u32 netsocket;
 #endif
+enum ESystemErrorCode {
+    ESEC_TIMEOUT = TODO, //WSAETIMEDOUT
+};
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
 typedef irr::s32 netsocket;
+enum ESystemErrorCode {
+    ESEC_TIMEOUT = 110, //ETIMEDOUT
+};
 #endif //APP_PLATFORM_WINDOWS
 
+
+enum ENetErrorCode {
+    ENEC_TIMEOUT
+};
 
 
 class CNetSocket {
@@ -150,17 +160,23 @@ public:
     s32 setReuseIP(bool it);
 
     /**
-    *@brief Enbale or disable custom IP head.
+    *@brief Enbale or disable custom IP head, only raw socket.
     *@param on OS write IP head if true, else user write, default is true.
     *@return 0 if successed, else failed.
     */
     s32 setCustomIPHead(bool on);
 
     /**
+    *@brief Set receive all data, only raw socket.
+    *@return 0 if successed, else failed.
+    */
+    s32 setReceiveAll(bool on);
+
+    /**
     *@brief Set reuse port.
     *@return 0 if successed, else failed.
     */
-    s32 setReusePort(bool it);
+    s32 setReusePort(bool on);
 
     /**
     *@brief Set send cache size of socket.
@@ -356,8 +372,8 @@ private:
 #endif //OS APP_PLATFORM_LINUX  APP_PLATFORM_ANDROID
 
 
-} //namespace net 
-} //namespace irr 
+} //namespace net
+} //namespace irr
 
 
 #endif //APP_CNETSOCKET_H

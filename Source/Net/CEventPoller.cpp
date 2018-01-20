@@ -6,6 +6,7 @@
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
 #include <sys/epoll.h>
 #include <unistd.h>
+#include <errno.h>
 #endif
 
 

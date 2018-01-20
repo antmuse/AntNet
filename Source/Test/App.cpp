@@ -1,72 +1,69 @@
+#include <stdio.h>
+#include "SNetAddress.h"
 #include "INetManager.h"
-#include "CNetPacket.h"
-#include "CThread.h"
-#include "CProcessManager.h"
-#include "CDefaultNetEventer.h"
-#include "CNetClientSeniorTCP.h"
+#include "IAppLogger.h"
 #include "CNetServerAcceptor.h"
+#include "CNetClientSeniorTCP.h"
+#include "CDefaultNetEventer.h"
+#include "CNetPing.h"
+#include "CNetSynPing.h"
 
 
-#if defined(APP_PLATFORM_WINDOWS)
-#if defined(APP_OS_64BIT)
-#if defined(APP_DEBUG)
-#pragma comment (lib, "AntNet-64D.lib")
-#pragma comment (lib, "Thread-64D.lib")
-#else
-#pragma comment (lib, "AntNet-64.lib")
-#pragma comment (lib, "Thread-64.lib")
-#endif //APP_DEBUG
-#else
-#if defined(APP_DEBUG)
-#pragma comment (lib, "AntNet-32D.lib")
-#pragma comment (lib, "Thread-32D.lib")
-#else
-#pragma comment (lib, "AntNet-32.lib")
-#pragma comment (lib, "Thread-32.lib")
-#endif //APP_DEBUG
-#endif //APP_OS_64BIT
+#ifdef   APP_PLATFORM_WINDOWS
+#ifdef   APP_DEBUG
+#pragma comment(linker, "/subsystem:console /entry:mainCRTStartup")
+//#pragma comment(linker, "/subsystem:console /entry:mainWCRTStartup")
+#else       //for release version
+#pragma comment(linker, "/subsystem:console /entry:mainCRTStartup")
+//#pragma comment(linker, "/subsystem:windows /entry:mainCRTStartup")
+//#pragma comment(linker, "/subsystem:windows /entry:mainWCRTStartup")
+#endif  //release version
 
-//#pragma comment(lib,"shlwapi.lib")
-#pragma comment (lib, "iphlpapi.lib")
-#pragma comment (lib, "ws2_32.lib")
-
+#pragma comment(lib, "shlwapi.lib")
+#pragma comment(lib, "ws2_32.lib")
 #endif  //APP_PLATFORM_WINDOWS
 
 
 namespace irr {
 
 void AppQuit() {
-    c8 key = '\0';
+    /*printf("@Please any key to quit\n");
+    * system("PAUSE");*/
+    irr::c8 key = '\0';
     while('*' != key) {
         printf("@Please input [*] to quit\n");
         scanf("%c", &key);
     }
+    printf("@App quitting...\n");
 }
 
-//test net
-void AppStartServerSenior() {
+
+void AppStartServer() {
+    //net::CDefaultNetEventer evt;
     net::CNetServerAcceptor accpetor;
-    net::SNetAddress addr("127.0.0.1", 9901);
+    net::SNetAddress addr(9981);
     accpetor.setLocalAddress(addr);
     accpetor.start();
     AppQuit();
     accpetor.stop();
 }
 
-//test net
-void AppStartClientSenior() {
-    const s32 max = 10;
+
+void AppStartClient() {
+    const s32 max = 1;
     net::CDefaultNetEventer evt[max];
     net::INetSession* session[max];
     net::CNetClientSeniorTCP chub;
     chub.start();
-    net::SNetAddress addr("127.0.0.1", 9901);
+    net::SNetAddress addr("221.204.177.67", 9981);
+    //net::SNetAddress addr("127.0.0.1", 9981);
     s32 i;
     for(i = 0; i < max; ++i) {
         evt[i].setHub(&chub);
         session[i] = chub.getSession(&evt[i]);
         if(session[i]) {
             evt[i].setSession(session[i]);
+            session[i]->connect(addr);
         } else {
             break;
         }
@@ -78,44 +75,59 @@ void AppStartClientSenior() {
 }
 
 
-//test process
-void AppStartProcesses() {
-    CProcessManager::DProcessParam params;
-#if defined(APP_PLATFORM_WINDOWS)
-    //params.push_back(io::path("f:\\test.txt"));
-    CProcessHandle* proc = CProcessManager::launch("notepad.exe", params);
-#elif
-    CProcessHandle* proc = CProcessManager::launch("/usr/bin/gnome-calculator", params);
-#endif
-    if(proc) {
-        printf("AppStartProcesses success\n");
-        proc->wait();
-    } else {
-        printf("AppStartProcesses failed\n");
-    }
-    //AppQuit();
+void AppStartPing() {
+    irr::net::CNetPing rpin;
+    bool got = rpin.ping("61.135.169.121", 2, 1000);
+    printf("ping 61.135.169.121 = %s\n", got ? "yes" : "no");
+    printf("-------------------------------------\n");
 }
 
-}; //namespace irr
+
+void AppStartSynPing() {
+    irr::net::CNetSynPing synping;
+    s32 ret;
+    if(synping.init()) {
+        //ret = synping.ping("61.135.169.121", 80);
+        ret = synping.ping("221.204.177.67", 80);
+        //ret = synping.ping("192.168.1.200", 3306);
+        //ret = synping.ping("192.168.1.102", 9981);
+        //0: 主机不存在
+        //1: 主机存在但没监听指定端口
+        //2: 主机存在并监听指定端口
+        printf("syn ping ret = %d\n", ret);
+    } else {
+        printf("syn ping init fail\n");
+    }
+    printf("-------------------------------------\n");
+}
+
+}//namespace irr
 
 
 int main(int argc, char** argv) {
-    int key;
-    printf("1. start server\n");
-    printf("2. start client\n");
-    printf("3. start process\n");
-    scanf_s("%d", &key);
+    //irr::IAppLogger::getInstance();
+    printf("@1 = Net Server\n");
+    printf("@2 = Net Client\n");
+    printf("@3 = Net Ping\n");
+    printf("@4 = Net Syn Ping\n");
+    printf("@Input menu id = ");
+    irr::u32 key;
+    scanf("%u", &key);
     switch(key) {
     case 1:
-        irr::AppStartServerSenior();
+        irr::AppStartServer();
         break;
     case 2:
-        irr::AppStartClientSenior();
+        irr::AppStartClient();
         break;
     case 3:
-        irr::AppStartProcesses();
+        irr::AppStartPing();
+        break;
+    case 4:
+        irr::AppStartSynPing();
         break;
     }
-    printf("@Test quit success.\n");
+    irr::AppQuit();
     return 0;
-}//main
+}
+

@@ -16,6 +16,11 @@
 #include <fcntl.h>
 #include <linux/ip.h>
 #include <linux/tcp.h>
+#include <sys/ioctl.h>
+#include <netpacket/packet.h>
+#include <linux/if.h>
+#include <linux/if_ether.h>
+#include <linux/sockios.h>
 #endif  //APP_PLATFORM_WINDOWS
 
 
@@ -24,6 +29,7 @@ namespace net {
 
 CNetSocket::CNetSocket(netsocket sock) :
     mSocket(sock) {
+    APP_ASSERT(sizeof(socklen_t) == sizeof(u32));
 }
 
 
@@ -81,12 +87,7 @@ s32 CNetSocket::getError() {
 
 
 void CNetSocket::getLocalAddress(SNetAddress& it) {
-#if defined(APP_PLATFORM_WINDOWS) || defined(APP_PLATFORM_ANDROID)
-    s32 len = sizeof(*it.mAddress);
-#elif defined(APP_PLATFORM_LINUX)
-    u32 len = sizeof(*it.mAddress);
-#endif
-
+    socklen_t len = sizeof(*it.mAddress);
     ::getsockname(mSocket, (struct sockaddr*)it.mAddress, &len);
     it.reverse();
     //APP_LOG(ELOG_DEBUG, "CNetSocket::getLocalAddress", "local: [%s:%d]", it.mIP.c_str(), it.mPort);
@@ -94,11 +95,7 @@ void CNetSocket::getLocalAddress(SNetAddress& it) {
 
 
 void CNetSocket::getRemoteAddress(SNetAddress& it) {
-#if defined(APP_PLATFORM_WINDOWS) || defined(APP_PLATFORM_ANDROID)
-    s32 len = sizeof(*it.mAddress);
-#elif defined(APP_PLATFORM_LINUX)
-    u32 len = sizeof(*it.mAddress);
-#endif
+    socklen_t len = sizeof(*it.mAddress);
     ::getpeername(mSocket, (struct sockaddr*)it.mAddress, &len);
     it.reverse();
     //APP_LOG(ELOG_DEBUG, "CNetSocket::getRemoteAddress", "remote: [%s:%d]", it.mIP.c_str(), it.mPort);
@@ -116,6 +113,43 @@ s32 CNetSocket::setCustomIPHead(bool on) {
     s32 opt = on ? 1 : 0;
     return ::setsockopt(mSocket, IPPROTO_IP, IP_HDRINCL, (c8*) &opt, sizeof(opt));
 }
+
+
+s32 CNetSocket::setReceiveAll(bool on) {
+#if defined(APP_PLATFORM_WINDOWS)
+    u32 dwBufferLen[10];
+    u32 dwBufferInLen = on ? RCVALL_ON : RCVALL_OFF;
+    DWORD dwBytesReturned = 0;
+    //::ioctlsocket(mScoketListener.getValue(), SIO_RCVALL, &dwBufferInLen);
+    return (::WSAIoctl(mSocket, SIO_RCVALL,
+        &dwBufferInLen, sizeof(dwBufferInLen),
+        &dwBufferLen, sizeof(dwBufferLen),
+        &dwBytesReturned, 0, 0));
+#elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
+    ifreq iface;
+    char* device = "eth0";
+    APP_ASSERT(IFNAMSIZ > ::strlen(device));
+
+    s32 setopt_result = ::setsockopt(mSocket, SOL_SOCKET,
+        SO_BINDTODEVICE, device, ::strlen(device));
+
+    ::strcpy(iface.ifr_name, device);
+    if(::ioctl(mSocket, SIOCGIFFLAGS, &iface)<0) {
+        return -1;
+    }
+    if(!(iface.ifr_flags & IFF_RUNNING)) {
+        //printf("eth link down\n");
+        return -1;
+    }
+    if(on) {
+        iface.ifr_flags |= IFF_PROMISC;
+    } else {
+        iface.ifr_flags &= ~IFF_PROMISC;
+    }
+    return ::ioctl(mSocket, SIOCSIFFLAGS, &iface);
+#endif
+}
+
 
 s32 CNetSocket::setSendOvertime(u32 it) {
     struct timeval time;
@@ -149,13 +183,13 @@ s32 CNetSocket::keepAlive(bool on, s32 idleTime, s32 timeInterval, s32 maxTick) 
     ret = ::setsockopt(mSocket, SOL_SOCKET, SO_KEEPALIVE, (c8*) &opt, sizeof(opt));
     if(!on || ret) return ret;
 
-    ret = ::setsockopt(mSocket, SOL_TCP, TCP_KEEPIDLE, &idleTime, sizeof(idleTime));
+    ret = ::setsockopt(mSocket, SOL_SOCKET, TCP_KEEPIDLE, &idleTime, sizeof(idleTime));
     if(ret) return ret;
 
-    ret = ::setsockopt(mSocket, SOL_TCP, TCP_KEEPINTVL, &timeInterval, sizeof(timeInterval));
+    ret = ::setsockopt(mSocket, SOL_SOCKET, TCP_KEEPINTVL, &timeInterval, sizeof(timeInterval));
     if(ret) return ret;
 
-    ret = ::setsockopt(mSocket, SOL_TCP, TCP_KEEPCNT, &maxTick, sizeof(maxTick));
+    ret = ::setsockopt(mSocket, SOL_SOCKET, TCP_KEEPCNT, &maxTick, sizeof(maxTick));
 
     return ret;
 #endif
@@ -234,9 +268,9 @@ bool CNetSocket::getTcpInfo(STCP_Info* info) const {
     bool ret = false;
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
     struct tcp_info raw;
-    s32 len = sizeof(raw);
+    socklen_t len = sizeof(raw);
     ::memset(&raw, 0, len);
-    bool ret = (0 == ::getsockopt(mSocket, SOL_TCP, TCP_INFO, &raw, &len));
+    bool ret = (0 == ::getsockopt(mSocket, SOL_SOCKET, TCP_INFO, &raw, &len));
 #endif
     return ret;
 }
@@ -250,7 +284,7 @@ s32 CNetSocket::sendto(const c8* iBuffer, s32 iSize, const SNetAddress& address)
 
 s32 CNetSocket::receiveFrom(c8* iBuffer, s32 iSize, const SNetAddress& address) {
     s32 size = sizeof(*address.mAddress);
-    return ::recvfrom(mSocket, iBuffer, iSize, 0, (sockaddr*) address.mAddress, &size);
+    return ::recvfrom(mSocket, iBuffer, iSize, 0, (sockaddr*) address.mAddress, (socklen_t*) &size);
 }
 
 
@@ -329,12 +363,12 @@ s32 CNetSocket::receiveAll(c8* iBuffer, s32 iSize) {
     /*s32 ret = 0;
     s32 step;
     for(; ret < iSize;) {
-        step = ::recv(mSocket, iBuffer + ret, iSize - ret, 0);
-        if(step > 0) {
-            ret += step;
-        } else {
-            return step;
-        }
+    step = ::recv(mSocket, iBuffer + ret, iSize - ret, 0);
+    if(step > 0) {
+    ret += step;
+    } else {
+    return step;
+    }
     }
     return ret;*/
     return ::recv(mSocket, iBuffer, iSize, MSG_WAITALL);

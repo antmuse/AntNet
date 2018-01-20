@@ -32,7 +32,7 @@
 #ifdef APP_PLATFORM_LINUX
 #include <dirent.h>
 #include <stdio.h>
-//#include <cstring>
+#include <sys/stat.h>
 #endif
 
 #ifdef APP_PLATFORM_ANDROID

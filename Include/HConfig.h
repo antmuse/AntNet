@@ -42,6 +42,7 @@
 #else
 #if defined(_WIN32) || defined(WIN32) || defined(__unix__)  || defined(__i386__)
 #define APP_OS_32BIT
+#define __IRR_HAS_S64
 #endif
 #endif
 

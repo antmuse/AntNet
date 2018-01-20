@@ -16,6 +16,7 @@ private:
     };
 
     INoCopy& operator= (const INoCopy& other) {
+    return *this;
     };
 };
 

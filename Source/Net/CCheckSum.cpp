@@ -2,14 +2,16 @@
 namespace irr {
 
 
-//将大于 short 的值(即大于65535)转化为 short 能表示的值
 inline u32 AppCheckOverflow(u32 it) {
     it = (it >> 16) + (it & 0xFFFF);
-    if(it > 0xFFFF) {
+    /*if(it > 0xFFFF) {
         it -= 0xFFFF;
     }
     return it;
+    */
+    return (it >> 16) + (it & 0xFFFF);
 }
+
 
 void CCheckSum::add(const void* iData, s32 iSize) {
     if(iSize <= 0) {
@@ -106,7 +108,7 @@ void CCheckSum::add(const void* iData, s32 iSize) {
 }
 
 
-u16 CCheckSum::get() {
+u16 CCheckSum::finish() {
     //对尾部最后一个 byte 的处理
     if(mHaveTail) {
         *(((u8*) &mLeftover) + 1) = 0;
@@ -117,6 +119,16 @@ u16 CCheckSum::get() {
     return (~mSum & 0xFFFF);
 }
 
+
+u16 CCheckSum::get()const {
+    u32 ret = mSum;
+    if(mHaveTail) {
+        *(((u8*) &mLeftover) + 1) = 0;
+        ret += mLeftover;
+        ret = AppCheckOverflow(ret);
+    }
+    return (~ret & 0xFFFF);
+}
 
 } //namespace irr
 
@@ -129,11 +141,8 @@ void COutdateCheckSum::add(const void* iData, u32 size) {
     while(size >= sizeof(u16)) {
         mSum += *buffer++;
         size -= sizeof(u16);
-        //@note Buffer size should less than 2 ^ 16, else maybe be overflow here.
-        /*while(0 != (mSum & 0xFFFF0000)) {
-            mSum = (mSum >> 16) + (mSum & 0x0000FFFF);
-        }*/
     }
+    mSum = AppCheckOverflow(mSum);
     if(size) {
 #if defined(APP_ENDIAN_BIG)
         u16 add = 0;
@@ -143,6 +152,11 @@ void COutdateCheckSum::add(const void* iData, u32 size) {
         mSum += *(u8*) buffer;
 #endif
     }
+}
+
+u16 COutdateCheckSum::get() const {
+    u32 ret = AppCheckOverflow(mSum);
+    return (u16) (~ret);
 }
 
 

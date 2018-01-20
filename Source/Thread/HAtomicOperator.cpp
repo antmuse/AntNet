@@ -112,27 +112,27 @@ void AppAtomicReadWriteBarrier() {
     ::__sync_synchronize();
 }
 
-u32 AppAtomicFetchAdd(u32 addValue, u32* iTarget) {
+s32 AppAtomicFetchAdd(s32 addValue, s32* iTarget) {
     return ::__sync_fetch_and_add(iTarget, addValue);
 }
 
 
-u32 AppAtomicIncrementFetch(u32* it) {
+s32 AppAtomicIncrementFetch(s32* it) {
     return ::__sync_add_and_fetch(it, 1);
 }
 
 
-u32 AppAtomicDecrementFetch(u32* it) {
+s32 AppAtomicDecrementFetch(s32* it) {
     return ::__sync_sub_and_fetch(it, 1);
 }
 
 
-u32 AppAtomicFetchSet(u32 value, u32* iTarget) {
+s32 AppAtomicFetchSet(s32 value, s32* iTarget) {
     return ::__sync_lock_test_and_set(iTarget, value);
 }
 
 
-u32 AppAtomicFetchCompareSet(u32 newValue, u32 comparand, u32* iTarget) {
+s32 AppAtomicFetchCompareSet(s32 newValue, s32 comparand, s32* iTarget) {
     return ::__sync_lock_test_and_set(iTarget, newValue, comparand);
 }
 

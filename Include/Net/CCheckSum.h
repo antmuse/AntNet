@@ -25,25 +25,50 @@ public:
         mLeftover(0) {
     }
 
+    CCheckSum(const CCheckSum& other) :
+        mHaveTail(other.mHaveTail),
+        mSum(other.mSum),
+        mLeftover(other.mLeftover) {
+    }
+
+    CCheckSum& operator=(const CCheckSum& other) {
+        mSum = other.mSum;
+        mLeftover = other.mLeftover;
+        mHaveTail = other.mHaveTail;
+        return *this;
+    }
+
+    /**
+    * @brief Clear this checksum and reuse it.
+    */
     void clear() {
         mSum = 0;
         mLeftover = 0;
         mHaveTail = false;
     }
 
-    void set(u32 sum, u8 leftover) {
-        mSum = sum;
-        *(u8*) (&mLeftover) = leftover;
-        mHaveTail = (0 != leftover);
-    }
-
+    /**
+    * @brief Append buffer into this checksum.
+    * @param buffer The buffer.
+    * @param iSize The buffer length.
+    */
     void add(const void* buffer, s32 iSize);
 
-    u16 get();
+    /**
+    * @brief Get result, and still can append buffers into this checksum in future.
+    * @return The result.
+    */
+    u16 get()const;
+
+    /**
+    * @brief Get result, and should not append buffers into this checksum in future.
+    * @return The result.
+    */
+    u16 finish();
 
 private:
     u32 mSum;
-    u16 mLeftover;
+    mutable u16 mLeftover;
     bool  mHaveTail;
 };
 
@@ -79,14 +104,7 @@ public:
     /**
     * @brief Get checkSum result.
     */
-    u16 get() const {
-        u32 ret = (mSum >> 16) + (mSum & 0x0000FFFF);
-        //ret += (ret >> 16);
-        while(0 != (ret & 0xFFFF0000)) {
-            ret = (ret >> 16) + (ret & 0x0000FFFF);
-        }
-        return (u16) (~ret);
-    }
+    u16 get() const;
 
 protected:
     u32 mSum;
