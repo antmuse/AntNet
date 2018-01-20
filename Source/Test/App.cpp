@@ -87,8 +87,8 @@ void AppStartSynPing() {
     irr::net::CNetSynPing synping;
     s32 ret;
     if(synping.init()) {
-        //ret = synping.ping("61.135.169.121", 80);
-        ret = synping.ping("221.204.177.67", 80);
+        ret = synping.ping("61.135.169.121", 80);
+        //ret = synping.ping("221.204.177.67", 80);
         //ret = synping.ping("192.168.1.200", 3306);
         //ret = synping.ping("192.168.1.102", 9981);
         //0: 主机不存在

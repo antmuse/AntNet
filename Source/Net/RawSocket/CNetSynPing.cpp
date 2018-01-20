@@ -74,11 +74,13 @@ bool CNetSynPing::init() {
         closeAll();
         return false;
     }
-    if(!mAddressLocal.setIP("192.168.1.199")) {
-        IAppLogger::log(ELOG_ERROR, "CNetSynPing::init", "get mAddressLocal IP,%u", CNetSocket::getError());
-        closeAll();
-        return false;
-    }
+
+    mAddressLocal.setIP("192.168.1.199");
+//    if(!mAddressLocal.setIP()) {
+//        IAppLogger::log(ELOG_ERROR, "CNetSynPing::init", "get mAddressLocal IP,%u", CNetSocket::getError());
+//        closeAll();
+//        return false;
+//    }
 
     mAddressLocal.setPort(54436);
 
