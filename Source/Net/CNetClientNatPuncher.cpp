@@ -155,7 +155,8 @@ bool CNetClientNatPuncher::update(u64 iTime) {
             case ENM_HELLO:
             {
                 SNetAddress::IP ipid = mPacket.readU32();
-                core::stringc pip(SNetAddress::getIDAsIP(ipid));
+                core::stringc pip;
+                SNetAddress::convertIPToString(ipid, pip);
                 IAppLogger::log(ELOG_INFO, "CNetClientNatPuncher::run",
                     "my address: [%s:%u]",
                     pip.c_str(), mPacket.readU16());

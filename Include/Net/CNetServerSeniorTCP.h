@@ -7,7 +7,6 @@
 #define APP_CNETSERVERSENIORTCP_H
 
 
-#include "INetServer.h"
 #include "irrString.h"
 #include "irrArray.h"
 #include "irrList.h"
@@ -20,51 +19,35 @@
 #if defined(APP_PLATFORM_WINDOWS)
 namespace irr {
 namespace net {
+class INetEventer;
 struct SContextIO;
 class CNetSession;
 
 /**
 *@class CNetServerSeniorTCP
 */
-class CNetServerSeniorTCP : public INetServer, public IRunnable {
+class CNetServerSeniorTCP : public IRunnable {
 public:
     CNetServerSeniorTCP();
 
     virtual ~CNetServerSeniorTCP();
 
-    virtual ENetNodeType getType() const override {
-        return ENET_TCP_SERVER;
-    }
-
-    virtual void setNetEventer(INetEventer* it)override {
-        mReceiver = it;
-    }
-
     virtual void run()override;
 
-    virtual bool start()override;
+    bool start();
 
-    virtual bool stop()override;
+    bool stop();
 
-    virtual void setLocalAddress(const SNetAddress& it)override {
-        mAddressLocal = it;
-    }
-
-    virtual const SNetAddress& getLocalAddress() const override {
-        return mAddressLocal;
-    }
-
-    virtual void setMaxClients(u32 max) {
+    void setMaxClients(u32 max) {
         mMaxContext = max;
     };
 
-    virtual u32 getClientCount()const override;
+    virtual u32 getClientCount()const;
 
     CNetSession* addSession(CNetSocket& sock, const SNetAddress& remote, const SNetAddress& local);
 
 protected:
     bool clearError();
-    bool initialize();
 
     void remove(CNetSession* iContext);
 
@@ -91,7 +74,6 @@ private:
     core::list<u32> mIdleSession;
     CThread* mThread;
     INetEventer* mReceiver;
-    SNetAddress mAddressLocal;
     //CMemoryHub mMemHub;
 };
 
@@ -104,51 +86,34 @@ private:
 
 namespace irr {
 namespace net {
-struct SContextIO;
+class INetEventer;
 class CNetSession;
 
 /**
 *@class CNetServerSeniorTCP
 */
-class CNetServerSeniorTCP : public INetServer, public IRunnable {
+class CNetServerSeniorTCP : public IRunnable {
 public:
     CNetServerSeniorTCP();
 
     virtual ~CNetServerSeniorTCP();
 
-    virtual ENetNodeType getType() const override {
-        return ENET_TCP_SERVER;
-    }
-
-    virtual void setNetEventer(INetEventer* it)override {
-        mReceiver = it;
-    }
-
     virtual void run()override;
 
-    virtual bool start()override;
+    bool start();
 
-    virtual bool stop()override;
+    bool stop();
 
-    virtual void setLocalAddress(const SNetAddress& it)override {
-        mAddressLocal = it;
-    }
-
-    virtual const SNetAddress& getLocalAddress() const override {
-        return mAddressLocal;
-    }
-
-    virtual void setMaxClients(u32 max) {
+    void setMaxClients(u32 max) {
         mMaxContext = max;
     };
 
-    virtual u32 getClientCount()const override;
+    virtual u32 getClientCount()const;
 
     CNetSession* addSession(CNetSocket& sock, const SNetAddress& remote, const SNetAddress& local);
 
 protected:
     bool clearError();
-    bool initialize();
 
     void remove(CNetSession* iContext);
 
@@ -177,6 +142,7 @@ private:
     INetEventer* mReceiver;
     SNetAddress mAddressLocal;
     //CMemoryHub mMemHub;
+    CNetSocketPair mSocketPair;
 };
 
 

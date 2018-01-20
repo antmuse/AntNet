@@ -1,6 +1,3 @@
 ﻿D:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(372,5): warning MSB8004: Intermediate Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Intermediate Directory.
-  App.cpp
-e:\share\antnet\source\test\app.cpp(42): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\stdio.h(1272): note: see declaration of 'scanf'
   Tester.vcxproj -> E:\Share\AntNet\Build\Windows\..\..\Bin\Tester-64D.exe
   Tester.vcxproj -> E:\Share\AntNet\Build\Windows\..\..\Bin\Tester-64D.pdb (Partial PDB)

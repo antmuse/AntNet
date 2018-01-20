@@ -15,20 +15,24 @@ struct sockaddr_in;
 namespace irr {
 namespace net {
 
+/**
+* @brief SNetAddress is a usefull struct to deal with IP & port.
+* @note IP and Port are in network-byte-order(big endian).
+*/
 struct SNetAddress {
 public:
 #if defined(APP_NET_USE_IPV6)
     sockaddr_in6* mAddress;
-    typedef IBigInteger<u8[18]> ID;
-    typedef IBigInteger<u8[16]> IP;
+    typedef IBigInteger<u8[18]> ID; //big endian as network
+    typedef IBigInteger<u8[16]> IP; //big endian as network
 #else
     sockaddr_in* mAddress;
-    typedef u64 ID;
-    typedef u32 IP;
+    typedef u64 ID; //big endian as network
+    typedef u32 IP; //big endian as network
 #endif
     core::stringc mIP;
-    u16 mPort;
-    ID mID;
+    u16 mPort;  ///<OS endian
+    ID mID;     ///<merged IP&Port, in big endian as network
 
     /**
     *@brief Construct a net address with any ip and any port.
@@ -68,7 +72,10 @@ public:
 
     bool operator!=(const SNetAddress& other) const;
 
-
+    /**
+    *@brief Get family of this net address.
+    *@return Family, in big endian.
+    */
     u16 getFamily()const;
 
     /**
@@ -77,11 +84,33 @@ public:
     */
     void setIP(const c8* ip);
 
+    void setIP(const core::stringc& ip) {
+        setIP(ip.c_str());
+    }
+
+    /**
+    *@brief Use local IP.
+    *@return True if success to got local IP, else false.
+    */
+    bool setIP();
+
+    /**
+    *@brief Set IP.
+    *@param ip IP in big endian.
+    */
+    void setIP(const IP& id);
+
     /**
     *@brief Set port, the real address will auto inited.
-    *@param port User defined port.
+    *@param port User defined port, in OS endian.
     */
     void setPort(u16 port);
+
+    /**
+    *@brief Get port.
+    *@return The port, in big endian.
+    */
+    u16 getPort()const;
 
     /**
     *@brief Set IP by a DNS, the real address will auto inited.
@@ -92,9 +121,13 @@ public:
     /**
     *@brief Set IP:Port, the real address will auto inited.
     *@param ip User defined ip.
-    *@param port User defined port.
+    *@param port User defined port, in OS-endian.
     */
     void set(const c8* ip, u16 port);
+
+    void set(const core::stringc& ip, u16 port) {
+        set(ip.c_str(), port);
+    }
 
     /**
     *@brief Get IP:Port from a valid real address[sockaddr_in]
@@ -105,23 +138,19 @@ public:
         return mID;
     }
 
-    const IP& getIPAsID() const;
-
-    void setIP(u32 id) {
-        setIP(SNetAddress::getIDAsIP(id).c_str());
-    }
+    const IP& getIP() const;
 
     /**
-    *@param ip The ip string to convert.
-    *@return The ID of the ip string, in big endian.
+    *@param ip The IP string to convert.
+    *@param result The converted ip, in big endian.
     */
-    static IP getIPAsID(const c8* ip);
+    static void convertStringToIP(const c8* ip, IP& result);
 
     /**
-    *@param ip The id of IP, in big endian.
-    *@return The ip string of id.
+    *@param ip The IP to convert, in big endian.
+    *@param result The converted ip string.
     */
-    static core::stringc getIDAsIP(IP& ip);
+    static void convertIPToString(const IP& ip, core::stringc& result);
 
 private:
     /**

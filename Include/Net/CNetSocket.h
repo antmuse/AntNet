@@ -28,7 +28,7 @@ typedef irr::s32 netsocket;
 
 class CNetSocket {
 public:
-    enum EShutFlag{
+    enum EShutFlag {
         ESHUT_RECEIVE,
         ESHUT_SEND,
         ESHUT_BOTH
@@ -207,9 +207,10 @@ public:
 
     /**
     *@brief Open a raw socket.
+    *@param protocol Net protocol.
     *@return true if success, else if false.
     */
-    bool openRaw();
+    bool openRaw(s32 protocol);
 
     bool openTCP();
 
@@ -229,8 +230,14 @@ public:
 
     s32 send(const c8* iBuffer, s32 iSize);
 
+    /**
+    *@brief Send in a loop, if using nonblock socket.
+    */
+    s32 sendAll(const c8* iBuffer, s32 iSize);
 
     s32 receive(c8* iBuffer, s32 iSize);
+
+    s32 receiveAll(c8* iBuffer, s32 iSize);
 
     /**
     *@brief Set delay.
@@ -319,6 +326,34 @@ public:
 protected:
     netsocket mSocket;
 };
+
+
+
+
+#if defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
+class CNetSocketPair {
+public:
+    CNetSocketPair();
+
+    ~CNetSocketPair();
+
+    bool close();
+
+    bool open();
+
+    bool open(s32 domain, s32 type, s32 protocol);
+
+    CNetSocket& getReader() {
+        return mReader;
+    }
+    CNetSocket& getWriter() {
+        return mWriter;
+    }
+private:
+    CNetSocket mReader;
+    CNetSocket mWriter;
+};
+#endif //OS APP_PLATFORM_LINUX  APP_PLATFORM_ANDROID
 
 
 } //namespace net 

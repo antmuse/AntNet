@@ -152,7 +152,7 @@ INetServer* CNetManager::createServer(ENetNodeType type) {
 
     switch(type) {
     case ENET_TCP_SERVER:
-        it = new CNetServerSeniorTCP();
+        it = 0;// new CNetServerSeniorTCP();
         break;
 
     case ENET_UDP_SERVER:

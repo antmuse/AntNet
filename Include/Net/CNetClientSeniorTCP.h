@@ -78,7 +78,7 @@ protected:
 
 private:
 #if defined(APP_DEBUG)
-    const u32 mMaxContext = 2000;
+    const u32 mMaxContext = 1000;
 #else
     const u32 mMaxContext = 10000;
 #endif

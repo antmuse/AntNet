@@ -3,6 +3,7 @@
 
 #include "INetSession.h"
 #include "SClientContext.h"
+#include "CNetPacket.h"
 #include "CTimerWheel.h"
 
 

@@ -254,8 +254,8 @@ s32 CNetSocket::receiveFrom(c8* iBuffer, s32 iSize, const SNetAddress& address) 
 }
 
 
-bool CNetSocket::openRaw() {
-    return open(AF_INET, SOCK_RAW, 0);
+bool CNetSocket::openRaw(s32 protocol) {
+    return open(AF_INET, SOCK_RAW, protocol);
 }
 
 
@@ -301,12 +301,43 @@ bool CNetSocket::isAlive() {
 }
 
 
-s32 CNetSocket::send(const c8* iBuffer, s32 iSize) {
+s32 CNetSocket::sendAll(const c8* iBuffer, s32 iSize) {
+    s32 ret = 0;
+    s32 step;
+    for(; ret < iSize;) {
+        step = send(iBuffer + ret, iSize - ret);
+        if(step > 0) {
+            ret += step;
+        } else {
+            return step;
+        }
+    }
+    return ret;
+}
+
+
+APP_FORCE_INLINE s32 CNetSocket::send(const c8* iBuffer, s32 iSize) {
 #if defined(APP_PLATFORM_WINDOWS)
     return ::send(mSocket, iBuffer, iSize, 0);
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
     return ::send(mSocket, iBuffer, iSize, MSG_NOSIGNAL);
 #endif
+}
+
+
+s32 CNetSocket::receiveAll(c8* iBuffer, s32 iSize) {
+    /*s32 ret = 0;
+    s32 step;
+    for(; ret < iSize;) {
+        step = ::recv(mSocket, iBuffer + ret, iSize - ret, 0);
+        if(step > 0) {
+            ret += step;
+        } else {
+            return step;
+        }
+    }
+    return ret;*/
+    return ::recv(mSocket, iBuffer, iSize, MSG_WAITALL);
 }
 
 
@@ -316,9 +347,7 @@ s32 CNetSocket::receive(c8* iBuffer, s32 iSize) {
 
 
 CNetSocket CNetSocket::accept() {
-    netsocket sock = ::accept(mSocket, 0, 0);
-    CNetSocket ret(sock);
-    return ret;
+    return ::accept(mSocket, 0, 0);;
 }
 
 
@@ -328,10 +357,9 @@ CNetSocket CNetSocket::accept(SNetAddress& it) {
 #elif defined(APP_PLATFORM_LINUX)
     u32 size = sizeof(*it.mAddress);
 #endif
-    netsocket sock = ::accept(mSocket, (sockaddr*) it.mAddress, &size);
-    CNetSocket ret(sock);
-    return ret;
+    return ::accept(mSocket, (sockaddr*) it.mAddress, &size);
 }
+
 
 
 #if defined(APP_PLATFORM_WINDOWS)
@@ -546,5 +574,46 @@ void* CNetSocket::getFunctionAcceptSockAddress()const {
 
 #endif//APP_PLATFORM_WINDOWS
 
+
+
+
+
+
+#if defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
+CNetSocketPair::CNetSocketPair() {
+}
+
+CNetSocketPair::~CNetSocketPair() {
+}
+
+
+bool CNetSocketPair::close() {
+    return mWriter.close() && mReader.close();
+}
+
+bool CNetSocketPair::open() {
+    netsocket sockpair[2];
+    if(::socketpair(AF_UNIX, SOCK_STREAM, 0, sockpair)) {
+        //printf("error %d on socketpair\n", errno);
+        return false;
+    }
+    mReader = sockpair[0];
+    mWriter = sockpair[1];
+    return true;
+}
+
+
+bool CNetSocketPair::open(s32 domain, s32 type, s32 protocol) {
+    netsocket sockpair[2];
+    if(::socketpair(domain, type, protocol, sockpair)) {
+        //printf("error %d on socketpair\n", errno);
+        return false;
+    }
+    mReader = sockpair[0];
+    mWriter = sockpair[1];
+    return true;
+}
+
+#endif //OS APP_PLATFORM_LINUX  APP_PLATFORM_ANDROID
 } //namespace net
 } //namespace irr

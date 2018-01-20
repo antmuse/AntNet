@@ -141,8 +141,8 @@ s32 CEventPoller::getEvents(SEvent* iEvent, u32 iSize, u32 iTime) {
     APP_ASSERT(sizeof(*iEvent) == sizeof(epoll_event));
     APP_ASSERT(APP_GET_OFFSET(iEvent, mEvent) == APP_OFFSET(epoll_event, events));
     APP_ASSERT(APP_GET_OFFSET(iEvent, mData) == APP_OFFSET(epoll_event, data));
-    
-    return ::epoll_wait(mEpollFD, (epoll_event*)iEvent, iSize, iTime);
+
+    return ::epoll_wait(mEpollFD, (epoll_event*) iEvent, iSize, iTime);
 }
 
 bool CEventPoller::add(const net::CNetSocket& iSock, SEvent& iEvent) {
@@ -154,8 +154,6 @@ bool CEventPoller::add(s32 fd, SEvent& iEvent) {
     ev.events = 0;
     ev.data.ptr = iEvent.mData.mPointer;*/
     APP_ASSERT(sizeof(iEvent) == sizeof(epoll_event));
-    //APP_OFFSET(epoll_event, events);
-    //APP_OFFSET(epoll_event, data);
     //APP_ASSERT(APP_GET_OFFSET(&iEvent, mEvent) == APP_OFFSET(epoll_event, events));
     //APP_ASSERT(APP_GET_OFFSET(&iEvent, mData) == APP_OFFSET(epoll_event, data));
 
@@ -185,7 +183,7 @@ bool CEventPoller::modify(s32 fd, SEvent& iEvent) {
 
 
 bool CEventPoller::postEvent(SEvent& iEvent) {
-    return false;
+    return sizeof(iEvent.mData.mData32) == mSocket.sendAll((c8*) iEvent.mData.mData32, sizeof(iEvent.mData.mData32));
 }
 
 

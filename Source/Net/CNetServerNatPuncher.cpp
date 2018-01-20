@@ -162,7 +162,7 @@ void CNetServerNatPuncher::run() {
         ret = mConnector.receiveFrom(pack.getPointer(), pack.getAllocatedSize(), mAddressRemote);
         if(ret > 0) {
             mAddressRemote.reverse();
-            CNetClientID cid(mAddressRemote.getIPAsID(), mAddressRemote.mPort);
+            CNetClientID cid(mAddressRemote.getIP(), mAddressRemote.mPort);
             core::map<CNetClientID, SClientNode*>::Node* node = mAllClient.find(cid);
             SClientNode* client = node ? node->getValue() : 0;
 

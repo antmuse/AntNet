@@ -1,2 +1,34 @@
 ﻿D:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(372,5): warning MSB8004: Intermediate Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Intermediate Directory.
+  SNetAddress.cpp
+  CNetSocket.cpp
+  CNetSession.cpp
+e:\share\antnet\source\net\cnetsession.cpp(76): warning C4018: '>': signed/unsigned mismatch
+  CNetServerSeniorTCP.cpp
+e:\share\antnet\source\net\cnetserverseniortcp.cpp(489): warning C4312: 'reinterpret_cast': conversion from 'irr::u32' to 'void *' of greater size
+  CNetServerNatPuncher.cpp
+  CNetServerAcceptor.cpp
+  CNetManager.cpp
+  CNetClientSeniorTCP.cpp
+e:\share\antnet\source\net\cnetclientseniortcp.cpp(406): warning C4312: 'reinterpret_cast': conversion from 'irr::u32' to 'void *' of greater size
+  CNetClientNatPuncher.cpp
+  CEventPoller.cpp
+  CCheckSum.cpp
+  Generating Code...
+  Compiling...
+  SClientContext.cpp
+  CNetClientHttp.cpp
+e:\share\antnet\include\public\iutility.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+  CNetServerTCP.cpp
+  CNetServerSeniorUDP.cpp
+  CNetClientUDP.cpp
+  CNetClientTCP.cpp
+e:\share\antnet\include\public\iutility.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+  Generating Code...
+  Skipping... (no relevant changes detected)
+  CNetHttpResponse.cpp
+  CNetHttpRequest.cpp
+  CNetHttpHead.cpp
+  CNetPacket.cpp
+CNetMailMessage.obj : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
+CNetMailClient.obj : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
   AntNet.vcxproj -> E:\Share\AntNet\Build\Windows\..\..\Lib\Bit64\Windows\AntNet-64D.lib

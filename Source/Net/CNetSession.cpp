@@ -205,6 +205,8 @@ s32 CNetSession::stepDisonnect() {
 
 bool CNetSession::onTimeout() {
     APP_ASSERT(mPoller);
+    IAppLogger::log(ELOG_INFO, "CNetSession::onTimeout",
+        "remote[%s:%u]", mAddressRemote.mIP.c_str(), mAddressRemote.mPort);
     CEventPoller::SEvent evt = {0};
     evt.mPointer = 0;
     evt.mKey = ENET_CMD_TIMEOUT | getIndex();
@@ -266,6 +268,215 @@ void CNetSession::clear() {
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
 namespace irr {
 namespace net {
+
+void AppTimeoutContext(void* it) {
+    CNetSession& iContext = *(CNetSession*) it;
+    iContext.onTimeout();
+}
+
+
+CNetSession::CNetSession() :
+    mTime(-1),
+    mMask(getMask(0, 1)),
+    mID(getMask(0, 1)),
+    //mSessionHub(0),
+    mCount(0),
+    mPoller(0),
+    mStatus(0),
+    mPacketSend(8 * 1024),
+    mPacketReceive(8 * 1024),
+    mEventer(0) {
+    clear();
+    mTimeNode.mCallback = AppTimeoutContext;
+    mTimeNode.mCallbackData = this;
+}
+
+
+CNetSession::~CNetSession() {
+}
+
+
+bool CNetSession::disconnect() {
+    APP_ASSERT(mPoller);
+    if(mStatus & ENET_CMD_DISCONNECT) {
+        return true;
+    }
+    mStatus |= ENET_CMD_DISCONNECT;
+    CEventPoller::SEvent evt = {0};
+    evt.mData.mData32 = ENET_CMD_DISCONNECT | getIndex();
+    evt.mEvent = 0;
+    return mPoller->postEvent(evt);
+}
+
+
+bool CNetSession::connect(const SNetAddress& it) {
+    APP_ASSERT(mPoller);
+    if(mStatus & ENET_CMD_CONNECT) {
+        return true;
+    }
+    mStatus |= ENET_CMD_CONNECT;
+    mAddressRemote = it;
+    CEventPoller::SEvent evt = {0};
+    evt.mData.mData32 = ENET_CMD_CONNECT | getIndex();
+    evt.mEvent = 0;
+    return mPoller->postEvent(evt);
+}
+
+
+s32 CNetSession::send(const c8* iBuffer, s32 iSize) {
+    //APP_ASSERT(mPoller);
+    if(!iBuffer || iSize < 0) {//0 byte is ok
+        return -1;
+    }
+    if(ENET_CMD_SEND & mStatus) {
+        return 0;
+    }
+    mStatus |= ENET_CMD_SEND;
+    iSize = (iSize > mPacketSend.getWriteSize() ? mPacketSend.getWriteSize() : iSize);
+    mPacketSend.addBuffer(iBuffer, iSize);
+    CEventPoller::SEvent evt = {0};
+    evt.mData.mData32 = ENET_CMD_SEND | getIndex();
+    evt.mEvent = 0;
+    return mPoller->postEvent(evt) ? iSize : -1;
+}
+
+
+s32 CNetSession::postSend() {
+    if(!isValid()) {
+        return -1;
+    }
+    c8* buffer = mPacketSend.getPointer();
+    u32 sz = mPacketSend.getSize();
+    if(mSocket.send(buffer,sz)) {
+        return ++mCount;
+    }
+    APP_LOG(ELOG_ERROR, "CNetSession::postSend", "ecode=%u", CNetSocket::getError());
+    return -1;
+}
+
+
+s32 CNetSession::stepSend() {
+    //CAutoLock alock(mMutex);
+    --mCount;
+    if(mPacketSend.clear(u32(0)) > 0) {
+        return postSend();
+    }
+
+    mStatus &= ~ENET_CMD_SEND;
+    postEvent(ENET_SENT);
+    return mCount;
+}
+
+
+s32 CNetSession::postReceive() {
+    //CAutoLock alock(mMutex);
+    APP_ASSERT(mPacketReceive.getWriteSize() > 0);
+    c8* buffer = mPacketReceive.getWritePointer();
+    u32 sz = mPacketReceive.getWriteSize();
+    if(mSocket.receive(buffer,sz)) {
+        return ++mCount;
+    }
+    APP_LOG(ELOG_ERROR, "CNetSession::postReceive", "ecode=%u", CNetSocket::getError());
+    return -1;
+}
+
+
+s32 CNetSession::stepReceive() {
+    //CAutoLock alock(mMutex);
+    --mCount;
+    return 0;
+}
+
+
+s32 CNetSession::postConnect() {
+    //APP_ASSERT(0 == mCount);
+    if(!isValid()) {
+        return -1;
+    }
+    if(!mSocket.connect(mAddressRemote)) {
+        return ++mCount;
+    }
+    APP_LOG(ELOG_ERROR, "CNetSession::postConnect", "ecode=%u", CNetSocket::getError());
+    return -1;
+}
+
+
+s32 CNetSession::stepConnect() {
+    --mCount;
+    if(postReceive() > 0) {
+        postEvent(ENET_CONNECTED);
+    }
+    //APP_LOG(ELOG_ERROR, "CNetSession::stepConnect", "ecode=%u", CNetSocket::getError());
+    return mCount;
+}
+
+
+s32 CNetSession::postDisconnect() {
+    //重复发起postDisconnect事件则返回-1，据此强制关闭socket
+    if(!isValid()) {
+        return -1;
+    }
+    upgradeLevel();//make this context invalid
+    if(mSocket.close()) {
+        return ++mCount;
+    }
+    //还未连接成功
+    //postEvent(ENET_CONNECT_TIMEOUT);
+    APP_LOG(ELOG_ERROR, "CNetSession::postDisconnect", "ecode=%u", CNetSocket::getError());
+    return -1;
+}
+
+
+s32 CNetSession::stepDisonnect() {
+    --mCount;
+    if(!mSocket.isOpen()) {
+        return -1;
+    }
+    postEvent(ENET_CLOSED); //step1
+    mEventer = 0;           //step2
+    return mCount;
+}
+
+
+bool CNetSession::onTimeout() {
+    APP_ASSERT(mPoller);
+    CEventPoller::SEvent evt = {0};
+    evt.mData.mData32 = ENET_CMD_TIMEOUT | getIndex();
+    evt.mEvent = 0;
+    return mPoller->postEvent(evt);
+}
+
+
+bool CNetSession::onNewSession() {
+    APP_ASSERT(mPoller);
+    CEventPoller::SEvent evt = {0};
+    evt.mData.mData32 = ENET_CMD_NEW_SESSION | getIndex();
+    evt.mEvent = 0;
+    return mPoller->postEvent(evt);
+}
+
+
+void CNetSession::postEvent(ENetEventType iEvent) {
+    if(mEventer) {
+        mEventer->onEvent(iEvent);
+    }
+}
+
+
+void CNetSession::setSocket(const CNetSocket& it) {
+    mSocket = it;
+}
+
+
+void CNetSession::clear() {
+    mID = mMask;
+    mStatus = 0;
+    mCount = 0;
+    mEventer = 0;
+    mPacketSend.setUsed(0);
+    mPacketReceive.setUsed(0);
+}
+
 
 } //namespace net
 } //namespace irr

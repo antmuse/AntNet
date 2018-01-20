@@ -34,6 +34,9 @@
     <Filter Include="Source\Net\Mail">
       <UniqueIdentifier>{71ac2cf7-8396-4604-a006-c063740e471d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Net\RawSocket">
+      <UniqueIdentifier>{8f88d2fc-ef1a-45cb-9ad8-c3537ec4de9e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -256,6 +259,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Source\Net\Mail\CNetMailMessage.cpp">
       <Filter>Source\Net\Mail</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\RawSocket\CNetPing.cpp">
+      <Filter>Source\Net\RawSocket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\RawSocket\CNetSynPing.cpp">
+      <Filter>Source\Net\RawSocket</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

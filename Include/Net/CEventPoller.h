@@ -61,11 +61,12 @@ protected:
 } //namespace irr
 
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
+#include "CNetSocket.h"
 
 namespace irr {
-namespace net {
-class CNetSocket;
-}
+//namespace net {
+//class CNetSocket;
+//}
 
 enum EPollerEvent {
     EPOLLIN = 0x00000001,
@@ -121,8 +122,12 @@ public:
 
     bool postEvent(SEvent& iEvent);
 
+    void setSocket(const net::CNetSocket& iSock) {
+        mSocket = iSock;
+    }
 protected:
     s32 mEpollFD;
+    net::CNetSocket mSocket; ///<send command to epoll
 };
 
 } //namespace irr

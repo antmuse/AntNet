@@ -1,18 +1,16 @@
-﻿Build started 2017/8/29 17:23:23.
-     1>Project "E:\Share\AntNet\Build\Windows\Thread\Thread.vcxproj" on node 3 (build target(s)).
-     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(298,5): warning MSB8004: Intermediate Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Intermediate Directory.
-     1>InitializeBuildStatus:
-         Creating "E:\Share\AntNet\Build\Windows\Temp\Bit64\Release\Thread\Thread.unsuccessfulbuild" because "AlwaysCreate" was specified.
-       ClCompile:
-         All outputs are up-to-date.
-       Lib:
-         All outputs are up-to-date.
-         Thread.vcxproj -> E:\Share\AntNet\Build\Windows\..\..\Lib\Bit64\Windows\Thread-64.lib
-       FinalizeBuildStatus:
-         Deleting file "E:\Share\AntNet\Build\Windows\Temp\Bit64\Release\Thread\Thread.unsuccessfulbuild".
-         Touching "E:\Share\AntNet\Build\Windows\Temp\Bit64\Release\Thread\Thread.lastbuildstate".
-     1>Done Building Project "E:\Share\AntNet\Build\Windows\Thread\Thread.vcxproj" (build target(s)).
-
-Build succeeded.
-
-Time Elapsed 00:00:00.06
+﻿D:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(372,5): warning MSB8004: Intermediate Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Intermediate Directory.
+  CAtomicValue32.cpp
+  CCondition.cpp
+  CMutex.cpp
+..\..\..\Source\Thread\CMutex.cpp(25): warning C4018: '<=': signed/unsigned mismatch
+  CNamedMutex.cpp
+  CPipe.cpp
+  CProcessHandle.cpp
+  CProcessManager.cpp
+  CReadWriteLock.cpp
+  CSemaphore.cpp
+  CThread.cpp
+  CThreadEvent.cpp
+  CThreadPool.cpp
+  HAtomicOperator.cpp
+  Thread.vcxproj -> E:\Share\AntNet\Build\Windows\..\..\Lib\Bit64\Windows\Thread-64.lib

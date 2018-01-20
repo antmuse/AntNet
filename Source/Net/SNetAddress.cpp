@@ -12,8 +12,11 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <netdb.h>
 #endif  //APP_PLATFORM_WINDOWS
 
+//ipv6 IP is no more than 39 chars, it's like "CDCD:910A:2222:5498:8475:1111:3900:2020"
+#define APP_IP_STRING_MAX_SIZE 40
 
 namespace irr {
 namespace net {
@@ -144,11 +147,64 @@ void SNetAddress::setIP(const c8* ip) {
 }
 
 
+bool SNetAddress::setIP() {
+    c8 host_name[256];
+    if(::gethostname(host_name, sizeof(host_name) - 1) < 0) {
+        return false;
+    }
+    struct addrinfo* head = 0;
+    struct addrinfo hints;
+    hints.ai_family = mAddress->sin_family;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = IPPROTO_TCP;    // IPPROTO_TCP; //0，默认
+    hints.ai_flags = AI_PASSIVE;        //flags的标志很多,常用的有AI_CANONNAME;
+    hints.ai_addrlen = 0;
+    hints.ai_canonname = 0;
+    hints.ai_addr = 0;
+    hints.ai_next = 0;
+    s32 ret = ::getaddrinfo(host_name, 0, &hints, &head);
+    if(ret) {
+        return false;
+    }
+    c8 buf[APP_IP_STRING_MAX_SIZE];
+    //while(curr && curr->ai_canonname)
+    for(struct addrinfo* curr = head; curr; curr = curr->ai_next) {
+        if(curr->ai_family == mAddress->sin_family) {
+            struct sockaddr_in* sockaddr = (struct sockaddr_in*) curr->ai_addr;
+            mAddress->sin_addr = sockaddr->sin_addr;
+            ::inet_ntop(mAddress->sin_family, &mAddress->sin_addr, buf, sizeof(buf));
+            mIP = buf;
+            mergeIP();
+            //APP_LOG(ELOG_INFO, "CCollector::getLocalIP", "IPV4 = %s", mIP.c_str());
+            break;
+        }
+    } //for
+
+    ::freeaddrinfo(head);
+    return true;
+}
+
+
+void SNetAddress::setIP(const IP& ip) {
+    APP_ASSERT(sizeof(ip) == sizeof(mAddress->sin_addr));
+    *(IP*) &mAddress->sin_addr = ip;
+    c8 buf[APP_IP_STRING_MAX_SIZE];
+    ::inet_ntop(mAddress->sin_family, &mAddress->sin_addr, buf, sizeof(buf));
+    mIP = buf;
+    mergeIP();
+}
+
+
 void SNetAddress::setPort(u16 port) {
     if(port != mPort) {
         mPort = port;
         initPort();
     }
+}
+
+
+u16 SNetAddress::getPort()const {
+    return mAddress->sin_port;
 }
 
 
@@ -166,16 +222,18 @@ void SNetAddress::setDomain(const c8* iDNS) {
     if(!iDNS) {
         return;
     }
-    /*LPHOSTENT hostTent = ::gethostbyname(iDNS);
+
+    /*
+    LPHOSTENT hostTent = ::gethostbyname(iDNS);
     if(!hostTent) {
         return;
     }
 
-    c8 buf[40];
+    c8 buf[APP_IP_STRING_MAX_SIZE];
     mAddress->sin_addr = *((LPIN_ADDR) (*hostTent->h_addr_list));
     ::inet_ntop(mAddress->sin_family, &mAddress->sin_addr, buf, sizeof(buf));
-    mIP = buf;*/
-#if defined(APP_PLATFORM_WINDOWS)
+    mIP = buf;
+    */
 
     struct addrinfo* head = 0;
     struct addrinfo hints;
@@ -188,7 +246,7 @@ void SNetAddress::setDomain(const c8* iDNS) {
         return;
     }
 
-    c8 buf[40];
+    c8 buf[APP_IP_STRING_MAX_SIZE];
 
     for(struct addrinfo* curr = head; curr; curr = curr->ai_next) {
         if(curr->ai_family == mAddress->sin_family) {
@@ -203,9 +261,6 @@ void SNetAddress::setDomain(const c8* iDNS) {
     } //for
 
     ::freeaddrinfo(head);
-#elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
-
-#endif
 }
 
 
@@ -247,7 +302,7 @@ APP_INLINE void SNetAddress::mergePort() {
 
 
 void SNetAddress::reverse() {
-    c8 buf[40]; //40=32+8, ipv6 as "CDCD:910A:2222:5498:8475:1111:3900:2020"
+    c8 buf[APP_IP_STRING_MAX_SIZE];
     ::inet_ntop(mAddress->sin_family, &mAddress->sin_addr, buf, sizeof(buf));
     mIP = buf;
     mPort = ::ntohs(mAddress->sin_port);
@@ -256,35 +311,34 @@ void SNetAddress::reverse() {
 }
 
 
-const SNetAddress::IP& SNetAddress::getIPAsID() const {
+const SNetAddress::IP& SNetAddress::getIP() const {
     APP_ASSERT(sizeof(IP) == sizeof(mAddress->sin_addr));
-    return *(IP*)(&mAddress->sin_addr);
+    return *(IP*) (&mAddress->sin_addr);
 }
 
 
 //big endian
-SNetAddress::IP SNetAddress::getIPAsID(const c8* buffer) {
+void SNetAddress::convertStringToIP(const c8* buffer, SNetAddress::IP& result) {
+    APP_ASSERT(buffer);
 #if defined(APP_NET_USE_IPV6)
-    TODO>>
-    const c8* end;
+    TODO >>
+        const c8* end;
     IP ret = core::strtoul10(buffer, &end);
-    return ret;
 #else
     const c8* end;
-    IP ret = core::strtoul10(buffer, &end);
+    result = core::strtoul10(buffer, &end);
     buffer = 1 + end;
-    ret |= core::strtoul10(buffer, &end) << 8;
+    result |= core::strtoul10(buffer, &end) << 8;
     buffer = 1 + end;
-    ret |= core::strtoul10(buffer, &end) << 16;
+    result |= core::strtoul10(buffer, &end) << 16;
     buffer = 1 + end;
-    ret |= core::strtoul10(buffer, &end) << 24;
-    return ret;
+    result |= core::strtoul10(buffer, &end) << 24;
 #endif
 }
 
 
 //big endian
-core::stringc SNetAddress::getIDAsIP(SNetAddress::IP& ip) {
+void SNetAddress::convertIPToString(const SNetAddress::IP& ip, core::stringc& result) {
 #if defined(APP_NET_USE_IPV6)
     TODO >>
 #else
@@ -294,7 +348,7 @@ core::stringc SNetAddress::getIDAsIP(SNetAddress::IP& ip) {
     u8 d = (ip & 0x000000ff);
     c8 cache[40];
     ::snprintf(cache, 40, "%d.%d.%d.%d", d, c, b, a);
-    return core::stringc(cache);
+    result = cache;
 #endif
 }
 

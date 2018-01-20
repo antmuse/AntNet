@@ -62,7 +62,9 @@ protected:
     };
 
     bool clearError();
+
     bool initialize();
+
     void removeAll();
 
 
@@ -81,10 +83,10 @@ protected:
     */
     bool stepAccpet(SContextWaiter* iContext);
 
-
-protected:
     bool postAccept();
+
     CNetServerSeniorTCP* createServer();
+
     void removeAllServer();
 
 private:
@@ -111,119 +113,62 @@ private:
 
 namespace irr {
 namespace net {
-struct SContextIO;
-struct CNetSession;
-class CNetSession;
-
 
 /**
 *@class CNetServerAcceptor
 */
-class CNetServerAcceptor : public INetServer, public IRunnable {
+class CNetServerAcceptor : public IRunnable {
 public:
     CNetServerAcceptor();
-    virtual ~CNetServerAcceptor();
 
-    virtual ENetNodeType getType() const {
-        return ENET_TCP_SERVER;
-    }
-    virtual void setNetEventer(INetEventer* it) {
-        mReceiver = it;
-    }
-    virtual bool start();
-    virtual bool stop();
+    virtual ~CNetServerAcceptor();
 
     virtual void run()override;
 
-    virtual void setLocalAddress(const SNetAddress& it)override {
+    bool start();
+
+    bool stop();
+
+    void setLocalAddress(const SNetAddress& it) {
         mAddressLocal = it;
     }
 
-    virtual const SNetAddress& getLocalAddress() const override {
+    const SNetAddress& getLocalAddress() const {
         return mAddressLocal;
     }
 
-    virtual void setMaxClients(u32 max) {
-        mMaxClientCount = max;
+    void setMaxAccept(u32 max) {
+        mAcceptCount = max;
     };
 
-    virtual u32 getClientCount() const {
-        return mAllClient.size();
-    }
+    void addServer(CNetServerSeniorTCP* it);
 
-    void addClient(CNetSession* iContextSocket);
-
-    void removeClient(CNetSession* iContextSocket);
-
-    void removeAllClient();
-
-    bool clearError(CNetSession* pContext);
-
-    /**
-    *@brief Request an accept action.
-    *@param iContextIO,
-    *@return True if request finished, else false.
-    */
-    bool postAccept(SContextIO* iContextIO);
-
-    /**
-    *@brief Request a receive action.
-    *@param iContextIO,
-    *@return True if request finished, else false.
-    */
-    bool postReceive(CNetSession* iContextSocket);
-
-    /**
-    *@brief Request a send action.
-    *@param iContextIO,
-    *@return True if request finished, else false.
-    */
-    bool postSend(CNetSession* iContextSocket);
-
-    /**
-    *@brief Go to next step when got the IO finished info: accpet.
-    *@param iContextSocket,
-    *@param iContextIO,
-    *@return True if next step finished, else false.
-    */
-    bool stepAccpet(SContextIO* iContextIO);
-
-    /**
-    *@brief Go to next step when got the IO finished info: receive.
-    *@param iContextSocket,
-    *@param iContextIO,
-    *@return True if next step finished, else false.
-    */
-    bool stepReceive(CNetSession* iContextSocket);
-
-    /**
-    *@brief Go to next step when got the IO finished info: send.
-    *@param iContextSocket,
-    *@param iContextIO,
-    *@return True if next step finished, else false.
-    */
-    bool stepSend(CNetSession* iContextSocket);
-
-
-    virtual void setThreads(u32 max) {
-        mThreadCount = max;
-    }
+    bool removeServer(CNetServerSeniorTCP* it);
 
 private:
+    bool clearError();
+
     bool initialize();
+
     void removeAll();
 
+    bool stepAccpet(CNetSocket& sock);
+
+    bool postAccept();
+
+    CNetServerSeniorTCP* createServer();
+
+    void removeAllServer();
+
+    bool mRunning;                                  ///<True if started, else false
+    u32 mAcceptCount;
+    u32 mCurrent;
+    CEventPoller mPoller;
+    CThread* mThread;						        ///<All workers
+    CNetSocket mListener;						///<listen socket's context
+    SNetAddress mAddressRemote;
     SNetAddress mAddressLocal;
-    bool mRunning;                                  ///<True if server started, else false
-    u32 mThreadCount;
-    u32 mMaxClientCount;
-    CEventPoller mEpollFD;
-    CMutex mMutex;
-    core::array<CNetSession*>  mAllClient;          ///<All the clients's socket context
-    core::array<CThread*>  mAllWorker;                  ///<All workers
-    SContextIO* mAccpetIO;
-    CNetSocket mListener;
-    INetEventer* mReceiver;
+    core::array<CNetServerSeniorTCP*>  mAllService;
 };
 
 }// end namespace net

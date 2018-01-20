@@ -8,8 +8,8 @@
 #include "IAppTimer.h"
 
 
-#define APP_NET_SESSION_TIMEOUT     10000
-#define APP_NET_SESSION_LINGER       5000
+#define APP_NET_SESSION_TIMEOUT     5000
+#define APP_NET_SESSION_LINGER      5000
 
 
 namespace irr {
@@ -127,6 +127,7 @@ void CNetClientSeniorTCP::run() {
     u32 gotsz = 0;
     mWheel.setCurrent(static_cast<u32>(mCurrentTime));
     u32 action;
+    s32 ret;
     for(; mRunning; ) {
         gotsz = mPoller.getEvents(iEvent, maxe, mTimeInterval);
         if(gotsz > 0) {
@@ -134,9 +135,7 @@ void CNetClientSeniorTCP::run() {
 
 #if defined(APP_PLATFORM_WINDOWS)
             for(u32 i = 0; i < gotsz; ++i) {
-
-                s32 ret = 1;
-
+                ret = 1;
                 if(iEvent[i].mKey < ENET_SESSION_MASK) {
                     iContext = &mAllContext[iEvent[i].mKey];
                     iAction = APP_GET_VALUE_POINTER(iEvent[i].mPointer, SContextIO, mOverlapped);
@@ -172,6 +171,11 @@ void CNetClientSeniorTCP::run() {
                             "unknown operation: [%u]", iAction->mOperationType);
                         continue;
                     }//switch
+
+                    if(ret <= 0) {
+                        IAppLogger::log(ELOG_INFO, "CNetClientSeniorTCP::run",
+                            "[ret:%d][opt=%u]", ret, iAction->mOperationType);
+                    }
                 } else {
                     if(ENET_SESSION_MASK == iEvent[i].mKey) {
                         mRunning = false;
@@ -204,10 +208,16 @@ void CNetClientSeniorTCP::run() {
                         }
                         break;
                     }//switch
+
+                    if(ret <= 0) {
+                        IAppLogger::log(ELOG_INFO, "CNetClientSeniorTCP::run",
+                            "[ret:%d][act=%u][ecode=%u]", 
+                            ret, action, CNetSocket::getError());
+                    }
                 }//if
 
                 if(ret > 0) {
-                    mWheel.add(iContext->getTimeNode(), mTimeInterval);
+                    mWheel.add(iContext->getTimeNode(), 2*mTimeInterval);
                 }
             }//for
 
@@ -326,6 +336,17 @@ bool CNetClientSeniorTCP::stop() {
         deleteContext();
         delete mNetThread;
         delete mMutex;
+        IAppLogger::log(ELOG_INFO, "CNetClientSeniorTCP::stop",
+            "Statistics: [session=%u][reuse=%u%%][socket=%u/%u][speed=%luKb/s][size=%uKb][seconds=%lu]",
+            getTotalSession(),
+            getReuseRate(),
+            getClosedSocket(),
+            getCreatedSocket(),
+            (getTotalReceived() >> 10) / (getTotalTime() / 1000),
+            (getTotalReceived() >> 10),
+            getTotalTime() / 1000
+        );
+
         return true;
     }
     return false;
