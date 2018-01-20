@@ -24,7 +24,7 @@
 #endif  //APP_PLATFORM_WINDOWS
 
 
-#define APP_SN_START 0x9917bf05
+#define APP_SN_START 0
 
 
 namespace irr {
@@ -69,7 +69,7 @@ bool CNetSynPing::init() {
         closeAll();
         return false;
     }
-    if(!mScoketListener.open(AF_INET, SOCK_RAW, IPPROTO_RAW)) {
+    if(!mScoketListener.open(AF_INET, SOCK_RAW, IPPROTO_TCP)) {
         IAppLogger::log(ELOG_ERROR, "CNetSynPing::init", "mScoketListener.open,%u", CNetSocket::getError());
         closeAll();
         return false;
@@ -279,6 +279,43 @@ bool CNetSynPing::sendReset() {
 }
 
 
+void AppHexDump(const void* buffer, u32 len) {
+    printf("////////////////////////////////////////////////////////////////////////////////////\n");
+    const u32 max = 88;
+    const c8* const buf = (const c8*) buffer;
+    u32 i, j, k;
+    c8 binstr[max];
+    for(i = 0; i<len; i++) {
+        if(0 == (i % 16)) {
+            snprintf(binstr, max, "%08x: ", i);
+            snprintf(binstr, max, "%s %02x", binstr, buf[i]);
+        } else if(15 == (i % 16)) {
+            snprintf(binstr, max, "%s %02x", binstr, buf[i]);
+            snprintf(binstr, max, "%s  ", binstr);
+            for(j = i - 15; j <= i; j++) {
+                snprintf(binstr, max, "%s%c", binstr, ('!'<buf[j] && buf[j] <= '~') ? buf[j] : '.');
+            }
+            printf("%s\n", binstr);
+        } else {
+            snprintf(binstr, max, "%s %02x", binstr, buf[i]);
+        }
+    }
+    if(0 != (i % 16)) {
+        k = 16 - (i % 16);
+        for(j = 0; j<k; j++) {
+            snprintf(binstr, max, "%s   ", binstr);
+        }
+        snprintf(binstr, max, "%s  ", binstr);
+        k = 16 - k;
+        for(j = i - k; j<i; j++) {
+            snprintf(binstr, max, "%s%c", binstr, ('!'<buf[j] && buf[j] <= '~') ? buf[j] : '.');
+        }
+        printf("%s\n", binstr);
+    }
+    printf("////////////////////////////////////////////////////////////////////////////////////\n");
+}
+
+
 s32 CNetSynPing::ping(const c8* remoteIP, u16 remotePort) {
     mAddressRemote.set(remoteIP, remotePort);
     IAppLogger::log(ELOG_INFO, "CNetSynPing::ping", "%s:%u --> %s:%u",
@@ -293,7 +330,7 @@ s32 CNetSynPing::ping(const c8* remoteIP, u16 remotePort) {
     CCheckSum sumchecker;
     c8 recvCache[65535] = {0};
     s32 ecode;
-    u32 timeout = 2000;
+    u32 timeout = 20000;
     u64 start = IAppTimer::getTime();
     core::stringc localips, remoteips;
 
@@ -336,29 +373,30 @@ s32 CNetSynPing::ping(const c8* remoteIP, u16 remotePort) {
         IAppLogger::log(ELOG_INFO, "CNetSynPing::ping", "receive [TCP Flag = 0x%x]", recvHeadTCP.getFlag());
         IAppLogger::log(ELOG_INFO, "CNetSynPing::ping", "receive [TCP Window = %u]", recvHeadTCP.getWindowSize());
 
-
-        u16 cksumbk = recvHeadIP.mChecksum;
-        recvHeadIP.mChecksum = 0;
         sumchecker.clear();
         sumchecker.add(recvCache, recvIPsize);
-        if(sumchecker.get() != cksumbk) {
-            IAppLogger::log(ELOG_ERROR, "CNetSynPing::ping", "IP checksum fail, 0x%x", cksumbk);
+        if(0 != sumchecker.get()) {
+            IAppLogger::log(ELOG_ERROR, "CNetSynPing::ping", "IP checksum fail, 0x%x", sumchecker.get());
             continue;
         }
         fakeTCP.mLocalIP = recvHeadIP.mLocalIP;
         fakeTCP.mRemoteIP = recvHeadIP.mRemoteIP;
         fakeTCP.mPadding = 0;
         fakeTCP.mProtocol = recvHeadIP.mProtocol;
-        fakeTCP.setSize(recvHeadTCP.getSize());
+        fakeTCP.setSize(totalSize - recvIPsize);
         sumchecker.clear();
         sumchecker.add(&fakeTCP, sizeof(fakeTCP));
-        cksumbk = recvHeadTCP.mChecksum;
-        recvHeadTCP.mChecksum = 0;
         sumchecker.add(&recvHeadTCP, totalSize - recvIPsize);
-        if(sumchecker.get() != cksumbk) {
-            IAppLogger::log(ELOG_ERROR, "CNetSynPing::ping", "TCP checksum fail, 0x%x", cksumbk);
+        if(0 != sumchecker.get()) {
+            IAppLogger::log(ELOG_ERROR, "CNetSynPing::ping", "TCP checksum fail, 0x%x", sumchecker.get());
             continue;
         }
+        u16 tcpsz = recvHeadTCP.getSize();
+        u16 datasz = totalSize - recvIPsize - tcpsz;
+        IAppLogger::log(ELOG_INFO, "CNetSynPing::ping", "TCP data size = [%u]", datasz);
+        //IUtility::print(((u8*) &recvHeadTCP) - tcpsz, datasz);
+        AppHexDump((((c8*) &recvHeadTCP) + tcpsz), datasz);
+
         if(recvHeadIP.mLocalIP != mAddressRemote.getIP()) {
             continue;
         }
@@ -396,7 +434,6 @@ s32 CNetSynPing::ping(const c8* remoteIP, u16 remotePort) {
     closeAll();
     return 0;
 }
-
 
 
 }//namespace net
