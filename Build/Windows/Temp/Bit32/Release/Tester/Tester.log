@@ -1,9 +1,6 @@
-﻿Build started 2017/8/29 17:23:13.
-     1>Project "E:\Share\AntNet\Build\Windows\Tester\Tester.vcxproj" on node 2 (clean target(s)).
-     1>_PrepareForClean:
-         Deleting file "E:\Share\AntNet\Build\Windows\Temp\Bit32\Release\Tester\Tester.lastbuildstate".
-     1>Done Building Project "E:\Share\AntNet\Build\Windows\Tester\Tester.vcxproj" (clean target(s)).
-
-Build succeeded.
-
-Time Elapsed 00:00:00.01
+﻿D:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(372,5): warning MSB8004: Intermediate Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Intermediate Directory.
+  Generating code
+  All 402 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  Tester.vcxproj -> E:\Share\AntNet\Build\Windows\..\..\Bin\Tester-32.exe
+  Tester.vcxproj -> E:\Share\AntNet\Build\Windows\..\..\Bin\Tester-32.pdb (Full PDB)

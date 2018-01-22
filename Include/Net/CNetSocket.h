@@ -21,12 +21,12 @@ typedef irr::u64 netsocket;
 typedef irr::u32 netsocket;
 #endif
 enum ESystemErrorCode {
-    ESEC_TIMEOUT = TODO, //WSAETIMEDOUT
+    ESEC_TIMEOUT = 10060,   //WSAETIMEDOUT
 };
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
 typedef irr::s32 netsocket;
 enum ESystemErrorCode {
-    ESEC_TIMEOUT = 110, //ETIMEDOUT
+    ESEC_TIMEOUT = 110,     //ETIMEDOUT
 };
 #endif //APP_PLATFORM_WINDOWS
 
@@ -167,7 +167,7 @@ public:
     s32 setCustomIPHead(bool on);
 
     /**
-    *@brief Set receive all data, only raw socket.
+    *@brief Set receive all data, promiscuous mode, only raw socket.
     *@return 0 if successed, else failed.
     */
     s32 setReceiveAll(bool on);
@@ -372,8 +372,8 @@ private:
 #endif //OS APP_PLATFORM_LINUX  APP_PLATFORM_ANDROID
 
 
-} //namespace net
-} //namespace irr
+} //namespace net 
+} //namespace irr 
 
 
 #endif //APP_CNETSOCKET_H
