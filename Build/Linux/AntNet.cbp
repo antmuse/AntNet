@@ -26,6 +26,8 @@
 				</Compiler>
 				<Linker>
 					<Add option="-lpthread" />
+					<Add library="AntThread-32D" />
+					<Add directory="../../Lib/Bit32/Linux" />
 				</Linker>
 			</Target>
 			<Target title="Release">
@@ -49,6 +51,8 @@
 				<Linker>
 					<Add option="-s" />
 					<Add option="-lpthread" />
+					<Add library="AntThread-32" />
+					<Add directory="../../Lib/Bit32/Linux" />
 				</Linker>
 			</Target>
 		</Build>
@@ -157,19 +161,6 @@
 		<Unit filename="../../Source/Public/IAppLogger.cpp" />
 		<Unit filename="../../Source/Public/IAppTimer.cpp" />
 		<Unit filename="../../Source/Public/IUtility.cpp" />
-		<Unit filename="../../Source/Thread/CAtomicValue32.cpp" />
-		<Unit filename="../../Source/Thread/CCondition.cpp" />
-		<Unit filename="../../Source/Thread/CMutex.cpp" />
-		<Unit filename="../../Source/Thread/CNamedMutex.cpp" />
-		<Unit filename="../../Source/Thread/CPipe.cpp" />
-		<Unit filename="../../Source/Thread/CProcessHandle.cpp" />
-		<Unit filename="../../Source/Thread/CProcessManager.cpp" />
-		<Unit filename="../../Source/Thread/CReadWriteLock.cpp" />
-		<Unit filename="../../Source/Thread/CSemaphore.cpp" />
-		<Unit filename="../../Source/Thread/CThread.cpp" />
-		<Unit filename="../../Source/Thread/CThreadEvent.cpp" />
-		<Unit filename="../../Source/Thread/CThreadPool.cpp" />
-		<Unit filename="../../Source/Thread/HAtomicOperator.cpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />

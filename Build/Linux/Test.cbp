@@ -12,11 +12,20 @@
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
+					<Add option="-std=c++11" />
 					<Add option="-g" />
+					<Add directory="../../Include" />
+					<Add directory="../../Include/Public" />
+					<Add directory="../../Include/Thread" />
+					<Add directory="../../Include/Net" />
+					<Add directory="../../Include/Net/HTTP" />
+					<Add directory="../../Include/Net/Mail" />
+					<Add directory="../../Include/Net/RawSocket" />
 				</Compiler>
 				<Linker>
 					<Add option="-lpthread" />
 					<Add library="AntNet-32D" />
+					<Add library="AntThread-32D" />
 					<Add directory="../../Lib/Bit32/Linux" />
 				</Linker>
 			</Target>
@@ -28,11 +37,19 @@
 				<Compiler>
 					<Add option="-O3" />
 					<Add option="-std=c++11" />
+					<Add directory="../../Include" />
+					<Add directory="../../Include/Public" />
+					<Add directory="../../Include/Thread" />
+					<Add directory="../../Include/Net" />
+					<Add directory="../../Include/Net/HTTP" />
+					<Add directory="../../Include/Net/Mail" />
+					<Add directory="../../Include/Net/RawSocket" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 					<Add option="-lpthread" />
 					<Add library="AntNet-32" />
+					<Add library="AntThread-32" />
 					<Add directory="../../Lib/Bit32/Linux" />
 				</Linker>
 			</Target>

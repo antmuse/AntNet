@@ -1,0 +1,121 @@
+# depslib dependency file v1.0
+1514906430 source:/media/sf_Share/AntNet/Source/Thread/CAtomicValue32.cpp
+	"CAtomicValue32.h"
+	"HAtomicOperator.h"
+
+1515503119 /media/sf_Share/AntNet/Include/Thread/CAtomicValue32.h
+	"HConfig.h"
+	"irrTypes.h"
+
+1516589722 /media/sf_Share/AntNet/Include/HConfig.h
+	"assert.h"
+
+1506304163 /media/sf_Share/AntNet/Include/irrTypes.h
+	"HConfig.h"
+	<wchar.h>
+	<crtdbg.h>
+	"assert.h"
+	<stdlib.h>
+	<crtdbg.h>
+
+1514908353 /media/sf_Share/AntNet/Include/Thread/HAtomicOperator.h
+	"HConfig.h"
+	"irrTypes.h"
+
+1515505020 source:/media/sf_Share/AntNet/Source/Thread/CCondition.cpp
+	"CMutex.h"
+
+1515489564 /media/sf_Share/AntNet/Include/Thread/CMutex.h
+	"HConfig.h"
+	"HMutexType.h"
+	"INoCopy.h"
+	<winsock2.h>
+	<Windows.h>
+	<errno.h>
+	<pthread.h>
+	<sys/select.h>
+
+1503666144 /media/sf_Share/AntNet/Include/Thread/HMutexType.h
+
+1516445774 /media/sf_Share/AntNet/Include/Public/INoCopy.h
+
+1515487132 source:/media/sf_Share/AntNet/Source/Thread/CMutex.cpp
+	"irrTypes.h"
+	<sys/time.h>
+
+1515488791 source:/media/sf_Share/AntNet/Source/Thread/CNamedMutex.cpp
+	<Windows.h>
+	<pthread.h>
+	<sys/time.h>
+
+1515422135 source:/media/sf_Share/AntNet/Source/Thread/CPipe.cpp
+	"CPipe.h"
+	<Windows.h>
+	<sys/types.h>
+	<unistd.h>
+	<errno.h>
+
+1515489450 /media/sf_Share/AntNet/Include/Thread/CPipe.h
+	"HConfig.h"
+	"IReferenceCounted.h"
+
+1514945593 /media/sf_Share/AntNet/Include/Public/IReferenceCounted.h
+	"irrTypes.h"
+
+1508470696 source:/media/sf_Share/AntNet/Source/Thread/CProcessHandle.cpp
+	<Windows.h>
+	<errno.h>
+	<signal.h>
+	<stdlib.h>
+	<sys/time.h>
+	<sys/types.h>
+	<sys/resource.h>
+	<sys/wait.h>
+
+1515492327 source:/media/sf_Share/AntNet/Source/Thread/CProcessManager.cpp
+	"CPipe.h"
+	"CThreadEvent.h"
+	<windows.h>
+	<errno.h>
+	<signal.h>
+	<stdlib.h>
+	<sys/time.h>
+	<sys/types.h>
+	<sys/resource.h>
+	<sys/wait.h>
+	<unistd.h>
+
+1508470520 /media/sf_Share/AntNet/Include/Thread/CThreadEvent.h
+	"HConfig.h"
+	"irrTypes.h"
+	<pthread.h>
+	<errno.h>
+
+1508470818 source:/media/sf_Share/AntNet/Source/Thread/CReadWriteLock.cpp
+
+1508470817 source:/media/sf_Share/AntNet/Source/Thread/CSemaphore.cpp
+	<Windows.h>
+	<time.h>
+	<sys/time.h>
+
+1514042037 source:/media/sf_Share/AntNet/Source/Thread/CThread.cpp
+	"IRunnable.h"
+	<time.h>
+
+1515736114 /media/sf_Share/AntNet/Include/Thread/IRunnable.h
+
+1515425181 source:/media/sf_Share/AntNet/Source/Thread/CThreadEvent.cpp
+	<windows.h>
+
+1515502930 source:/media/sf_Share/AntNet/Source/Thread/CThreadPool.cpp
+	"IAppLogger.h"
+
+1502268685 /media/sf_Share/AntNet/Include/Public/IAppLogger.h
+	"HConfig.h"
+	"irrTypes.h"
+
+1516446520 source:/media/sf_Share/AntNet/Source/Thread/HAtomicOperator.cpp
+	"HAtomicOperator.h"
+	<Windows.h>
+	<intrin.h>
+

@@ -198,3 +198,14 @@
 	"HNetHeader.h"
 	"CNetSocket.h"
 
+1516589722 /media/sf_Share/AntNet/Include/HConfig.h
+	"assert.h"
+
+1506304163 /media/sf_Share/AntNet/Include/irrTypes.h
+	"HConfig.h"
+	<wchar.h>
+	<crtdbg.h>
+	"assert.h"
+	<stdlib.h>
+	<crtdbg.h>
+

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="AntThread" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="../../Lib/Bit32/Linux/AntThread-32D" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="Temp/Debug/" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add directory="../../Include/Thread" />
+					<Add directory="../../Include/Public" />
+					<Add directory="../../Include" />
+				</Compiler>
+				<Linker>
+					<Add option="-lpthread" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="../../Lib/Bit32/Linux/AntThread-32" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="Temp/Release/" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add directory="../../Include/Thread" />
+					<Add directory="../../Include/Public" />
+					<Add directory="../../Include" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-lpthread" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+		</Compiler>
+		<Unit filename="../../Include/Thread/CAtomicValue32.h" />
+		<Unit filename="../../Include/Thread/CCondition.h" />
+		<Unit filename="../../Include/Thread/CMutex.h" />
+		<Unit filename="../../Include/Thread/CNamedMutex.h" />
+		<Unit filename="../../Include/Thread/CPipe.h" />
+		<Unit filename="../../Include/Thread/CProcessHandle.h" />
+		<Unit filename="../../Include/Thread/CProcessManager.h" />
+		<Unit filename="../../Include/Thread/CReadWriteLock.h" />
+		<Unit filename="../../Include/Thread/CSemaphore.h" />
+		<Unit filename="../../Include/Thread/CThread.h" />
+		<Unit filename="../../Include/Thread/CThreadEvent.h" />
+		<Unit filename="../../Include/Thread/CThreadPool.h" />
+		<Unit filename="../../Include/Thread/HAtomicOperator.h" />
+		<Unit filename="../../Include/Thread/HMutexType.h" />
+		<Unit filename="../../Include/Thread/IRunnable.h" />
+		<Unit filename="../../Source/Thread/CAtomicValue32.cpp" />
+		<Unit filename="../../Source/Thread/CCondition.cpp" />
+		<Unit filename="../../Source/Thread/CMutex.cpp" />
+		<Unit filename="../../Source/Thread/CNamedMutex.cpp" />
+		<Unit filename="../../Source/Thread/CPipe.cpp" />
+		<Unit filename="../../Source/Thread/CProcessHandle.cpp" />
+		<Unit filename="../../Source/Thread/CProcessManager.cpp" />
+		<Unit filename="../../Source/Thread/CReadWriteLock.cpp" />
+		<Unit filename="../../Source/Thread/CSemaphore.cpp" />
+		<Unit filename="../../Source/Thread/CThread.cpp" />
+		<Unit filename="../../Source/Thread/CThreadEvent.cpp" />
+		<Unit filename="../../Source/Thread/CThreadPool.cpp" />
+		<Unit filename="../../Source/Thread/HAtomicOperator.cpp" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
