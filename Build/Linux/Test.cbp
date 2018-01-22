@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Test" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="../../Bin/Test-32D" prefix_auto="1" extension_auto="1" />
+				<Option object_output="Temp/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+				<Linker>
+					<Add option="-lpthread" />
+					<Add library="AntNet-32D" />
+					<Add directory="../../Lib/Bit32/Linux" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="../../Bin/Test-32" prefix_auto="1" extension_auto="1" />
+				<Option object_output="Temp/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O3" />
+					<Add option="-std=c++11" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-lpthread" />
+					<Add library="AntNet-32" />
+					<Add directory="../../Lib/Bit32/Linux" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+		</Compiler>
+		<Unit filename="../../Source/Test/App.cpp" />
+		<Unit filename="../../Source/Test/CDefaultNetEventer.cpp" />
+		<Unit filename="../../Source/Test/CDefaultNetEventer.h" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

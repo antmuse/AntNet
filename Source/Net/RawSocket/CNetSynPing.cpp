@@ -24,7 +24,7 @@
 #endif  //APP_PLATFORM_WINDOWS
 
 
-#define APP_SN_START 0
+#define APP_SN_START 0x88
 
 
 namespace irr {
@@ -82,13 +82,13 @@ bool CNetSynPing::init() {
 //        return false;
 //    }
 
-    mAddressLocal.setPort(54436);
+    //mAddressLocal.setPort(9982);
 
-    if(mScoketListener.bind(mAddressLocal)) {
-        IAppLogger::log(ELOG_ERROR, "CNetSynPing::init", "bind error,%u", CNetSocket::getError());
-        closeAll();
-        return false;
-    }
+//    if(mScoketListener.bind(mAddressLocal)) {
+//        IAppLogger::log(ELOG_ERROR, "CNetSynPing::init", "bind error,%u", CNetSocket::getError());
+//        closeAll();
+//        return false;
+//    }
     //mScoketListener.getLocalAddress(mAddressLocal);
     if(mScoketListener.setReceiveOvertime(2000)){
         IAppLogger::log(ELOG_ERROR, "CNetSynPing::init", "setReceiveOvertime, %u", CNetSocket::getError());
@@ -199,11 +199,11 @@ bool CNetSynPing::send() {
 
 bool CNetSynPing::sendReset() {
     CCheckSum sumchecker;
-    c8 sendCache[sizeof(SHeadIP) + sizeof(SHeadTCP) + sizeof(SHeadOptionTCP)];
+    c8 sendCache[sizeof(SHeadIP) + sizeof(SHeadTCP)];
     SHeadIP&  ipHead = *(SHeadIP*) sendCache;
     SHeadTCP& tcpHead = *(SHeadTCP*) (sendCache + sizeof(SHeadIP));
     SFakeHeadTCP& fakeHeadTCP = *(SFakeHeadTCP*) (sendCache + sizeof(SHeadIP) - sizeof(SFakeHeadTCP));
-    SHeadOptionTCP& optionTCP = *(SHeadOptionTCP*) (sendCache + sizeof(SHeadIP) + sizeof(SHeadTCP));
+    //SHeadOptionTCP& optionTCP = *(SHeadOptionTCP*) (sendCache + sizeof(SHeadIP) + sizeof(SHeadTCP));
 
     //填充TCP伪首部
     fakeHeadTCP.mLocalIP = mAddressLocal.getIP();
@@ -214,7 +214,7 @@ bool CNetSynPing::sendReset() {
     //填充TCP首部
     tcpHead.mLocalPort = mAddressLocal.getPort();
     tcpHead.mRemotePort = mAddressRemote.getPort();
-    tcpHead.setSN(APP_SN_START);
+    tcpHead.setSN(1+APP_SN_START);
     tcpHead.mACK = 0;
     tcpHead.mSizeReserveFlag = 0;                                    //step 1
     tcpHead.setSize(sizeof(SHeadTCP) + sizeof(SHeadOptionTCP));      //step 2
@@ -222,27 +222,17 @@ bool CNetSynPing::sendReset() {
     tcpHead.setWindowSize(64240);
     tcpHead.mOffset = 0;
     tcpHead.mChecksum = 0;
-    optionTCP.mType = SHeadOptionTCP::ETYPE_MSS;
-    optionTCP.mSize = 4;
-    optionTCP.setMSS(1460);
-    optionTCP.mOther[0] = SHeadOptionTCP::ETYPE_NO_OPTION;
-    optionTCP.mOther[1] = SHeadOptionTCP::ETYPE_WIN_SCALE;
-    optionTCP.mOther[2] = 3;
-    optionTCP.mOther[3] = 8;
-    optionTCP.mOther[4] = SHeadOptionTCP::ETYPE_NO_OPTION;
-    optionTCP.mOther[5] = SHeadOptionTCP::ETYPE_NO_OPTION;
-    optionTCP.mOther[6] = SHeadOptionTCP::ETYPE_SACK_PERMITTED;
-    optionTCP.mOther[7] = 2;
+
     //TCP校验和=fack head + tcp head
     sumchecker.clear();
-    sumchecker.add((c8*) &fakeHeadTCP, sizeof(SFakeHeadTCP) + sizeof(SHeadTCP) + sizeof(SHeadOptionTCP));
+    sumchecker.add((c8*) &fakeHeadTCP, sizeof(SFakeHeadTCP) + sizeof(SHeadTCP));
     tcpHead.mChecksum = sumchecker.get();
 
     //填充IP首部
     ipHead.setVersion(4);
     ipHead.setSize(sizeof(SHeadIP));
     ipHead.mType = 0;
-    ipHead.setTotalSize(sizeof(SHeadIP) + sizeof(SHeadTCP) + sizeof(SHeadOptionTCP));
+    ipHead.setTotalSize(sizeof(SHeadIP) + sizeof(SHeadTCP));
     ipHead.setIdent(7003);
     ipHead.mFlag = 0;                       //step1
     ipHead.setFlag(SHeadIP::EFLAG_NO_FRAG); //step2
@@ -262,13 +252,9 @@ bool CNetSynPing::sendReset() {
     printf("TCP = ");
     IUtility::print((u8*) &tcpHead, sizeof(tcpHead));
     printf("\n--------------------------------------\n");
-    printf("TCP option = ");
-    IUtility::print((u8*) &optionTCP, sizeof(optionTCP));
-    printf("\n--------------------------------------\n");
-
 
     //send out
-    s32 datasize = sizeof(SHeadIP) + sizeof(SHeadTCP) + sizeof(SHeadOptionTCP);
+    s32 datasize = sizeof(SHeadIP) + sizeof(SHeadTCP);
     datasize = mScoketRaw.sendto(sendCache, datasize, mAddressRemote);
     if(datasize < 0) {
         IAppLogger::log(ELOG_ERROR, "CNetSynPing::sendReset", "send,%u", CNetSocket::getError());

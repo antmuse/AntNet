@@ -142,7 +142,7 @@
 #define APP_HAVE_MUTEX_TIMEOUT
 #endif
 
-
+#define APP_SWAP32(X) ((((X)&0x000000FF)<<24) | (((X)&0xFF000000) >> 24) | (((X)&0x0000FF00) << 8) | (((X) &0x00FF0000) >> 8))#define APP_SWAP16(X) ((((X)&0x00FF)<<8) | (((X)&0xFF00)>>8))
 #define APP_OFFSET(_TYPE_, _ELEMENT_NAME_) ((size_t)(&(((_TYPE_*)0)->_ELEMENT_NAME_)))
 #define APP_GET_OFFSET(_POINTER_, _ELEMENT_NAME_) (((size_t)(&(_POINTER_->_ELEMENT_NAME_))) - ((size_t)(_POINTER_)))
 #define APP_GET_VALUE_POINTER(_POINTER_, _TYPE_, _ELEMENT_NAME_)   \

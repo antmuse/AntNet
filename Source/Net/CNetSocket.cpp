@@ -350,7 +350,7 @@ s32 CNetSocket::sendAll(const c8* iBuffer, s32 iSize) {
 }
 
 
-APP_FORCE_INLINE s32 CNetSocket::send(const c8* iBuffer, s32 iSize) {
+s32 CNetSocket::send(const c8* iBuffer, s32 iSize) {
 #if defined(APP_PLATFORM_WINDOWS)
     return ::send(mSocket, iBuffer, iSize, 0);
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)

@@ -4,9 +4,6 @@
 #include "HConfig.h"
 #include "irrTypes.h"
 
-#define APP_SWAP32(X) ((((X)&0x000000FF)<<24) | (((X)&0xFF000000) >> 24) | (((X)&0x0000FF00) << 8) | (((X) &0x00FF0000) >> 8))
-#define APP_SWAP16(X) ((((X)&0x00FF)<<8) | (((X)&0xFF00)>>8))
-
 namespace irr {
 namespace net {
 
@@ -127,7 +124,7 @@ struct SHeadICMP {
 struct SHeadOptionIP {
     u8 mType;           // 选项类型
     u8 mSize;           //选项头的长度
-    u8 mOffset;         //地址偏移量 
+    u8 mOffset;         //地址偏移量
     u32 mAddress[9];    // IP地址列表
 };
 
@@ -136,7 +133,7 @@ struct SFakeHeadTCP {
     u32 mRemoteIP;       //目的地址
     u8  mPadding;        //填充位，取0
     u8  mProtocol;       //协议类型
-    u16 mSizeofTCP;      //整个TCP长度,包括tcp头部+tcp伪头部+data(如果有)  
+    u16 mSizeofTCP;      //整个TCP长度,包括tcp头部+tcp伪头部+data(如果有)
 
     APP_INLINE void setSize(u16 it) {
 #if defined(APP_ENDIAN_BIG)
