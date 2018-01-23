@@ -48,7 +48,7 @@ void CThreadPool::run() {
     iCallTask.mData = 0;
     u32 leftover = 0; //leftover tasks
     mMutex.lock();
-    ++mActiveCount;
+    ++mActiveCount;    IAppLogger::log(ELOG_CRITICAL, "CThreadPool::run", "thread start: %u", CThread::getCurrentThread()->getID());
     mMutex.unlock();
 
     for(; true;) {
@@ -103,7 +103,7 @@ void CThreadPool::start() {
     mMutex.lock();
     mActiveCount = 0;
     mMutex.unlock();
-    creatThread(mThreadCount);
+    creatThread(mThreadCount);    while(mActiveCount<mThreadCount){        IAppLogger::log(ELOG_CRITICAL, "CThreadPool::start", "waiting all threads start: %u", mActiveCount);      CThread::sleep(10);    }
 }
 
 
