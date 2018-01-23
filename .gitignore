@@ -29,6 +29,11 @@
 *.lib
 
 # Executables
-*.exe
 *.out
 *.app
+
+# Others
+*.iobj
+*.ipdb
+*.pdb
+*.ilk
