@@ -94,48 +94,65 @@ s16 AppAtomicDecrementFetch(s16* it) {
 }
 
 
+s32 AppAtomicFetch(s32* iTarget) {
+    return ::InterlockedExchangeAdd((LONG*) iTarget, 0);
+}
+
+
 } //end namespace irr
 
 #elif defined( APP_PLATFORM_ANDROID ) || defined( APP_PLATFORM_LINUX )
 namespace irr {
 
-//__sync_lock_release();
 void AppAtomicReadBarrier() {
-    ::__sync_synchronize();
+    ::__atomic_thread_fence(__ATOMIC_SEQ_CST);
 }
 
 void AppAtomicWriteBarrier() {
-    ::__sync_synchronize();
+    ::__atomic_thread_fence(__ATOMIC_SEQ_CST);
 }
 
 void AppAtomicReadWriteBarrier() {
-    ::__sync_synchronize();
+    ::__atomic_thread_fence(__ATOMIC_SEQ_CST);
+    //::__sync_synchronize();
 }
 
 s32 AppAtomicFetchAdd(s32 addValue, s32* iTarget) {
-    return ::__sync_fetch_and_add(iTarget, addValue);
+    // in gcc >= 4.7:
+    return  ::__atomic_fetch_add(iTarget, addValue, __ATOMIC_SEQ_CST);
+    //return ::__sync_fetch_and_add(iTarget, addValue);
+}
+
+
+void* AppAtomicFetchSet(void* iValue, void** iTarget) {
+    //return ::__sync_lock_release(iTarget, iValue);
 }
 
 
 s32 AppAtomicIncrementFetch(s32* it) {
-    return ::__sync_add_and_fetch(it, 1);
+    return ::__atomic_add_fetch(it, 1, __ATOMIC_SEQ_CST);
 }
 
 
 s32 AppAtomicDecrementFetch(s32* it) {
-    return ::__sync_sub_and_fetch(it, 1);
+    return ::__atomic_sub_fetch(it, 1, __ATOMIC_SEQ_CST);
 }
 
 
 s32 AppAtomicFetchSet(s32 value, s32* iTarget) {
-    return ::__sync_lock_test_and_set(iTarget, value);
+    return ::__atomic_exchange_n(iTarget, value, __ATOMIC_SEQ_CST);
 }
 
 
 s32 AppAtomicFetchCompareSet(s32 newValue, s32 comparand, s32* iTarget) {
-    return ::__sync_lock_test_and_set(iTarget, newValue, comparand);
+    ::__atomic_compare_exchange_n(iTarget, &comparand, newValue, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
+    return comparand;
 }
 
+
+s32 AppAtomicFetch(s32* iTarget) {
+    return ::__atomic_load_n(iTarget, __ATOMIC_SEQ_CST);
+}
 
 } //end namespace irr
 #endif //APP_PLATFORM_WINDOWS

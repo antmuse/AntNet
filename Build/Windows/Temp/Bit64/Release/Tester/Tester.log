@@ -3,13 +3,12 @@
 ..\..\..\Source\Test\App.cpp : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
 ..\..\..\Source\Test\App.cpp(35): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   C:\Program Files (x86)\Windows Kits\10\Include\10.0.15063.0\ucrt\stdio.h(1272): note: see declaration of 'scanf'
-..\..\..\Source\Test\App.cpp(113): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+..\..\..\Source\Test\App.cpp(111): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   C:\Program Files (x86)\Windows Kits\10\Include\10.0.15063.0\ucrt\stdio.h(1272): note: see declaration of 'scanf'
-  CDefaultNetEventer.cpp
   Generating code
-  36 of 402 functions ( 9.0%) were compiled, the rest were copied from previous compilation.
+  5 of 402 functions ( 1.2%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    28 functions had inline decision re-evaluated but remain unchanged
+    0 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   Tester.vcxproj -> E:\Share\AntNet\Build\Windows\..\..\Bin\Tester-64.exe
   Tester.vcxproj -> E:\Share\AntNet\Build\Windows\..\..\Bin\Tester-64.pdb (Full PDB)

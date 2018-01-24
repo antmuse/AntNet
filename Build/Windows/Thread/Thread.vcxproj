@@ -214,16 +214,22 @@
     <ClInclude Include="..\..\..\Include\Public\IWriteFile.h" />
     <ClInclude Include="..\..\..\Include\Public\IXMLReader.h" />
     <ClInclude Include="..\..\..\Include\Public\IXMLWriter.h" />
+    <ClInclude Include="..\..\..\Include\Thread\CAtomicValue32.h" />
+    <ClInclude Include="..\..\..\Include\Thread\CCondition.h" />
     <ClInclude Include="..\..\..\Include\Thread\CMutex.h" />
     <ClInclude Include="..\..\..\Include\Thread\CNamedMutex.h" />
     <ClInclude Include="..\..\..\Include\Thread\CPipe.h" />
     <ClInclude Include="..\..\..\Include\Thread\CProcess.h" />
+    <ClInclude Include="..\..\..\Include\Thread\CProcessHandle.h" />
     <ClInclude Include="..\..\..\Include\Thread\CProcessManager.h" />
     <ClInclude Include="..\..\..\Include\Thread\CReadWriteLock.h" />
     <ClInclude Include="..\..\..\Include\Thread\CSemaphore.h" />
+    <ClInclude Include="..\..\..\Include\Thread\CSpinlock.h" />
     <ClInclude Include="..\..\..\Include\Thread\CThread.h" />
     <ClInclude Include="..\..\..\Include\Thread\CThreadEvent.h" />
     <ClInclude Include="..\..\..\Include\Thread\CThreadPool.h" />
+    <ClInclude Include="..\..\..\Include\Thread\HAtomicOperator.h" />
+    <ClInclude Include="..\..\..\Include\Thread\HMutexType.h" />
     <ClInclude Include="..\..\..\Include\Thread\IRunnable.h" />
   </ItemGroup>
   <ItemGroup>
@@ -236,6 +242,7 @@
     <ClCompile Include="..\..\..\Source\Thread\CProcessManager.cpp" />
     <ClCompile Include="..\..\..\Source\Thread\CReadWriteLock.cpp" />
     <ClCompile Include="..\..\..\Source\Thread\CSemaphore.cpp" />
+    <ClCompile Include="..\..\..\Source\Thread\CSpinlock.cpp" />
     <ClCompile Include="..\..\..\Source\Thread\CThread.cpp" />
     <ClCompile Include="..\..\..\Source\Thread\CThreadEvent.cpp" />
     <ClCompile Include="..\..\..\Source\Thread\CThreadPool.cpp" />

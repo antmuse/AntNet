@@ -55,8 +55,7 @@ void AppStartClient() {
     net::INetSession* session[max];
     net::CNetClientSeniorTCP chub;
     chub.start();
-    net::SNetAddress addr("221.204.177.67", 9981);
-    //net::SNetAddress addr("127.0.0.1", 9981);
+    net::SNetAddress addr("127.0.0.1", 9981);
     s32 i;
     for(i = 0; i < max; ++i) {
         evt[i].setHub(&chub);
@@ -88,7 +87,6 @@ void AppStartSynPing() {
     s32 ret;
     if(synping.init()) {
         ret = synping.ping("61.135.169.121", 80);
-        //ret = synping.ping("221.204.177.67", 80);
         //ret = synping.ping("192.168.1.200", 3306);
         //ret = synping.ping("192.168.1.102", 9981);
         //0: 主机不存在

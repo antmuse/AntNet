@@ -71,7 +71,18 @@ s32 AppAtomicFetchSet(s32 newValue, s32* iTarget);
 void* AppAtomicFetchSet(void* value, void** iTarget);
 
 
+/**
+*@brief The function sets this variable to new value, AppFetchAnd returns its prior value.
+*@param newValue New value.
+*@param iTarget A pointer to the value to be set.
+*@param comparand A value to be compared.
+*@return The prior value of the iTarget parameter.
+*/
 s32 AppAtomicFetchCompareSet(s32 newValue, s32 comparand, s32* iTarget);
+
+
+
+s32 AppAtomicFetch(s32* iTarget);
 
 } //end namespace irr
 

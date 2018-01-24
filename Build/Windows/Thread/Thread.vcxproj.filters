@@ -177,6 +177,24 @@
     <ClInclude Include="..\..\..\Include\Thread\CSemaphore.h">
       <Filter>Include\Thread</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\CAtomicValue32.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\CCondition.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\CProcessHandle.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\CSpinlock.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\HAtomicOperator.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\HMutexType.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\Thread\CMutex.cpp">
@@ -216,6 +234,9 @@
       <Filter>Source\Thread</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Source\Thread\HAtomicOperator.cpp">
+      <Filter>Source\Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Thread\CSpinlock.cpp">
       <Filter>Source\Thread</Filter>
     </ClCompile>
   </ItemGroup>

@@ -24,18 +24,18 @@ CAtomicS32& CAtomicS32::operator=(const CAtomicS32& it) {
 }
 
 s32 CAtomicS32::operator+(const CAtomicS32& it)const {
-    //return AppAtomicFetchAdd(0, &mValue) + AppAtomicFetchAdd(0, &it.mValue);
-    return mValue + it.mValue;
+    return AppAtomicFetch(&mValue) + AppAtomicFetch(&it.mValue);
+    //return mValue + it.mValue;
 }
 
 s32 CAtomicS32::operator-(const CAtomicS32& it)const {
-    //return AppAtomicFetchAdd(0, &mValue) - AppAtomicFetchAdd(0, &it.mValue);
-    return mValue - it.mValue;
+    return AppAtomicFetch(&mValue) - AppAtomicFetch(&it.mValue);
+    //return mValue - it.mValue;
 }
 
 s32 CAtomicS32::operator+(const s32 it)const {
-    //return AppAtomicFetchAdd(0, &mValue) + it;
-    return mValue + it;
+    return AppAtomicFetch(&mValue) + it;
+    //return mValue + it;
 }
 
 s32 CAtomicS32::operator+=(const s32 it) {
@@ -44,8 +44,8 @@ s32 CAtomicS32::operator+=(const s32 it) {
 }
 
 s32 CAtomicS32::operator-(const s32 it)const {
-    //return AppAtomicFetchAdd(0, &mValue) - it;
-    return mValue - it;
+    return AppAtomicFetch(&mValue) - it;
+    //return mValue - it;
 }
 
 s32 CAtomicS32::operator-=(const s32 it) {
@@ -79,33 +79,33 @@ s32 CAtomicS32::operator=(const s32 it) {
 }
 
 bool CAtomicS32::operator==(const s32 it)const {
-    //return AppAtomicFetchAdd(0, &mValue) == it;
-    return mValue == it;
+    return AppAtomicFetch(&mValue) == it;
+    //return mValue == it;
 }
 
 bool CAtomicS32::operator!=(const s32 it)const {
-    //return AppAtomicFetchAdd(0, &mValue) != it;
-    return mValue != it;
+    return AppAtomicFetch(&mValue) != it;
+    //return mValue != it;
 }
 
 bool CAtomicS32::operator>(const s32 it)const {
-    //return AppAtomicFetchAdd(0, &mValue) > it;
-    return mValue > it;
+    return AppAtomicFetch(&mValue) > it;
+    //return mValue > it;
 }
 
 bool CAtomicS32::operator>=(const s32 it)const {
-    //return AppAtomicFetchAdd(0, &mValue) >= it;
-    return mValue >= it;
+    return AppAtomicFetch(&mValue) >= it;
+    //return mValue >= it;
 }
 
 bool CAtomicS32::operator<(const s32 it)const {
-    //return AppAtomicFetchAdd(0, &mValue) < it;
-    return mValue < it;
+    return AppAtomicFetch(&mValue) < it;
+    //return mValue < it;
 }
 
 bool CAtomicS32::operator<=(const s32 it)const {
-    //return AppAtomicFetchAdd(0, &mValue) <= it;
-    return mValue <= it;
+    return AppAtomicFetch(&mValue) <= it;
+    //return mValue <= it;
 }
 
 } //namespace irr
