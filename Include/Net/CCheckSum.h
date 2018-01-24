@@ -73,44 +73,6 @@ private:
 };
 
 
-///////////////////outdate code/////////////////////
-class COutdateCheckSum {
-public:
-
-    COutdateCheckSum() :
-        mLeftover(0),
-        mSum(0) {
-    }
-
-    void clear() {
-        mSum = 0;
-        mLeftover = 0;
-    }
-
-    void set(u32 it, u8 leftover) {
-        mSum = it;
-        mLeftover = leftover;
-    }
-
-    /**
-    * @brief Add buffer into checksum.
-    * @param buffer Buffer pointer.
-    * @param iSize Buffer size.
-    * @note Buffer size should less than 2^16, else maybe be overflow.
-    *  Fortunately, none net packet size more than 2^16-1.
-    */
-    void add(const void* buffer, u32 iSize);
-
-    /**
-    * @brief Get checkSum result.
-    */
-    u16 get() const;
-
-protected:
-    u32 mSum;
-    u8 mLeftover;
-};
-
 
 /* 32-bit crc16 */
 static u32 APP_CRC16(const c8* data, s32 len) {

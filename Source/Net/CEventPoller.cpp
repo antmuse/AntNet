@@ -122,10 +122,13 @@ namespace irr {
 
 CEventPoller::CEventPoller() {
     mEpollFD = ::epoll_create(0x7ffffff);
+    bool ret = mSocketPair.open();
+    APP_ASSERT(ret);
 }
 
 
 CEventPoller::~CEventPoller() {
+    mSocketPair.close();
     ::close(mEpollFD);
 }
 
@@ -184,7 +187,7 @@ bool CEventPoller::modify(s32 fd, SEvent& iEvent) {
 
 
 bool CEventPoller::postEvent(SEvent& iEvent) {
-    return sizeof(iEvent.mData.mData32) == mSocket.sendAll((c8*) iEvent.mData.mData32, sizeof(iEvent.mData.mData32));
+    return sizeof(iEvent.mEvent) == mSocketPair.getSocketB().send((c8*) iEvent.mEvent, sizeof(iEvent.mEvent));
 }
 
 

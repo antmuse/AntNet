@@ -20,10 +20,16 @@ public:
         u64 mKey;           ///< PULONG_PTR
         void* mPointer;     ///< LPOVERLAPPED
         u64 mInternal;
+        void setMessage(u64 msg) {
+            mKey = msg;
+        }
 #else
         u32 mKey;           ///< PULONG_PTR
         void* mPointer;     ///< LPOVERLAPPED
         u32 mInternal;
+        void setMessage(u32 msg) {
+            mKey = msg;
+        }
 #endif
         u32 mBytes;         ///< DWORD, Bytes Transferred
     };
@@ -89,13 +95,16 @@ class CEventPoller {
 public:
     ///SEvent layout must same as epoll_event's layout
     struct SEvent {
-        union UData{
+        union UData {
             u32 mData32;
             void* mPointer;
             u64 mData64;
         };
         u32 mEvent;
         UData mData;
+        void setMessage(u32 msg) {
+            mEvent = msg;
+        }
     };
 
     CEventPoller();
@@ -122,12 +131,13 @@ public:
 
     bool postEvent(SEvent& iEvent);
 
-    void setSocket(const net::CNetSocket& iSock) {
-        mSocket = iSock;
+    net::CNetSocketPair& getSocketPair() {
+        return mSocketPair;
     }
+
 protected:
     s32 mEpollFD;
-    net::CNetSocket mSocket; ///<send command to epoll
+    net::CNetSocketPair mSocketPair; ///<send command to epoll
 };
 
 } //namespace irr

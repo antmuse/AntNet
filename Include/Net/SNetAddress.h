@@ -80,10 +80,14 @@ public:
 
     /**
     *@brief Set IP, the real address will auto inited.
-    *@param ip User defined ip.
+    *@param ip User defined IP.
     */
     void setIP(const c8* ip);
 
+    /**
+    *@brief Set IP.
+    *@param ip User defined IP.
+    */
     void setIP(const core::stringc& ip) {
         setIP(ip.c_str());
     }
@@ -125,6 +129,11 @@ public:
     */
     void set(const c8* ip, u16 port);
 
+    /**
+    *@brief Set IP:Port, the real address will auto inited.
+    *@param ip User defined ip.
+    *@param port User defined port, in OS-endian.
+    */
     void set(const core::stringc& ip, u16 port) {
         set(ip.c_str(), port);
     }
@@ -134,10 +143,16 @@ public:
     */
     void reverse();
 
+    /**
+    * @return ID of this address.
+    */
     const ID& getID()const {
         return mID;
     }
 
+    /**
+    * @return IP, in big endian.
+    */
     const IP& getIP() const;
 
     /**

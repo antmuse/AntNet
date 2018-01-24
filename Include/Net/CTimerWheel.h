@@ -2,9 +2,9 @@
 #define APP_CTIMERWHEEL_H
 
 #include "CQueueNode.h"
+#include "CSpinlock.h"
 
 namespace irr {
-class CMutex;
 
 //32bit = 8+6*4;  slot0=8bits, slot1 & slot2 & slot3 & slot4 = 6bits.
 #define APP_TIME_SLOT_BITS		    6
@@ -167,7 +167,7 @@ private:
     u32 mInterval;
     u32 mCurrent;
     u32 mCurrentStep;
-    CMutex* mMutex;
+    CSpinlock mSpinlock;
     CTimerRootSlot mSlot_0;
     CTimerSlot mSlot_1;
     CTimerSlot mSlot_2;

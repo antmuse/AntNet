@@ -79,7 +79,7 @@ public:
         return mTimeNode;
     }
 
-    virtual s32 send(const c8* iBuffer, s32 iSize)override;
+    virtual s32 send(const void* iBuffer, s32 iSize)override;
     virtual bool connect(const SNetAddress& it)override;
     virtual bool disconnect()override;
 

@@ -142,7 +142,6 @@ private:
     INetEventer* mReceiver;
     SNetAddress mAddressLocal;
     //CMemoryHub mMemHub;
-    CNetSocketPair mSocketPair;
 };
 
 

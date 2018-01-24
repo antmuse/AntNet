@@ -117,7 +117,15 @@ public:
     *@param iData Data to print.
     *@param iSize  Length of data buffer.
     */
-    static void print(const u8* iData, u32 iSize);
+    static void printToHexString(const void* iData, u32 iSize);
+
+    /**
+    *@brief Print data buffer to a format text.
+    *@param iData Data to print.
+    *@param iSize  Length of data buffer.
+    */
+    static void printToHexText(const void* iData, u32 iSize);
+
 
 
 

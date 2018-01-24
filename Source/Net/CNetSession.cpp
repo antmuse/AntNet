@@ -43,9 +43,8 @@ bool CNetSession::disconnect() {
         return true;
     }
     mStatus |= ENET_CMD_DISCONNECT;
-    CEventPoller::SEvent evt = {0};
-    evt.mKey = ENET_CMD_DISCONNECT | getIndex();
-    evt.mPointer = 0;
+    CEventPoller::SEvent evt;
+    evt.setMessage(ENET_CMD_DISCONNECT | getIndex());
     return mPoller->postEvent(evt);
 }
 
@@ -57,14 +56,13 @@ bool CNetSession::connect(const SNetAddress& it) {
     }
     mStatus |= ENET_CMD_CONNECT;
     mAddressRemote = it;
-    CEventPoller::SEvent evt = {0};
-    evt.mKey = ENET_CMD_CONNECT | getIndex();
-    evt.mPointer = 0;
+    CEventPoller::SEvent evt;
+    evt.setMessage(ENET_CMD_CONNECT | getIndex());
     return mPoller->postEvent(evt);
 }
 
 
-s32 CNetSession::send(const c8* iBuffer, s32 iSize) {
+s32 CNetSession::send(const void* iBuffer, s32 iSize) {
     //APP_ASSERT(mPoller);
     if(!iBuffer || iSize < 0) {//0 byte is ok
         return -1;
@@ -75,9 +73,8 @@ s32 CNetSession::send(const c8* iBuffer, s32 iSize) {
     mStatus |= ENET_CMD_SEND;
     iSize = (iSize > mPacketSend.getWriteSize() ? mPacketSend.getWriteSize() : iSize);
     mPacketSend.addBuffer(iBuffer, iSize);
-    CEventPoller::SEvent evt = {0};
-    evt.mKey = ENET_CMD_SEND | getIndex();
-    evt.mPointer = 0;
+    CEventPoller::SEvent evt;
+    evt.setMessage(ENET_CMD_SEND | getIndex());
     return mPoller->postEvent(evt) ? iSize : -1;
 }
 
@@ -207,18 +204,16 @@ bool CNetSession::onTimeout() {
     APP_ASSERT(mPoller);
     IAppLogger::log(ELOG_INFO, "CNetSession::onTimeout",
         "remote[%s:%u]", mAddressRemote.mIP.c_str(), mAddressRemote.mPort);
-    CEventPoller::SEvent evt = {0};
-    evt.mPointer = 0;
-    evt.mKey = ENET_CMD_TIMEOUT | getIndex();
+    CEventPoller::SEvent evt;
+    evt.setMessage(ENET_CMD_TIMEOUT | getIndex());
     return mPoller->postEvent(evt);
 }
 
 
 bool CNetSession::onNewSession() {
     APP_ASSERT(mPoller);
-    CEventPoller::SEvent evt = {0};
-    evt.mPointer = 0;
-    evt.mKey = ENET_CMD_NEW_SESSION | getIndex();
+    CEventPoller::SEvent evt;
+    evt.setMessage(ENET_CMD_NEW_SESSION | getIndex());
     return mPoller->postEvent(evt);
 }
 
@@ -302,9 +297,8 @@ bool CNetSession::disconnect() {
         return true;
     }
     mStatus |= ENET_CMD_DISCONNECT;
-    CEventPoller::SEvent evt = {0};
-    evt.mData.mData32 = ENET_CMD_DISCONNECT | getIndex();
-    evt.mEvent = 0;
+    CEventPoller::SEvent evt;
+    evt.setMessage(ENET_CMD_DISCONNECT | getIndex());
     return mPoller->postEvent(evt);
 }
 
@@ -316,9 +310,8 @@ bool CNetSession::connect(const SNetAddress& it) {
     }
     mStatus |= ENET_CMD_CONNECT;
     mAddressRemote = it;
-    CEventPoller::SEvent evt = {0};
-    evt.mData.mData32 = ENET_CMD_CONNECT | getIndex();
-    evt.mEvent = 0;
+    CEventPoller::SEvent evt;
+    evt.setMessage(ENET_CMD_CONNECT | getIndex());
     return mPoller->postEvent(evt);
 }
 
@@ -334,9 +327,8 @@ s32 CNetSession::send(const c8* iBuffer, s32 iSize) {
     mStatus |= ENET_CMD_SEND;
     iSize = (iSize > mPacketSend.getWriteSize() ? mPacketSend.getWriteSize() : iSize);
     mPacketSend.addBuffer(iBuffer, iSize);
-    CEventPoller::SEvent evt = {0};
-    evt.mData.mData32 = ENET_CMD_SEND | getIndex();
-    evt.mEvent = 0;
+    CEventPoller::SEvent evt;
+    evt.setMessage(ENET_CMD_SEND | getIndex());
     return mPoller->postEvent(evt) ? iSize : -1;
 }
 
@@ -440,18 +432,16 @@ s32 CNetSession::stepDisonnect() {
 
 bool CNetSession::onTimeout() {
     APP_ASSERT(mPoller);
-    CEventPoller::SEvent evt = {0};
-    evt.mData.mData32 = ENET_CMD_TIMEOUT | getIndex();
-    evt.mEvent = 0;
+    CEventPoller::SEvent evt;
+    evt.setMessage(ENET_CMD_TIMEOUT | getIndex());
     return mPoller->postEvent(evt);
 }
 
 
 bool CNetSession::onNewSession() {
     APP_ASSERT(mPoller);
-    CEventPoller::SEvent evt = {0};
-    evt.mData.mData32 = ENET_CMD_NEW_SESSION | getIndex();
-    evt.mEvent = 0;
+    CEventPoller::SEvent evt;
+    evt.setMessage(ENET_CMD_NEW_SESSION | getIndex());
     return mPoller->postEvent(evt);
 }
 

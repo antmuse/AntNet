@@ -49,6 +49,10 @@ void CNetSynPing::closeAll() {
 }
 
 
+//¥”Windows XP SP2ø™ º£¨“‘∫Ûµƒ≤Ÿ◊˜œµÕ≥£®≥˝¡À≤ø∑÷ServerœµÕ≥Õ‚£©£¨≥ˆ”⁄∞≤»´øº¬«£¨Œ¢»Ì∂‘Raw Socketº”¡À»Ù∏…œﬁ÷∆
+//a)Œﬁ∑® π”√Raw Socket∑¢ÀÕTCP∞¸°£
+//b)Œﬁ∑® π”√Raw Socket∑¢ÀÕ‘¥IPµÿ÷∑≤ª’˝»∑µƒUDP∞¸°££®“‚Àº «≤ªƒ‹”√À¸Œ±‘Ï‘¥µÿ÷∑£©
+//c)Œﬁ∑®‘⁄“ª∏ˆ¿‡–ÕŒ™IPPROTO_TCPµƒRaw Socket…œµ˜”√bind()∫Ø ˝°£
 bool CNetSynPing::init() {
     APP_ASSERT(20 == sizeof(SHeadIP));
     APP_ASSERT(20 == sizeof(SHeadTCP));
@@ -58,8 +62,8 @@ bool CNetSynPing::init() {
     IAppLogger::log(ELOG_INFO, "CNetSynPing::init", "sizeof SHeadTCP=%u", sizeof(SHeadTCP));
     IAppLogger::log(ELOG_INFO, "CNetSynPing::init", "sizeof SFakeHeadTCP=%u", sizeof(SFakeHeadTCP));
     IAppLogger::log(ELOG_INFO, "CNetSynPing::init", "sizeof SHeadOptionTCP=%u", sizeof(SHeadOptionTCP));
-    //Êà™Ëé∑ipÊï∞ÊçÆÂåÖÔºö   socket(AF_INET, SOCK_RAW, IPPROTO_TCP|IPPROTO_UDP|IPPROTO_ICMP)
-    //Êà™Ëé∑‰ª•Â§™ÁΩëÊï∞ÊçÆÂ∏ßÔºösocket(PF_PACKET, SOCK_RAW, htons(ETH_P_IP | ETH_P_ARP | ETH_P_ALL))
+    //ΩÿªÒip ˝æ›∞¸£∫   socket(AF_INET, SOCK_RAW, IPPROTO_TCP|IPPROTO_UDP|IPPROTO_ICMP)
+    //ΩÿªÒ“‘Ã´Õ¯ ˝æ›÷°£∫socket(PF_PACKET, SOCK_RAW, htons(ETH_P_IP | ETH_P_ARP | ETH_P_ALL))
     if(!mScoketRaw.open(AF_INET, SOCK_RAW, IPPROTO_RAW)) {
         IAppLogger::log(ELOG_ERROR, "CNetSynPing::init", "mScoketRaw.open,%u", CNetSocket::getError());
         return false;
@@ -69,33 +73,44 @@ bool CNetSynPing::init() {
         closeAll();
         return false;
     }
+
+//what a fuck diffence here.
+#if defined(APP_PLATFORM_WINDOWS)
+    //On windows, can't open raw socket with IPPROTO_TCP.
+    if(!mScoketListener.open(AF_INET, SOCK_RAW, IPPROTO_IP)) {
+        IAppLogger::log(ELOG_ERROR, "CNetSynPing::init", "mScoketListener.open,%u", CNetSocket::getError());
+        closeAll();
+        return false;
+    }
+#elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
+    //On linux, can't open raw socket with IPPROTO_IP.
     if(!mScoketListener.open(AF_INET, SOCK_RAW, IPPROTO_TCP)) {
         IAppLogger::log(ELOG_ERROR, "CNetSynPing::init", "mScoketListener.open,%u", CNetSocket::getError());
         closeAll();
         return false;
     }
+#endif  //APP_PLATFORM_WINDOWS
 
-    mAddressLocal.setIP("192.168.1.199");
-//    if(!mAddressLocal.setIP()) {
-//        IAppLogger::log(ELOG_ERROR, "CNetSynPing::init", "get mAddressLocal IP,%u", CNetSocket::getError());
-//        closeAll();
-//        return false;
-//    }
-
-    //mAddressLocal.setPort(9982);
-
-//    if(mScoketListener.bind(mAddressLocal)) {
-//        IAppLogger::log(ELOG_ERROR, "CNetSynPing::init", "bind error,%u", CNetSocket::getError());
-//        closeAll();
-//        return false;
-//    }
-    //mScoketListener.getLocalAddress(mAddressLocal);
-    if(mScoketListener.setReceiveOvertime(2000)){
-        IAppLogger::log(ELOG_ERROR, "CNetSynPing::init", "setReceiveOvertime, %u", CNetSocket::getError());
+    
+    if(!mAddressLocal.setIP()) {
+        IAppLogger::log(ELOG_ERROR, "CNetSynPing::init", "get mAddressLocal IP,%u", CNetSocket::getError());
         closeAll();
         return false;
     }
 
+    mAddressLocal.setPort(54436);
+
+    if(mScoketListener.bind(mAddressLocal)) {
+        IAppLogger::log(ELOG_ERROR, "CNetSynPing::init", "bind error,%u", CNetSocket::getError());
+        closeAll();
+        return false;
+    }
+    //mScoketListener.getLocalAddress(mAddressLocal);
+    /*if(mScoketListener.setReceiveOvertime(2000)) {
+        IAppLogger::log(ELOG_ERROR, "CNetSynPing::init", "setReceiveOvertime, %u", CNetSocket::getError());
+        closeAll();
+        return false;
+    }*/
     if(mScoketListener.setReceiveAll(true)) {
         IAppLogger::log(ELOG_ERROR, "CNetSynPing::init", "setReceiveAll, %u", CNetSocket::getError());
         closeAll();
@@ -122,13 +137,13 @@ bool CNetSynPing::send() {
     IAppLogger::log(ELOG_INFO, "CNetSynPing::send", "mAddressRemote IP= 0x%x:0x%x",
     mAddressRemote.getIP(), mAddressRemote.getPort());*/
 
-    //Â°´ÂÖÖTCP‰º™È¶ñÈÉ®
+    //ÃÓ≥‰TCPŒ± ◊≤ø
     fakeHeadTCP.mLocalIP = mAddressLocal.getIP();
     fakeHeadTCP.mRemoteIP = mAddressRemote.getIP();
     fakeHeadTCP.mPadding = 0;
     fakeHeadTCP.mProtocol = IPPROTO_TCP;
     fakeHeadTCP.setSize(sizeof(SHeadTCP) + sizeof(SHeadOptionTCP));
-    //Â°´ÂÖÖTCPÈ¶ñÈÉ®
+    //ÃÓ≥‰TCP ◊≤ø
     tcpHead.mLocalPort = mAddressLocal.getPort();
     tcpHead.mRemotePort = mAddressRemote.getPort();
     tcpHead.setSN(APP_SN_START);
@@ -150,13 +165,13 @@ bool CNetSynPing::send() {
     optionTCP.mOther[5] = SHeadOptionTCP::ETYPE_NO_OPTION;
     optionTCP.mOther[6] = SHeadOptionTCP::ETYPE_SACK_PERMITTED;
     optionTCP.mOther[7] = 2;
-    //TCPÊ†°È™åÂíå=fack head + tcp head
+    //TCP–£—È∫Õ=fack head + tcp head         
     sumchecker.clear();
     sumchecker.add((c8*) &fakeHeadTCP, sizeof(SFakeHeadTCP) + sizeof(SHeadTCP) + sizeof(SHeadOptionTCP));
     tcpHead.mChecksum = sumchecker.get();
 
 
-    //Â°´ÂÖÖIPÈ¶ñÈÉ®
+    //ÃÓ≥‰IP ◊≤ø
     ipHead.setVersion(4);
     ipHead.setSize(sizeof(SHeadIP));
     ipHead.mType = 0;
@@ -169,20 +184,20 @@ bool CNetSynPing::send() {
     ipHead.mChecksum = 0;
     ipHead.mLocalIP = mAddressLocal.getIP();
     ipHead.mRemoteIP = mAddressRemote.getIP();
-    //IPÊ†°È™åÂíå=ip head
+    //IP–£—È∫Õ=ip head
     sumchecker.clear();
     sumchecker.add((c8*) &ipHead, sizeof(SHeadIP));
     ipHead.mChecksum = sumchecker.get();
 
     printf("\n----------------------------------------------------------------\n");
     printf("IP = ");
-    IUtility::print((u8*) &ipHead, sizeof(ipHead));
+    IUtility::printToHexString(&ipHead, sizeof(ipHead));
     printf("\n");
     printf("TCP = ");
-    IUtility::print((u8*) &tcpHead, sizeof(tcpHead));
+    IUtility::printToHexString(&tcpHead, sizeof(tcpHead));
     printf("\n");
     printf("TCP option = ");
-    IUtility::print((u8*) &optionTCP, sizeof(optionTCP));
+    IUtility::printToHexString(&optionTCP, sizeof(optionTCP));
     printf("\n----------------------------------------------------------------\n");
 
     //send out
@@ -205,35 +220,35 @@ bool CNetSynPing::sendReset() {
     SFakeHeadTCP& fakeHeadTCP = *(SFakeHeadTCP*) (sendCache + sizeof(SHeadIP) - sizeof(SFakeHeadTCP));
     //SHeadOptionTCP& optionTCP = *(SHeadOptionTCP*) (sendCache + sizeof(SHeadIP) + sizeof(SHeadTCP));
 
-    //Â°´ÂÖÖTCP‰º™È¶ñÈÉ®
+    //ÃÓ≥‰TCPŒ± ◊≤ø
     fakeHeadTCP.mLocalIP = mAddressLocal.getIP();
     fakeHeadTCP.mRemoteIP = mAddressRemote.getIP();
     fakeHeadTCP.mPadding = 0;
     fakeHeadTCP.mProtocol = IPPROTO_TCP;
     fakeHeadTCP.setSize(sizeof(SFakeHeadTCP) + sizeof(SHeadTCP));
-    //Â°´ÂÖÖTCPÈ¶ñÈÉ®
+    //ÃÓ≥‰TCP ◊≤ø
     tcpHead.mLocalPort = mAddressLocal.getPort();
     tcpHead.mRemotePort = mAddressRemote.getPort();
-    tcpHead.setSN(1+APP_SN_START);
+    tcpHead.setSN(1 + APP_SN_START);
     tcpHead.mACK = 0;
-    tcpHead.mSizeReserveFlag = 0;                                    //step 1
-    tcpHead.setSize(sizeof(SHeadTCP) + sizeof(SHeadOptionTCP));      //step 2
-    tcpHead.setFlag(SHeadTCP::EFLAG_RST | SHeadTCP::EFLAG_ACK);      //step 3
-    tcpHead.setWindowSize(64240);
+    tcpHead.mSizeReserveFlag = 0;                                      //step 1
+    tcpHead.setSize(sizeof(SHeadTCP));                                //step 2
+    tcpHead.setFlag(SHeadTCP::EFLAG_RST);                              //step 3
+    tcpHead.mWindow = 0;
     tcpHead.mOffset = 0;
     tcpHead.mChecksum = 0;
 
-    //TCPÊ†°È™åÂíå=fack head + tcp head
+    //TCP–£—È∫Õ=fack head + tcp head
     sumchecker.clear();
     sumchecker.add((c8*) &fakeHeadTCP, sizeof(SFakeHeadTCP) + sizeof(SHeadTCP));
     tcpHead.mChecksum = sumchecker.get();
 
-    //Â°´ÂÖÖIPÈ¶ñÈÉ®
+    //ÃÓ≥‰IP ◊≤ø
     ipHead.setVersion(4);
     ipHead.setSize(sizeof(SHeadIP));
     ipHead.mType = 0;
     ipHead.setTotalSize(sizeof(SHeadIP) + sizeof(SHeadTCP));
-    ipHead.setIdent(7003);
+    ipHead.mIdent = 0;
     ipHead.mFlag = 0;                       //step1
     ipHead.setFlag(SHeadIP::EFLAG_NO_FRAG); //step2
     ipHead.mTTL = 128;
@@ -241,17 +256,18 @@ bool CNetSynPing::sendReset() {
     ipHead.mChecksum = 0;
     ipHead.mLocalIP = mAddressLocal.getIP();
     ipHead.mRemoteIP = mAddressRemote.getIP();
-    //IPÊ†°È™åÂíå=ip head
+    //IP–£—È∫Õ=ip head
     sumchecker.clear();
     sumchecker.add((c8*) &ipHead, sizeof(SHeadIP));
     ipHead.mChecksum = sumchecker.get();
 
     printf("IP = ");
-    IUtility::print((u8*) &ipHead, sizeof(ipHead));
+    IUtility::printToHexString(&ipHead, sizeof(ipHead));
     printf("\n--------------------------------------\n");
     printf("TCP = ");
-    IUtility::print((u8*) &tcpHead, sizeof(tcpHead));
+    IUtility::printToHexString(&tcpHead, sizeof(tcpHead));
     printf("\n--------------------------------------\n");
+    //IUtility::printToHexText(&ipHead, sizeof(tcpHead)+ sizeof(tcpHead));
 
     //send out
     s32 datasize = sizeof(SHeadIP) + sizeof(SHeadTCP);
@@ -262,43 +278,6 @@ bool CNetSynPing::sendReset() {
     }
     IAppLogger::log(ELOG_INFO, "CNetSynPing::sendReset", "send OK, %u", datasize);
     return true;
-}
-
-
-void AppHexDump(const void* buffer, u32 len) {
-    printf("////////////////////////////////////////////////////////////////////////////////////\n");
-    const u32 max = 88;
-    const c8* const buf = (const c8*) buffer;
-    u32 i, j, k;
-    c8 binstr[max];
-    for(i = 0; i<len; i++) {
-        if(0 == (i % 16)) {
-            snprintf(binstr, max, "%08x: ", i);
-            snprintf(binstr, max, "%s %02x", binstr, buf[i]);
-        } else if(15 == (i % 16)) {
-            snprintf(binstr, max, "%s %02x", binstr, buf[i]);
-            snprintf(binstr, max, "%s  ", binstr);
-            for(j = i - 15; j <= i; j++) {
-                snprintf(binstr, max, "%s%c", binstr, ('!'<buf[j] && buf[j] <= '~') ? buf[j] : '.');
-            }
-            printf("%s\n", binstr);
-        } else {
-            snprintf(binstr, max, "%s %02x", binstr, buf[i]);
-        }
-    }
-    if(0 != (i % 16)) {
-        k = 16 - (i % 16);
-        for(j = 0; j<k; j++) {
-            snprintf(binstr, max, "%s   ", binstr);
-        }
-        snprintf(binstr, max, "%s  ", binstr);
-        k = 16 - k;
-        for(j = i - k; j<i; j++) {
-            snprintf(binstr, max, "%s%c", binstr, ('!'<buf[j] && buf[j] <= '~') ? buf[j] : '.');
-        }
-        printf("%s\n", binstr);
-    }
-    printf("////////////////////////////////////////////////////////////////////////////////////\n");
 }
 
 
@@ -380,8 +359,7 @@ s32 CNetSynPing::ping(const c8* remoteIP, u16 remotePort) {
         u16 tcpsz = recvHeadTCP.getSize();
         u16 datasz = totalSize - recvIPsize - tcpsz;
         IAppLogger::log(ELOG_INFO, "CNetSynPing::ping", "TCP data size = [%u]", datasz);
-        //IUtility::print(((u8*) &recvHeadTCP) - tcpsz, datasz);
-        AppHexDump((((c8*) &recvHeadTCP) + tcpsz), datasz);
+        IUtility::printToHexText((((c8*) &recvHeadTCP) + tcpsz), datasz);
 
         if(recvHeadIP.mLocalIP != mAddressRemote.getIP()) {
             continue;
@@ -401,14 +379,14 @@ s32 CNetSynPing::ping(const c8* remoteIP, u16 remotePort) {
             continue;
         }
 
-        //RST/ACK - Êó†ÊúçÂä°  the port is not open.
-        if(recvHeadTCP.getFlag() == 20) {            //("‰∏ªÊú∫Â≠òÂú®‰ΩÜ‰∏çÂìçÂ∫î");
+        //RST/ACK - Œﬁ∑˛ŒÒ  the port is not open.
+        if(recvHeadTCP.getFlag() == 20) {            //("÷˜ª˙¥Ê‘⁄µ´≤ªœÏ”¶");
             closeAll();
             return 1;
         }
 
-        //SYN/ACK - Êâ´ÊèèÂà∞‰∏Ä‰∏™Á´ØÂè£.the port is open
-        if(recvHeadTCP.getFlag() == 18) { //("Á´ØÂè£ÂºÄÊîæ!");
+        //SYN/ACK - …®√ËµΩ“ª∏ˆ∂Àø⁄.the port is open
+        if(recvHeadTCP.getFlag() == 18) { //("∂Àø⁄ø™∑≈!");
             if(!sendReset()) {
                 //("Send Error!!:%d\n", GetLastError());
             }
@@ -420,6 +398,7 @@ s32 CNetSynPing::ping(const c8* remoteIP, u16 remotePort) {
     closeAll();
     return 0;
 }
+
 
 
 }//namespace net

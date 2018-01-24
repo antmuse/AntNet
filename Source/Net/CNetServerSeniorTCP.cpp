@@ -206,6 +206,7 @@ bool CNetServerSeniorTCP::clearError() {
 
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
 void CNetServerSeniorTCP::run() {
+    CNetSocket sock(mPoller.getSocketPair().getSocketA());
     const u32 maxe = 20;
     CEventPoller::SEvent iEvent[maxe];
     CNetSession* iContext;
@@ -239,7 +240,7 @@ void CNetServerSeniorTCP::run() {
                     }
                 } else {
                     u32 mask;
-                    s32 ret = mSocketPair.getReader().receiveAll((c8*) &mask, sizeof(mask));
+                    s32 ret = sock.receiveAll(&mask, sizeof(mask));
                     if(ret != sizeof(mask)) {
                         continue;
                     }
@@ -354,18 +355,17 @@ bool CNetServerSeniorTCP::start() {
         return true;
     }
 #if defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
-    if(!mSocketPair.open(AF_UNIX, SOCK_STREAM, 0)) {
-        printf("error %d on socketpair\n", errno);
+    CNetSocket sock(mPoller.getSocketPair().getSocketA());
+    if(!sock.isOpen()) {
+        //printf("error %d on socketpair\n", errno);
         return false;
     }
     CEventPoller::SEvent evt;
     evt.mData.mData32 = ENET_SESSION_MASK;
     evt.mEvent = EPOLLIN;
-    if(!mPoller.add(mSocketPair.getReader(), evt)) {
-        mSocketPair.close();
+    if(!mPoller.add(sock, evt)) {
         return false;
     }
-    mPoller.setSocket(mSocketPair.getWriter());
 #endif //LINUX, ANDROID
     mRunning = true;
     mCreatedSession = 0;
@@ -387,15 +387,7 @@ bool CNetServerSeniorTCP::stop() {
     }
 
     CEventPoller::SEvent evt;
-#if defined(APP_PLATFORM_WINDOWS)
-    evt.mBytes = 0;
-    evt.mKey = ENET_SESSION_MASK;
-    evt.mPointer = 0;
-#elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
-    evt.mData.mData32 = ENET_SESSION_MASK;
-    evt.mEvent = 0;
-#endif //LINUX, ANDROID
-
+    evt.setMessage(ENET_SESSION_MASK);
     mCurrentTime = IAppTimer::getTime();
     if(mPoller.postEvent(evt)) {
         mRunning = false;
@@ -403,9 +395,6 @@ bool CNetServerSeniorTCP::stop() {
         deleteContext();
         delete mThread;
         mThread = 0;
-#if defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
-        mSocketPair.close();
-#endif //LINUX, ANDROID
         IAppLogger::log(ELOG_INFO, "CNetServerSeniorTCP::stop",
             "Statistics: [session=%u][speed=%luKb/s][size=%uKb][seconds=%lu]",
             mTotalSession,

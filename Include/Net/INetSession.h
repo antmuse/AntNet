@@ -22,7 +22,7 @@ public:
 
     virtual INetEventer* getEventer()const = 0;
 
-    virtual s32 send(const c8* iBuffer, s32 iSize) = 0;
+    virtual s32 send(const void* iBuffer, s32 iSize) = 0;
 
     virtual bool connect(const SNetAddress& it) = 0;
 

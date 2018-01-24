@@ -134,7 +134,7 @@ s32 CNetSocket::setReceiveAll(bool on) {
         SO_BINDTODEVICE, device, ::strlen(device));
 
     ::strcpy(iface.ifr_name, device);
-    if(::ioctl(mSocket, SIOCGIFFLAGS, &iface)<0) {
+    if(::ioctl(mSocket, SIOCGIFFLAGS, &iface) < 0) {
         return -1;
     }
     if(!(iface.ifr_flags & IFF_RUNNING)) {
@@ -276,15 +276,25 @@ bool CNetSocket::getTcpInfo(STCP_Info* info) const {
 }
 
 
-s32 CNetSocket::sendto(const c8* iBuffer, s32 iSize, const SNetAddress& address) {
+s32 CNetSocket::sendto(const void* iBuffer, s32 iSize, const SNetAddress& address) {
+#if defined(APP_PLATFORM_WINDOWS)
+    return ::sendto(mSocket, (const c8*) iBuffer, iSize, 0,
+        (sockaddr*) address.mAddress, sizeof(*address.mAddress));
+#elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
     return ::sendto(mSocket, iBuffer, iSize, 0,
         (sockaddr*) address.mAddress, sizeof(*address.mAddress));
+#endif
 }
 
 
-s32 CNetSocket::receiveFrom(c8* iBuffer, s32 iSize, const SNetAddress& address) {
-    s32 size = sizeof(*address.mAddress);
-    return ::recvfrom(mSocket, iBuffer, iSize, 0, (sockaddr*) address.mAddress, (socklen_t*) &size);
+s32 CNetSocket::receiveFrom(void* iBuffer, s32 iSize, const SNetAddress& address) {
+#if defined(APP_PLATFORM_WINDOWS)
+    socklen_t size = sizeof(*address.mAddress);
+    return ::recvfrom(mSocket, (c8*) iBuffer, iSize, 0, (sockaddr*) address.mAddress, &size);
+#elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
+    socklen_t size = sizeof(*address.mAddress);
+    return ::recvfrom(mSocket, iBuffer, iSize, 0, (sockaddr*) address.mAddress, &size);
+#endif
 }
 
 
@@ -335,11 +345,11 @@ bool CNetSocket::isAlive() {
 }
 
 
-s32 CNetSocket::sendAll(const c8* iBuffer, s32 iSize) {
+s32 CNetSocket::sendAll(const void* iBuffer, s32 iSize) {
     s32 ret = 0;
     s32 step;
     for(; ret < iSize;) {
-        step = send(iBuffer + ret, iSize - ret);
+        step = send(((const c8*) iBuffer) + ret, iSize - ret);
         if(step > 0) {
             ret += step;
         } else {
@@ -350,16 +360,16 @@ s32 CNetSocket::sendAll(const c8* iBuffer, s32 iSize) {
 }
 
 
-s32 CNetSocket::send(const c8* iBuffer, s32 iSize) {
+s32 CNetSocket::send(const void* iBuffer, s32 iSize) {
 #if defined(APP_PLATFORM_WINDOWS)
-    return ::send(mSocket, iBuffer, iSize, 0);
+    return ::send(mSocket, (const c8*) iBuffer, iSize, 0);
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
     return ::send(mSocket, iBuffer, iSize, MSG_NOSIGNAL);
 #endif
 }
 
 
-s32 CNetSocket::receiveAll(c8* iBuffer, s32 iSize) {
+s32 CNetSocket::receiveAll(void* iBuffer, s32 iSize) {
     /*s32 ret = 0;
     s32 step;
     for(; ret < iSize;) {
@@ -371,12 +381,20 @@ s32 CNetSocket::receiveAll(c8* iBuffer, s32 iSize) {
     }
     }
     return ret;*/
+#if defined(APP_PLATFORM_WINDOWS)
+    return ::recv(mSocket, (c8*) iBuffer, iSize, MSG_WAITALL);
+#elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
     return ::recv(mSocket, iBuffer, iSize, MSG_WAITALL);
+#endif
 }
 
 
-s32 CNetSocket::receive(c8* iBuffer, s32 iSize) {
+s32 CNetSocket::receive(void* iBuffer, s32 iSize) {
+#if defined(APP_PLATFORM_WINDOWS)
+    return ::recv(mSocket, (c8*) iBuffer, iSize, 0);
+#elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
     return ::recv(mSocket, iBuffer, iSize, 0);
+#endif
 }
 
 
@@ -622,7 +640,7 @@ CNetSocketPair::~CNetSocketPair() {
 
 
 bool CNetSocketPair::close() {
-    return mWriter.close() && mReader.close();
+    return mSockB.close() && mSockA.close();
 }
 
 bool CNetSocketPair::open() {
@@ -631,8 +649,8 @@ bool CNetSocketPair::open() {
         //printf("error %d on socketpair\n", errno);
         return false;
     }
-    mReader = sockpair[0];
-    mWriter = sockpair[1];
+    mSockA = sockpair[0];
+    mSockB = sockpair[1];
     return true;
 }
 
@@ -643,8 +661,8 @@ bool CNetSocketPair::open(s32 domain, s32 type, s32 protocol) {
         //printf("error %d on socketpair\n", errno);
         return false;
     }
-    mReader = sockpair[0];
-    mWriter = sockpair[1];
+    mSockA = sockpair[0];
+    mSockB = sockpair[1];
     return true;
 }
 

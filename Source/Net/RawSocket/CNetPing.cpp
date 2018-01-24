@@ -57,7 +57,7 @@ bool CNetPing::ping(const c8* remoteIP, u32 max, s32 timeout) {
 
     mAddressRemote.setIP(remoteIP);
 
-    // 创建报文数据包，先分配内存，在调用FillCMPData填充SHeadICMP结构
+    // 创建报文数据包，先分配内存，在调用FillCMPData填充SHeadICMP结构      
     mDataSize += sizeof(SHeadICMP);
     mICMP_Data = (c8*) ::malloc(MAX_PACKET);
     mReceiveBuffer = (c8*) ::malloc(MAX_PACKET);

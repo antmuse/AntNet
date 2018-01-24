@@ -321,14 +321,7 @@ bool CNetClientSeniorTCP::stop() {
         return true;
     }
     CEventPoller::SEvent evt;
-#if defined(APP_PLATFORM_WINDOWS)
-    evt.mBytes = 0;
-    evt.mKey = ENET_SESSION_MASK;
-    evt.mPointer = 0;
-#elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
-    evt.mData.mData64 = 0;
-    evt.mEvent = ENET_SESSION_MASK;
-#endif
+    evt.setMessage(ENET_SESSION_MASK);
     mCurrentTime = IAppTimer::getTime();
     if(mPoller.postEvent(evt)) {
         mRunning = false;

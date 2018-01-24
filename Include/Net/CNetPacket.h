@@ -183,7 +183,7 @@ public:
 
     u32 readString(core::array<c8>& out)const;
 
-    u32 addBuffer(const c8* iData, u32 iLength);
+    u32 addBuffer(const void* iData, u32 iLength);
 
     /**
     *@brief Clear consumed buffer and move leftover.

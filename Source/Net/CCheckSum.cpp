@@ -131,33 +131,3 @@ u16 CCheckSum::get()const {
 }
 
 } //namespace irr
-
-
-///////////////////outdate code/////////////////////
-namespace irr {
-
-void COutdateCheckSum::add(const void* iData, u32 size) {
-    const u16* buffer = (u16*) iData;
-    while(size >= sizeof(u16)) {
-        mSum += *buffer++;
-        size -= sizeof(u16);
-    }
-    mSum = AppCheckOverflow(mSum);
-    if(size) {
-#if defined(APP_ENDIAN_BIG)
-        u16 add = 0;
-        *(u8*) (&add) = *(u8*) buffer;
-        mSum += add;
-#else
-        mSum += *(u8*) buffer;
-#endif
-    }
-}
-
-u16 COutdateCheckSum::get() const {
-    u32 ret = AppCheckOverflow(mSum);
-    return (u16) (~ret);
-}
-
-
-}// namespace irr

@@ -157,7 +157,7 @@ u32 CNetPacket::clear(u32 position) {
 }
 
 
-u32 CNetPacket::addBuffer(const c8* iData, u32 iLength) {
+u32 CNetPacket::addBuffer(const void* iData, u32 iLength) {
     APP_ASSERT(iData && iLength >= 0);
 
     u32 osize = mDataSize;

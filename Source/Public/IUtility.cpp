@@ -138,11 +138,51 @@ u32 IUtility::convertToU8(const c8* iData, u32 iDataSize, u8* iResult, u32 iSize
 }
 
 
-void IUtility::print(const u8* iData, u32 iSize) {
+void IUtility::printToHexString(const void* iData, u32 iSize) {
+    const u8* buffer = (const u8*) iData;
     for(u32 i = 0; i < iSize; ++i) {
-        printf("%02X", iData[i]);
+        printf("%02X", buffer[i]);
     }
 }
+
+
+void IUtility::printToHexText(const void* buffer, u32 len) {
+    printf("////////////////////////////////////////////////////////////////////////////////////\n");
+    const u32 max = 88;
+    const c8* const buf = (const c8*) buffer;
+    u32 i, j, k;
+    c8 binstr[max];
+    for(i = 0; i < len; i++) {
+        if(0 == (i % 16)) {
+            snprintf(binstr, max, "%08x: ", i);
+            snprintf(binstr, max, "%s %02x", binstr, buf[i]);
+        } else if(15 == (i % 16)) {
+            snprintf(binstr, max, "%s %02x", binstr, buf[i]);
+            snprintf(binstr, max, "%s  ", binstr);
+            for(j = i - 15; j <= i; j++) {
+                snprintf(binstr, max, "%s%c", binstr, ('!' < buf[j] && buf[j] <= '~') ? buf[j] : '.');
+            }
+            printf("%s\n", binstr);
+        } else {
+            snprintf(binstr, max, "%s %02x", binstr, buf[i]);
+        }
+    }
+    if(0 != (i % 16)) {
+        k = 16 - (i % 16);
+        for(j = 0; j < k; j++) {
+            snprintf(binstr, max, "%s   ", binstr);
+        }
+        snprintf(binstr, max, "%s  ", binstr);
+        k = 16 - k;
+        for(j = i - k; j < i; j++) {
+            snprintf(binstr, max, "%s%c", binstr, ('!' < buf[j] && buf[j] <= '~') ? buf[j] : '.');
+        }
+        printf("%s\n", binstr);
+    }
+    printf("////////////////////////////////////////////////////////////////////////////////////\n");
+}
+
+
 
 
 const c8* IUtility::skipFlag(const c8* iStart, const c8* const iEnd, const c8 iLeft, const c8 iRight) {

@@ -239,21 +239,21 @@ public:
     bool open(s32 domain, s32 type, s32 protocol);
 
 
-    s32 sendto(const c8* iBuffer, s32 iSize, const SNetAddress& address);
+    s32 sendto(const void* iBuffer, s32 iSize, const SNetAddress& address);
 
-    s32 receiveFrom(c8* iBuffer, s32 iSize, const SNetAddress& address);
+    s32 receiveFrom(void* iBuffer, s32 iSize, const SNetAddress& address);
 
 
-    s32 send(const c8* iBuffer, s32 iSize);
+    s32 send(const void* iBuffer, s32 iSize);
 
     /**
     *@brief Send in a loop, if using nonblock socket.
     */
-    s32 sendAll(const c8* iBuffer, s32 iSize);
+    s32 sendAll(const void* iBuffer, s32 iSize);
 
-    s32 receive(c8* iBuffer, s32 iSize);
+    s32 receive(void* iBuffer, s32 iSize);
 
-    s32 receiveAll(c8* iBuffer, s32 iSize);
+    s32 receiveAll(void* iBuffer, s32 iSize);
 
     /**
     *@brief Set delay.
@@ -355,19 +355,25 @@ public:
 
     bool close();
 
+    /**
+    * @brief Open a local socket pair.
+    * @return true if success to open, else false.
+    */
     bool open();
 
     bool open(s32 domain, s32 type, s32 protocol);
 
-    CNetSocket& getReader() {
-        return mReader;
+    CNetSocket& getSocketA() {
+        return mSockA;
     }
-    CNetSocket& getWriter() {
-        return mWriter;
+
+    CNetSocket& getSocketB() {
+        return mSockB;
     }
+
 private:
-    CNetSocket mReader;
-    CNetSocket mWriter;
+    CNetSocket mSockA;
+    CNetSocket mSockB;
 };
 #endif //OS APP_PLATFORM_LINUX  APP_PLATFORM_ANDROID
 

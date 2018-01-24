@@ -288,7 +288,7 @@ APP_INLINE void SNetAddress::mergeIP() {
 }
 
 APP_INLINE void SNetAddress::initPort() {
-    mAddress->sin_port = htons(mPort);
+    mAddress->sin_port = ::htons(mPort);
     mergePort();
 }
 
@@ -305,7 +305,7 @@ void SNetAddress::reverse() {
     c8 buf[APP_IP_STRING_MAX_SIZE];
     ::inet_ntop(mAddress->sin_family, &mAddress->sin_addr, buf, sizeof(buf));
     mIP = buf;
-    mPort = ntohs(mAddress->sin_port);
+    mPort = ::ntohs(mAddress->sin_port);
     mergeIP();
     mergePort();
 }
@@ -368,4 +368,4 @@ void SNetAddress::convertIPToString(const SNetAddress::IP& ip, core::stringc& re
 //    irr::IUtility::print((irr::u8*) &addr.mAddress->sin_addr, sizeof(addr.mAddress->sin_addr));
 //    printf("\nid=%u\n", *(irr::u32*) &addr.mAddress->sin_addr);
 //    return 0;
-//}
+//}

@@ -1,5 +1,4 @@
 #include "CTimerWheel.h"
-#include "CMutex.h"
 
 #ifndef APP_TIMER_MANAGER_LIMIT
 #define APP_TIMER_MANAGER_LIMIT	300000		// 300 seconds
@@ -37,16 +36,13 @@ CTimerWheel::STimeNode::~STimeNode() {
 
 //---------------------------------------------------------------------
 CTimerWheel::CTimerWheel(u32 millisec, u32 interval) :
-    mMutex(0),
     mCurrentStep(0),
     mCurrent(millisec),
     mInterval((interval > 0) ? interval : 1) {
-    mMutex = new CMutex();
 }
 
 
 CTimerWheel::~CTimerWheel() {
-    delete mMutex;
 }
 
 
