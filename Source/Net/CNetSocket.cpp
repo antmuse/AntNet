@@ -645,7 +645,7 @@ bool CNetSocketPair::close() {
 
 bool CNetSocketPair::open() {
     netsocket sockpair[2];
-    if(::socketpair(AF_UNIX, SOCK_STREAM, 0, sockpair)) {
+    if(::socketpair(AF_UNIX, SOCK_SEQPACKET, 0, sockpair)) {
         //printf("error %d on socketpair\n", errno);
         return false;
     }
@@ -662,7 +662,7 @@ bool CNetSocketPair::open(s32 domain, s32 type, s32 protocol) {
         return false;
     }
     mSockA = sockpair[0];
-    mSockB = sockpair[1];
+    mSockB = sockpair[1];    u32 sz = 128*sizeof(u32);    mSockA.setSendCache(sz);    mSockA.setReceiveCache(sz);    mSockB.setSendCache(sz);    mSockB.setReceiveCache(sz);
     return true;
 }
 

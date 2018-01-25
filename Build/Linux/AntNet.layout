@@ -2,19 +2,49 @@
 <CodeBlocks_layout_file>
 	<FileVersion major="1" minor="0" />
 	<ActiveTarget name="Release" />
-	<File name="../../Source/Net/CNetSocket.cpp" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../../Source/Net/SNetAddress.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="7350" topLine="258" />
+			<Cursor1 position="378" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="../../Source/Net/RawSocket/CNetSynPing.cpp" open="1" top="1" tabpos="1" split="0" active="1" splitpos="0" zoom_1="3" zoom_2="0">
+	<File name="../../Source/Net/CNetSession.cpp" open="1" top="1" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="10592" topLine="435" />
+		</Cursor>
+	</File>
+	<File name="../../Include/Net/CNetSocket.h" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="8257" topLine="350" />
+		</Cursor>
+	</File>
+	<File name="../../Source/Net/CNetServerAcceptor.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="11699" topLine="107" />
+		</Cursor>
+		<Folding>
+			<Collapse line="18" />
+			<Collapse line="441" />
+			<Collapse line="447" />
+			<Collapse line="480" />
+			<Collapse line="509" />
+			<Collapse line="520" />
+			<Collapse line="532" />
+			<Collapse line="537" />
+		</Folding>
+	</File>
+	<File name="../../Include/Net/CEventPoller.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="0" topLine="114" />
+		</Cursor>
+	</File>
+	<File name="../../Source/Net/RawSocket/CNetSynPing.cpp" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="3" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="705" topLine="33" />
 		</Cursor>
 	</File>
-	<File name="../../Include/Net/CNetSocket.h" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../../Source/Net/CNetSocket.cpp" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="838" topLine="36" />
+			<Cursor1 position="17466" topLine="623" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>

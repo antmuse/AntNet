@@ -1,28 +1,2 @@
 ﻿D:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(372,5): warning MSB8004: Intermediate Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Intermediate Directory.
-  CNetClientNatPuncher.cpp
-  CNetClientSeniorTCP.cpp
-..\..\..\Source\Net\CNetClientSeniorTCP.cpp(399): warning C4312: 'reinterpret_cast': conversion from 'irr::u32' to 'void *' of greater size
-  CNetClientTCP.cpp
-E:\Share\AntNet\Include\Public\IUtility.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-  CNetClientUDP.cpp
-  CNetManager.cpp
-  CNetPacket.cpp
-E:\Share\AntNet\Include\Public\IUtility.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-  CNetServerAcceptor.cpp
-  CNetServerNatPuncher.cpp
-  CNetServerSeniorTCP.cpp
-..\..\..\Source\Net\CNetServerSeniorTCP.cpp(478): warning C4312: 'reinterpret_cast': conversion from 'irr::u32' to 'void *' of greater size
-  CNetServerSeniorUDP.cpp
-  CNetServerTCP.cpp
-  CNetSession.cpp
-..\..\..\Source\Net\CNetSession.cpp(74): warning C4018: '>': signed/unsigned mismatch
-  CNetSocket.cpp
-  CNetClientHttp.cpp
-E:\Share\AntNet\Include\Public\IUtility.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-  CNetHttpHead.cpp
-  CNetHttpRequest.cpp
-E:\Share\AntNet\Include\Public\IUtility.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-  CNetHttpResponse.cpp
-E:\Share\AntNet\Include\Public\IUtility.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-  SClientContext.cpp
   AntNet.vcxproj -> E:\Share\AntNet\Build\Windows\..\..\Lib\Bit64\Windows\AntNet-64.lib

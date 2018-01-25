@@ -179,21 +179,39 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\Include\HConfig.h" />
     <ClInclude Include="..\..\..\Include\irrTypes.h" />
+    <ClInclude Include="..\..\..\Include\Net\CBase64Coder.h" />
+    <ClInclude Include="..\..\..\Include\Net\CCheckCRC16.h" />
+    <ClInclude Include="..\..\..\Include\Net\CCheckCRC32.h" />
+    <ClInclude Include="..\..\..\Include\Net\CCheckSum.h" />
+    <ClInclude Include="..\..\..\Include\Net\CEventPoller.h" />
+    <ClInclude Include="..\..\..\Include\Net\CNetClientNatPuncher.h" />
+    <ClInclude Include="..\..\..\Include\Net\CNetClientSeniorTCP.h" />
     <ClInclude Include="..\..\..\Include\Net\CNetClientTCP.h" />
     <ClInclude Include="..\..\..\Include\Net\CNetClientUDP.h" />
     <ClInclude Include="..\..\..\Include\Net\CNetManager.h" />
     <ClInclude Include="..\..\..\Include\Net\CNetPacket.h" />
     <ClInclude Include="..\..\..\Include\Net\CNetProtocal.h" />
+    <ClInclude Include="..\..\..\Include\Net\CNetServerAcceptor.h" />
+    <ClInclude Include="..\..\..\Include\Net\CNetServerNatPuncher.h" />
     <ClInclude Include="..\..\..\Include\Net\CNetServerNormalTCP.h" />
     <ClInclude Include="..\..\..\Include\Net\CNetServerSeniorTCP.h" />
     <ClInclude Include="..\..\..\Include\Net\CNetServerSeniorUDP.h" />
+    <ClInclude Include="..\..\..\Include\Net\CNetServerTCP.h" />
+    <ClInclude Include="..\..\..\Include\Net\CNetSession.h" />
+    <ClInclude Include="..\..\..\Include\Net\CNetSocket.h" />
     <ClInclude Include="..\..\..\Include\Net\CNetUtility.h" />
+    <ClInclude Include="..\..\..\Include\Net\CTimerWheel.h" />
     <ClInclude Include="..\..\..\Include\Net\HNetConfig.h" />
+    <ClInclude Include="..\..\..\Include\Net\HNetHeader.h" />
+    <ClInclude Include="..\..\..\Include\Net\HNetOperationType.h" />
     <ClInclude Include="..\..\..\Include\Net\INetClient.h" />
+    <ClInclude Include="..\..\..\Include\Net\INetClientSeniorTCP.h" />
     <ClInclude Include="..\..\..\Include\Net\INetEventer.h" />
     <ClInclude Include="..\..\..\Include\Net\INetManager.h" />
     <ClInclude Include="..\..\..\Include\Net\INetServer.h" />
+    <ClInclude Include="..\..\..\Include\Net\INetSession.h" />
     <ClInclude Include="..\..\..\Include\Net\SClientContext.h" />
+    <ClInclude Include="..\..\..\Include\Net\SNetAddress.h" />
     <ClInclude Include="..\..\..\Include\Public\CQueueRing.h" />
     <ClInclude Include="..\..\..\Include\Public\CStreamFile.h" />
     <ClInclude Include="..\..\..\Include\Public\fast_atof.h" />
@@ -217,6 +235,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\Net\CBase64Coder.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\CCheckCRC16.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\CCheckCRC32.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CCheckSum.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CEventPoller.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetClientNatPuncher.cpp" />
@@ -234,8 +254,6 @@
     <ClCompile Include="..\..\..\Source\Net\CNetSession.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetSocket.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetUtility.cpp" />
-    <ClCompile Include="..\..\..\Source\Net\CSuperFastHash.cpp" />
-    <ClCompile Include="..\..\..\Source\Net\CTimerHeap.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CTimerWheel.cpp" />
     <ClCompile Include="..\..\..\Source\Net\HTTP\CNetClientHttp.cpp" />
     <ClCompile Include="..\..\..\Source\Net\HTTP\CNetHttpHead.cpp" />

@@ -13,16 +13,16 @@
 	<stdlib.h>
 	<crtdbg.h>
 
-1516589722 /media/sf_Share/AntNet/Include//HConfig.h
+1516607950 /media/sf_Share/AntNet/Include//HConfig.h
 	"assert.h"
 
-1516458311 source:/media/sf_Share/AntNet/Source/Net/CCheckSum.cpp
+1516590180 source:/media/sf_Share/AntNet/Source/Net/CCheckSum.cpp
 	"CCheckSum.h"
 
-1516453971 /media/sf_Share/AntNet/Include/Net/CCheckSum.h
+1516590189 /media/sf_Share/AntNet/Include/Net/CCheckSum.h
 	"irrTypes.h"
 
-1516439766 source:/media/sf_Share/AntNet/Source/Net/CEventPoller.cpp
+1516806664 source:/media/sf_Share/AntNet/Source/Net/CEventPoller.cpp
 	"CEventPoller.h"
 	"CNetSocket.h"
 	<Windows.h>
@@ -30,12 +30,12 @@
 	<unistd.h>
 	<errno.h>
 
-1515941142 /media/sf_Share/AntNet/Include/Net/CEventPoller.h
+1516806622 /media/sf_Share/AntNet/Include/Net/CEventPoller.h
 	"HConfig.h"
 	"irrTypes.h"
 	"CNetSocket.h"
 
-1516443114 /media/sf_Share/AntNet/Include/Net/CNetSocket.h
+1516807238 /media/sf_Share/AntNet/Include/Net/CNetSocket.h
 	"HNetConfig.h"
 	"SNetAddress.h"
 
@@ -43,7 +43,7 @@
 	"HConfig.h"
 	"irrTypes.h"
 
-1516435031 /media/sf_Share/AntNet/Include/Net/SNetAddress.h
+1516592618 /media/sf_Share/AntNet/Include/Net/SNetAddress.h
 	"HNetConfig.h"
 	"irrString.h"
 	"IBigInteger.h"
@@ -89,7 +89,7 @@
 1513672165 /media/sf_Share/AntNet/Include/Net/INetEventer.h
 	"CNetPacket.h"
 
-1515910554 /media/sf_Share/AntNet/Include/Net/CNetPacket.h
+1516808691 /media/sf_Share/AntNet/Include/Net/CNetPacket.h
 	"HNetConfig.h"
 	"irrArray.h"
 
@@ -102,7 +102,7 @@
 1515861324 /media/sf_Share/AntNet/Include/Public/heapsort.h
 	"irrTypes.h"
 
-1515736114 /media/sf_Share/AntNet/Include/Thread/IRunnable.h
+1509865571 /media/sf_Share/AntNet/Include/Thread/IRunnable.h
 
 1515053659 /media/sf_Share/AntNet/Include/Net/CNetProtocal.h
 	"CQueueNode.h"
@@ -148,7 +148,7 @@
 	"HConfig.h"
 	"irrTypes.h"
 
-1515931796 source:/media/sf_Share/AntNet/Source/Net/CNetClientSeniorTCP.cpp
+1516806806 source:/media/sf_Share/AntNet/Source/Net/CNetClientSeniorTCP.cpp
 	"CNetClientSeniorTCP.h"
 	"CNetUtility.h"
 	"IAppLogger.h"
@@ -177,13 +177,14 @@
 	"IRunnable.h"
 	"INetSession.h"
 
-1515724007 /media/sf_Share/AntNet/Include/Net/INetSession.h
+1516808577 /media/sf_Share/AntNet/Include/Net/INetSession.h
 	"INetEventer.h"
 
-1515719338 /media/sf_Share/AntNet/Include/Net/CTimerWheel.h
+1516802830 /media/sf_Share/AntNet/Include/Net/CTimerWheel.h
 	"CQueueNode.h"
+	"CSpinlock.h"
 
-1515910493 /media/sf_Share/AntNet/Include/Net/CNetSession.h
+1516808640 /media/sf_Share/AntNet/Include/Net/CNetSession.h
 	"INetSession.h"
 	"SClientContext.h"
 	"CNetPacket.h"
@@ -234,7 +235,7 @@
 1514945593 /media/sf_Share/AntNet/Include/Public/IReferenceCounted.h
 	"irrTypes.h"
 
-1514995484 /media/sf_Share/AntNet/Include/Public/IUtility.h
+1516807990 /media/sf_Share/AntNet/Include/Public/IUtility.h
 	"HConfig.h"
 	"path.h"
 
@@ -320,7 +321,7 @@
 	"CNetSocket.h"
 	"CStreamFile.h"
 
-1515940372 /media/sf_Share/AntNet/Include/Net/CNetServerSeniorTCP.h
+1516804968 /media/sf_Share/AntNet/Include/Net/CNetServerSeniorTCP.h
 	"irrString.h"
 	"irrArray.h"
 	"irrList.h"
@@ -340,7 +341,7 @@
 	"CNetSocket.h"
 	"CNetProtocal.h"
 
-1515383545 source:/media/sf_Share/AntNet/Source/Net/CNetPacket.cpp
+1516808677 source:/media/sf_Share/AntNet/Source/Net/CNetPacket.cpp
 	"CNetPacket.h"
 	"IUtility.h"
 	<string>
@@ -356,7 +357,7 @@
 	"irrMath.h"
 	"IUtility.h"
 
-1515939588 source:/media/sf_Share/AntNet/Source/Net/CNetServerAcceptor.cpp
+1516840418 source:/media/sf_Share/AntNet/Source/Net/CNetServerAcceptor.cpp
 	"CNetServerAcceptor.h"
 	"CNetUtility.h"
 	"IAppTimer.h"
@@ -386,7 +387,7 @@
 	"IRunnable.h"
 	"CNetSocket.h"
 
-1515940654 source:/media/sf_Share/AntNet/Source/Net/CNetServerSeniorTCP.cpp
+1516807375 source:/media/sf_Share/AntNet/Source/Net/CNetServerSeniorTCP.cpp
 	"CNetServerSeniorTCP.h"
 	"CNetSession.h"
 	"IAppTimer.h"
@@ -405,13 +406,10 @@
 	"IAppLogger.h"
 	"CNetUtility.h"
 
-1515987982 source:/media/sf_Share/AntNet/Source/Net/CNetSession.cpp
+1516840008 source:/media/sf_Share/AntNet/Source/Net/CNetSession.cpp
 	"CNetSession.h"
-	"CEventPoller.h"
-	"CNetClientSeniorTCP.h"
-	"IAppLogger.h"
 
-1516589397 source:/media/sf_Share/AntNet/Source/Net/CNetSocket.cpp
+1516843306 source:/media/sf_Share/AntNet/Source/Net/CNetSocket.cpp
 	"CNetSocket.h"
 	<winsock2.h>
 	<mstcpip.h>
@@ -459,9 +457,8 @@
 1509678818 /media/sf_Share/AntNet/Include/Net/CTimerHeap.h
 	"irrTypes.h"
 
-1515719338 source:/media/sf_Share/AntNet/Source/Net/CTimerWheel.cpp
+1516802598 source:/media/sf_Share/AntNet/Source/Net/CTimerWheel.cpp
 	"CTimerWheel.h"
-	"CMutex.h"
 
 1515725602 source:/media/sf_Share/AntNet/Source/Net/HTTP/CNetClientHttp.cpp
 	"CNetClientHttp.h"
@@ -513,7 +510,7 @@
 1515651574 /media/sf_Share/AntNet/Include/Net/Mail/CNetMailMessage.h
 	"irrString.h"
 
-1516442526 source:/media/sf_Share/AntNet/Source/Net/RawSocket/CNetPing.cpp
+1516442518 source:/media/sf_Share/AntNet/Source/Net/RawSocket/CNetPing.cpp
 	"CNetPing.h"
 	"CNetUtility.h"
 	"CCheckSum.h"
@@ -537,11 +534,11 @@
 	"SNetAddress.h"
 	"CNetSocket.h"
 
-1516589738 /media/sf_Share/AntNet/Include/Net/HNetHeader.h
+1516589484 /media/sf_Share/AntNet/Include/Net/HNetHeader.h
 	"HConfig.h"
 	"irrTypes.h"
 
-1516592077 source:/media/sf_Share/AntNet/Source/Net/RawSocket/CNetSynPing.cpp
+1516614109 source:/media/sf_Share/AntNet/Source/Net/RawSocket/CNetSynPing.cpp
 	"CNetSynPing.h"
 	"CNetUtility.h"
 	"IAppLogger.h"
@@ -571,7 +568,7 @@
 	"SClientContext.h"
 	"CNetUtility.h"
 
-1516589000 source:/media/sf_Share/AntNet/Source/Net/SNetAddress.cpp
+1516840067 source:/media/sf_Share/AntNet/Source/Net/SNetAddress.cpp
 	"SNetAddress.h"
 	"fast_atof.h"
 	<winsock2.h>
@@ -616,7 +613,7 @@
 	<windows.h>
 	<sys/time.h>
 
-1516445360 source:/media/sf_Share/AntNet/Source/Public/IUtility.cpp
+1516808041 source:/media/sf_Share/AntNet/Source/Public/IUtility.cpp
 	"IUtility.h"
 	"irrMath.h"
 	"fast_atof.h"
@@ -716,4 +713,19 @@
 	"HAtomicOperator.h"
 	<Windows.h>
 	<intrin.h>
+
+1516766090 /media/sf_Share/AntNet/Include/Thread/CSpinlock.h
+	"irrTypes.h"
+
+1516841677 source:/media/sf_Share/AntNet/Source/Net/CCheckCRC16.cpp
+	"CCheckCRC16.h"
+
+1516841652 /media/sf_Share/AntNet/Include/Net/CCheckCRC16.h
+	"irrTypes.h"
+
+1516840799 source:/media/sf_Share/AntNet/Source/Net/CCheckCRC32.cpp
+	"CCheckCRC32.h"
+
+1516840767 /media/sf_Share/AntNet/Include/Net/CCheckCRC32.h
+	"irrTypes.h"
 

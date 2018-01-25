@@ -422,8 +422,8 @@ bool CNetServerAcceptor::stop() {
         //IAppLogger::log(ELOG_INFO, "CNetServerAcceptor::stop", "server had stoped.");
         return true;
     }
-    CEventPoller::SEvent evt = {0};
-    evt.mData.mData32 = APP_SERVER_EXIT_CODE;
+    CEventPoller::SEvent evt;
+    evt.setMessage(APP_SERVER_EXIT_CODE);
     if(mPoller.postEvent(evt)) {
         mRunning = false;
         mThread->join();

@@ -316,7 +316,7 @@ bool CNetSession::connect(const SNetAddress& it) {
 }
 
 
-s32 CNetSession::send(const c8* iBuffer, s32 iSize) {
+s32 CNetSession::send(const void* iBuffer, s32 iSize) {
     //APP_ASSERT(mPoller);
     if(!iBuffer || iSize < 0) {//0 byte is ok
         return -1;

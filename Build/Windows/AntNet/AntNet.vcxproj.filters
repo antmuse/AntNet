@@ -153,6 +153,60 @@
     <ClInclude Include="..\..\..\Include\Net\CNetPacket.h">
       <Filter>Include\Net</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\CBase64Coder.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\CCheckCRC16.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\CCheckCRC32.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\CCheckSum.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\CEventPoller.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\CNetClientNatPuncher.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\CNetClientSeniorTCP.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\CNetServerAcceptor.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\CNetServerNatPuncher.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\CNetServerTCP.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\CNetSession.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\CNetSocket.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\CTimerWheel.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\HNetHeader.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\HNetOperationType.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\INetClientSeniorTCP.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\INetSession.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\SNetAddress.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\Net\CNetClientUDP.cpp">
@@ -227,12 +281,6 @@
     <ClCompile Include="..\..\..\Source\Net\CNetSocket.cpp">
       <Filter>Source\Net</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\Net\CSuperFastHash.cpp">
-      <Filter>Source\Net</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Source\Net\CTimerHeap.cpp">
-      <Filter>Source\Net</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\Source\Net\CTimerWheel.cpp">
       <Filter>Source\Net</Filter>
     </ClCompile>
@@ -265,6 +313,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Source\Net\RawSocket\CNetSynPing.cpp">
       <Filter>Source\Net\RawSocket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\CCheckCRC16.cpp">
+      <Filter>Source\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\CCheckCRC32.cpp">
+      <Filter>Source\Net</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
