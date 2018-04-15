@@ -200,7 +200,6 @@
     <ClInclude Include="..\..\..\Include\Net\CNetSession.h" />
     <ClInclude Include="..\..\..\Include\Net\CNetSocket.h" />
     <ClInclude Include="..\..\..\Include\Net\CNetUtility.h" />
-    <ClInclude Include="..\..\..\Include\Net\CTimerWheel.h" />
     <ClInclude Include="..\..\..\Include\Net\HNetConfig.h" />
     <ClInclude Include="..\..\..\Include\Net\HNetHeader.h" />
     <ClInclude Include="..\..\..\Include\Net\HNetOperationType.h" />
@@ -216,6 +215,8 @@
     <ClInclude Include="..\..\..\Include\Public\CQueueNode.h" />
     <ClInclude Include="..\..\..\Include\Public\CQueueRing.h" />
     <ClInclude Include="..\..\..\Include\Public\CStreamFile.h" />
+    <ClInclude Include="..\..\..\Include\Public\CTimeoutManager.h" />
+    <ClInclude Include="..\..\..\Include\Public\CTimerWheel.h" />
     <ClInclude Include="..\..\..\Include\Public\fast_atof.h" />
     <ClInclude Include="..\..\..\Include\Public\heapsort.h" />
     <ClInclude Include="..\..\..\Include\Public\IAppLogger.h" />
@@ -258,7 +259,6 @@
     <ClCompile Include="..\..\..\Source\Net\CNetSession.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetSocket.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetUtility.cpp" />
-    <ClCompile Include="..\..\..\Source\Net\CTimerWheel.cpp" />
     <ClCompile Include="..\..\..\Source\Net\HTTP\CNetClientHttp.cpp" />
     <ClCompile Include="..\..\..\Source\Net\HTTP\CNetHttpHead.cpp" />
     <ClCompile Include="..\..\..\Source\Net\HTTP\CNetHttpRequest.cpp" />
@@ -272,6 +272,8 @@
     <ClCompile Include="..\..\..\Source\Net\SNetAddress.cpp" />
     <ClCompile Include="..\..\..\Source\Public\CQueueNode.cpp" />
     <ClCompile Include="..\..\..\Source\Public\CStreamFile.cpp" />
+    <ClCompile Include="..\..\..\Source\Public\CTimeoutManager.cpp" />
+    <ClCompile Include="..\..\..\Source\Public\CTimerWheel.cpp" />
     <ClCompile Include="..\..\..\Source\Public\IAppLogger.cpp" />
     <ClCompile Include="..\..\..\Source\Public\IAppTimer.cpp" />
     <ClCompile Include="..\..\..\Source\Public\IUtility.cpp" />

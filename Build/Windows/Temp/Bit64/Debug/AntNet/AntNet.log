@@ -1,14 +1,2 @@
 ﻿D:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(372,5): warning MSB8004: Intermediate Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Intermediate Directory.
-  CTimerWheel.cpp
-  CNetSession.cpp
-e:\share\antnet\source\net\cnetsession.cpp(74): warning C4018: '>': signed/unsigned mismatch
-  CNetServerSeniorTCP.cpp
-e:\share\antnet\source\net\cnetserverseniortcp.cpp(478): warning C4312: 'reinterpret_cast': conversion from 'irr::u32' to 'void *' of greater size
-  CNetServerAcceptor.cpp
-  CNetManager.cpp
-  CNetClientSeniorTCP.cpp
-e:\share\antnet\source\net\cnetclientseniortcp.cpp(399): warning C4312: 'reinterpret_cast': conversion from 'irr::u32' to 'void *' of greater size
-  Generating Code...
-CNetMailMessage.obj : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
-CNetMailClient.obj : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
   AntNet.vcxproj -> E:\Share\AntNet\Build\Windows\..\..\Lib\Bit64\Windows\AntNet-64D.lib

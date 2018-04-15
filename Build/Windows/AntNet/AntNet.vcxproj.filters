@@ -186,9 +186,6 @@
     <ClInclude Include="..\..\..\Include\Net\CNetSocket.h">
       <Filter>Include\Net</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Include\Net\CTimerWheel.h">
-      <Filter>Include\Net</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Include\Net\HNetHeader.h">
       <Filter>Include\Net</Filter>
     </ClInclude>
@@ -217,6 +214,12 @@
       <Filter>Include\Public</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Include\Public\path.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\CTimeoutManager.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\CTimerWheel.h">
       <Filter>Include\Public</Filter>
     </ClInclude>
   </ItemGroup>
@@ -293,9 +296,6 @@
     <ClCompile Include="..\..\..\Source\Net\CNetSocket.cpp">
       <Filter>Source\Net</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\Net\CTimerWheel.cpp">
-      <Filter>Source\Net</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\Source\Net\SNetAddress.cpp">
       <Filter>Source\Net</Filter>
     </ClCompile>
@@ -331,6 +331,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Source\Net\CCheckCRC32.cpp">
       <Filter>Source\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Public\CTimeoutManager.cpp">
+      <Filter>Source\Public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Public\CTimerWheel.cpp">
+      <Filter>Source\Public</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

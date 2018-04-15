@@ -7,7 +7,7 @@
 #include "CNetClientSeniorTCP.h"
 #include "CDefaultNetEventer.h"
 #include "CNetPing.h"
-#include "CTimerWheel.h"
+#include "CTimeoutManager.h"
 #include "IAppTimer.h"
 #include "CAtomicValue32.h"
 
@@ -90,43 +90,6 @@ void AppStartPing() {
 
 
 void AppStartTimerWheel() {
-
-    class CTimeManager : public IRunnable {
-    public:
-        CTimeManager(CTimerWheel& it, u32 step) :
-            mStep(0 == step ? 1 : step),
-            mRunning(false),
-            mTimer(it) {
-        }
-        virtual void run() {
-            for(; mRunning;) {
-                mTimer.update(mCurrent);
-                CThread::sleep(mStep);
-                mCurrent += mStep;
-            }
-        }
-        void start() {
-            if(!mRunning) {
-                mRunning = true;
-                mCurrent = IAppTimer::getTime();
-                mTimer.setCurrent(mCurrent);
-                mThread.start(*this);
-            }
-        }
-        void stop() {
-            if(mRunning) {
-                mRunning = false;
-                mThread.join();
-            }
-        }
-    private:
-        bool mRunning;
-        u32 mStep;
-        u32 mCurrent;
-        CTimerWheel& mTimer;
-        CThread mThread;
-    };
-
     class CTimeAdder : public IRunnable {
     public:
         CTimeAdder(CTimerWheel& it, u32 maxStep) :
@@ -172,7 +135,7 @@ void AppStartTimerWheel() {
             node->mTimeNode.mCallback = CTimeAdder::timeout;
             node->mTimeNode.mCallbackData = node;
             AppAtomicIncrementFetch(&mIndex);
-            mTimer.add(node->mTimeNode, (3) * 1000);
+            mTimer.add(node->mTimeNode, 1 * 1000);
         }
         struct SNode {
             s32 mID;
@@ -186,16 +149,18 @@ void AppStartTimerWheel() {
         CThread mThread;
     };
 
-    CTimerWheel timer(IAppTimer::getTime(), 1);
-    CTimeManager tmanager(timer, 10);
-    CTimeAdder tadder(timer, 50);
+    CTimeoutManager tmanager(22);
+    CTimeAdder tadder(tmanager.getTimeWheel(), 50);
+    //tmanager.getTimeWheel().setInterval(0x10000000);
     tmanager.start();
     tadder.start();
-    CThread::sleep(10 * 1000);
+    //CThread::sleep(10 * 1000);
+    AppQuit();
+    printf("--------------clear time wheel--------------\n");
+    tmanager.getTimeWheel().clear();
     tadder.stop();
     tmanager.stop();
-    printf("--------------clear time wheel--------------\n");
-    timer.clear();
+
     printf("finished, leftover = %d\n", *tadder.getCount());
     printf("--------------------------------------------\n");
 }
