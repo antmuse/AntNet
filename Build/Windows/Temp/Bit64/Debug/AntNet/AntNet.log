@@ -1,6 +1,0 @@
-﻿D:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(372,5): warning MSB8004: Intermediate Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Intermediate Directory.
-  CTimeoutManager.cpp
-e:\share\antnet\source\public\ctimeoutmanager.cpp(26): warning C4244: 'argument': conversion from 'irr::u64' to 'long', possible loss of data
-CNetMailMessage.obj : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
-CNetMailClient.obj : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
-  AntNet.vcxproj -> E:\Share\AntNet\Build\Windows\..\..\Lib\Bit64\Windows\AntNet-64D.lib
