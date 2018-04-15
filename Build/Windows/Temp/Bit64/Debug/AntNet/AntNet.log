@@ -1,81 +1,13 @@
 ﻿D:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(372,5): warning MSB8004: Intermediate Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Intermediate Directory.
-  IUtility.cpp
-e:\share\antnet\include\public\iutility.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-  IAppTimer.cpp
-e:\share\antnet\source\public\iapptimer.cpp(30): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\time.h(505): note: see declaration of 'localtime'
-e:\share\antnet\source\public\iapptimer.cpp(37): warning C4996: 'gmtime': This function or variable may be unsafe. Consider using gmtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\time.h(495): note: see declaration of 'gmtime'
-e:\share\antnet\source\public\iapptimer.cpp(176): warning C4996: 'gmtime': This function or variable may be unsafe. Consider using gmtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\time.h(495): note: see declaration of 'gmtime'
-  IAppLogger.cpp
-e:\share\antnet\source\public\iapplogger.cpp(46): warning C4996: '_vsnwprintf': This function or variable may be unsafe. Consider using _vsnwprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\corecrt_wstdio.h(1122): note: see declaration of '_vsnwprintf'
-  CStreamFile.cpp
-e:\share\antnet\source\public\cstreamfile.cpp(238): warning C4018: '>=': signed/unsigned mismatch
-  CQueueNode.cpp
-  SNetAddress.cpp
-  SClientContext.cpp
-  CNetSynPing.cpp
-e:\share\antnet\source\net\rawsocket\cnetsynping.cpp : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-e:\share\antnet\include\public\iutility.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-  CNetPing.cpp
-e:\share\antnet\source\net\rawsocket\cnetping.cpp(71): warning C4018: '<': signed/unsigned mismatch
-e:\share\antnet\source\net\rawsocket\cnetping.cpp(74): warning C4244: '=': conversion from 'irr::u64' to 'irr::u32', possible loss of data
-  CNetMailMessage.cpp
-  CNetMailClient.cpp
-  CNetHttpURL.cpp
-e:\share\antnet\include\public\iutility.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-  CNetHttpResponse.cpp
-e:\share\antnet\include\public\iutility.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-  CNetHttpRequest.cpp
-e:\share\antnet\include\public\iutility.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-  CNetHttpHead.cpp
-  CNetClientHttp.cpp
-e:\share\antnet\include\public\iutility.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
   CTimerWheel.cpp
-  CTimerHeap.cpp
-  CSuperFastHash.cpp
-e:\share\antnet\source\net\csuperfasthash.cpp(93): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\stdio.h(207): note: see declaration of 'fopen'
-  CNetUtility.cpp
-  Generating Code...
-  Compiling...
-  CNetSocket.cpp
   CNetSession.cpp
-e:\share\antnet\source\net\cnetsession.cpp(76): warning C4018: '>': signed/unsigned mismatch
-  CNetServerTCP.cpp
-  CNetServerSeniorUDP.cpp
+e:\share\antnet\source\net\cnetsession.cpp(74): warning C4018: '>': signed/unsigned mismatch
   CNetServerSeniorTCP.cpp
-e:\share\antnet\source\net\cnetserverseniortcp.cpp(489): warning C4312: 'reinterpret_cast': conversion from 'irr::u32' to 'void *' of greater size
-  CNetServerNatPuncher.cpp
+e:\share\antnet\source\net\cnetserverseniortcp.cpp(478): warning C4312: 'reinterpret_cast': conversion from 'irr::u32' to 'void *' of greater size
   CNetServerAcceptor.cpp
-  CNetProtocal.cpp
-e:\share\antnet\include\public\iutility.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-e:\share\antnet\source\net\cnetprotocal.cpp(481): warning C4267: 'argument': conversion from 'size_t' to 'irr::s32', possible loss of data
-e:\share\antnet\source\net\cnetprotocal.cpp(497): warning C4267: '=': conversion from 'size_t' to 'irr::u32', possible loss of data
-e:\share\antnet\source\net\cnetprotocal.cpp(638): warning C4244: 'argument': conversion from 'irr::u64' to 'irr::s32', possible loss of data
-e:\share\antnet\source\net\cnetprotocal.cpp(743): warning C4244: 'initializing': conversion from 'irr::u64' to 'irr::u32', possible loss of data
-e:\share\antnet\source\net\cnetprotocal.cpp(784): warning C4244: '=': conversion from 'irr::u64' to 'irr::u32', possible loss of data
-e:\share\antnet\source\net\cnetprotocal.cpp(786): warning C4244: 'argument': conversion from 'irr::u64' to 'irr::u32', possible loss of data
-e:\share\antnet\source\net\cnetprotocal.cpp(792): warning C4244: '=': conversion from 'irr::u64' to 'irr::u32', possible loss of data
-e:\share\antnet\source\net\cnetprotocal.cpp(976): warning C4244: 'argument': conversion from 'irr::u64' to 'irr::u32', possible loss of data
-e:\share\antnet\source\net\cnetprotocal.cpp(977): warning C4244: 'argument': conversion from 'irr::u64' to 'irr::u32', possible loss of data
-e:\share\antnet\source\net\cnetprotocal.cpp(981): warning C4244: 'argument': conversion from 'irr::u64' to 'irr::u32', possible loss of data
-e:\share\antnet\source\net\cnetprotocal.cpp(985): warning C4244: 'argument': conversion from 'irr::u64' to 'irr::u32', possible loss of data
-e:\share\antnet\source\net\cnetprotocal.cpp(989): warning C4244: 'argument': conversion from 'irr::u64' to 'irr::u32', possible loss of data
-  CNetPacket.cpp
-e:\share\antnet\include\public\iutility.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
   CNetManager.cpp
-  CNetClientUDP.cpp
-  CNetClientTCP.cpp
-e:\share\antnet\include\public\iutility.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
   CNetClientSeniorTCP.cpp
-e:\share\antnet\source\net\cnetclientseniortcp.cpp(406): warning C4312: 'reinterpret_cast': conversion from 'irr::u32' to 'void *' of greater size
-  CNetClientNatPuncher.cpp
-  CEventPoller.cpp
-  CCheckSum.cpp
-  CBase64Coder.cpp
+e:\share\antnet\source\net\cnetclientseniortcp.cpp(399): warning C4312: 'reinterpret_cast': conversion from 'irr::u32' to 'void *' of greater size
   Generating Code...
 CNetMailMessage.obj : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
 CNetMailClient.obj : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library

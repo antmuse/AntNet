@@ -39,10 +39,57 @@ CTimerWheel::CTimerWheel(u32 millisec, u32 interval) :
     mCurrentStep(0),
     mCurrent(millisec),
     mInterval((interval > 0) ? interval : 1) {
+    init();
 }
 
 
 CTimerWheel::~CTimerWheel() {
+    clear();
+}
+
+
+void CTimerWheel::init() {
+    initSlot(mSlot_0, APP_TIME_ROOT_SLOT_SIZE);
+    initSlot(mSlot_1, APP_TIME_SLOT_SIZE);
+    initSlot(mSlot_2, APP_TIME_SLOT_SIZE);
+    initSlot(mSlot_3, APP_TIME_SLOT_SIZE);
+    initSlot(mSlot_4, APP_TIME_SLOT_SIZE);
+}
+
+
+void CTimerWheel::clear() {
+    mSpinlock.lock();
+    clearSlot(mSlot_0, APP_TIME_ROOT_SLOT_SIZE);
+    clearSlot(mSlot_1, APP_TIME_SLOT_SIZE);
+    clearSlot(mSlot_2, APP_TIME_SLOT_SIZE);
+    clearSlot(mSlot_3, APP_TIME_SLOT_SIZE);
+    clearSlot(mSlot_4, APP_TIME_SLOT_SIZE);
+    mSpinlock.unlock();
+}
+
+
+void CTimerWheel::initSlot(CQueueNode all[], u32 size) {
+    for(u32 i = 0; i < size; i++) {
+        all[i].init();
+    }
+}
+
+
+void CTimerWheel::clearSlot(CQueueNode all[], u32 size) {
+    STimeNode* node;
+    AppTimeoutCallback fn;
+    void* data;
+    for(u32 j = 0; j < size; j++) {
+        while(!all[j].isEmpty()) {
+            node = APP_GET_VALUE_POINTER(all[j].getNext(), STimeNode, mLinker);
+            if(!node->mLinker.isEmpty()) {
+                node->mLinker.delink();
+            }
+            fn = node->mCallback;
+            data = node->mCallbackData;
+            if(fn) fn(data);
+        }
+    }
 }
 
 
@@ -51,6 +98,8 @@ void CTimerWheel::add(STimeNode& node, u32 period) {
         APP_ASSERT(0);
         return;
     }
+    mSpinlock.lock();
+
     if(!node.mLinker.isEmpty()) {
         node.mLinker.delink();
     }
@@ -60,6 +109,8 @@ void CTimerWheel::add(STimeNode& node, u32 period) {
     }
     node.mTimeoutStep = mCurrentStep + steps;
     innerAdd(node);
+
+    mSpinlock.unlock();
 }
 
 
@@ -80,10 +131,15 @@ s32 CTimerWheel::remove(STimeNode& node) {
         APP_ASSERT(0);
         return -1;
     }
+
+    mSpinlock.lock();
+
     if(!node.mLinker.isEmpty()) {
         node.mLinker.delink();
         return 1;
     }
+
+    mSpinlock.unlock();
     return 0;
 }
 
@@ -92,17 +148,17 @@ void CTimerWheel::innerAdd(STimeNode& node) {
     u32 expires = node.mTimeoutStep;
     u32 idx = expires - mCurrentStep;
     if(idx < ESLOT0_MAX) {
-        mSlot_0.pushBack(expires & APP_TIME_ROOT_SLOT_MASK, node.mLinker);
+        mSlot_0[expires & APP_TIME_ROOT_SLOT_MASK].pushBack(node.mLinker);
     } else if(idx < ESLOT1_MAX) {
-        mSlot_1.pushBack(getIndex(expires, 0), node.mLinker);
+        mSlot_1[getIndex(expires, 0)].pushBack(node.mLinker);
     } else if(idx < ESLOT2_MAX) {
-        mSlot_2.pushBack(getIndex(expires, 1), node.mLinker);
+        mSlot_2[getIndex(expires, 1)].pushBack(node.mLinker);
     } else if(idx < ESLOT3_MAX) {
-        mSlot_3.pushBack(getIndex(expires, 2), node.mLinker);
+        mSlot_3[getIndex(expires, 2)].pushBack(node.mLinker);
     } else if((s32) idx < 0) {
-        mSlot_0.pushBack(mCurrentStep & APP_TIME_ROOT_SLOT_MASK, node.mLinker);
+        mSlot_0[mCurrentStep & APP_TIME_ROOT_SLOT_MASK].pushBack(node.mLinker);
     } else {
-        mSlot_4.pushBack(getIndex(expires, 3), node.mLinker);
+        mSlot_4[getIndex(expires, 3)].pushBack(node.mLinker);
     }
 }
 
@@ -174,8 +230,10 @@ void CTimerWheel::update(u32 millisec) {
         mCurrent = millisec;
     }
     while((s32) (millisec - mCurrent) >= 0) {
+        mSpinlock.lock();
         innerUpdate();
         mCurrent += mInterval;
+        mSpinlock.unlock();
     }
 }
 

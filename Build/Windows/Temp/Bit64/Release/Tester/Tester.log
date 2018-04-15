@@ -1,6 +1,13 @@
 ﻿D:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(372,5): warning MSB8004: Intermediate Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Intermediate Directory.
-  Generating code
-  All 407 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
-  Finished generating code
-  Tester.vcxproj -> E:\Share\AntNet\Build\Windows\..\..\Bin\Tester-64.exe
-  Tester.vcxproj -> E:\Share\AntNet\Build\Windows\..\..\Bin\Tester-64.pdb (Full PDB)
+  App.cpp
+..\..\..\Source\Test\App.cpp(41): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.15063.0\ucrt\stdio.h(1272): note: see declaration of 'scanf'
+..\..\..\Source\Test\App.cpp(142): error C2597: illegal reference to non-static member 'irr::AppStartTimerWheel::CTimeAdder::mIndex'
+..\..\..\Source\Test\App.cpp(142): error C2665: 'irr::AppAtomicDecrementFetch': none of the 3 overloads could convert all the argument types
+  E:\Share\AntNet\Include\Thread\HAtomicOperator.h(54): note: could be 'irr::s16 irr::AppAtomicDecrementFetch(irr::s16 *)'
+  E:\Share\AntNet\Include\Thread\HAtomicOperator.h(53): note: or       'irr::s64 irr::AppAtomicDecrementFetch(irr::s64 *)'
+  E:\Share\AntNet\Include\Thread\HAtomicOperator.h(46): note: or       'irr::s32 irr::AppAtomicDecrementFetch(irr::s32 *)'
+  ..\..\..\Source\Test\App.cpp(142): note: while trying to match the argument list '(irr::s32 irr::AppStartTimerWheel::CTimeAdder::* )'
+..\..\..\Source\Test\App.cpp(140): warning C4477: 'printf' : format string '%llu' requires an argument of type 'unsigned __int64', but variadic argument 1 has type 'void *'
+..\..\..\Source\Test\App.cpp(202): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.15063.0\ucrt\stdio.h(1272): note: see declaration of 'scanf'

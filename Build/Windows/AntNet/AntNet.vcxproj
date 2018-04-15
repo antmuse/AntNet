@@ -212,11 +212,15 @@
     <ClInclude Include="..\..\..\Include\Net\INetSession.h" />
     <ClInclude Include="..\..\..\Include\Net\SClientContext.h" />
     <ClInclude Include="..\..\..\Include\Net\SNetAddress.h" />
+    <ClInclude Include="..\..\..\Include\Public\coreutil.h" />
+    <ClInclude Include="..\..\..\Include\Public\CQueueNode.h" />
     <ClInclude Include="..\..\..\Include\Public\CQueueRing.h" />
     <ClInclude Include="..\..\..\Include\Public\CStreamFile.h" />
     <ClInclude Include="..\..\..\Include\Public\fast_atof.h" />
     <ClInclude Include="..\..\..\Include\Public\heapsort.h" />
     <ClInclude Include="..\..\..\Include\Public\IAppLogger.h" />
+    <ClInclude Include="..\..\..\Include\Public\IAppTimer.h" />
+    <ClInclude Include="..\..\..\Include\Public\INoCopy.h" />
     <ClInclude Include="..\..\..\Include\Public\IPairOrderID.h" />
     <ClInclude Include="..\..\..\Include\Public\IReferenceCounted.h" />
     <ClInclude Include="..\..\..\Include\Public\irrAllocator.h" />
@@ -225,8 +229,8 @@
     <ClInclude Include="..\..\..\Include\Public\irrMap.h" />
     <ClInclude Include="..\..\..\Include\Public\irrMath.h" />
     <ClInclude Include="..\..\..\Include\Public\irrString.h" />
-    <ClInclude Include="..\..\..\Include\Public\ITimer.h" />
     <ClInclude Include="..\..\..\Include\Public\IUtility.h" />
+    <ClInclude Include="..\..\..\Include\Public\path.h" />
     <ClInclude Include="..\..\..\Include\Thread\CMutex.h" />
     <ClInclude Include="..\..\..\Include\Thread\CThread.h" />
     <ClInclude Include="..\..\..\Include\Thread\CThreadEvent.h" />

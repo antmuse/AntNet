@@ -87,66 +87,13 @@ public:
     void setCurrent(u32 time) {
         mCurrent = time;
     }
-private:
-    class CTimerSlot {
-    public:
-        CTimerSlot() {
-            for(u32 i = 0; i < APP_TIME_SLOT_SIZE; i++) {
-                mAllSlotNode[i].init();
-            }
-        }
-        ~CTimerSlot() {
-            STimeNode* node;
-            for(u32 j = 0; j < APP_TIME_SLOT_SIZE; j++) {
-                while(!mAllSlotNode[j].isEmpty()) {
-                    node = APP_GET_VALUE_POINTER(mAllSlotNode[j].getNext(), STimeNode, mLinker);
-                    if(!node->mLinker.isEmpty()) {
-                        node->mLinker.delink();
-                    }
-                }
-            }
-        }
-        void pushBack(u32 index, CQueueNode& it) {
-            APP_ASSERT(index < APP_TIME_SLOT_SIZE);
-            return mAllSlotNode[index].pushBack(it);
-        }
-        CQueueNode& operator[](u32 index) {
-            APP_ASSERT(index < APP_TIME_SLOT_SIZE);
-            return mAllSlotNode[index];
-        }
-    private:
-        CQueueNode mAllSlotNode[APP_TIME_SLOT_SIZE];
-    };
 
-    class CTimerRootSlot {
-    public:
-        CTimerRootSlot() {
-            for(u32 i = 0; i < APP_TIME_ROOT_SLOT_SIZE; i++) {
-                mAllSlotNode[i].init();
-            }
-        }
-        ~CTimerRootSlot() {
-            STimeNode* node;
-            for(u32 j = 0; j < APP_TIME_ROOT_SLOT_SIZE; j++) {
-                while(!mAllSlotNode[j].isEmpty()) {
-                    node = APP_GET_VALUE_POINTER(mAllSlotNode[j].getNext(), STimeNode, mLinker);
-                    if(!node->mLinker.isEmpty()) {
-                        node->mLinker.delink();
-                    }
-                }
-            }
-        }
-        void pushBack(u32 index, CQueueNode& it) {
-            APP_ASSERT(index < APP_TIME_ROOT_SLOT_SIZE);
-            return mAllSlotNode[index].pushBack(it);
-        }
-        CQueueNode& operator[](u32 index) {
-            APP_ASSERT(index < APP_TIME_ROOT_SLOT_SIZE);
-            return mAllSlotNode[index];
-        }
-    private:
-        CQueueNode mAllSlotNode[APP_TIME_ROOT_SLOT_SIZE];
-    };
+    void clear();
+
+private:
+    void init();
+    void initSlot(CQueueNode all[], u32 size);
+    void clearSlot(CQueueNode all[], u32 size);
 
     enum {
         ESLOT0_MAX = (1 << (APP_TIME_ROOT_SLOT_BITS + APP_TIME_SLOT_BITS * 0)), //APP_TIME_ROOT_SLOT_SIZE,
@@ -168,11 +115,11 @@ private:
     u32 mCurrent;
     u32 mCurrentStep;
     CSpinlock mSpinlock;
-    CTimerRootSlot mSlot_0;
-    CTimerSlot mSlot_1;
-    CTimerSlot mSlot_2;
-    CTimerSlot mSlot_3;
-    CTimerSlot mSlot_4;
+    CQueueNode mSlot_0[APP_TIME_ROOT_SLOT_SIZE];
+    CQueueNode mSlot_1[APP_TIME_SLOT_SIZE];
+    CQueueNode mSlot_2[APP_TIME_SLOT_SIZE];
+    CQueueNode mSlot_3[APP_TIME_SLOT_SIZE];
+    CQueueNode mSlot_4[APP_TIME_SLOT_SIZE];
 };
 
 }//namespace irr

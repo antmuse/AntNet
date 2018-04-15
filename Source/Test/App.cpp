@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "HAtomicOperator.h"
 #include "SNetAddress.h"
 #include "INetManager.h"
 #include "IAppLogger.h"
@@ -6,7 +7,12 @@
 #include "CNetClientSeniorTCP.h"
 #include "CDefaultNetEventer.h"
 #include "CNetPing.h"
-#include "CNetSynPing.h"
+#include "CTimerWheel.h"
+#include "IAppTimer.h"
+#include "CAtomicValue32.h"
+
+
+//#include "CNetSynPing.h"
 
 
 #ifdef   APP_PLATFORM_WINDOWS
@@ -82,21 +88,116 @@ void AppStartPing() {
 }
 
 
-void AppStartSynPing() {
-    irr::net::CNetSynPing synping;
-    s32 ret;
-    if(synping.init()) {
-        ret = synping.ping("61.135.169.121", 80);
-        //ret = synping.ping("192.168.1.200", 3306);
-        //ret = synping.ping("192.168.1.102", 9981);
-        //0: 主机不存在
-        //1: 主机存在但没监听指定端口
-        //2: 主机存在并监听指定端口
-        printf("syn ping ret = %d\n", ret);
-    } else {
-        printf("syn ping init fail\n");
-    }
-    printf("-------------------------------------\n");
+
+void AppStartTimerWheel() {
+
+    class CTimeManager : public IRunnable {
+    public:
+        CTimeManager(CTimerWheel& it, u32 step) :
+            mStep(0 == step ? 1 : step),
+            mRunning(false),
+            mTimer(it) {
+        }
+        virtual void run() {
+            for(; mRunning;) {
+                mTimer.update(mCurrent);
+                CThread::sleep(mStep);
+                mCurrent += mStep;
+            }
+        }
+        void start() {
+            if(!mRunning) {
+                mRunning = true;
+                mCurrent = IAppTimer::getTime();
+                mTimer.setCurrent(mCurrent);
+                mThread.start(*this);
+            }
+        }
+        void stop() {
+            if(mRunning) {
+                mRunning = false;
+                mThread.join();
+            }
+        }
+    private:
+        bool mRunning;
+        u32 mStep;
+        u32 mCurrent;
+        CTimerWheel& mTimer;
+        CThread mThread;
+    };
+
+    class CTimeAdder : public IRunnable {
+    public:
+        CTimeAdder(CTimerWheel& it, u32 maxStep) :
+            mIndex(0),
+            mMaxStep(maxStep < 5 ? 5 : maxStep),
+            mRunning(false),
+            mTimer(it) {
+        }
+        static void timeout(void* nd) {
+            SNode* node = (SNode*)nd;
+            s32 leftover = AppAtomicDecrementFetch(node->mAdder->getCount());
+            printf("timeout: id = %d, time = %u, leftover = %d\n", 
+                node->mID, node->mTimeNode.mTimeoutStep, leftover);
+            delete node;
+        }
+        virtual void run() {
+            for(; mRunning;) {
+                add();
+                CThread::sleep(mMaxStep);
+            }
+        }
+        s32* getCount() {
+            return &mIndex;
+        }
+        void start() {
+            if(!mRunning) {
+                mRunning = true;
+                mThread.start(*this);
+            }
+        }
+        void stop() {
+            if(mRunning) {
+                mRunning = false;
+                mThread.join();
+            }
+        }
+    private:
+        void add() {
+            static s32 id = 0;
+            SNode* node = new SNode();
+            node->mID = id++;
+            node->mAdder = this;
+            node->mTimeNode.mCallback = CTimeAdder::timeout;
+            node->mTimeNode.mCallbackData = node;
+            AppAtomicIncrementFetch(&mIndex);
+            mTimer.add(node->mTimeNode, (3) * 1000);
+        }
+        struct SNode {
+            s32 mID;
+            CTimeAdder* mAdder;
+            CTimerWheel::STimeNode mTimeNode;
+        };
+        bool mRunning;
+        u32 mMaxStep;
+        s32 mIndex;
+        CTimerWheel& mTimer;
+        CThread mThread;
+    };
+
+    CTimerWheel timer(IAppTimer::getTime(), 1);
+    CTimeManager tmanager(timer, 10);
+    CTimeAdder tadder(timer, 50);
+    tmanager.start();
+    tadder.start();
+    CThread::sleep(10 * 1000);
+    tadder.stop();
+    tmanager.stop();
+    printf("--------------clear time wheel--------------\n");
+    timer.clear();
+    printf("finished, leftover = %d\n", *tadder.getCount());
+    printf("--------------------------------------------\n");
 }
 
 }//namespace irr
@@ -107,7 +208,7 @@ int main(int argc, char** argv) {
     printf("@1 = Net Server\n");
     printf("@2 = Net Client\n");
     printf("@3 = Net Ping\n");
-    printf("@4 = Net Syn Ping\n");
+    printf("@4 = Time wheel\n");
     printf("@Input menu id = ");
     irr::u32 key;
     scanf("%u", &key);
@@ -122,7 +223,7 @@ int main(int argc, char** argv) {
         irr::AppStartPing();
         break;
     case 4:
-        irr::AppStartSynPing();
+        irr::AppStartTimerWheel();
         break;
     }
     irr::AppQuit();
