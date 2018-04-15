@@ -38,7 +38,7 @@ const u32 APP_NET_MIN_SSTHRESHOLD = 2;												///<Min Slow start threshold
 const u32 APP_NET_PROBE_TIME = 7000;													///<7 secs to probe window size
 const u32 APP_NET_PROBE_TIME_LIMIT = 120000;									///<Probe time limit. up to 120 secs to probe window
 
-static inline long AppValueDiff(u32 later, u32 earlier){
+static inline u64 AppValueDiff(u64 later, u64 earlier){
     return (later - earlier);
 }
 

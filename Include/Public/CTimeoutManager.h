@@ -23,6 +23,9 @@ public:
 
     void start();
 
+    /**
+    * @brief Stop manager without clear any tasks.
+    */
     void stop();
 
     /**

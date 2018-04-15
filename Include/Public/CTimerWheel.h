@@ -20,16 +20,16 @@ class CTimerWheel {
 public:
     struct STimeNode {
         CQueueNode mLinker;
-        u32 mTimeoutStep;           //Absolute timeout step
         AppTimeoutCallback mCallback;
         void* mCallbackData;
+        u64 mTimeoutStep;           //Absolute timeout step
         STimeNode();
         ~STimeNode();
     };
     struct STimeEvent {
         u32 mPeriod;
         s32 mRepeat;
-        u32 mLastTime;
+        u64 mLastTime;
         AppTimeoutCallback mCallback;
         void* mCallbackData;
         CTimerWheel* mManger;
@@ -53,7 +53,7 @@ public:
     *@param interval Internal working time interval(in millisecond), 
     *@note Time wheel's time range is [0, (2^32 * interval)].
     */
-    CTimerWheel(u32 time, u32 interval);
+    CTimerWheel(u64 time, u64 interval);
 
     ~CTimerWheel();
 
@@ -61,37 +61,40 @@ public:
     *@param time Current time, in millisecond.
     *@note It's ok for 64bit timestamp. just call update(u32(time64bit));
     */
-    void update(u32 time);
+    void update(u64 time);
 
     /**
     *@param period The timeout stamp, relative with current time, in millisecond.
     */
-    void add(STimeNode& node, u32 period);
+    void add(STimeNode& node, u64 period);
 
     void add(STimeNode& node);
 
     bool remove(STimeNode& node);
 
-    u32 getCurrentStep()const {
+    u64 getCurrentStep()const {
         return mCurrentStep;
     }
 
-    u32 getInterval()const {
+    u64 getInterval()const {
         return mInterval;
     }
 
-    u32 getCurrent()const {
+    u64 getCurrent()const {
         return mCurrent;
     }
 
-    void setCurrent(u32 time) {
+    void setCurrent(u64 time) {
         mCurrent = time;
     }
 
-    void setInterval(u32 step) {
+    void setInterval(u64 step) {
         mInterval = step;
     }
 
+    /**
+    * @brief Clear all tasks, every task will be called back.
+    */
     void clear();
 
 private:
@@ -109,15 +112,15 @@ private:
 
     void innerUpdate();
 
-    inline u32 getIndex(u32 jiffies, u32 level)const;
+    inline u64 getIndex(u64 jiffies, u64 level)const;
 
     void innerAdd(STimeNode& node);
 
     void innerCascade(CQueueNode& head);
 
-    u32 mInterval;
-    u32 mCurrent;
-    u32 mCurrentStep;
+    u64 mInterval;
+    u64 mCurrent;
+    u64 mCurrentStep;
     CSpinlock mSpinlock;
     CQueueNode mSlot_0[APP_TIME_ROOT_SLOT_SIZE];
     CQueueNode mSlot_1[APP_TIME_SLOT_SIZE];

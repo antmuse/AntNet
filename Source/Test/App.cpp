@@ -101,8 +101,8 @@ void AppStartTimerWheel() {
         static void timeout(void* nd) {
             SNode* node = (SNode*)nd;
             s32 leftover = AppAtomicDecrementFetch(node->mAdder->getCount());
-            printf("timeout: id = %d, time = %u, leftover = %d\n", 
-                node->mID, node->mTimeNode.mTimeoutStep, leftover);
+            printf("timeout: [Adder=%p],[id = %d],[time = %llu],[leftover = %d]\n", 
+                node->mAdder, node->mID, node->mTimeNode.mTimeoutStep, leftover);
             delete node;
         }
         virtual void run() {
@@ -149,19 +149,24 @@ void AppStartTimerWheel() {
         CThread mThread;
     };
 
-    CTimeoutManager tmanager(22);
-    CTimeAdder tadder(tmanager.getTimeWheel(), 50);
+    CTimeoutManager tmanager(5);
+    //const u32 max = 10;
+    CTimeAdder tadder1(tmanager.getTimeWheel(), 50);
+    CTimeAdder tadder2(tmanager.getTimeWheel(), 70);
     //tmanager.getTimeWheel().setInterval(0x10000000);
+    //tmanager.getTimeWheel().setCurrent(0x7FFFFFFF);
     tmanager.start();
-    tadder.start();
+    tadder1.start();
+    tadder2.start();
     //CThread::sleep(10 * 1000);
     AppQuit();
+    tadder1.stop();
+    tadder2.stop();
+    tmanager.stop();
     printf("--------------clear time wheel--------------\n");
     tmanager.getTimeWheel().clear();
-    tadder.stop();
-    tmanager.stop();
-
-    printf("finished, leftover = %d\n", *tadder.getCount());
+    printf("finished tadder1 = %p, leftover = %d\n", &tadder1, *tadder1.getCount());
+    printf("finished tadder2 = %p, leftover = %d\n", &tadder2, *tadder2.getCount());
     printf("--------------------------------------------\n");
 }
 
