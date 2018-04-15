@@ -69,17 +69,26 @@ void CTimerWheel::initSlot(CQueueNode all[], u32 size) {
 void CTimerWheel::clearSlot(CQueueNode all[], u32 size) {
     STimeNode* node;
     AppTimeoutCallback fn;
+    CQueueNode queued;
     for(u32 j = 0; j < size; j++) {
-        while(!all[j].isEmpty()) {
-            node = APP_GET_VALUE_POINTER(all[j].getNext(), STimeNode, mLinker);
-            if(!node->mLinker.isEmpty()) {
-                node->mLinker.delink();
-            }
-            fn = node->mCallback;
-            if(fn) {
-                fn(node->mCallbackData);
-            }
-        }//while
+        if(!all[j].isEmpty()) {
+            all[j].splitAndJoin(queued);
+
+            mSpinlock.unlock(); //unlock
+
+            while(!queued.isEmpty()) {
+                node = APP_GET_VALUE_POINTER(queued.getNext(), STimeNode, mLinker);
+                if(!node->mLinker.isEmpty()) {
+                    node->mLinker.delink();
+                }
+                fn = node->mCallback;
+                if(fn) {
+                    fn(node->mCallbackData);
+                }
+            }//while
+
+            mSpinlock.lock(); //lock
+        }//if
     }//for
 }
 
@@ -192,6 +201,9 @@ void CTimerWheel::innerUpdate() {
         mSlot_0[index].splitAndJoin(queued);
         STimeNode* node;
         AppTimeoutCallback fn;
+
+        mSpinlock.unlock(); //unlock
+
         while(!queued.isEmpty()) {
             node = APP_GET_VALUE_POINTER(queued.getNext(), STimeNode, mLinker);
             fn = node->mCallback;
@@ -200,6 +212,8 @@ void CTimerWheel::innerUpdate() {
                 fn(node->mCallbackData);
             }
         }
+
+        mSpinlock.lock(); //lock
     }//if
 }
 
