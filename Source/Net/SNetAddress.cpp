@@ -21,14 +21,29 @@
 namespace irr {
 namespace net {
 
+APP_INLINE void SNetAddress::init() {
+#if defined(APP_NET_USE_IPV6)
+    APP_ASSERT(28 == sizeof(sockaddr_in6));
+    mAddress = (sockaddr_in6*) mCache;
+    ::memset(mAddress, 0, sizeof(*mAddress));
+    mAddress->sin_family = AF_INET6;
+#else
+    APP_ASSERT(16 == sizeof(sockaddr_in));
+    mAddress = (sockaddr_in*) mCache;
+    ::memset(mAddress, 0, sizeof(*mAddress));
+    mAddress->sin_family = AF_INET;
+#endif
+    //printf("sizeof(sockaddr_in)=%u\n", sizeof(sockaddr_in));
+    //printf("sizeof(sockaddr_in6)=%u\n", sizeof(sockaddr_in6));
+}
+
+
 SNetAddress::SNetAddress() :
     mID(0),
     mAddress(0),
     mIP(APP_NET_ANY_IP),
     mPort(APP_NET_ANY_PORT) {
-    mAddress = new sockaddr_in();
-    ::memset(mAddress, 0, sizeof(*mAddress));
-    mAddress->sin_family = AF_INET;
+    init();
     initIP();
     initPort();
 }
@@ -39,9 +54,7 @@ SNetAddress::SNetAddress(const c8* ip) :
     mAddress(0),
     mIP(ip),
     mPort(APP_NET_ANY_PORT) {
-    mAddress = new sockaddr_in();
-    ::memset(mAddress, 0, sizeof(*mAddress));
-    mAddress->sin_family = AF_INET;
+    init();
     initIP();
     initPort();
 }
@@ -52,9 +65,7 @@ SNetAddress::SNetAddress(const core::stringc& ip) :
     mAddress(0),
     mIP(ip),
     mPort(APP_NET_ANY_PORT) {
-    mAddress = new sockaddr_in();
-    ::memset(mAddress, 0, sizeof(*mAddress));
-    mAddress->sin_family = AF_INET;
+    init();
     initIP();
     initPort();
 }
@@ -65,16 +76,9 @@ SNetAddress::SNetAddress(u16 port) :
     mAddress(0),
     mIP(APP_NET_ANY_IP),
     mPort(port) {
-    mAddress = new sockaddr_in();
-    ::memset(mAddress, 0, sizeof(*mAddress));
-    mAddress->sin_family = AF_INET;
+    init();
     initIP();
     initPort();
-}
-
-
-SNetAddress::~SNetAddress() {
-    delete mAddress;
 }
 
 
@@ -83,11 +87,14 @@ SNetAddress::SNetAddress(const c8* ip, u16 port) :
     mAddress(0),
     mIP(ip),
     mPort(port) {
-    mAddress = new sockaddr_in();
-    ::memset(mAddress, 0, sizeof(*mAddress));
-    mAddress->sin_family = AF_INET;
+    init();
     initIP();
     initPort();
+}
+
+
+SNetAddress::~SNetAddress() {
+    //delete mAddress;
 }
 
 
@@ -96,16 +103,20 @@ SNetAddress::SNetAddress(const core::stringc& ip, u16 port) :
     mAddress(0),
     mIP(ip),
     mPort(port) {
-    mAddress = new sockaddr_in();
-    ::memset(mAddress, 0, sizeof(*mAddress));
-    mAddress->sin_family = AF_INET;
+    init();
     initIP();
     initPort();
 }
 
 
 SNetAddress::SNetAddress(const SNetAddress& other) {
-    mAddress = new sockaddr_in();
+#if defined(APP_NET_USE_IPV6)
+    APP_ASSERT(28 == sizeof(sockaddr_in6));
+    mAddress = (sockaddr_in6*) mCache;
+#else
+    APP_ASSERT(16 == sizeof(sockaddr_in));
+    mAddress = (sockaddr_in*) mCache;
+#endif
     ::memcpy(mAddress, other.mAddress, sizeof(*mAddress));
     mIP = other.mIP;
     mPort = other.mPort;
@@ -116,10 +127,6 @@ SNetAddress::SNetAddress(const SNetAddress& other) {
 SNetAddress& SNetAddress::operator=(const SNetAddress& other) {
     if(this == &other) {
         return *this;
-    }
-    if(0 == mAddress) {
-        mAddress = new sockaddr_in();
-        mAddress->sin_family = AF_INET;
     }
     ::memcpy(mAddress, other.mAddress, sizeof(*mAddress));
     mID = other.mID;
@@ -288,7 +295,7 @@ APP_INLINE void SNetAddress::mergeIP() {
 }
 
 APP_INLINE void SNetAddress::initPort() {
-    mAddress->sin_port = htons(mPort);
+    mAddress->sin_port = ::htons(mPort);
     mergePort();
 }
 
@@ -368,4 +375,4 @@ void SNetAddress::convertIPToString(const SNetAddress::IP& ip, core::stringc& re
 //    irr::IUtility::print((irr::u8*) &addr.mAddress->sin_addr, sizeof(addr.mAddress->sin_addr));
 //    printf("\nid=%u\n", *(irr::u32*) &addr.mAddress->sin_addr);
 //    return 0;
-//}
+//}

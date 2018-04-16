@@ -33,7 +33,7 @@ public:
     core::stringc mIP;
     u16 mPort;  ///<OS endian
     ID mID;     ///<merged IP&Port, in big endian as network
-
+         
     /**
     *@brief Construct a net address with any ip and any port.
     *eg: "0.0.0.0:0"
@@ -168,6 +168,8 @@ public:
     static void convertIPToString(const IP& ip, core::stringc& result);
 
 private:
+    ///init when created
+    APP_INLINE void init();
     /**
     *@brief Auto inited again if IP or Port changed.
     */
@@ -175,6 +177,16 @@ private:
     APP_INLINE void initPort();
     APP_INLINE void mergeIP();
     APP_INLINE void mergePort();
+
+
+#if defined(APP_NET_USE_IPV6)
+    //sizeof(sockaddr_in6)=28
+    s8 mCache[28];
+#else
+    //sizeof(sockaddr_in)=16
+    s8 mCache[16];
+#endif
+
 };
 
 
