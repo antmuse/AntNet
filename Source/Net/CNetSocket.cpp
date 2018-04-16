@@ -23,6 +23,12 @@
 #include <linux/sockios.h>
 #endif  //APP_PLATFORM_WINDOWS
 
+#if defined(APP_NET_USE_IPV6)
+#define APP_IP_VERSION AF_INET6
+#else
+#define APP_IP_VERSION AF_INET
+#endif
+
 
 namespace irr {
 namespace net {
@@ -299,17 +305,17 @@ s32 CNetSocket::receiveFrom(void* iBuffer, s32 iSize, const SNetAddress& address
 
 
 bool CNetSocket::openRaw(s32 protocol) {
-    return open(AF_INET, SOCK_RAW, protocol);
+    return open(APP_IP_VERSION, SOCK_RAW, protocol);
 }
 
 
 bool CNetSocket::openUDP() {
-    return open(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    return open(APP_IP_VERSION, SOCK_DGRAM, IPPROTO_UDP);
 }
 
 
 bool CNetSocket::openTCP() {
-    return open(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    return open(APP_IP_VERSION, SOCK_STREAM, IPPROTO_TCP);
 }
 
 
@@ -417,7 +423,7 @@ CNetSocket CNetSocket::accept(SNetAddress& it) {
 #if defined(APP_PLATFORM_WINDOWS)
 
 bool CNetSocket::openSeniorTCP() {
-    return openSenior(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, WSA_FLAG_OVERLAPPED);
+    return openSenior(APP_IP_VERSION, SOCK_STREAM, IPPROTO_TCP, 0, 0, WSA_FLAG_OVERLAPPED);
 }
 
 
