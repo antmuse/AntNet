@@ -4,7 +4,7 @@
 
 //#include "HConfig.h"
 #include "HNetConfig.h"
-#include "SNetAddress.h"
+#include "CNetAddress.h"
 
 namespace irr {
 namespace net {
@@ -200,9 +200,9 @@ public:
 
     bool shutdown(EShutFlag flag);
 
-    void getLocalAddress(SNetAddress& it);
+    void getLocalAddress(CNetAddress& it);
 
-    void getRemoteAddress(SNetAddress& it);
+    void getRemoteAddress(CNetAddress& it);
 
     //s32 getFamily()const;
 
@@ -211,7 +211,7 @@ public:
     *@param it net address.
     *@return 0 if success, else if failed.
     */
-    s32 bind(const SNetAddress& it);
+    s32 bind(const CNetAddress& it);
 
     /**
     *@brief Bind socket with any address["0.0.0.0:0"].
@@ -220,6 +220,13 @@ public:
     s32 bind();
 
     bool getTcpInfo(STCP_Info* info) const;
+    
+    /**
+    *@brief Update socket by accept socket.
+    *@param sock accept socket.
+    *@return 0 if success, else if failed.
+    */
+    s32 updateByAccepter(const CNetSocket& sock);
 
     /**
     *@brief Open a raw socket.
@@ -239,9 +246,9 @@ public:
     bool open(s32 domain, s32 type, s32 protocol);
 
 
-    s32 sendto(const void* iBuffer, s32 iSize, const SNetAddress& address);
+    s32 sendto(const void* iBuffer, s32 iSize, const CNetAddress& address);
 
-    s32 receiveFrom(void* iBuffer, s32 iSize, const SNetAddress& address);
+    s32 receiveFrom(void* iBuffer, s32 iSize, const CNetAddress& address);
 
 
     s32 send(const void* iBuffer, s32 iSize);
@@ -267,7 +274,7 @@ public:
     *@brief Connect with peer.
     *@return 0 if successed, else failed.
     */
-    s32 connect(const SNetAddress& it);
+    s32 connect(const CNetAddress& it);
 
     /**
     *@brief Listen peer.
@@ -286,7 +293,7 @@ public:
     *@param it net address of remote peer.
     *@return A valid socket if successed, else invalid.
     */
-    CNetSocket accept(SNetAddress& it);
+    CNetSocket accept(CNetAddress& it);
 
 
     bool isAlive();
@@ -312,9 +319,9 @@ public:
     */
     bool accept(const CNetSocket& sock, SContextIO* iAction, void* addressCache, void* function = 0);
 
-    bool getAddress(void* addressCache, SNetAddress& local, SNetAddress& remote, void* function = 0)const;
+    bool getAddress(void* addressCache, CNetAddress& local, CNetAddress& remote, void* function = 0)const;
 
-    bool connect(const SNetAddress& it, SContextIO* iAction, void* function = 0);
+    bool connect(const CNetAddress& it, SContextIO* iAction, void* function = 0);
 
 
     bool disconnect(SContextIO* iAction, void* function = 0);

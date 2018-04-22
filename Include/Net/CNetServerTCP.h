@@ -35,11 +35,11 @@ public:
 
     virtual bool stop()override;
 
-    virtual void setLocalAddress(const SNetAddress& it)override {
+    virtual void setLocalAddress(const CNetAddress& it)override {
         mAddressLocal = it;
     }
 
-    virtual const SNetAddress& getLocalAddress() const override {
+    virtual const CNetAddress& getLocalAddress() const override {
         return mAddressLocal;
     }
 
@@ -65,8 +65,8 @@ private:
     CNetPacket mPacket;
     CNetSocket mSocket;
     CNetSocket mSocketSub;
-    SNetAddress mAddressRemote;
-    SNetAddress mAddressLocal;
+    CNetAddress mAddressRemote;
+    CNetAddress mAddressLocal;
 };
 
 }// end namespace net

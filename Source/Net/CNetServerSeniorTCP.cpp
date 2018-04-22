@@ -433,7 +433,7 @@ void CNetServerSeniorTCP::remove(CNetSession* iContext) {
 }
 
 
-CNetSession* CNetServerSeniorTCP::addSession(CNetSocket& sock, const SNetAddress& remote, const SNetAddress& local) {
+CNetSession* CNetServerSeniorTCP::addSession(CNetSocket& sock, const CNetAddress& remote, const CNetAddress& local) {
     CAutoLock aulock(mMutex);
 
     if(0 == mIdleSession.size()) {

@@ -84,7 +84,7 @@ bool CNetClientTCP::update(u64 iTime) {
         } else if(0 == ret) {
             mStatus = ENM_RESET;
             IAppLogger::log(ELOG_CRITICAL, "CNetClientTCP::update", "remote quit[%s:%d]",
-                mAddressRemote.mIP.c_str(), mAddressRemote.mPort);
+                mAddressRemote.getIPString().c_str(), mAddressRemote.getPort());
         } else {
             if(!clearError()) {
                 mStatus = ENM_RESET;
@@ -169,7 +169,7 @@ void CNetClientTCP::connect() {
         mStatus = ENM_HELLO;
     } else {
         IAppLogger::log(ELOG_CRITICAL, "CNetClientTCP::connect", "can't connect with server: [%s:%d] [ecode=%d]",
-            mAddressRemote.mIP.c_str(), mAddressRemote.mPort,
+            mAddressRemote.getIPString().c_str(), mAddressRemote.getPort(),
             mConnector.getError());
         //mThread->sleep(5000);
     }

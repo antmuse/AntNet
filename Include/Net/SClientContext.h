@@ -7,7 +7,7 @@
 #include "CNetPacket.h"
 #include "CNetProtocal.h"
 #include "CNetSocket.h"
-//#include "SNetAddress.h"
+//#include "CNetAddress.h"
 #if defined(APP_PLATFORM_WINDOWS)
 #include <winsock2.h>
 #include <Windows.h>
@@ -24,7 +24,7 @@ namespace net {
 struct SClientContextUDP {
     u64 mNextTime;
     u64 mOverTime;
-    SNetAddress mClientAddress;                       ///<Client address
+    CNetAddress mClientAddress;                       ///<Client address
     CNetProtocal mProtocal;
     CNetPacket  mNetPack;								 ///<The receive cache.
 
@@ -79,8 +79,8 @@ struct SClientContext {
     u64 mOverTime;                                  ///<OverTime
     u32 mPacketSize;                                ///<Current packet is not full
     CNetSocket mSocket;						///<Socket of client
-    SNetAddress mAddressRemote;                     ///<remote address
-    SNetAddress mAddressLocal;                      ///<local address
+    CNetAddress mAddressRemote;                     ///<remote address
+    CNetAddress mAddressLocal;                      ///<local address
     SQueueRingFreelock* mReadHandle;				///<Send cache read handle
     SQueueRingFreelock* mWriteHandle;				///<Send cache write handle
     SQueueRingFreelock* mInnerData;					///<Inner data list for send
@@ -121,7 +121,7 @@ struct SContextIO {
 ///Socket contex of each client
 struct SClientContext {
     CNetSocket mSocket;												///<Socket of client
-    SNetAddress mAddressRemote;                           	///<Client address
+    CNetAddress mAddressRemote;                           	///<Client address
     SContextIO mSendIO;
     SContextIO mReceiveIO;
     //core::array<SContextIO*> mAllIOContext;

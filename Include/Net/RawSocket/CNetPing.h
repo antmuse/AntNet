@@ -4,7 +4,7 @@
 #define APP_CNETPING_H
 
 #include "HNetHeader.h"
-#include "SNetAddress.h"
+#include "CNetAddress.h"
 #include "CNetSocket.h"
 
 namespace irr {
@@ -25,7 +25,7 @@ public:
 
     void writeICMPData(c8* mICMP_Data, s32 datasize);
 
-    bool decodeHeader(c8* buf, s32 bytes, SNetAddress& from);
+    bool decodeHeader(c8* buf, s32 bytes, CNetAddress& from);
 
     void clear();
 
@@ -41,8 +41,8 @@ public:
 protected:
     CNetSocket mSocket;
     SHeadOptionIP mOption;
-    SNetAddress mAddressRemote;
-    SNetAddress mAddressFrom;
+    CNetAddress mAddressRemote;
+    CNetAddress mAddressFrom;
     c8* mICMP_Data;
     c8* mReceiveBuffer;
     u16 mSendSN;

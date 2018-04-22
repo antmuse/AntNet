@@ -7,7 +7,7 @@
 namespace irr {
 namespace net {
 
-struct SNetAddress;
+class CNetAddress;
 
 class INetClient {
 public:
@@ -31,13 +31,13 @@ public:
 
     virtual bool stop() = 0;
 
-    virtual void setLocalAddress(const SNetAddress& it) = 0;
+    virtual void setLocalAddress(const CNetAddress& it) = 0;
 
-    virtual void setRemoteAddress(const SNetAddress& it) = 0;
+    virtual void setRemoteAddress(const CNetAddress& it) = 0;
 
-    virtual const SNetAddress& getRemoteAddress() const = 0;
+    virtual const CNetAddress& getRemoteAddress() const = 0;
 
-    virtual const SNetAddress& getLocalAddress() const = 0;
+    virtual const CNetAddress& getLocalAddress() const = 0;
 
     virtual s32 sendData(const c8* iData, s32 iLength) = 0;
 

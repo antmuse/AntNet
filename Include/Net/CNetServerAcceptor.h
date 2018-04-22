@@ -34,11 +34,11 @@ public:
 
     bool stop();
 
-    void setLocalAddress(const SNetAddress& it) {
+    void setLocalAddress(const CNetAddress& it) {
         mAddressLocal = it;
     }
 
-    const SNetAddress& getLocalAddress() const {
+    const CNetAddress& getLocalAddress() const {
         return mAddressLocal;
     }
 
@@ -96,8 +96,8 @@ private:
     CEventPoller mPoller;
     CThread* mThread;						        ///<All workers
     CNetSocket mListener;						///<listen socket's context
-    SNetAddress mAddressRemote;
-    SNetAddress mAddressLocal;
+    CNetAddress mAddressRemote;
+    CNetAddress mAddressLocal;
     core::array<SContextWaiter*>  mAllWaiter;
     core::array<CNetServerSeniorTCP*>  mAllService;
     void* mFunctionAccept;
@@ -129,11 +129,11 @@ public:
 
     bool stop();
 
-    void setLocalAddress(const SNetAddress& it) {
+    void setLocalAddress(const CNetAddress& it) {
         mAddressLocal = it;
     }
 
-    const SNetAddress& getLocalAddress() const {
+    const CNetAddress& getLocalAddress() const {
         return mAddressLocal;
     }
 
@@ -166,8 +166,8 @@ private:
     CEventPoller mPoller;
     CThread* mThread;						        ///<All workers
     CNetSocket mListener;						///<listen socket's context
-    SNetAddress mAddressRemote;
-    SNetAddress mAddressLocal;
+    CNetAddress mAddressRemote;
+    CNetAddress mAddressLocal;
     core::array<CNetServerSeniorTCP*>  mAllService;
 };
 

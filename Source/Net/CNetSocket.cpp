@@ -92,17 +92,17 @@ s32 CNetSocket::getError() {
 }
 
 
-void CNetSocket::getLocalAddress(SNetAddress& it) {
-    socklen_t len = sizeof(*it.mAddress);
-    ::getsockname(mSocket, (struct sockaddr*)it.mAddress, &len);
+void CNetSocket::getLocalAddress(CNetAddress& it) {
+    socklen_t len = sizeof(*it.getAddress());
+    ::getsockname(mSocket, (struct sockaddr*)it.getAddress(), &len);
     it.reverse();
     //APP_LOG(ELOG_DEBUG, "CNetSocket::getLocalAddress", "local: [%s:%d]", it.mIP.c_str(), it.mPort);
 }
 
 
-void CNetSocket::getRemoteAddress(SNetAddress& it) {
-    socklen_t len = sizeof(*it.mAddress);
-    ::getpeername(mSocket, (struct sockaddr*)it.mAddress, &len);
+void CNetSocket::getRemoteAddress(CNetAddress& it) {
+    socklen_t len = sizeof(*it.getAddress());
+    ::getpeername(mSocket, (struct sockaddr*)it.getAddress(), &len);
     it.reverse();
     //APP_LOG(ELOG_DEBUG, "CNetSocket::getRemoteAddress", "remote: [%s:%d]", it.mIP.c_str(), it.mPort);
 }
@@ -258,14 +258,14 @@ s32 CNetSocket::setReceiveCache(s32 size) {
 }
 
 
-s32 CNetSocket::bind(const SNetAddress& it) {
-    return ::bind(mSocket, (sockaddr*) it.mAddress, sizeof(*it.mAddress));
+s32 CNetSocket::bind(const CNetAddress& it) {
+    return ::bind(mSocket, (sockaddr*) it.getAddress(), sizeof(*it.getAddress()));
 }
 
 
 s32 CNetSocket::bind() {
-    SNetAddress it;
-    return ::bind(mSocket, (sockaddr*) it.mAddress, sizeof(*it.mAddress));
+    CNetAddress it;
+    return ::bind(mSocket, (sockaddr*) it.getAddress(), sizeof(*it.getAddress()));
 }
 
 bool CNetSocket::getTcpInfo(STCP_Info* info) const {
@@ -282,25 +282,31 @@ bool CNetSocket::getTcpInfo(STCP_Info* info) const {
 }
 
 
-s32 CNetSocket::sendto(const void* iBuffer, s32 iSize, const SNetAddress& address) {
+s32 CNetSocket::sendto(const void* iBuffer, s32 iSize, const CNetAddress& address) {
 #if defined(APP_PLATFORM_WINDOWS)
     return ::sendto(mSocket, (const c8*) iBuffer, iSize, 0,
-        (sockaddr*) address.mAddress, sizeof(*address.mAddress));
+        (sockaddr*) address.getAddress(), sizeof(*address.getAddress()));
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
     return ::sendto(mSocket, iBuffer, iSize, 0,
-        (sockaddr*) address.mAddress, sizeof(*address.mAddress));
+        (sockaddr*) address.getAddress(), sizeof(*address.getAddress()));
 #endif
 }
 
 
-s32 CNetSocket::receiveFrom(void* iBuffer, s32 iSize, const SNetAddress& address) {
+s32 CNetSocket::receiveFrom(void* iBuffer, s32 iSize, const CNetAddress& address) {
 #if defined(APP_PLATFORM_WINDOWS)
-    socklen_t size = sizeof(*address.mAddress);
-    return ::recvfrom(mSocket, (c8*) iBuffer, iSize, 0, (sockaddr*) address.mAddress, &size);
+    socklen_t size = sizeof(*address.getAddress());
+    return ::recvfrom(mSocket, (c8*) iBuffer, iSize, 0, (sockaddr*) address.getAddress(), &size);
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
-    socklen_t size = sizeof(*address.mAddress);
-    return ::recvfrom(mSocket, iBuffer, iSize, 0, (sockaddr*) address.mAddress, &size);
+    socklen_t size = sizeof(*address.getAddress());
+    return ::recvfrom(mSocket, iBuffer, iSize, 0, (sockaddr*) address.getAddress(), &size);
 #endif
+}
+
+
+s32 CNetSocket::updateByAccepter(const CNetSocket& sockListen) {
+    netsocket it = sockListen.getValue();
+    return ::setsockopt(mSocket, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (c8*) &it, sizeof(it));
 }
 
 
@@ -336,8 +342,8 @@ s32 CNetSocket::setDelay(bool it) {
 }
 
 
-s32 CNetSocket::connect(const SNetAddress& it) {
-    return ::connect(mSocket, (sockaddr*) it.mAddress, sizeof(*it.mAddress));
+s32 CNetSocket::connect(const CNetAddress& it) {
+    return ::connect(mSocket, (sockaddr*) it.getAddress(), sizeof(*it.getAddress()));
 }
 
 
@@ -409,13 +415,13 @@ CNetSocket CNetSocket::accept() {
 }
 
 
-CNetSocket CNetSocket::accept(SNetAddress& it) {
+CNetSocket CNetSocket::accept(CNetAddress& it) {
 #if defined(APP_PLATFORM_WINDOWS) || defined(APP_PLATFORM_ANDROID)
-    s32 size = sizeof(*it.mAddress);
+    s32 size = sizeof(*it.getAddress());
 #elif defined(APP_PLATFORM_LINUX)
-    u32 size = sizeof(*it.mAddress);
+    u32 size = sizeof(*it.getAddress());
 #endif
-    return ::accept(mSocket, (sockaddr*) it.mAddress, &size);
+    return ::accept(mSocket, (sockaddr*) it.getAddress(), &size);
 }
 
 
@@ -462,12 +468,12 @@ bool CNetSocket::send(SContextIO* iAction) {
 }
 
 
-bool CNetSocket::connect(const SNetAddress& it, SContextIO* iAction, void* function/* = 0*/) {
+bool CNetSocket::connect(const CNetAddress& it, SContextIO* iAction, void* function/* = 0*/) {
     LPFN_CONNECTEX iConnect = (LPFN_CONNECTEX) (function ? function : getFunctionConnect());
     if(iConnect) {
         if(FALSE == iConnect(mSocket,
-            (sockaddr*) it.mAddress,
-            sizeof(*it.mAddress),
+            (sockaddr*) it.getAddress(),
+            sizeof(*it.getAddress()),
             0,
             0,
             &iAction->mBytes,
@@ -515,7 +521,7 @@ bool CNetSocket::accept(const CNetSocket& sock, SContextIO* iAction, void* addre
 }
 
 
-bool CNetSocket::getAddress(void* addressCache, SNetAddress& local, SNetAddress& remote, void* function/* = 0*/)const {
+bool CNetSocket::getAddress(void* addressCache, CNetAddress& local, CNetAddress& remote, void* function/* = 0*/)const {
     LPFN_GETACCEPTEXSOCKADDRS func = (LPFN_GETACCEPTEXSOCKADDRS) (function ? function : getFunctionAcceptSockAddress());
     if(func) {
         const u32 addsize = sizeof(sockaddr_in) + 16;
@@ -532,10 +538,8 @@ bool CNetSocket::getAddress(void* addressCache, SNetAddress& local, SNetAddress&
             (sockaddr**) &addrRemote,
             &remoteLen);
 
-        *local.mAddress = *addrRemote;
-        *remote.mAddress = *addrLocal;
-        local.reverse();
-        remote.reverse();
+        local.setAddress(*addrRemote);
+        remote.setAddress(*addrLocal);
         return true;
     }
 
@@ -668,7 +672,12 @@ bool CNetSocketPair::open(s32 domain, s32 type, s32 protocol) {
         return false;
     }
     mSockA = sockpair[0];
-    mSockB = sockpair[1];    u32 sz = 128*sizeof(u32);    mSockA.setSendCache(sz);    mSockA.setReceiveCache(sz);    mSockB.setSendCache(sz);    mSockB.setReceiveCache(sz);
+    mSockB = sockpair[1];
+    u32 sz = 128*sizeof(u32);
+    mSockA.setSendCache(sz);
+    mSockA.setReceiveCache(sz);
+    mSockB.setSendCache(sz);
+    mSockB.setReceiveCache(sz);
     return true;
 }
 

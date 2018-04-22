@@ -75,9 +75,6 @@
     <ClInclude Include="..\..\..\Include\Net\CNetUtility.h">
       <Filter>Include\Net</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Include\Net\SClientContext.h">
-      <Filter>Include\Net</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Include\Thread\IRunnable.h">
       <Filter>Include\Thread</Filter>
     </ClInclude>
@@ -198,9 +195,6 @@
     <ClInclude Include="..\..\..\Include\Net\INetSession.h">
       <Filter>Include\Net</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Include\Net\SNetAddress.h">
-      <Filter>Include\Net</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Include\Public\coreutil.h">
       <Filter>Include\Public</Filter>
     </ClInclude>
@@ -221,6 +215,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Include\Public\CTimerWheel.h">
       <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\SClientContext.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\CNetAddress.h">
+      <Filter>Include\Net</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -296,9 +296,6 @@
     <ClCompile Include="..\..\..\Source\Net\CNetSocket.cpp">
       <Filter>Source\Net</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\Net\SNetAddress.cpp">
-      <Filter>Source\Net</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\Source\Net\HTTP\CNetClientHttp.cpp">
       <Filter>Source\Net\HTTP</Filter>
     </ClCompile>
@@ -337,6 +334,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Source\Public\CTimerWheel.cpp">
       <Filter>Source\Public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\CNetAddress.cpp">
+      <Filter>Source\Net</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

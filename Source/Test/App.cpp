@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "HAtomicOperator.h"
-#include "SNetAddress.h"
+#include "CNetAddress.h"
 #include "INetManager.h"
 #include "IAppLogger.h"
 #include "CNetServerAcceptor.h"
@@ -47,7 +47,7 @@ void AppQuit() {
 void AppStartServer() {
     //net::CDefaultNetEventer evt;
     net::CNetServerAcceptor accpetor;
-    net::SNetAddress addr(9981);
+    net::CNetAddress addr(9981);
     accpetor.setLocalAddress(addr);
     accpetor.start();
     AppQuit();
@@ -61,7 +61,7 @@ void AppStartClient() {
     net::INetSession* session[max];
     net::CNetClientSeniorTCP chub;
     chub.start();
-    net::SNetAddress addr("127.0.0.1", 9981);
+    net::CNetAddress addr("127.0.0.1", 9981);
     s32 i;
     for(i = 0; i < max; ++i) {
         evt[i].setHub(&chub);

@@ -4,17 +4,13 @@
 #include "HNetConfig.h"
 #include "INetEventer.h"
 #include "IPairOrderID.h"
-//#include "SNetAddress.h"
+//#include "CNetAddress.h"
 
 namespace irr {
 namespace net {
 
-///a client id pair(IP, Port)
-typedef IPairOrderID<u32, u16> CNetClientID;
 
-struct SNetAddress;
-
-
+class CNetAddress;
 
 class INetServer {
 public:
@@ -32,9 +28,9 @@ public:
 
     virtual bool stop() = 0;
 
-    virtual void setLocalAddress(const SNetAddress& it) = 0;
+    virtual void setLocalAddress(const CNetAddress& it) = 0;
 
-    virtual const SNetAddress& getLocalAddress() const = 0;
+    virtual const CNetAddress& getLocalAddress() const = 0;
 
     virtual void setMaxClients(u32 max) = 0;
 

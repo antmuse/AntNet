@@ -54,8 +54,8 @@ bool CNetServerNatPuncher::initialize() {
     }
 
     IAppLogger::log(ELOG_INFO, "CNetServerNatPuncher::initialize", "success on [%s:%u]", 
-        mAddressLocal.mIP.c_str(),
-        mAddressLocal.mPort);
+        mAddressLocal.getIPString().c_str(),
+        mAddressLocal.getPort());
 
     return true;
 }
@@ -125,9 +125,9 @@ bool CNetServerNatPuncher::clearError() {
 }
 
 
-const core::map<CNetClientID, CNetServerNatPuncher::SClientNode*>::Node* 
-CNetServerNatPuncher::getRemote(CNetClientID& id)const {
-    for(core::map<CNetClientID, SClientNode*>::ConstIterator it = mAllClient.getConstIterator();
+const core::map<CNetAddress::ID, CNetServerNatPuncher::SClientNode*>::Node* 
+CNetServerNatPuncher::getRemote(CNetAddress::ID& id)const {
+    for(core::map<CNetAddress::ID, SClientNode*>::ConstIterator it = mAllClient.getConstIterator();
         !it.atEnd(); it++) {
         if(it->getKey() == id) {
             return it.getNode();
@@ -138,9 +138,9 @@ CNetServerNatPuncher::getRemote(CNetClientID& id)const {
 
 
 
-const core::map<CNetClientID, CNetServerNatPuncher::SClientNode*>::Node*
-CNetServerNatPuncher::getAnyRemote(CNetClientID& my)const {
-    for(core::map<CNetClientID, SClientNode*>::ConstIterator it = mAllClient.getConstIterator();
+const core::map<CNetAddress::ID, CNetServerNatPuncher::SClientNode*>::Node*
+CNetServerNatPuncher::getAnyRemote(CNetAddress::ID& my)const {
+    for(core::map<CNetAddress::ID, SClientNode*>::ConstIterator it = mAllClient.getConstIterator();
         !it.atEnd(); it++) {
         if(it->getKey() != my) {
             return it.getNode();
@@ -162,8 +162,8 @@ void CNetServerNatPuncher::run() {
         ret = mConnector.receiveFrom(pack.getPointer(), pack.getAllocatedSize(), mAddressRemote);
         if(ret > 0) {
             mAddressRemote.reverse();
-            CNetClientID cid(mAddressRemote.getIP(), mAddressRemote.mPort);
-            core::map<CNetClientID, SClientNode*>::Node* node = mAllClient.find(cid);
+            CNetAddress::ID cid=mAddressRemote.getID();
+            core::map<CNetAddress::ID, SClientNode*>::Node* node = mAllClient.find(cid);
             SClientNode* client = node ? node->getValue() : 0;
 
             pack.setUsed(ret);
@@ -176,48 +176,43 @@ void CNetServerNatPuncher::run() {
                     mAllClient.insert(cid, client);
                     IAppLogger::log(ELOG_INFO, "CNetServerNatPuncher::run", 
                         "new client: [%s:%u]",
-                        mAddressRemote.mIP.c_str(),
-                        mAddressRemote.mPort);
+                        mAddressRemote.getIPString().c_str(),
+                        mAddressRemote.getPort());
                 }
                 client->mTime = mCurrentTime + mOverTimeInterval;
                 pack.setUsed(0);
                 pack.add(u8(ENM_HELLO));
-                pack.add(cid.getKey());
-                pack.add(cid.getValue());
+                pack.add(cid);
                 mConnector.sendto(pack.getPointer(), pack.getSize(), mAddressRemote);
                 break;
             }
             case ENM_NAT_PUNCH:
             {
-                u32 ip = pack.readU32();
-                u16 port = pack.readU16();
-                const core::map<CNetClientID, SClientNode*>::Node* peer = 0;
-                if(0 == ip && 0 == port) {
-                    peer = getAnyRemote(cid);
+                CNetAddress::ID peerid = pack.readU64();
+                const core::map<CNetAddress::ID, SClientNode*>::Node* peer = 0;
+                if(0 == peerid) {
+                    peer = getAnyRemote(peerid);
                 } else {
-                    CNetClientID peerid(ip, port);
                     peer = getRemote(peerid);
                 }
                 if(peer) {
                     pack.setUsed(0);
                     pack.add(u8(ENM_NAT_PUNCH));
-                    const CNetClientID& pid = peer->getKey();
-                    pack.add(pid.getKey());
-                    pack.add(pid.getValue());
+                    const CNetAddress::ID& pid = peer->getKey();
+                    pack.add(pid);
                     IAppLogger::log(ELOG_INFO, "CNetServerNatPuncher::run",
-                        "peer a: [%u:%u]->[%s:%u]", pid.getKey(), pid.getValue(),
-                        mAddressRemote.mIP.c_str(), mAddressRemote.mPort);
+                        "peer a: [%u]->[%s:%u]", pid,
+                        mAddressRemote.getIPString().c_str(), mAddressRemote.getPort());
 
                     u32 psize = pack.getSize();
 
                     pack.add(u8(ENM_NAT_PUNCH));
-                    const SNetAddress& pb = peer->getValue()->mAddress;
-                    pack.add(cid.getKey());
-                    pack.add(cid.getValue());
+                    const CNetAddress& pb = peer->getValue()->mAddress;
+                    pack.add(pb.getID());
 
                     IAppLogger::log(ELOG_INFO, "CNetServerNatPuncher::run",
-                        "peer b: [%u:%u]->[%s:%u]", cid.getKey(), cid.getValue(),
-                        pb.mIP.c_str(), pb.mPort);
+                        "peer b: [%u]->[%s:%u]", pb.getID(),
+                        pb.getIPString().c_str(), pb.getPort());
 
                     for(u32 i = 0; i < 5; i++) {
                         mConnector.sendto(pack.getPointer(), psize, mAddressRemote);
@@ -257,10 +252,10 @@ void CNetServerNatPuncher::run() {
 
 void CNetServerNatPuncher::checkTimeout() {
     //CAutoLock aulock(mMutex);
-    core::map<CNetClientID, SClientNode*>::Node* node;
+    core::map<CNetAddress::ID, SClientNode*>::Node* node;
     SClientNode* context;
     u32 count = 0;
-    for(core::map<CNetClientID, SClientNode*>::Iterator it = mAllClient.getIterator();
+    for(core::map<CNetAddress::ID, SClientNode*>::Iterator it = mAllClient.getIterator();
         !it.atEnd(); ) {
         node = it.getNode();
         context = node->getValue();
@@ -289,7 +284,7 @@ void CNetServerNatPuncher::checkTimeout() {
 
 
 void CNetServerNatPuncher::removeAllClient() {
-    for(core::map<CNetClientID, SClientNode*>::Iterator it = mAllClient.getIterator();
+    for(core::map<CNetAddress::ID, SClientNode*>::Iterator it = mAllClient.getIterator();
         !it.atEnd(); it++) {
         delete it->getValue();
     }

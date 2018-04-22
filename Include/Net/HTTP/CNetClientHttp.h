@@ -4,7 +4,7 @@
 
 #include "INetClientSeniorTCP.h"
 #include "irrString.h"
-#include "SNetAddress.h"
+#include "CNetAddress.h"
 #include "CNetHttpRequest.h"
 #include "CNetHttpResponse.h"
 
@@ -40,11 +40,11 @@ public:
 
     bool stop();
 
-    SNetAddress& getRemoteAddress() {
+    CNetAddress& getRemoteAddress() {
         return mAddressRemote;
     }
 
-    const SNetAddress& getRemoteAddress() const {
+    const CNetAddress& getRemoteAddress() const {
         return mAddressRemote;
     }
 
@@ -65,7 +65,7 @@ private:
     INetEventerHttp* mReceiver;
     CNetHttpResponse mResponse;
     CNetHttpRequest mRequest;
-    SNetAddress mAddressRemote;
+    CNetAddress mAddressRemote;
     INetClientSeniorTCP* mHub;
 };
 

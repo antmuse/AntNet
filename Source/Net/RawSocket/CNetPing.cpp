@@ -124,7 +124,7 @@ void CNetPing::writeICMPData(c8* mICMP_Data, s32 datasize) {
 }
 
 
-bool CNetPing::decodeHeader(c8 *buf, s32 bytes, SNetAddress& from) {
+bool CNetPing::decodeHeader(c8 *buf, s32 bytes, CNetAddress& from) {
     SHeadIP* iphdr = (SHeadIP*) buf;
     u16 iphdrlen = iphdr->getSize();
     if(bytes < iphdrlen + ICMP_MIN) {

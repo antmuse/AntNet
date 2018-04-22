@@ -23,11 +23,11 @@ public:
 
     bool stop();
 
-    void setLocalAddress(const SNetAddress& it) {
+    void setLocalAddress(const CNetAddress& it) {
         mAddressLocal = it;
     }
 
-    const SNetAddress& getLocalAddress() const {
+    const CNetAddress& getLocalAddress() const {
         return mAddressLocal;
     }
 
@@ -36,11 +36,11 @@ private:
         u64 mTime;
         //u32 mLocalIP;
         //u16 mLocalPort;
-        SNetAddress mAddress;
+        CNetAddress mAddress;
     };
 
-    const core::map<CNetClientID, SClientNode*>::Node* getAnyRemote(CNetClientID& my)const;
-    const core::map<CNetClientID, SClientNode*>::Node* getRemote(CNetClientID& my)const;
+    const core::map<CNetAddress::ID, SClientNode*>::Node* getAnyRemote(CNetAddress::ID& my)const;
+    const core::map<CNetAddress::ID, SClientNode*>::Node* getRemote(CNetAddress::ID& my)const;
     void checkTimeout();
     void removeAllClient();
     bool initialize();
@@ -50,10 +50,10 @@ private:
     bool mRunning;                  ///<True if server started, else false
     u32 mOverTimeInterval;
     u64 mCurrentTime;
-    core::map<CNetClientID, SClientNode*>  mAllClient;
+    core::map<CNetAddress::ID, SClientNode*>  mAllClient;
     CNetSocket mConnector;
-    SNetAddress mAddressRemote;
-    SNetAddress mAddressLocal;
+    CNetAddress mAddressRemote;
+    CNetAddress mAddressLocal;
     CThread* mThread;
 };
 

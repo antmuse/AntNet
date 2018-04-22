@@ -32,19 +32,19 @@ public:
 
     virtual bool stop()override;
 
-    virtual void setLocalAddress(const SNetAddress& it)override {
+    virtual void setLocalAddress(const CNetAddress& it)override {
         mAddressLocal = it;
     }
 
-    virtual void setRemoteAddress(const SNetAddress& it)override {
+    virtual void setRemoteAddress(const CNetAddress& it)override {
         mAddressRemote = it;
     }
 
-    virtual const SNetAddress& getRemoteAddress() const override {
+    virtual const CNetAddress& getRemoteAddress() const override {
         return mAddressRemote;
     }
 
-    virtual const SNetAddress& getLocalAddress() const override {
+    virtual const CNetAddress& getLocalAddress() const override {
         return mAddressLocal;
     }
 
@@ -78,8 +78,8 @@ private:
     INetEventer* mReceiver;
     CNetPacket mPacket;
     io::CStreamFile mStream;
-    SNetAddress mAddressRemote;
-    SNetAddress mAddressLocal;
+    CNetAddress mAddressRemote;
+    CNetAddress mAddressLocal;
     CNetSocket mConnector;
 };
 

@@ -44,7 +44,7 @@ public:
 
     virtual u32 getClientCount()const;
 
-    CNetSession* addSession(CNetSocket& sock, const SNetAddress& remote, const SNetAddress& local);
+    CNetSession* addSession(CNetSocket& sock, const CNetAddress& remote, const CNetAddress& local);
 
 protected:
     bool clearError();
@@ -110,7 +110,7 @@ public:
 
     virtual u32 getClientCount()const;
 
-    CNetSession* addSession(CNetSocket& sock, const SNetAddress& remote, const SNetAddress& local);
+    CNetSession* addSession(CNetSocket& sock, const CNetAddress& remote, const CNetAddress& local);
 
 protected:
     bool clearError();
@@ -140,7 +140,7 @@ private:
     core::list<u32> mIdleSession;
     CThread* mThread;
     INetEventer* mReceiver;
-    SNetAddress mAddressLocal;
+    CNetAddress mAddressLocal;
     //CMemoryHub mMemHub;
 };
 

@@ -131,7 +131,7 @@ bool CNetSynPing::send() {
 
     /*c8 buf[40];
     ::inet_ntop(mAddressRemote.mAddress->sin_family, &mAddressRemote.getIP(), buf, sizeof(buf));
-    IAppLogger::log(ELOG_INFO, "CNetSynPing::send", "%s == %s", buf, mAddressRemote.mIP.c_str());
+    IAppLogger::log(ELOG_INFO, "CNetSynPing::send", "%s == %s", buf, mAddressRemote.getIPString().c_str());
     IAppLogger::log(ELOG_INFO, "CNetSynPing::send", "mAddressLocal  IP= 0x%x:0x%x",
     mAddressLocal.getIP(), mAddressLocal.getPort());
     IAppLogger::log(ELOG_INFO, "CNetSynPing::send", "mAddressRemote IP= 0x%x:0x%x",
@@ -284,7 +284,7 @@ bool CNetSynPing::sendReset() {
 s32 CNetSynPing::ping(const c8* remoteIP, u16 remotePort) {
     mAddressRemote.set(remoteIP, remotePort);
     IAppLogger::log(ELOG_INFO, "CNetSynPing::ping", "%s:%u --> %s:%u",
-        mAddressLocal.mIP.c_str(), mAddressLocal.mPort, mAddressRemote.mIP.c_str(), mAddressRemote.mPort);
+        mAddressLocal.getIPString().c_str(), mAddressLocal.getPort(), mAddressRemote.getIPString().c_str(), mAddressRemote.getPort());
     if(!send()) {
         IAppLogger::log(ELOG_ERROR, "CNetSynPing::ping", "send fail, %u", CNetSocket::getError());
         closeAll();
@@ -319,8 +319,8 @@ s32 CNetSynPing::ping(const c8* remoteIP, u16 remotePort) {
         u8 recvIPsize = recvHeadIP.getSize();
         u16 totalSize = recvHeadIP.getTotalSize();
         SHeadTCP& recvHeadTCP = *(SHeadTCP*) (recvCache + recvIPsize);
-        SNetAddress::convertIPToString(recvHeadIP.mLocalIP, localips);
-        SNetAddress::convertIPToString(recvHeadIP.mRemoteIP, remoteips);
+        CNetAddress::convertIPToString(recvHeadIP.mLocalIP, localips);
+        CNetAddress::convertIPToString(recvHeadIP.mRemoteIP, remoteips);
         IAppLogger::log(ELOG_INFO, "CNetSynPing::ping", "--------------------------------------recived, %u", ecode);
         IAppLogger::log(ELOG_INFO, "CNetSynPing::ping", "receive [IP Version = %u]", recvHeadIP.getVersion());
         IAppLogger::log(ELOG_INFO, "CNetSynPing::ping", "receive [IP Ident = %u]", recvHeadIP.getIdent());

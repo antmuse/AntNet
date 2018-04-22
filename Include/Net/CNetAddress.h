@@ -1,5 +1,5 @@
-#ifndef APP_SNETADDRESS_H
-#define APP_SNETADDRESS_H
+#ifndef APP_CNETADDRESS_H
+#define APP_CNETADDRESS_H
 
 #include "HNetConfig.h"
 #include "irrString.h"
@@ -16,61 +16,56 @@ namespace irr {
 namespace net {
 
 /**
-* @brief SNetAddress is a usefull struct to deal with IP & port.
+* @brief CNetAddress is a usefull struct to deal with IP & port.
 * @note IP and Port are in network-byte-order(big endian).
 */
-struct SNetAddress {
+class CNetAddress {
 public:
 #if defined(APP_NET_USE_IPV6)
-    sockaddr_in6* mAddress;
     typedef IBigInteger<u8[18]> ID; //big endian as network
     typedef IBigInteger<u8[16]> IP; //big endian as network
 #else
-    sockaddr_in* mAddress;
     typedef u64 ID; //big endian as network
     typedef u32 IP; //big endian as network
 #endif
-    core::stringc mIP;
-    u16 mPort;  ///<OS endian
-    ID mID;     ///<merged IP&Port, in big endian as network
          
     /**
     *@brief Construct a net address with any ip and any port.
     *eg: "0.0.0.0:0"
     */
-    SNetAddress();
+    CNetAddress();
 
     /**
     *@brief Construct a net address with "user defined ip" and any port.
     *@param ip User defined ip.
     */
-    SNetAddress(const c8* ip);
+    CNetAddress(const c8* ip);
 
     /**
     *@brief Construct a net address with "user defined ip" and any port.
     *@param ip User defined ip.
     */
-    SNetAddress(const core::stringc& ip);
+    CNetAddress(const core::stringc& ip);
 
     /**
     *@brief Construct a net address with "user defined port" and any ip.
     *@param port User defined port.
     */
-    SNetAddress(u16 port);
+    CNetAddress(u16 port);
 
-    ~SNetAddress();
+    ~CNetAddress();
 
-    SNetAddress(const c8* ip, u16 port);
+    CNetAddress(const c8* ip, u16 port);
 
-    SNetAddress(const core::stringc& ip, u16 port);
+    CNetAddress(const core::stringc& ip, u16 port);
 
-    SNetAddress(const SNetAddress& other);
+    CNetAddress(const CNetAddress& other);
 
-    SNetAddress& operator=(const SNetAddress& other);
+    CNetAddress& operator=(const CNetAddress& other);
 
-    bool operator==(const SNetAddress& other) const;
+    bool operator==(const CNetAddress& other) const;
 
-    bool operator!=(const SNetAddress& other) const;
+    bool operator!=(const CNetAddress& other) const;
 
     /**
     *@brief Get family of this net address.
@@ -139,11 +134,6 @@ public:
     }
 
     /**
-    *@brief Get IP:Port from a valid real address[sockaddr_in]
-    */
-    void reverse();
-
-    /**
     * @return ID of this address.
     */
     const ID& getID()const {
@@ -154,6 +144,32 @@ public:
     * @return IP, in big endian.
     */
     const IP& getIP() const;
+
+    const core::stringc& getIPString() const {
+        return mIP;
+    }
+
+#if defined(APP_NET_USE_IPV6)
+    void setAddress(const sockaddr_in6& it);
+
+    const sockaddr_in6* getAddress() const {
+        return mAddress;
+    }
+    sockaddr_in6* getAddress() {
+        return mAddress;
+    }
+#else
+    void setAddress(const sockaddr_in& it);
+
+    const sockaddr_in* getAddress() const {
+        return mAddress;
+    }
+    sockaddr_in* getAddress() {
+        return mAddress;
+    }
+#endif
+
+    void reverse();
 
     /**
     *@param ip The IP string to convert.
@@ -179,10 +195,16 @@ private:
     APP_INLINE void mergePort();
 
 
+    core::stringc mIP;
+    u16 mPort;  ///<OS endian
+    ID mID;     ///<merged IP&Port, in big endian as network
+
 #if defined(APP_NET_USE_IPV6)
+    sockaddr_in6* mAddress;
     //sizeof(sockaddr_in6)=28
     s8 mCache[28];
 #else
+    sockaddr_in* mAddress;
     //sizeof(sockaddr_in)=16
     s8 mCache[16];
 #endif
@@ -193,4 +215,4 @@ private:
 }//namespace net
 }//namespace irr
 
-#endif //APP_SNETADDRESS_H
+#endif //APP_CNETADDRESS_H

@@ -6,7 +6,7 @@
 namespace irr {
 namespace net {
 class CNetSocket;
-struct SNetAddress;
+class CNetAddress;
 
 class INetSession {
 public:
@@ -24,7 +24,7 @@ public:
 
     virtual s32 send(const void* iBuffer, s32 iSize) = 0;
 
-    virtual bool connect(const SNetAddress& it) = 0;
+    virtual bool connect(const CNetAddress& it) = 0;
 
     virtual bool disconnect() = 0;
 };

@@ -55,11 +55,11 @@ public:
         return mID == mMask;
     }
 
-    SNetAddress& getRemoteAddress() {
+    CNetAddress& getRemoteAddress() {
         return mAddressRemote;
     }
 
-    SNetAddress& getLocalAddress() {
+    CNetAddress& getLocalAddress() {
         return mAddressLocal;
     }
 
@@ -80,7 +80,7 @@ public:
     }
 
     virtual s32 send(const void* iBuffer, s32 iSize)override;
-    virtual bool connect(const SNetAddress& it)override;
+    virtual bool connect(const CNetAddress& it)override;
     virtual bool disconnect()override;
 
     s32 postDisconnect();
@@ -159,8 +159,8 @@ protected:
     SContextIO mActionDisconnect;
     CNetPacket mPacketSend;
     CNetPacket mPacketReceive;
-    SNetAddress mAddressRemote;
-    SNetAddress mAddressLocal;
+    CNetAddress mAddressRemote;
+    CNetAddress mAddressLocal;
 };
 
 

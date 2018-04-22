@@ -38,19 +38,19 @@ public:
 
     virtual s32 sendData(const c8* iData, s32 iLength) override;
 
-    virtual void setLocalAddress(const SNetAddress& it)override {
+    virtual void setLocalAddress(const CNetAddress& it)override {
         mAddressLocal = it;
     }
 
-    virtual void setRemoteAddress(const SNetAddress& it)override {
+    virtual void setRemoteAddress(const CNetAddress& it)override {
         mAddressServer = it;
     }
 
-    virtual const SNetAddress& getRemoteAddress() const override {
+    virtual const CNetAddress& getRemoteAddress() const override {
         return mAddressPeer;
     }
 
-    virtual const SNetAddress& getLocalAddress() const override {
+    virtual const CNetAddress& getLocalAddress() const override {
         return mAddressLocal;
     }
 
@@ -90,10 +90,10 @@ private:
     INetEventer* mReceiver;
     CNetProtocal mProtocal;
     CNetPacket mPacket;
-    SNetAddress mAddressRemote;
-    SNetAddress mAddressServer;
-    SNetAddress mAddressPeer;
-    SNetAddress mAddressLocal;
+    CNetAddress mAddressRemote;
+    CNetAddress mAddressServer;
+    CNetAddress mAddressPeer;
+    CNetAddress mAddressLocal;
     CNetSocket mConnector;
 };
 

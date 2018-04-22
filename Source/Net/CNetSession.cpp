@@ -49,7 +49,7 @@ bool CNetSession::disconnect() {
 }
 
 
-bool CNetSession::connect(const SNetAddress& it) {
+bool CNetSession::connect(const CNetAddress& it) {
     APP_ASSERT(mPoller);
     if(mStatus & ENET_CMD_CONNECT) {
         return true;
@@ -203,7 +203,7 @@ s32 CNetSession::stepDisonnect() {
 bool CNetSession::onTimeout() {
     APP_ASSERT(mPoller);
     IAppLogger::log(ELOG_INFO, "CNetSession::onTimeout",
-        "remote[%s:%u]", mAddressRemote.mIP.c_str(), mAddressRemote.mPort);
+        "remote[%s:%u]", mAddressRemote.getIPString().c_str(), mAddressRemote.getPort());
     CEventPoller::SEvent evt;
     evt.setMessage(ENET_CMD_TIMEOUT | getIndex());
     return mPoller->postEvent(evt);
@@ -303,7 +303,7 @@ bool CNetSession::disconnect() {
 }
 
 
-bool CNetSession::connect(const SNetAddress& it) {
+bool CNetSession::connect(const CNetAddress& it) {
     APP_ASSERT(mPoller);
     if(mStatus & ENET_CMD_CONNECT) {
         return true;

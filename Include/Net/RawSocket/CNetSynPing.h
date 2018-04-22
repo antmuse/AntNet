@@ -26,8 +26,8 @@ public:
     s32 ping(const c8* remoteIP, u16 remotePort);
 
 protected:
-    SNetAddress mAddressLocal;
-    SNetAddress mAddressRemote;
+    CNetAddress mAddressLocal;
+    CNetAddress mAddressRemote;
     CNetSocket mScoketRaw;
     CNetSocket mScoketListener;
 

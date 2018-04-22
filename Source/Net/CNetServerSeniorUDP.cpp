@@ -42,8 +42,8 @@ void CNetServerSeniorUDP::run() {
                 break;
             }
         } else {
-            CNetClientID cid(*(u32*) (&mAddressRemote.mAddress->sin_addr), mAddressRemote.mAddress->sin_port);
-            core::map<CNetClientID, SClientContextUDP*>::Node* node = mAllClient.find(cid);
+            CNetAddress::ID cid = mAddressRemote.getID();
+            core::map<CNetAddress::ID, SClientContextUDP*>::Node* node = mAllClient.find(cid);
             if(node) {
                 SClientContextUDP* client = node->getValue();
                 client->mProtocal.import(buffer, ret);
@@ -64,7 +64,7 @@ void CNetServerSeniorUDP::run() {
         }
 
         //update others
-        for(core::map<CNetClientID, SClientContextUDP*>::Iterator it = mAllClient.getIterator();
+        for(core::map<CNetAddress::ID, SClientContextUDP*>::Iterator it = mAllClient.getIterator();
             !it.atEnd(); it++) {
             SClientContextUDP* client = it->getValue();
             if(mCurrentTime >= client->mNextTime) {
@@ -91,10 +91,10 @@ void CNetServerSeniorUDP::run() {
 
 void CNetServerSeniorUDP::removeOvertimeClient() {
     //CAutoLock aulock(mMutex);
-    core::map<CNetClientID, SClientContextUDP*>::Node* node;
+    core::map<CNetAddress::ID, SClientContextUDP*>::Node* node;
     SClientContextUDP* context;
     u32 count = 0;
-    for(core::map<CNetClientID, SClientContextUDP*>::Iterator it = mAllClient.getIterator();
+    for(core::map<CNetAddress::ID, SClientContextUDP*>::Iterator it = mAllClient.getIterator();
         !it.atEnd(); ) {
         node = it.getNode();
         context = node->getValue();
@@ -211,8 +211,7 @@ bool CNetServerSeniorUDP::stepReceive(SClientContextUDP* iContext) {
 
 
 void CNetServerSeniorUDP::addClient(SClientContextUDP* iContext) {
-    CNetClientID cid(*(u32*) (&iContext->mClientAddress.mAddress->sin_addr), 
-        iContext->mClientAddress.mAddress->sin_port);
+    CNetAddress::ID cid = iContext->mClientAddress.getID();
 
     mAllClient.set(cid, iContext);
     //iContext->mProtocal.setID(0);
@@ -222,13 +221,13 @@ void CNetServerSeniorUDP::addClient(SClientContextUDP* iContext) {
     IAppLogger::log(ELOG_INFO, "CNetServerSeniorUDP::addClient",
         "incoming client [%d=%s:%d]",
         getClientCount(),
-        iContext->mClientAddress.mIP.c_str(),
-        iContext->mClientAddress.mPort);
+        iContext->mClientAddress.getIPString().c_str(),
+        iContext->mClientAddress.getPort());
 }
 
 
-void CNetServerSeniorUDP::removeClient(CNetClientID id) {
-    core::map<CNetClientID, SClientContextUDP*>::Node* node = mAllClient.delink(id);
+void CNetServerSeniorUDP::removeClient(CNetAddress::ID id) {
+    core::map<CNetAddress::ID, SClientContextUDP*>::Node* node = mAllClient.delink(id);
     if(node) {
         SClientContextUDP* iContextSocket = node->getValue();
         delete iContextSocket;
@@ -239,7 +238,7 @@ void CNetServerSeniorUDP::removeClient(CNetClientID id) {
 
 
 void CNetServerSeniorUDP::removeAllClient() {
-    for(core::map<CNetClientID, SClientContextUDP*>::Iterator it = mAllClient.getIterator();
+    for(core::map<CNetAddress::ID, SClientContextUDP*>::Iterator it = mAllClient.getIterator();
         !it.atEnd(); it++) {
         delete it->getValue();
     }

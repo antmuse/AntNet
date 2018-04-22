@@ -45,11 +45,11 @@ public:
 
     virtual bool stop();
 
-    virtual void setLocalAddress(const SNetAddress& it)override {
+    virtual void setLocalAddress(const CNetAddress& it)override {
         mAddressLocal = it;
     }
 
-    virtual const SNetAddress& getLocalAddress() const override {
+    virtual const CNetAddress& getLocalAddress() const override {
         return mAddressLocal;
     }
 
@@ -72,7 +72,7 @@ public:
     void addClient(SClientContextUDP* iContext);
 
 
-    void removeClient(CNetClientID id);
+    void removeClient(CNetAddress::ID id);
 
 
     bool clearError();
@@ -92,11 +92,11 @@ private:
     u32 mMaxClientCount;
     u64 mCurrentTime;
     u64 mOverTimeInterval;
-    core::map<CNetClientID, SClientContextUDP*>  mAllClient;          ///<All the clients's socket context
+    core::map<CNetAddress::ID, SClientContextUDP*>  mAllClient;          ///<All the clients's socket context
     CThread* mThread;								                         ///<busy worker
     INetEventer* mReceiver;
-    SNetAddress mAddressRemote;
-    SNetAddress mAddressLocal;
+    CNetAddress mAddressRemote;
+    CNetAddress mAddressLocal;
     CNetSocket mConnector;
     //CMemoryHub mMemHub;
 };
