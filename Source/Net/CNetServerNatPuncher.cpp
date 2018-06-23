@@ -53,8 +53,8 @@ bool CNetServerNatPuncher::initialize() {
         return false;
     }
 
-    IAppLogger::log(ELOG_INFO, "CNetServerNatPuncher::initialize", "success on [%s:%u]", 
-        mAddressLocal.getIPString().c_str(),
+    IAppLogger::log(ELOG_INFO, "CNetServerNatPuncher::initialize", "success on [%s:%u]",
+        mAddressLocal.getIPString(),
         mAddressLocal.getPort());
 
     return true;
@@ -63,7 +63,7 @@ bool CNetServerNatPuncher::initialize() {
 
 bool CNetServerNatPuncher::start() {
     if(mRunning) {
-        IAppLogger::log(ELOG_INFO, "CNetServerNatPuncher::start", 
+        IAppLogger::log(ELOG_INFO, "CNetServerNatPuncher::start",
             "server is running already.");
         return false;
     }
@@ -125,7 +125,7 @@ bool CNetServerNatPuncher::clearError() {
 }
 
 
-const core::map<CNetAddress::ID, CNetServerNatPuncher::SClientNode*>::Node* 
+const core::map<CNetAddress::ID, CNetServerNatPuncher::SClientNode*>::Node*
 CNetServerNatPuncher::getRemote(CNetAddress::ID& id)const {
     for(core::map<CNetAddress::ID, SClientNode*>::ConstIterator it = mAllClient.getConstIterator();
         !it.atEnd(); it++) {
@@ -162,7 +162,7 @@ void CNetServerNatPuncher::run() {
         ret = mConnector.receiveFrom(pack.getPointer(), pack.getAllocatedSize(), mAddressRemote);
         if(ret > 0) {
             mAddressRemote.reverse();
-            CNetAddress::ID cid=mAddressRemote.getID();
+            CNetAddress::ID cid = mAddressRemote.getID();
             core::map<CNetAddress::ID, SClientNode*>::Node* node = mAllClient.find(cid);
             SClientNode* client = node ? node->getValue() : 0;
 
@@ -174,9 +174,9 @@ void CNetServerNatPuncher::run() {
                     client = new SClientNode();
                     client->mAddress = mAddressRemote;
                     mAllClient.insert(cid, client);
-                    IAppLogger::log(ELOG_INFO, "CNetServerNatPuncher::run", 
+                    IAppLogger::log(ELOG_INFO, "CNetServerNatPuncher::run",
                         "new client: [%s:%u]",
-                        mAddressRemote.getIPString().c_str(),
+                        mAddressRemote.getIPString(),
                         mAddressRemote.getPort());
                 }
                 client->mTime = mCurrentTime + mOverTimeInterval;
@@ -202,7 +202,7 @@ void CNetServerNatPuncher::run() {
                     pack.add(pid);
                     IAppLogger::log(ELOG_INFO, "CNetServerNatPuncher::run",
                         "peer a: [%u]->[%s:%u]", pid,
-                        mAddressRemote.getIPString().c_str(), mAddressRemote.getPort());
+                        mAddressRemote.getIPString(), mAddressRemote.getPort());
 
                     u32 psize = pack.getSize();
 
@@ -212,7 +212,7 @@ void CNetServerNatPuncher::run() {
 
                     IAppLogger::log(ELOG_INFO, "CNetServerNatPuncher::run",
                         "peer b: [%u]->[%s:%u]", pb.getID(),
-                        pb.getIPString().c_str(), pb.getPort());
+                        pb.getIPString(), pb.getPort());
 
                     for(u32 i = 0; i < 5; i++) {
                         mConnector.sendto(pack.getPointer(), psize, mAddressRemote);

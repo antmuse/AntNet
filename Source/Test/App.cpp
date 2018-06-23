@@ -164,7 +164,7 @@ void AppStartTimerWheel() {
     tadder2.stop();
     tmanager.stop();
     printf("--------------clear time wheel--------------\n");
-    tmanager.getTimeWheel().clear();
+    //tmanager.getTimeWheel().clear();
     printf("finished tadder1 = %p, leftover = %d\n", &tadder1, *tadder1.getCount());
     printf("finished tadder2 = %p, leftover = %d\n", &tadder2, *tadder2.getCount());
     printf("--------------------------------------------\n");

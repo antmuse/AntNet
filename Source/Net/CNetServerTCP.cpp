@@ -36,19 +36,19 @@ void CNetServerTCP::run() {
 
     if(mSocket.bind(mAddressLocal)) {
         IAppLogger::log(ELOG_ERROR, "CNetServerTCP::run", "bind error: [%s:%u]",
-            mAddressLocal.getIPString().c_str(), mAddressLocal.getPort());
+            mAddressLocal.getIPString(), mAddressLocal.getPort());
         return;
     }
 
     if(mSocket.listen(1)) {
         IAppLogger::log(ELOG_ERROR, "CNetServerTCP::run", "listen error: [%s:%u]",
-            mAddressLocal.getIPString().c_str(), mAddressLocal.getPort());
+            mAddressLocal.getIPString(), mAddressLocal.getPort());
         return;
     }
 
     if(mSocket.setBlock(false)) {
         IAppLogger::log(ELOG_ERROR, "CNetServerTCP::run", "setBlock error: [%s:%u]",
-            mAddressLocal.getIPString().c_str(), mAddressLocal.getPort());
+            mAddressLocal.getIPString(), mAddressLocal.getPort());
         return;
     }
 
@@ -68,12 +68,12 @@ void CNetServerTCP::run() {
                 }
             } else if(0 == ret) {
                 IAppLogger::log(ELOG_CRITICAL, "CNetServerTCP::run", "client quit: [%s:%u]",
-                    mAddressRemote.getIPString().c_str(), mAddressRemote.getPort());
+                    mAddressRemote.getIPString(), mAddressRemote.getPort());
                 mSocketSub.close();
                 mStatus = ENM_RESET;
             } else {
                 IAppLogger::log(ELOG_CRITICAL, "CNetServerTCP::run", "client quit abnormal: [%s:%u]",
-                    mAddressRemote.getIPString().c_str(), mAddressRemote.getPort());
+                    mAddressRemote.getIPString(), mAddressRemote.getPort());
                 mSocketSub.close();
                 mStatus = ENM_RESET;
             }
@@ -84,7 +84,7 @@ void CNetServerTCP::run() {
             if(mSocketSub.isOpen()) {
                 mAddressRemote.reverse();
                 IAppLogger::log(ELOG_CRITICAL, "CNetServerTCP::run", "client incoming: [%s:%u]", 
-                    mAddressRemote.getIPString().c_str(), mAddressRemote.getPort());
+                    mAddressRemote.getIPString(), mAddressRemote.getPort());
                 mStatus = ENM_WAIT;
                 mPacket.setUsed(0);
                 if(mReceiver) {

@@ -221,7 +221,7 @@ void CNetServerSeniorUDP::addClient(SClientContextUDP* iContext) {
     IAppLogger::log(ELOG_INFO, "CNetServerSeniorUDP::addClient",
         "incoming client [%d=%s:%d]",
         getClientCount(),
-        iContext->mClientAddress.getIPString().c_str(),
+        iContext->mClientAddress.getIPString(),
         iContext->mClientAddress.getPort());
 }
 

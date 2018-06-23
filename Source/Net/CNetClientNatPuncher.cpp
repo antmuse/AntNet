@@ -117,7 +117,7 @@ bool CNetClientNatPuncher::update(u64 iTime) {
                 mAddressRemote.reverse();
                 IAppLogger::log(ELOG_INFO, "CNetClientNatPuncher::run",
                     "success, peer address: [%s:%u]",
-                    mAddressRemote.getIPString().c_str(),
+                    mAddressRemote.getIPString(),
                     mAddressRemote.getPort());
 
                 mStatus = ENM_WAIT;
@@ -148,7 +148,7 @@ bool CNetClientNatPuncher::update(u64 iTime) {
                 mPunchCount = 5;
                 IAppLogger::log(ELOG_INFO, "CNetClientNatPuncher::run",
                     "peer address: [%s:%u]",
-                    mAddressPeer.getIPString().c_str(),
+                    mAddressPeer.getIPString(),
                     mAddressPeer.getPort());
                 break;
             }
@@ -280,7 +280,7 @@ void CNetClientNatPuncher::step(u64 iTime) {
                 mTickTime = 0;
                 mStatus = ENM_RESET;
                 IAppLogger::log(ELOG_CRITICAL, "CNetClientNatPuncher::step", "over tick count[%s:%d]",
-                    mAddressServer.getIPString().c_str(), mAddressServer.getPort());
+                    mAddressServer.getIPString(), mAddressServer.getPort());
             }
         } else {
             mTickTime += iTime;
@@ -299,12 +299,12 @@ void CNetClientNatPuncher::step(u64 iTime) {
         if(!clearError()) {
             mStatus = ENM_RESET;
             IAppLogger::log(ELOG_CRITICAL, "CNetClientNatPuncher::step", "server maybe quit[%s:%d]",
-                mAddressServer.getIPString().c_str(), mAddressServer.getPort());
+                mAddressServer.getIPString(), mAddressServer.getPort());
         }
     } else if(0 == ret) {
         mStatus = ENM_RESET;
         IAppLogger::log(ELOG_CRITICAL, "CNetClientNatPuncher::step", "server quit[%s:%d]",
-            mAddressServer.getIPString().c_str(), mAddressServer.getPort());
+            mAddressServer.getIPString(), mAddressServer.getPort());
     }
 }
 
@@ -320,7 +320,7 @@ bool CNetClientNatPuncher::bindLocal() {
     }
     mConnector.getLocalAddress(mAddressLocal);
     mAddressLocal.reverse();
-    IAppLogger::log(ELOG_CRITICAL, "CNetClientNatPuncher::bindLocal", "local: [%s:%d]", mAddressLocal.getIPString().c_str(), mAddressLocal.getPort());
+    IAppLogger::log(ELOG_CRITICAL, "CNetClientNatPuncher::bindLocal", "local: [%s:%d]", mAddressLocal.getIPString(), mAddressLocal.getPort());
     return true;
 }
 

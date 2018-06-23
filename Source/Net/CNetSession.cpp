@@ -203,7 +203,7 @@ s32 CNetSession::stepDisonnect() {
 bool CNetSession::onTimeout() {
     APP_ASSERT(mPoller);
     IAppLogger::log(ELOG_INFO, "CNetSession::onTimeout",
-        "remote[%s:%u]", mAddressRemote.getIPString().c_str(), mAddressRemote.getPort());
+        "remote[%s:%u]", mAddressRemote.getIPString(), mAddressRemote.getPort());
     CEventPoller::SEvent evt;
     evt.setMessage(ENET_CMD_TIMEOUT | getIndex());
     return mPoller->postEvent(evt);

@@ -68,7 +68,7 @@ bool CNetPing::ping(const c8* remoteIP, u32 max, s32 timeout) {
     writeICMPData(mICMP_Data, mDataSize);
 
     CCheckSum cksum;
-    for(s32 nCount = 0; nCount < max; ++nCount) {
+    for(u32 nCount = 0; nCount < max; ++nCount) {
         cksum.clear();
         ((SHeadICMP*) mICMP_Data)->mChecksum = 0;
         ((SHeadICMP*) mICMP_Data)->mTimestamp = IAppTimer::getTime();;

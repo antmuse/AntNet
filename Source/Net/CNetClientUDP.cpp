@@ -202,7 +202,7 @@ void CNetClientUDP::step(u64 iTime) {
                 mTickTime = 0;
                 mStatus = ENM_RESET;
                 IAppLogger::log(ELOG_CRITICAL, "CNetClientUDP::step", "over tick count[%s:%d]",
-                    mAddressRemote.getIPString().c_str(), mAddressRemote.getPort());
+                    mAddressRemote.getIPString(), mAddressRemote.getPort());
             }
         } else {
             mTickTime += iTime;
@@ -222,12 +222,12 @@ void CNetClientUDP::step(u64 iTime) {
         if(!clearError()) {
             mStatus = ENM_RESET;
             IAppLogger::log(ELOG_CRITICAL, "CNetClientUDP::step", "server maybe quit[%s:%d]",
-                mAddressRemote.getIPString().c_str(), mAddressRemote.getPort());
+                mAddressRemote.getIPString(), mAddressRemote.getPort());
         }
     } else if(0 == ret) {
         mStatus = ENM_RESET;
         IAppLogger::log(ELOG_CRITICAL, "CNetClientUDP::step", "server quit[%s:%d]",
-            mAddressRemote.getIPString().c_str(), mAddressRemote.getPort());
+            mAddressRemote.getIPString(), mAddressRemote.getPort());
     }
 }
 
@@ -243,7 +243,7 @@ bool CNetClientUDP::bindLocal() {
     }
     mConnector.getLocalAddress(mAddressLocal);
     mAddressLocal.reverse();
-    IAppLogger::log(ELOG_CRITICAL, "CNetClientUDP::bindLocal", "local: [%s:%d]", mAddressLocal.getIPString().c_str(), mAddressLocal.getPort());
+    IAppLogger::log(ELOG_CRITICAL, "CNetClientUDP::bindLocal", "local: [%s:%d]", mAddressLocal.getIPString(), mAddressLocal.getPort());
     return true;
 }
 

@@ -7,8 +7,16 @@
 #if defined(APP_NET_USE_IPV6)
 #include "IBigInteger.h"
 struct sockaddr_in6;
+
+//ipv6 IP is no more than 39 chars, it's like "CDCD:910A:2222:5498:8475:1111:3900:2020"
+#define APP_IP_STRING_MAX_SIZE 40
+
 #else
+
 struct sockaddr_in;
+
+//ipv4 IP is no more than 16 chars, it's like "127.122.122.122"
+#define APP_IP_STRING_MAX_SIZE 16
 #endif
 
 
@@ -28,7 +36,7 @@ public:
     typedef u64 ID; //big endian as network
     typedef u32 IP; //big endian as network
 #endif
-         
+
     /**
     *@brief Construct a net address with any ip and any port.
     *eg: "0.0.0.0:0"
@@ -145,7 +153,7 @@ public:
     */
     const IP& getIP() const;
 
-    const core::stringc& getIPString() const {
+    const char* getIPString() const {
         return mIP;
     }
 
@@ -194,8 +202,7 @@ private:
     APP_INLINE void mergeIP();
     APP_INLINE void mergePort();
 
-
-    core::stringc mIP;
+    char mIP[APP_IP_STRING_MAX_SIZE];
     u16 mPort;  ///<OS endian
     ID mID;     ///<merged IP&Port, in big endian as network
 

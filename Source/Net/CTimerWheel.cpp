@@ -4,21 +4,30 @@
 #define APP_TIMER_MANAGER_LIMIT	300000		// 300 seconds
 #endif
 
+#define APP_TIMER_NODE_VALID		0x2277
+#define APP_TIMER_NODE_INVALID		0x7722
+
 
 namespace irr {
 //----------------------------------------------------------------
 CTimerWheel::STimeNode::STimeNode() :
     mTimeoutStep(0),
     mCallback(0),
-    mCallbackData(0) {
+    mCallbackData(0),
+    mState(APP_TIMER_NODE_VALID) {
     //mLinker.init();
 }
 
 
 CTimerWheel::STimeNode::~STimeNode() {
+    if(mState != APP_TIMER_NODE_VALID) {
+        APP_ASSERT(0);
+        return;
+    }
     if(!mLinker.isEmpty()) {
         mLinker.delink();
     }
+    mState = APP_TIMER_NODE_INVALID;
     mCallback = 0;
     mCallbackData = 0;
     mTimeoutStep = 0;
@@ -26,138 +35,75 @@ CTimerWheel::STimeNode::~STimeNode() {
 
 
 //---------------------------------------------------------------------
-CTimerWheel::CTimerWheel(u64 millisec, u64 interval) :
+CTimerWheel::CTimerWheel(u32 millisec, u32 interval) :
     mCurrentStep(0),
     mCurrent(millisec),
     mInterval((interval > 0) ? interval : 1) {
-    init();
 }
 
 
 CTimerWheel::~CTimerWheel() {
-    clear();
 }
 
 
-void CTimerWheel::init() {
-    initSlot(mSlot_0, APP_TIME_ROOT_SLOT_SIZE);
-    initSlot(mSlot_1, APP_TIME_SLOT_SIZE);
-    initSlot(mSlot_2, APP_TIME_SLOT_SIZE);
-    initSlot(mSlot_3, APP_TIME_SLOT_SIZE);
-    initSlot(mSlot_4, APP_TIME_SLOT_SIZE);
-}
-
-
-void CTimerWheel::clear() {
-    mSpinlock.lock();
-    clearSlot(mSlot_0, APP_TIME_ROOT_SLOT_SIZE);
-    clearSlot(mSlot_1, APP_TIME_SLOT_SIZE);
-    clearSlot(mSlot_2, APP_TIME_SLOT_SIZE);
-    clearSlot(mSlot_3, APP_TIME_SLOT_SIZE);
-    clearSlot(mSlot_4, APP_TIME_SLOT_SIZE);
-    mSpinlock.unlock();
-}
-
-
-void CTimerWheel::initSlot(CQueueNode all[], u32 size) {
-    for(u32 i = 0; i < size; i++) {
-        all[i].init();
+void CTimerWheel::add(STimeNode& node, u32 period) {
+    if(node.mState != APP_TIMER_NODE_VALID) {
+        APP_ASSERT(0);
+        return;
     }
-}
-
-
-void CTimerWheel::clearSlot(CQueueNode all[], u32 size) {
-    STimeNode* node;
-    AppTimeoutCallback fn;
-    CQueueNode queued;
-    for(u32 j = 0; j < size; j++) {
-        if(!all[j].isEmpty()) {
-            all[j].splitAndJoin(queued);
-
-            mSpinlock.unlock(); //unlock
-
-            while(!queued.isEmpty()) {
-                node = APP_GET_VALUE_POINTER(queued.getNext(), STimeNode, mLinker);
-                if(!node->mLinker.isEmpty()) {
-                    node->mLinker.delink();
-                }
-                fn = node->mCallback;
-                if(fn) {
-                    fn(node->mCallbackData);
-                }
-            }//while
-
-            mSpinlock.lock(); //lock
-        }//if
-    }//for
-}
-
-
-void CTimerWheel::add(STimeNode& node, u64 period) {
-    mSpinlock.lock();
-
     if(!node.mLinker.isEmpty()) {
         node.mLinker.delink();
     }
-    u64 steps = (period + mInterval - 1) / mInterval;
-    if(steps >= 0x7000000000000000ULL) {
-        steps = 0x7000000000000000ULL;
+    u32 steps = (period + mInterval - 1) / mInterval;
+    if(steps >= 0x70000000) {
+        steps = 0x70000000;
     }
     node.mTimeoutStep = mCurrentStep + steps;
     innerAdd(node);
-
-    mSpinlock.unlock();
 }
 
 
 void CTimerWheel::add(STimeNode& node) {
-    mSpinlock.lock();
-
+    if(node.mState != APP_TIMER_NODE_VALID) {
+        APP_ASSERT(0);
+        return;
+    }
     if(!node.mLinker.isEmpty()) {
         node.mLinker.delink();
     }
     innerAdd(node);
-
-    mSpinlock.unlock();
 }
 
 
-bool CTimerWheel::remove(STimeNode& node) {
-    mSpinlock.lock();
-
+s32 CTimerWheel::remove(STimeNode& node) {
+    if(node.mState != APP_TIMER_NODE_VALID) {
+        APP_ASSERT(0);
+        return -1;
+    }
     if(!node.mLinker.isEmpty()) {
         node.mLinker.delink();
-        mSpinlock.unlock(); //unlock
-        return true;
+        return 1;
     }
-
-    mSpinlock.unlock(); //unlock
-    return false;
+    return 0;
 }
 
 
 void CTimerWheel::innerAdd(STimeNode& node) {
-    u64 expires = node.mTimeoutStep;
-    u64 idx = expires - mCurrentStep;
+    u32 expires = node.mTimeoutStep;
+    u32 idx = expires - mCurrentStep;
     if(idx < ESLOT0_MAX) {
-        mSlot_0[expires & APP_TIME_ROOT_SLOT_MASK].pushBack(node.mLinker);
+        mSlot_0.pushBack(expires & APP_TIME_ROOT_SLOT_MASK, node.mLinker);
     } else if(idx < ESLOT1_MAX) {
-        mSlot_1[getIndex(expires, 0)].pushBack(node.mLinker);
+        mSlot_1.pushBack(getIndex(expires, 0), node.mLinker);
     } else if(idx < ESLOT2_MAX) {
-        mSlot_2[getIndex(expires, 1)].pushBack(node.mLinker);
+        mSlot_2.pushBack(getIndex(expires, 1), node.mLinker);
     } else if(idx < ESLOT3_MAX) {
-        mSlot_3[getIndex(expires, 2)].pushBack(node.mLinker);
-    } else if((s64) idx < 0) {
-        mSlot_0[mCurrentStep & APP_TIME_ROOT_SLOT_MASK].pushBack(node.mLinker);
+        mSlot_3.pushBack(getIndex(expires, 2), node.mLinker);
+    } else if((s32) idx < 0) {
+        mSlot_0.pushBack(mCurrentStep & APP_TIME_ROOT_SLOT_MASK, node.mLinker);
     } else {
-        mSlot_4[getIndex(expires, 3)].pushBack(node.mLinker);
+        mSlot_4.pushBack(getIndex(expires, 3), node.mLinker);
     }
-}
-
-
-
-inline u64 CTimerWheel::getIndex(u64 jiffies, u64 level)const {
-    return (jiffies >> (APP_TIME_ROOT_SLOT_BITS + level * APP_TIME_SLOT_BITS)) & APP_TIME_SLOT_MASK;
 }
 
 
@@ -174,10 +120,15 @@ void CTimerWheel::innerCascade(CQueueNode& head) {
 }
 
 
+inline u32 CTimerWheel::getIndex(u32 jiffies, u32 level)const {
+    return (jiffies >> (APP_TIME_ROOT_SLOT_BITS + level * APP_TIME_SLOT_BITS)) & APP_TIME_SLOT_MASK;
+}
+
+
 void CTimerWheel::innerUpdate() {
-    u64 index = mCurrentStep & APP_TIME_ROOT_SLOT_MASK;
+    u32 index = mCurrentStep & APP_TIME_ROOT_SLOT_MASK;
     if(index == 0) {
-        u64 i = getIndex(mCurrentStep, 0);
+        u32 i = getIndex(mCurrentStep, 0);
         innerCascade(mSlot_1[i]);
         if(i == 0) {
             i = getIndex(mCurrentStep, 1);
@@ -201,37 +152,30 @@ void CTimerWheel::innerUpdate() {
         mSlot_0[index].splitAndJoin(queued);
         STimeNode* node;
         AppTimeoutCallback fn;
-
-        mSpinlock.unlock(); //unlock
-
+        void* data;
         while(!queued.isEmpty()) {
             node = APP_GET_VALUE_POINTER(queued.getNext(), STimeNode, mLinker);
             fn = node->mCallback;
+            data = node->mCallbackData;
             node->mLinker.delink();
-            if(fn) {
-                fn(node->mCallbackData);
-            }
+            if(fn) fn(data);
         }
-
-        mSpinlock.lock(); //lock
     }//if
 }
 
 
 // run timer events
-void CTimerWheel::update(u64 millisec) {
-    s64 limit = (s64) mInterval * 64;
-    s64 diff = (s64) (millisec - mCurrent);
+void CTimerWheel::update(u32 millisec) {
+    s32 limit = (s32) mInterval * 64;
+    s32 diff = (s32) (millisec - mCurrent);
     if(diff > APP_TIMER_MANAGER_LIMIT + limit) {
         mCurrent = millisec;
     } else if(diff < -APP_TIMER_MANAGER_LIMIT - limit) {
         mCurrent = millisec;
     }
-    while((s64) (millisec - mCurrent) >= 0) {
-        mSpinlock.lock();
+    while((s32) (millisec - mCurrent) >= 0) {
         innerUpdate();
         mCurrent += mInterval;
-        mSpinlock.unlock();
     }
 }
 
@@ -240,7 +184,7 @@ void CTimerWheel::update(u64 millisec) {
 void AppTimeEventCallback(void* data) {
     CTimerWheel::STimeEvent* evt = (CTimerWheel::STimeEvent*) data;
     CTimerWheel* mgr = evt->mManger;
-    u64 current = mgr->getCurrent();
+    u32 current = mgr->getCurrent();
     s32 count = 0;
     bool stop = false;
     while(current >= evt->mLastTime) {
@@ -258,7 +202,7 @@ void AppTimeEventCallback(void* data) {
     if(stop) {
         evt->stop();
     } else {
-        mgr->add(evt->mNode, (u64) evt->mPeriod);
+        mgr->add(evt->mNode, evt->mPeriod);
     }
 
     if(evt->mCallback) {

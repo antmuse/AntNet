@@ -284,7 +284,7 @@ bool CNetSynPing::sendReset() {
 s32 CNetSynPing::ping(const c8* remoteIP, u16 remotePort) {
     mAddressRemote.set(remoteIP, remotePort);
     IAppLogger::log(ELOG_INFO, "CNetSynPing::ping", "%s:%u --> %s:%u",
-        mAddressLocal.getIPString().c_str(), mAddressLocal.getPort(), mAddressRemote.getIPString().c_str(), mAddressRemote.getPort());
+        mAddressLocal.getIPString(), mAddressLocal.getPort(), mAddressRemote.getIPString(), mAddressRemote.getPort());
     if(!send()) {
         IAppLogger::log(ELOG_ERROR, "CNetSynPing::ping", "send fail, %u", CNetSocket::getError());
         closeAll();
