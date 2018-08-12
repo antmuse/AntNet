@@ -249,7 +249,13 @@ bool CNetClientUDP::bindLocal() {
 
 
 APP_INLINE void CNetClientUDP::onPacket(CNetPacket& it) {
-    if(mReceiver) mReceiver->onReceive(it);
+    if(mReceiver) {
+        SNetEvent evt;
+        evt.mType = ENET_RECEIVED;
+        evt.mInfo.mData.mBuffer = it.getReadPointer();
+        evt.mInfo.mData.mSize = it.getReadSize();
+        mReceiver->onEvent(evt);
+    }
 }
 
 }// end namespace net

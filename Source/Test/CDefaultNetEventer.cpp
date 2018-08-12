@@ -17,38 +17,33 @@ CDefaultNetEventer::~CDefaultNetEventer() {
 }
 
 
-void CDefaultNetEventer::onReceive(net::CNetPacket& pack) {
-    core::array<c8> items(16);
-    //pack.seek(0);
-    u32 sz = 0;
-    u32 node = 0;
-    u32 id;
-    for(;;) {
-        if(pack.getSize() <= (sz + sizeof(u32))) {
-            break;
-        }
-        node = pack.readU32();
-        if(pack.getSize() < (sz + node)) {
-            break;
-        }
-        sz += node;
-        id = pack.readU32();
-        pack.readString(items);
-        IAppLogger::log(ELOG_INFO, "CDefaultNetEventer::onReceive", "[%u:%s]", id, items.pointer());
-    }
-    pack.clear(sz);
-}
 
-
-void CDefaultNetEventer::onEvent(ENetEventType iEvent) {
+s32 CDefaultNetEventer::onEvent(SNetEvent& iEvent) {
+    s32 ret = 0;
     //static core::stringc req("Hey,server");
-    static CNetPacket pack;
+    CNetPacket pack(8 * 1024);
     static u32 count = 0;
 
     IAppLogger::log(ELOG_INFO, "CDefaultNetEventer::onEvent",
-        "on [%s]", AppNetEventTypeNames[iEvent]);
+        "[%u] on [%s]", count, AppNetEventTypeNames[iEvent.mType]);
 
-    switch(iEvent) {
+    switch(iEvent.mType) {
+    case ENET_RECEIVED:
+    {
+        ret = iEvent.mInfo.mData.mSize;
+        IAppLogger::log(ELOG_INFO, "CDefaultNetEventer::onEvent", "[received size=%u:%s]",
+            iEvent.mInfo.mData.mSize, iEvent.mInfo.mData.mBuffer);
+        break;
+    }
+    case ENET_LINKED:
+        IAppLogger::log(ELOG_INFO, "CDefaultNetEventer::onEvent", "[%u,%s:%u->%s:%u]",
+            iEvent.mInfo.mSession.mSocket->getValue(),
+            iEvent.mInfo.mSession.mAddressRemote->getIPString(),
+            iEvent.mInfo.mSession.mAddressRemote->getPort(),
+            iEvent.mInfo.mSession.mAddressLocal->getIPString(),
+            iEvent.mInfo.mSession.mAddressLocal->getPort());
+        break;
+
     case ENET_CONNECTED:
     case ENET_SENT:
     {
@@ -56,10 +51,16 @@ void CDefaultNetEventer::onEvent(ENetEventType iEvent) {
         pack.add(++count);
         pack.add("Hey,server", (u32) 11);
         pack.setU32(0, pack.getSize());
-        mSession->send(pack.getPointer(), pack.getSize());
+        mSession->send(pack.getPointer(), pack.getAllocatedSize());
         break;
     }
+
+    case ENET_CLOSED:
+        count = 0;
+        break;
     }//switch
+
+    return ret;
 }
 
 

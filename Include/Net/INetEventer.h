@@ -7,6 +7,10 @@
 namespace irr {
 namespace net {
 
+class CNetSocket;
+class CNetAddress;
+
+
 enum ENetEventType {
     ENET_INVALID,
     ENET_CLOSED,             ///<closed
@@ -16,6 +20,7 @@ enum ENetEventType {
     ENET_RECEIVED,           ///<received data
     ENET_CONNECTED,          ///<success connect
     ENET_DISCONNECTED,       ///<passive stop
+    ENET_LINKED,             ///<client's TCP linked
     ENET_ERROR,
     ENET_CONNECT_TIMEOUT,    ///<Can't connect
     ENET_SEND_TIMEOUT,
@@ -33,6 +38,7 @@ const c8* const AppNetEventTypeNames[] = {
     "NetReceived",
     "NetConnected",
     "NetDisconnected",
+    "NetLinked",
     "NetError",
     "NetConnectTimeout",
     "NetSendTimeout",
@@ -45,13 +51,20 @@ const c8* const AppNetEventTypeNames[] = {
 struct SNetEvent {
     struct SData {
         void* mBuffer;
-        u32 mSize;
+        s32 mSize;
+    };
+    struct SSession {
+        CNetSocket* mSocket;
+        CNetAddress* mAddressLocal;
+        CNetAddress* mAddressRemote;
+    };
+    union UEventInfo {
+        SData mData;
+        SSession mSession;
     };
 
     ENetEventType mType;
-    union {
-        SData mData;
-    };
+    UEventInfo mInfo;
 };
 
 
@@ -63,17 +76,12 @@ public:
     virtual ~INetEventer() {
     }
 
-    /**
-    *@brief Callback function when received net packet.
-    *@param The received package.
-    */
-    virtual void onReceive(CNetPacket& it) = 0;
 
     /**
-    *@brief Called when net status changed.
-    *@param iEvent The event type.
+    *@brief Called when net event.
+    *@param iEvent The event.
     */
-    virtual void onEvent(ENetEventType iEvent) = 0;
+    virtual s32 onEvent(SNetEvent& iEvent) = 0;
 };
 
 

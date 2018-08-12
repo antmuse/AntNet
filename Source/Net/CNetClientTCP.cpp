@@ -76,7 +76,11 @@ bool CNetClientTCP::update(u64 iTime) {
                     "remote msg[%s]", AppNetMessageNames[bit]);
             } else {
                 if(mReceiver) {
-                    mReceiver->onReceive(mPacket);
+                    SNetEvent evt;
+                    evt.mType = ENET_RECEIVED;
+                    evt.mInfo.mData.mBuffer = mPacket.getReadPointer();
+                    evt.mInfo.mData.mSize = mPacket.getReadSize();
+                    mReceiver->onEvent(evt);
                 }
             }
             mPacketSize = 0;

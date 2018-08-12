@@ -115,9 +115,17 @@ public:
 
     /**
     *@brief Get port.
-    *@return The port, in big endian.
+    *@return The port, in OS endian.
     */
     u16 getPort()const;
+
+    /**
+    *@brief Get port.
+    *@return The port, in big endian.
+    */
+    u16 getNetPort()const {
+        return APP_SWAP16(getPort());
+    }
 
     /**
     *@brief Set IP by a DNS, the real address will auto inited.

@@ -47,7 +47,7 @@ void CNetClientHttp::onBody() {
         }
         if(CNetHttpURL::EURL_NEW_HTTP & flag) {
             if(url.isHTTPS()) {
-                onEvent(ENET_UNSUPPORT);
+                //onEvent(ENET_UNSUPPORT);
                 //mSession->postDisconnect();
                 break;
             }
@@ -65,37 +65,47 @@ void CNetClientHttp::onBody() {
 }
 
 
-void CNetClientHttp::onReceive(CNetPacket& it) {
-    const c8* pos = mResponse.import(it.getConstPointer(), it.getSize());
-    if(!pos) return;
 
-    if(mResponse.isFull()) {
-        onBody();
-        //mResponse.clear();
-    }
-
-    it.clear(pos);
-}
-
-
-void CNetClientHttp::onEvent(ENetEventType it) {
-    if(ENET_CLOSED == it) {
+s32 CNetClientHttp::onEvent(SNetEvent& it) {
+    s32 ret = 0;
+    switch(it.mType) {
+    case ENET_CLOSED:
+    {
         mSession = 0;
         if(mRelocation) {
             mRelocation = false;
             if(start()) {
-                return;
+                return ret;
             }
         } else {
             if(mResponse.getContentSize() == 0 && !mResponse.isKeepAlive()) {
                 postData();
             }
         }
+        break;
     }
+
+    case ENET_RECEIVED:
+    {
+        const c8* pos = mResponse.import((c8*)it.mInfo.mData.mBuffer, it.mInfo.mData.mSize);
+        if(!pos) return ret;
+
+        if(mResponse.isFull()) {
+            onBody();
+            //mResponse.clear();
+        }
+
+        ret = (s32)(pos - ((c8*)it.mInfo.mData.mBuffer));
+        break;
+    }
+
+
+    }//switch
 
     if(mReceiver) {
         mReceiver->onEvent(it);
     }
+    return ret;
 }
 
 

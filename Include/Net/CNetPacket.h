@@ -90,6 +90,9 @@ public:
         return mCurrent;
     }
 
+    APP_FORCE_INLINE u32 getReadSize() const {
+        return u32(getEnd() - mCurrent);
+    }
 
     APP_FORCE_INLINE c8* getEnd() const {
         return mData + mDataSize;

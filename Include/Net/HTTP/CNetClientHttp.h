@@ -48,9 +48,7 @@ public:
         return mAddressRemote;
     }
 
-    virtual void onEvent(ENetEventType it)override;
-
-    virtual void onReceive(CNetPacket& it)override;
+    virtual s32 onEvent(SNetEvent& it)override;
 
 
 private:

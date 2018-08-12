@@ -227,7 +227,7 @@ void CNetAddress::setPort(u16 port) {
 
 
 u16 CNetAddress::getPort()const {
-    return mAddress->sin_port;
+    return mPort; // mAddress->sin_port;
 }
 
 

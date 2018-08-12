@@ -23,9 +23,7 @@ public:
 
     virtual ~CDefaultNetEventer();
 
-    virtual void onReceive(CNetPacket& pack)override;
-
-    virtual void onEvent(ENetEventType iEvent)override;
+    virtual s32 onEvent(SNetEvent& iEvent)override;
 
 private:
     INetSession* mSession;

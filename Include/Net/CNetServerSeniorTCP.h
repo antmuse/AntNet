@@ -15,13 +15,13 @@
 #include "CEventPoller.h"
 #include "CNetSocket.h"
 #include "CTimerWheel.h"
+#include "CNetSession.h"
 
 #if defined(APP_PLATFORM_WINDOWS)
 namespace irr {
 namespace net {
 class INetEventer;
 struct SContextIO;
-class CNetSession;
 
 /**
 *@class CNetServerSeniorTCP
@@ -38,12 +38,6 @@ public:
 
     bool stop();
 
-    void setMaxClients(u32 max) {
-        mMaxContext = max;
-    };
-
-    virtual u32 getClientCount()const;
-
     CNetSession* addSession(CNetSocket& sock, const CNetAddress& remote, const CNetAddress& local);
 
 protected:
@@ -53,13 +47,9 @@ protected:
 
     void createContext(u32 max);
 
-    void deleteContext();
-
 private:
 
     bool mRunning;
-    u32 mMaxContext;
-    u32 mCreatedSession;
     u32 mCreatedSocket;
     u32 mClosedSocket;      ///closed socket count
     u32 mTotalSession;      ///<launched session count
@@ -70,8 +60,7 @@ private:
     CTimerWheel mWheel;
     CEventPoller mPoller;
     CMutex mMutex;
-    CNetSession* mAllContext;
-    core::list<u32> mIdleSession;
+    CNetSessionPool mSessionPool;
     CThread* mThread;
     INetEventer* mReceiver;
     //CMemoryHub mMemHub;

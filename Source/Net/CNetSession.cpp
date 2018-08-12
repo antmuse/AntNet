@@ -3,6 +3,86 @@
 #include "CNetClientSeniorTCP.h"
 #include "IAppLogger.h"
 
+
+namespace irr {
+namespace net {
+
+CNetSessionPool::CNetSessionPool() :
+    mAllContext(0),
+    mIdle(0),
+    mMax(0),
+    mHead(0),
+    mTail(0) {
+    //create(mMax);
+}
+
+CNetSessionPool::~CNetSessionPool() {
+    clearAll();
+}
+
+
+CNetSession* CNetSessionPool::getIdleSession() {
+    if(!mHead) {
+        return 0;
+    }
+    CNetSession* ret = mHead;
+    if(mHead == mTail) {
+        mHead = 0;
+        mTail = 0;
+    } else {
+        mHead = mHead->getNext();
+    }
+    --mIdle;
+    return ret;
+}
+
+
+void CNetSessionPool::addIdleSession(CNetSession* it) {
+    if(it) {
+        it->setNext(0);
+        if(mTail) {
+            mTail->setNext(it);
+            mTail = it;
+        } else {
+            mTail = it;
+            mHead = it;
+        }
+        ++mIdle;
+    }
+}
+
+void CNetSessionPool::create(u32 max) {
+    APP_ASSERT(max < ENET_SESSION_MASK);
+
+    if(0 == mAllContext) {
+        mMax = (0 == max ? 20000 : max);
+        //mIdle = mMax;
+        mAllContext = new CNetSession[mMax];
+        for(u32 i = 0; i < mMax; ++i) {
+            //new (&mAllContext[i]) CNetSession();
+            mAllContext[i].setIndex(i);
+            mAllContext[i].setTime(-1);
+            addIdleSession(mAllContext + i);
+        }
+    }
+}
+
+
+void CNetSessionPool::clearAll() {
+    for(u32 i = 0; i < mMax; ++i) {
+        //mAllContext[i].~CNetSession();
+        mAllContext[i].getSocket().close();
+    }
+    delete[] mAllContext;
+    mAllContext = 0;
+    mHead = 0;
+    mTail = 0;
+}
+
+} //namespace net
+} //namespace irr
+
+
 #if defined(APP_PLATFORM_WINDOWS)
 namespace irr {
 namespace net {
@@ -14,9 +94,10 @@ void AppTimeoutContext(void* it) {
 }
 
 
-CNetSession::CNetSession():
+CNetSession::CNetSession() :
+    mNext(0),
     mTime(-1),
-    mMask(getMask(0,1)),
+    mMask(getMask(0, 1)),
     mID(getMask(0, 1)),
     //mSessionHub(0),
     //mFunctionConnect(0),
@@ -139,7 +220,12 @@ s32 CNetSession::stepReceive() {
     mPacketReceive.setUsed(mPacketReceive.getSize() + mActionReceive.mBytes);
 
     if(mEventer) {
-        mEventer->onReceive(mPacketReceive);
+        SNetEvent evt;
+        evt.mType = ENET_RECEIVED;
+        evt.mInfo.mData.mBuffer = mPacketReceive.getReadPointer();
+        evt.mInfo.mData.mSize = mPacketReceive.getReadSize();
+        mEventer->onEvent(evt);
+
         if(0 == mPacketReceive.getWriteSize()) {
             mPacketReceive.setUsed(0);
         }
@@ -220,7 +306,11 @@ bool CNetSession::onNewSession() {
 
 void CNetSession::postEvent(ENetEventType iEvent) {
     if(mEventer) {
-        mEventer->onEvent(iEvent);
+        SNetEvent evt;
+        evt.mType = iEvent;
+        evt.mInfo.mData.mBuffer = 0;
+        evt.mInfo.mData.mSize = 0;
+        mEventer->onEvent(evt);
     }
 }
 
@@ -339,7 +429,7 @@ s32 CNetSession::postSend() {
     }
     c8* buffer = mPacketSend.getPointer();
     u32 sz = mPacketSend.getSize();
-    if(mSocket.send(buffer,sz)) {
+    if(mSocket.send(buffer, sz)) {
         return ++mCount;
     }
     APP_LOG(ELOG_ERROR, "CNetSession::postSend", "ecode=%u", CNetSocket::getError());
@@ -365,7 +455,7 @@ s32 CNetSession::postReceive() {
     APP_ASSERT(mPacketReceive.getWriteSize() > 0);
     c8* buffer = mPacketReceive.getWritePointer();
     u32 sz = mPacketReceive.getWriteSize();
-    if(mSocket.receive(buffer,sz)) {
+    if(mSocket.receive(buffer, sz)) {
         return ++mCount;
     }
     APP_LOG(ELOG_ERROR, "CNetSession::postReceive", "ecode=%u", CNetSocket::getError());

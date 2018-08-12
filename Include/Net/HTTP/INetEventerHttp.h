@@ -28,7 +28,7 @@ public:
     *@brief Called when net status changed.
     *@param iEvent The event type.
     */
-    virtual void onEvent(ENetEventType iEvent) = 0;
+    virtual s32 onEvent(SNetEvent& iEvent) = 0;
 };
 
 

@@ -30,6 +30,14 @@ public:
 
     virtual ~CNetSession();
 
+    void setNext(CNetSession* it) {
+        mNext = it;
+    }
+
+    CNetSession* getNext()const {
+        return mNext;
+    }
+
     APP_FORCE_INLINE u32 getMask(u32 index, u32 level) {
         return (ENET_SESSION_MASK&index) | (ENET_CMD_MASK& (level << 20));
     }
@@ -150,6 +158,7 @@ protected:
     CNetSocket mSocket;
     INetEventer* mEventer;
     CEventPoller* mPoller;
+    CNetSession* mNext;
     //CNetClientSeniorTCP* mSessionHub;
     //void* mFunctionConnect;             ///<Windows only
     //void* mFunctionDisonnect;           ///<Windows only
@@ -161,6 +170,58 @@ protected:
     CNetPacket mPacketReceive;
     CNetAddress mAddressRemote;
     CNetAddress mAddressLocal;
+};
+
+
+
+class CNetSessionPool {
+public:
+    CNetSessionPool();
+
+    ~CNetSessionPool();
+
+    CNetSession* getIdleSession();
+
+    void addIdleSession(CNetSession* it);
+
+    void addIdleSession(u32 idx) {
+        addIdleSession(mAllContext + idx);
+    }
+
+    CNetSession& operator[](u32 idx)const {
+        return *(mAllContext + idx);
+    }
+
+    CNetSession* getSession(u32 idx)const {
+        return mAllContext + idx;
+    }
+
+    CNetSession* getSession(u64 idx)const {
+        return mAllContext + idx;
+    }
+
+    void create(u32 max);
+
+    u32 getMaxContext()const {
+        return mMax;
+    }
+
+    u32 getIdleCount()const {
+        return mIdle;
+    }
+    u32 getActiveCount()const {
+        return mMax - mIdle;
+    }
+
+private:
+    void clearAll();
+
+
+    u32 mMax;
+    u32 mIdle;
+    CNetSession* mAllContext;
+    CNetSession* mHead;
+    CNetSession* mTail;
 };
 
 

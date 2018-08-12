@@ -45,10 +45,11 @@ void AppQuit() {
 
 
 void AppStartServer() {
-    //net::CDefaultNetEventer evt;
+    net::CDefaultNetEventer evt;
     net::CNetServerAcceptor accpetor;
     net::CNetAddress addr(9981);
     accpetor.setLocalAddress(addr);
+    accpetor.setEventer(&evt);
     accpetor.start();
     AppQuit();
     accpetor.stop();

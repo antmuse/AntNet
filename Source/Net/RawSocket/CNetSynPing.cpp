@@ -74,7 +74,7 @@ bool CNetSynPing::init() {
         return false;
     }
 
-//what a fuck diffence here.
+    //what a fuck diffence here.
 #if defined(APP_PLATFORM_WINDOWS)
     //On windows, can't open raw socket with IPPROTO_TCP.
     if(!mScoketListener.open(AF_INET, SOCK_RAW, IPPROTO_IP)) {
@@ -91,7 +91,7 @@ bool CNetSynPing::init() {
     }
 #endif  //APP_PLATFORM_WINDOWS
 
-    
+
     if(!mAddressLocal.setIP()) {
         IAppLogger::log(ELOG_ERROR, "CNetSynPing::init", "get mAddressLocal IP,%u", CNetSocket::getError());
         closeAll();
@@ -133,9 +133,9 @@ bool CNetSynPing::send() {
     ::inet_ntop(mAddressRemote.mAddress->sin_family, &mAddressRemote.getIP(), buf, sizeof(buf));
     IAppLogger::log(ELOG_INFO, "CNetSynPing::send", "%s == %s", buf, mAddressRemote.getIPString().c_str());
     IAppLogger::log(ELOG_INFO, "CNetSynPing::send", "mAddressLocal  IP= 0x%x:0x%x",
-    mAddressLocal.getIP(), mAddressLocal.getPort());
+    mAddressLocal.getIP(), mAddressLocal.getNetPort());
     IAppLogger::log(ELOG_INFO, "CNetSynPing::send", "mAddressRemote IP= 0x%x:0x%x",
-    mAddressRemote.getIP(), mAddressRemote.getPort());*/
+    mAddressRemote.getIP(), mAddressRemote.getNetPort());*/
 
     //填充TCP伪首部
     fakeHeadTCP.mLocalIP = mAddressLocal.getIP();
@@ -144,8 +144,8 @@ bool CNetSynPing::send() {
     fakeHeadTCP.mProtocol = IPPROTO_TCP;
     fakeHeadTCP.setSize(sizeof(SHeadTCP) + sizeof(SHeadOptionTCP));
     //填充TCP首部
-    tcpHead.mLocalPort = mAddressLocal.getPort();
-    tcpHead.mRemotePort = mAddressRemote.getPort();
+    tcpHead.mLocalPort = (mAddressLocal.getNetPort());
+    tcpHead.mRemotePort = (mAddressRemote.getNetPort());
     tcpHead.setSN(APP_SN_START);
     tcpHead.mACK = 0;
     tcpHead.mSizeReserveFlag = 0;                                    //step 1
@@ -227,8 +227,8 @@ bool CNetSynPing::sendReset() {
     fakeHeadTCP.mProtocol = IPPROTO_TCP;
     fakeHeadTCP.setSize(sizeof(SFakeHeadTCP) + sizeof(SHeadTCP));
     //填充TCP首部
-    tcpHead.mLocalPort = mAddressLocal.getPort();
-    tcpHead.mRemotePort = mAddressRemote.getPort();
+    tcpHead.mLocalPort = (mAddressLocal.getNetPort());
+    tcpHead.mRemotePort = (mAddressRemote.getNetPort());
     tcpHead.setSN(1 + APP_SN_START);
     tcpHead.mACK = 0;
     tcpHead.mSizeReserveFlag = 0;                                      //step 1
@@ -367,10 +367,10 @@ s32 CNetSynPing::ping(const c8* remoteIP, u16 remotePort) {
         if(recvHeadIP.mRemoteIP != mAddressLocal.getIP()) {
             continue;
         }
-        if(recvHeadTCP.mLocalPort != mAddressRemote.getPort()) {
+        if(recvHeadTCP.mLocalPort != mAddressRemote.getNetPort()) {
             continue;
         }
-        if(recvHeadTCP.mRemotePort != mAddressLocal.getPort()) {
+        if(recvHeadTCP.mRemotePort != mAddressLocal.getNetPort()) {
             continue;
         }
 

@@ -37,6 +37,7 @@ bool CNetServerAcceptor::SContextWaiter::reset() {
 
 /////////////////////////////////////////////////////////////////////////////////////
 CNetServerAcceptor::CNetServerAcceptor() :
+    mReceiver(0),
     mCurrent(0),
     mAcceptCount(0),
     mThread(0),
@@ -62,19 +63,18 @@ void CNetServerAcceptor::run() {
     for(; mRunning; ) {
         gotsz = mPoller.getEvents(iEvent, maxe, APP_THREAD_MAX_SLEEP_TIME);
         if(gotsz > 0) {
-            bool ret = true;
+            bool stop = false;
             for(u32 i = 0; i < gotsz; ++i) {
                 if(APP_SERVER_EXIT_CODE == iEvent[i].mKey) {
-                    mRunning = false;
+                    stop = true;
                     continue;
                 }
-                ret = true;
                 iAction = APP_GET_VALUE_POINTER(iEvent[i].mPointer, SContextIO, mOverlapped);
                 iAction->mBytes = iEvent[i].mBytes;
-                ret = stepAccpet(mAllWaiter[iAction->mID]);
+                stepAccpet(mAllWaiter[iAction->mID]);
                 //IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::run", "unknown operation type");
             }//for
-
+            mRunning = !stop;
         } else {
             s32 pcode = mPoller.getError();
             switch(pcode) {
@@ -91,9 +91,10 @@ void CNetServerAcceptor::run() {
                 APP_ASSERT(0);
                 break;
             }//switch
-            continue;
+            //continue;
         }//else if
     }//while
+    IAppLogger::log(ELOG_INFO, "CNetServerAcceptor::run", "acceptor thread exited");
 }
 
 
@@ -154,7 +155,9 @@ bool CNetServerAcceptor::stop() {
     CEventPoller::SEvent evt = {0};
     evt.mKey = APP_SERVER_EXIT_CODE;
     if(mPoller.postEvent(evt)) {
-        mRunning = false;
+        /*while(mRunning) {
+            CThread::sleep(500);
+        }*/
         mThread->join();
         delete mThread;
         mThread = 0;
@@ -263,6 +266,16 @@ bool CNetServerAcceptor::stepAccpet(SContextWaiter* iContext) {
         APP_ASSERT(sz > 0);
     }
     mListener.getAddress(iContext->mCache, mAddressLocal, mAddressRemote, mFunctionAcceptSockAddress);
+    if(mReceiver) {
+        SNetEvent evt;
+        evt.mType = ENET_LINKED;
+        evt.mInfo.mSession.mSocket = &iContext->mSocket;
+        evt.mInfo.mSession.mAddressLocal = &mAddressLocal;
+        evt.mInfo.mSession.mAddressRemote = &mAddressRemote;
+        evt.mInfo.mSession.mSocket = &iContext->mSocket;
+        mReceiver->onEvent(evt);
+    }
+
     if(mCurrent >= sz) {
         mCurrent = 0;
     }
@@ -276,7 +289,6 @@ bool CNetServerAcceptor::stepAccpet(SContextWaiter* iContext) {
         APP_ASSERT(server);
         server->addSession(iContext->mSocket, mAddressRemote, mAddressLocal);
     }
-
     return postAccept(iContext);
 }
 

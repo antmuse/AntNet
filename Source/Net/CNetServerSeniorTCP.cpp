@@ -1,7 +1,7 @@
 #include "CNetServerSeniorTCP.h"
-#include "CNetSession.h"
 #include "IAppTimer.h"
 #include "IAppLogger.h"
+//#include "CNetSession.h"
 //#include "IUtility.h"
 //#include "CNetUtility.h"
 
@@ -16,14 +16,11 @@ namespace irr {
 namespace net {
 
 CNetServerSeniorTCP::CNetServerSeniorTCP() :
-    mMaxContext(10000),
     mThread(0),
-    mCreatedSession(0),
     mCreatedSocket(0),
     mClosedSocket(0),
     mTotalSession(0),
     mTotalReceived(0),
-    mAllContext(0),
     mWheel(0, 200),//APP_NET_SESSION_TIMEOUT/5
     mRunning(false),
     mReceiver(0),
@@ -39,10 +36,6 @@ CNetServerSeniorTCP::~CNetServerSeniorTCP() {
     //CNetUtility::unloadSocketLib();
 }
 
-
-u32 CNetServerSeniorTCP::getClientCount()const {
-    return mMaxContext - mIdleSession.size();
-}
 
 
 #if defined(APP_PLATFORM_WINDOWS)
@@ -63,7 +56,7 @@ void CNetServerSeniorTCP::run() {
             for(u32 i = 0; i < gotsz; ++i) {
                 ret = 1;
                 if(iEvent[i].mKey < ENET_SESSION_MASK) {
-                    iContext = &mAllContext[iEvent[i].mKey];
+                    iContext = mSessionPool.getSession(iEvent[i].mKey);
                     iAction = APP_GET_VALUE_POINTER(iEvent[i].mPointer, SContextIO, mOverlapped);
                     iAction->mBytes = iEvent[i].mBytes;
                     mTotalReceived += iEvent[i].mBytes;
@@ -103,7 +96,7 @@ void CNetServerSeniorTCP::run() {
                         continue;
                     }
                     action = ENET_CMD_MASK & iEvent[i].mKey;
-                    iContext = &mAllContext[ENET_SESSION_MASK & iEvent[i].mKey];
+                    iContext = mSessionPool.getSession(ENET_SESSION_MASK & iEvent[i].mKey);
 
                     switch(action) {
                     case ENET_CMD_SEND:
@@ -140,7 +133,7 @@ void CNetServerSeniorTCP::run() {
                 mWheel.update(static_cast<u32>(mCurrentTime));
                 IAppLogger::log(ELOG_INFO, "CNetServerSeniorTCP::run",
                     "[context:%u/%u][socket:%u/%u][total:%u]",
-                    mIdleSession.size(), mCreatedSession,
+                    mSessionPool.getIdleCount(), mSessionPool.getMaxContext(),
                     mClosedSocket, mCreatedSocket,
                     mTotalSession);
             }
@@ -154,7 +147,7 @@ void CNetServerSeniorTCP::run() {
                 last = mCurrentTime;
                 IAppLogger::log(ELOG_INFO, "CNetServerSeniorTCP::run",
                     "[context:%u/%u][socket:%u/%u][total:%u]",
-                    mIdleSession.size(), mCreatedSession,
+                    mSessionPool.getIdleCount(), mSessionPool.getMaxContext(),
                     mClosedSocket, mCreatedSocket,
                     mTotalSession);
                 continue;
@@ -323,31 +316,9 @@ bool CNetServerSeniorTCP::clearError() {
 
 
 void CNetServerSeniorTCP::createContext(u32 max) {
-    APP_ASSERT(max < ENET_SESSION_MASK);
-    if(0 == mAllContext) {
-        mAllContext = new CNetSession[max];
-        for(u32 i = 0; i < max; ++i) {
-            //new (&mAllContext[i]) CNetSession();
-            mAllContext[i].setIndex(i);
-            //mAllContext[i].setSessionHub(this);
-            mAllContext[i].setPoller(&mPoller);
-            mAllContext[i].setTime(-1);
-            mIdleSession.push_back(i);
-        }
-    }
-    mCreatedSession = max;
+    mSessionPool.create(max);
 }
 
-
-void CNetServerSeniorTCP::deleteContext() {
-    for(u32 i = 0; i < mCreatedSession; ++i) {
-        //mAllContext[i].~CNetSession();
-        mAllContext[i].getSocket().close();
-    }
-    delete[] mAllContext;
-    mAllContext = 0;
-    mCreatedSession = 0;
-}
 
 
 bool CNetServerSeniorTCP::start() {
@@ -368,12 +339,11 @@ bool CNetServerSeniorTCP::start() {
     }
 #endif //LINUX, ANDROID
     mRunning = true;
-    mCreatedSession = 0;
     mTotalReceived = 0;
     mClosedSocket = 0;
     mCurrentTime = IAppTimer::getTime();
     mStartTime = mCurrentTime;
-    createContext(mMaxContext);
+    createContext(20000); //TODO>>
     mThread = new CThread();
     mThread->start(*this);
     return true;
@@ -392,7 +362,6 @@ bool CNetServerSeniorTCP::stop() {
     if(mPoller.postEvent(evt)) {
         mRunning = false;
         mThread->join();
-        deleteContext();
         delete mThread;
         mThread = 0;
         IAppLogger::log(ELOG_INFO, "CNetServerSeniorTCP::stop",
@@ -429,22 +398,21 @@ void CNetServerSeniorTCP::remove(CNetSession* iContext) {
 #endif
     iContext->setTime(mCurrentTime);
     mWheel.remove(iContext->getTimeNode());
-    mIdleSession.push_back(iContext->getIndex());
+    mSessionPool.addIdleSession(iContext);
 }
 
 
 CNetSession* CNetServerSeniorTCP::addSession(CNetSocket& sock, const CNetAddress& remote, const CNetAddress& local) {
     CAutoLock aulock(mMutex);
 
-    if(0 == mIdleSession.size()) {
+    if(0 == mSessionPool.getIdleCount()) {
         return 0;
     }
-    core::list<u32>::Iterator first = mIdleSession.begin();
-    CNetSession& session = mAllContext[*first];
+    CNetSession& session = *mSessionPool.getIdleSession();
     if(mCurrentTime <= (session.getTime() + APP_NET_SESSION_LINGER)) {
+        mSessionPool.addIdleSession(&session);
         return 0;
     }
-    mIdleSession.erase(first);
 
     bool success = sock.isOpen();
     if(success && sock.setBlock(false)) {
@@ -453,12 +421,12 @@ CNetSession* CNetServerSeniorTCP::addSession(CNetSocket& sock, const CNetAddress
     if(success && sock.setLinger(true, APP_NET_SESSION_LINGER / 1000)) {
         success = false;
     }
-    if(success && sock.setReuseIP(true)) {
+    /*if(success && sock.setReuseIP(true)) {
         success = false;
     }
     if(success && sock.setReusePort(true)) {
         success = false;
-    }
+    }*/
     if(success && sock.setSendOvertime(APP_NET_SESSION_TIMEOUT)) {
         success = false;
     }
@@ -470,7 +438,7 @@ CNetSession* CNetServerSeniorTCP::addSession(CNetSocket& sock, const CNetAddress
     //}
     if(!success) {
         sock.close();
-        mIdleSession.push_back(session.getIndex());
+        mSessionPool.addIdleSession(&session);
         return 0;
     }
 #if defined(APP_PLATFORM_WINDOWS)
@@ -482,7 +450,7 @@ CNetSession* CNetServerSeniorTCP::addSession(CNetSocket& sock, const CNetAddress
             sock.getValue());
 
         sock.close();
-        mIdleSession.push_back(session.getIndex());
+        mSessionPool.addIdleSession(session.getIndex());
         return 0;
     }
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
@@ -503,13 +471,14 @@ CNetSession* CNetServerSeniorTCP::addSession(CNetSocket& sock, const CNetAddress
     ++mCreatedSocket;
     ++mTotalSession;
     session.clear();
+    session.setPoller(&mPoller);
     session.setSocket(sock);
     session.setTime(0);//busy session
     session.getLocalAddress() = local;
     session.getRemoteAddress() = remote;
     session.setEventer(mReceiver);
     if(!session.onNewSession()) {
-        mIdleSession.push_back(session.getIndex());
+        mSessionPool.addIdleSession(&session);
         return 0;
     }
     return &session;

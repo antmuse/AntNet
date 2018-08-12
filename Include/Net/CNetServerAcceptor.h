@@ -45,6 +45,10 @@ public:
     void setMaxAccept(u32 max) {
         mAcceptCount = max;
     };
+    
+    void setEventer(INetEventer* evt) {
+        mReceiver = evt;
+    }
 
     void addServer(CNetServerSeniorTCP* it);
 
@@ -101,7 +105,8 @@ private:
     core::array<SContextWaiter*>  mAllWaiter;
     core::array<CNetServerSeniorTCP*>  mAllService;
     void* mFunctionAccept;
-    void* mFunctionAcceptSockAddress; 
+    void* mFunctionAcceptSockAddress;
+    INetEventer* mReceiver;
 };
 
 

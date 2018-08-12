@@ -296,7 +296,13 @@ s32 CNetServerSeniorUDP::sendBuffer(void* iUserPointer, const c8* iData, s32 iLe
 
 
 APP_INLINE void CNetServerSeniorUDP::onPacket(CNetPacket& it) {
-    if(mReceiver) mReceiver->onReceive(it);
+    if(mReceiver) {
+        SNetEvent evt;
+        evt.mType = ENET_RECEIVED;
+        evt.mInfo.mData.mBuffer = it.getReadPointer();
+        evt.mInfo.mData.mSize = it.getReadSize();
+        mReceiver->onEvent(evt);
+    }
 }
 
 
