@@ -73,8 +73,16 @@ bool CNetSocket::close() {
 }
 
 
-bool CNetSocket::shutdown(EShutFlag flag) {
-    return 0 == ::shutdown(mSocket, flag);
+bool CNetSocket::closeReceive() {
+    return 0 == ::shutdown(mSocket, ESHUT_RECEIVE);
+}
+
+bool CNetSocket::closeSend() {
+    return 0 == ::shutdown(mSocket, ESHUT_SEND);
+}
+
+bool CNetSocket::closeBoth() {
+    return 0 == ::shutdown(mSocket, ESHUT_BOTH);
 }
 
 
@@ -337,7 +345,7 @@ bool CNetSocket::open(s32 domain, s32 type, s32 protocol) {
 
 
 s32 CNetSocket::setDelay(bool it) {
-    s32 opt = it ? 1 : 0;
+    s32 opt = it ? 0 : 1;
     return ::setsockopt(mSocket, IPPROTO_TCP, TCP_NODELAY, (c8*) &opt, sizeof(opt));
 }
 
@@ -503,7 +511,11 @@ bool CNetSocket::disconnect(SContextIO* iAction, void* function/* = 0*/) {
 bool CNetSocket::accept(const CNetSocket& sock, SContextIO* iAction, void* addressCache, void* function/* = 0*/) {
     LPFN_ACCEPTEX func = (LPFN_ACCEPTEX) (function ? function : getFunctionAccpet());
     if(func) {
+#if defined(APP_NET_USE_IPV6)
+        const u32 addsize = sizeof(sockaddr_in6) + 16;
+#else
         const u32 addsize = sizeof(sockaddr_in) + 16;
+#endif
         if(FALSE == func(mSocket,
             sock.getValue(),
             addressCache,
@@ -524,9 +536,15 @@ bool CNetSocket::accept(const CNetSocket& sock, SContextIO* iAction, void* addre
 bool CNetSocket::getAddress(void* addressCache, CNetAddress& local, CNetAddress& remote, void* function/* = 0*/)const {
     LPFN_GETACCEPTEXSOCKADDRS func = (LPFN_GETACCEPTEXSOCKADDRS) (function ? function : getFunctionAcceptSockAddress());
     if(func) {
+#if defined(APP_NET_USE_IPV6)
+        const u32 addsize = sizeof(sockaddr_in6) + 16;
+        sockaddr_in6* addrLocal;
+        sockaddr_in6* addrRemote;
+#else
         const u32 addsize = sizeof(sockaddr_in) + 16;
         sockaddr_in* addrLocal;
         sockaddr_in* addrRemote;
+#endif
         s32 remoteLen = sizeof(*addrLocal);
         s32 localLen = sizeof(*addrRemote);
         func(addressCache,
@@ -538,8 +556,8 @@ bool CNetSocket::getAddress(void* addressCache, CNetAddress& local, CNetAddress&
             (sockaddr**) &addrRemote,
             &remoteLen);
 
-        local.setAddress(*addrRemote);
-        remote.setAddress(*addrLocal);
+        local.setAddress(*addrLocal);
+        remote.setAddress(*addrRemote);
         return true;
     }
 

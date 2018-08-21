@@ -38,7 +38,8 @@ public:
 
     bool stop();
 
-    CNetSession* addSession(CNetSocket& sock, const CNetAddress& remote, const CNetAddress& local);
+    CNetSession* addSession(CNetSocket& sock, const CNetAddress& remote, 
+        const CNetAddress& local, INetEventer* evter);
 
 protected:
     bool clearError();

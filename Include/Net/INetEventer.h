@@ -9,6 +9,7 @@ namespace net {
 
 class CNetSocket;
 class CNetAddress;
+class INetSession;
 
 
 enum ENetEventType {
@@ -54,9 +55,10 @@ struct SNetEvent {
         s32 mSize;
     };
     struct SSession {
-        CNetSocket* mSocket;
-        CNetAddress* mAddressLocal;
-        CNetAddress* mAddressRemote;
+        const CNetSocket* mSocket;
+        const CNetAddress* mAddressLocal;
+        const CNetAddress* mAddressRemote;
+        INetSession* mContext;
     };
     union UEventInfo {
         SData mData;

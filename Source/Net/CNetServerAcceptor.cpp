@@ -21,6 +21,11 @@ namespace net {
 
 
 CNetServerAcceptor::SContextWaiter::SContextWaiter() {
+#if defined(APP_NET_USE_IPV6)
+    APP_ASSERT(sizeof(mCache) == 2 * (sizeof(sockaddr_in6) + 16));
+#else
+    APP_ASSERT(sizeof(mCache) == 2 * (sizeof(sockaddr_in) + 16));
+#endif
     mContextIO = new SContextIO();
 }
 
@@ -266,28 +271,19 @@ bool CNetServerAcceptor::stepAccpet(SContextWaiter* iContext) {
         APP_ASSERT(sz > 0);
     }
     mListener.getAddress(iContext->mCache, mAddressLocal, mAddressRemote, mFunctionAcceptSockAddress);
-    if(mReceiver) {
-        SNetEvent evt;
-        evt.mType = ENET_LINKED;
-        evt.mInfo.mSession.mSocket = &iContext->mSocket;
-        evt.mInfo.mSession.mAddressLocal = &mAddressLocal;
-        evt.mInfo.mSession.mAddressRemote = &mAddressRemote;
-        evt.mInfo.mSession.mSocket = &iContext->mSocket;
-        mReceiver->onEvent(evt);
-    }
 
     if(mCurrent >= sz) {
         mCurrent = 0;
     }
     do {
         server = mAllService[mCurrent++];
-        server->addSession(iContext->mSocket, mAddressRemote, mAddressLocal);
+        server->addSession(iContext->mSocket, mAddressRemote, mAddressLocal, mReceiver);
     } while(!server && mCurrent < sz);
 
     if(!server) {
         server = createServer();
         APP_ASSERT(server);
-        server->addSession(iContext->mSocket, mAddressRemote, mAddressLocal);
+        server->addSession(iContext->mSocket, mAddressRemote, mAddressLocal, mReceiver);
     }
     return postAccept(iContext);
 }

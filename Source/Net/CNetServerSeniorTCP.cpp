@@ -103,6 +103,15 @@ void CNetServerSeniorTCP::run() {
                         ret = iContext->postSend();
                         break;
                     case ENET_CMD_NEW_SESSION:
+                        if(iContext->getEventer()) {
+                            SNetEvent evt;
+                            evt.mType = ENET_LINKED;
+                            evt.mInfo.mSession.mSocket = &iContext->getSocket();
+                            evt.mInfo.mSession.mAddressLocal = &iContext->getLocalAddress();
+                            evt.mInfo.mSession.mAddressRemote = &iContext->getRemoteAddress();
+                            evt.mInfo.mSession.mContext = iContext;
+                            iContext->getEventer()->onEvent(evt);
+                        }
                         ret = iContext->postReceive();
                         break;
                     case ENET_CMD_CONNECT:
@@ -402,7 +411,8 @@ void CNetServerSeniorTCP::remove(CNetSession* iContext) {
 }
 
 
-CNetSession* CNetServerSeniorTCP::addSession(CNetSocket& sock, const CNetAddress& remote, const CNetAddress& local) {
+CNetSession* CNetServerSeniorTCP::addSession(CNetSocket& sock, const CNetAddress& remote,
+    const CNetAddress& local, INetEventer* evter) {
     CAutoLock aulock(mMutex);
 
     if(0 == mSessionPool.getIdleCount()) {
@@ -476,7 +486,7 @@ CNetSession* CNetServerSeniorTCP::addSession(CNetSocket& sock, const CNetAddress
     session.setTime(0);//busy session
     session.getLocalAddress() = local;
     session.getRemoteAddress() = remote;
-    session.setEventer(mReceiver);
+    session.setEventer(evter);
     if(!session.onNewSession()) {
         mSessionPool.addIdleSession(&session);
         return 0;

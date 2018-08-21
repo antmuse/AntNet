@@ -165,7 +165,7 @@ bool CNetAddress::operator!=(const CNetAddress& other) const {
 
 void CNetAddress::setIP(const c8* ip) {
     if(ip) {
-        ::memcpy(mIP, ip, core::min_<size_t>(APP_IP_STRING_MAX_SIZE - sizeof(c8), ::strlen(ip) + sizeof(c8)));
+        ::memcpy(mIP, ip, core::min_<size_t>(APP_IP_STRING_MAX_SIZE - sizeof(c8), ::strlen(ip)));
         mIP[APP_IP_STRING_MAX_SIZE - sizeof(c8)] = '\0';
         initIP();
     } else {

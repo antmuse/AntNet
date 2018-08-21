@@ -20,6 +20,7 @@ typedef irr::u64 netsocket;
 #else
 typedef irr::u32 netsocket;
 #endif
+
 enum ESystemErrorCode {
     ESEC_TIMEOUT = 10060,   //WSAETIMEDOUT
 };
@@ -34,6 +35,29 @@ enum ESystemErrorCode {
 enum ENetErrorCode {
     ENEC_TIMEOUT
 };
+
+
+
+struct SNetConfig {
+    //socket
+    bool mReuse;     ///<reuse IP and port
+    bool mOnDelay;
+    u32 mLinger;
+    u32 mKeepAlieIdle;
+    u32 mKeepAlieInterval;
+    u32 mKeepAlieMaxTick;
+    u32 mSendTimeout;
+    u32 mReceiveTimeout;
+    u32 mSendCacheSize;
+    u32 mRecieveCacheSize;
+
+    //server
+    u32 mMaxContext; ///<max session on each epoll thread
+    u32 mMaxOnFly;   ///<max fly packets on each TCP
+    u32 mMaxPackets; ///<max packets hold by a server
+    u32 mMaxMessageSize;
+};
+
 
 
 class CNetSocket {
@@ -197,8 +221,9 @@ public:
     *@return true if success, else false.
     */
     bool close();
-
-    bool shutdown(EShutFlag flag);
+    bool closeSend();
+    bool closeReceive();
+    bool closeBoth();
 
     void getLocalAddress(CNetAddress& it);
 

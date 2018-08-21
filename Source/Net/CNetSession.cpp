@@ -224,9 +224,14 @@ s32 CNetSession::stepReceive() {
         evt.mType = ENET_RECEIVED;
         evt.mInfo.mData.mBuffer = mPacketReceive.getReadPointer();
         evt.mInfo.mData.mSize = mPacketReceive.getReadSize();
-        mEventer->onEvent(evt);
-
-        if(0 == mPacketReceive.getWriteSize()) {
+        s32 consumed = mEventer->onEvent(evt);
+        if(consumed > 0) {
+            mPacketReceive.clear(consumed);
+        } else if(0 == consumed) {
+            if(0 == mPacketReceive.getWriteSize()) {
+                mPacketReceive.setUsed(0);
+            }
+        } else {
             mPacketReceive.setUsed(0);
         }
     } else {

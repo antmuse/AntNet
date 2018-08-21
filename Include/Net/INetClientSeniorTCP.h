@@ -9,6 +9,7 @@
 namespace irr {
 namespace net {
 
+
 class INetClientSeniorTCP : public IRunnable {
 public:
     INetClientSeniorTCP() {

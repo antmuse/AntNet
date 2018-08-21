@@ -8,6 +8,9 @@ namespace net {
 class CNetSocket;
 class CNetAddress;
 
+
+
+
 class INetSession {
 public:
     INetSession() {
