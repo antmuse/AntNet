@@ -6,7 +6,6 @@ A cross-platform net lib, current for Windows&amp;Linux&amp;Android.
 
 ```cpp
 //wait for more
-```
 void AppStartServer() {
     net::CDefaultNetEventer evt;
     net::CNetServerAcceptor accpetor;
@@ -63,3 +62,4 @@ s32 CDefaultNetEventer::onEvent(SNetEvent& iEvent) {
 
     return ret;
 }
+```
