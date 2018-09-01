@@ -150,4 +150,10 @@
 #define APP_GET_VALUE_POINTER(_POINTER_, _TYPE_, _ELEMENT_NAME_)   \
     ((_TYPE_*)(((s8*)((_TYPE_*)_POINTER_)) - ((size_t) &((_TYPE_*)0)->_ELEMENT_NAME_)))
 
+
+
+
+#define APP_COMPILE_WITH_CONSOLE_LOG_RECEIVER
+
+
 #endif //APP_HCONFIG_H

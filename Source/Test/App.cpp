@@ -175,7 +175,7 @@ void AppStartTimerWheel() {
 
 
 int main(int argc, char** argv) {
-    //irr::IAppLogger::getInstance();
+    irr::IAppLogger::getInstance();
     printf("@1 = Net Server\n");
     printf("@2 = Net Client\n");
     printf("@3 = Net Ping\n");
