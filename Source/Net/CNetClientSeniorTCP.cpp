@@ -4,12 +4,11 @@
 #include "CNetPacket.h"
 #include "CThread.h"
 #include "INetEventer.h"
-#include "CNetSession.h"
 #include "IAppTimer.h"
 
 
 #define APP_NET_SESSION_TIMEOUT     5000
-#define APP_NET_SESSION_LINGER      5000
+#define APP_NET_SESSION_LINGER      8000
 
 
 namespace irr {
@@ -34,14 +33,12 @@ CNetClientSeniorTCP::CNetClientSeniorTCP() :
     mWheel(0, 200),//APP_NET_SESSION_TIMEOUT/5
     mTotalReceived(0),
     mTimeInterval(APP_NET_SESSION_TIMEOUT),
-    mAllContext(0),
     mCurrentTime(0),
-    mMutex(0),
-    mNetThread(0),
-    mTotalSession(0),
     mClosedSocket(0),
     mCreatedSocket(0),
-    mCreatedSession(0),
+    mTotalSession(0),
+    mMutex(0),
+    mNetThread(0),
     mRunning(false) {
 
     CNetUtility::loadSocketLib();
@@ -137,7 +134,7 @@ void CNetClientSeniorTCP::run() {
             for(u32 i = 0; i < gotsz; ++i) {
                 ret = 1;
                 if(iEvent[i].mKey < ENET_SESSION_MASK) {
-                    iContext = &mAllContext[iEvent[i].mKey];
+                    iContext = mSessionPool.getSession(iEvent[i].mKey);
                     iAction = APP_GET_VALUE_POINTER(iEvent[i].mPointer, SContextIO, mOverlapped);
                     iAction->mBytes = iEvent[i].mBytes;
                     mTotalReceived += iEvent[i].mBytes;
@@ -182,7 +179,7 @@ void CNetClientSeniorTCP::run() {
                         break;
                     }
                     action = ENET_CMD_MASK & iEvent[i].mKey;
-                    iContext = &mAllContext[ENET_SESSION_MASK & iEvent[i].mKey];
+                    iContext = mSessionPool.getSession(ENET_SESSION_MASK & iEvent[i].mKey);
 
                     switch(action) {
                     case ENET_CMD_SEND:
@@ -211,13 +208,13 @@ void CNetClientSeniorTCP::run() {
 
                     if(ret <= 0) {
                         IAppLogger::log(ELOG_INFO, "CNetClientSeniorTCP::run",
-                            "[ret:%d][act=%u][ecode=%u]", 
+                            "[ret:%d][act=%u][ecode=%u]",
                             ret, action, CNetSocket::getError());
                     }
                 }//if
 
                 if(ret > 0) {
-                    mWheel.add(iContext->getTimeNode(), 2*mTimeInterval);
+                    mWheel.add(iContext->getTimeNode(), 2 * mTimeInterval);
                 }
             }//for
 
@@ -229,7 +226,7 @@ void CNetClientSeniorTCP::run() {
                 mWheel.update(static_cast<u32>(mCurrentTime));
                 IAppLogger::log(ELOG_INFO, "CNetClientSeniorTCP::run",
                     "[context:%u/%u][socket:%u/%u][total:%u]",
-                    mIdleSession.size(), mCreatedSession,
+                    mSessionPool.getIdleCount(), mSessionPool.getMaxContext(),
                     mClosedSocket, mCreatedSocket,
                     mTotalSession);
             }
@@ -244,7 +241,7 @@ void CNetClientSeniorTCP::run() {
                 last = mCurrentTime;
                 IAppLogger::log(ELOG_INFO, "CNetClientSeniorTCP::run",
                     "[context:%u/%u][socket:%u/%u][total:%u]",
-                    mIdleSession.size(), mCreatedSession,
+                    mSessionPool.getIdleCount(), mSessionPool.getMaxContext(),
                     mClosedSocket, mCreatedSocket,
                     mTotalSession);
                 continue;
@@ -270,45 +267,18 @@ void CNetClientSeniorTCP::run() {
 }
 
 
-void CNetClientSeniorTCP::createContext(u32 max) {
-    APP_ASSERT(max < ENET_SESSION_MASK);
-    if(0 == mAllContext) {
-        mAllContext = new CNetSession[max];
-        for(u32 i = 0; i < max; ++i) {
-            //new (&mAllContext[i]) CNetSession();
-            mAllContext[i].setIndex(i);
-            //mAllContext[i].setSessionHub(this);
-            mAllContext[i].setPoller(&mPoller);
-            mAllContext[i].setTime(-1);
-            mIdleSession.push_back(i);
-        }
-    }
-    mCreatedSession = max;
-}
-
-
-void CNetClientSeniorTCP::deleteContext() {
-    for(u32 i = 0; i < mCreatedSession; ++i) {
-        //mAllContext[i].~CNetSession();
-        mAllContext[i].getSocket().close();
-    }
-    delete[] mAllContext;
-    mAllContext = 0;
-    mCreatedSession = 0;
-}
-
 
 bool CNetClientSeniorTCP::start() {
     if(mRunning) {
         return true;
     }
     mRunning = true;
-    mCreatedSession = 0;
     mTotalReceived = 0;
     mClosedSocket = 0;
     mCurrentTime = IAppTimer::getTime();
     mStartTime = mCurrentTime;
-    createContext(mMaxContext);
+    APP_ASSERT(mMaxContext < ENET_SESSION_MASK);
+    mSessionPool.create(mMaxContext);
     mMutex = new CMutex();
     mNetThread = new CThread();
     mNetThread->start(*this);
@@ -326,7 +296,6 @@ bool CNetClientSeniorTCP::stop() {
     if(mPoller.postEvent(evt)) {
         mRunning = false;
         mNetThread->join();
-        deleteContext();
         delete mNetThread;
         delete mMutex;
         IAppLogger::log(ELOG_INFO, "CNetClientSeniorTCP::stop",
@@ -351,16 +320,15 @@ INetSession* CNetClientSeniorTCP::getSession(INetEventer* it) {
 
     CAutoLock aulock(*mMutex);
 
-    if(0 == mIdleSession.size()) {
+    if(0 == mSessionPool.getIdleCount()) {
         return 0;
     }
-    core::list<u32>::Iterator first = mIdleSession.begin();
-    CNetSession& session = mAllContext[*first];
+    CNetSession& session = *mSessionPool.getIdleSession();
     if(mCurrentTime <= (session.getTime() + APP_NET_SESSION_LINGER)) {
+        mSessionPool.addIdleSession(&session);
         return 0;
     }
     session.setTime(0);//busy session
-    mIdleSession.erase(first);
     CNetSocket& sock = session.getSocket();
     if(!sock.isOpen()) { // a new node
 #if defined(APP_PLATFORM_WINDOWS)
@@ -374,10 +342,10 @@ INetSession* CNetClientSeniorTCP::getSession(INetEventer* it) {
         if(success && sock.setLinger(true, APP_NET_SESSION_LINGER / 1000)) {
             success = false;
         }
-        if(success && sock.setReuseIP(true)) {
+        if(success && sock.setReuseIP(false)) {
             success = false;
         }
-        if(success && sock.setReusePort(true)) {
+        if(success && sock.setReusePort(false)) {
             success = false;
         }
         if(success && sock.setSendOvertime(APP_NET_SESSION_TIMEOUT)) {
@@ -391,7 +359,7 @@ INetSession* CNetClientSeniorTCP::getSession(INetEventer* it) {
         }
         if(!success) {
             sock.close();
-            mIdleSession.push_back(session.getIndex());
+            mSessionPool.addIdleSession(&session);
             return 0;
         }
 #if defined(APP_PLATFORM_WINDOWS)
@@ -403,7 +371,7 @@ INetSession* CNetClientSeniorTCP::getSession(INetEventer* it) {
                 sock.getValue());
 
             sock.close();
-            mIdleSession.push_back(session.getIndex());
+            mSessionPool.addIdleSession(&session);
             return 0;
         }
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
@@ -428,8 +396,9 @@ INetSession* CNetClientSeniorTCP::getSession(INetEventer* it) {
     ++mTotalSession;
     session.clear();
     session.setEventer(it);
+    session.setPoller(&mPoller);
     if(!session.onNewSession()) {
-        mIdleSession.push_back(session.getIndex());
+        mSessionPool.addIdleSession(&session);
         return 0;
     }
     return &session;
@@ -455,7 +424,7 @@ void CNetClientSeniorTCP::remove(CNetSession* iContext) {
 #endif
     iContext->setTime(mCurrentTime);
     mWheel.remove(iContext->getTimeNode());
-    mIdleSession.push_back(iContext->getIndex());
+    mSessionPool.addIdleSession(iContext);
 }
 
 

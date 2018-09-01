@@ -117,11 +117,28 @@ void CNetSocket::getRemoteAddress(CNetAddress& it) {
 
 
 s32 CNetSocket::setReceiveOvertime(u32 it) {
+#if defined(APP_PLATFORM_WINDOWS)
+    return ::setsockopt(mSocket, SOL_SOCKET, SO_RCVTIMEO, (c8*) &it, sizeof(it));
+#else
     struct timeval time;
     time.tv_sec = it / 1000;                     //seconds
     time.tv_usec = 1000 * (it % 1000);         //microseconds
     return ::setsockopt(mSocket, SOL_SOCKET, SO_RCVTIMEO, (c8*) &time, sizeof(time));
+#endif
 }
+
+
+s32 CNetSocket::setSendOvertime(u32 it) {
+#if defined(APP_PLATFORM_WINDOWS)
+    return ::setsockopt(mSocket, SOL_SOCKET, SO_SNDTIMEO, (c8*) &it, sizeof(it));
+#else
+    struct timeval time;
+    time.tv_sec = it / 1000;                     //seconds
+    time.tv_usec = 1000 * (it % 1000);           //microseconds
+    return ::setsockopt(mSocket, SOL_SOCKET, SO_SNDTIMEO, (c8*) &time, sizeof(time));
+#endif
+}
+
 
 s32 CNetSocket::setCustomIPHead(bool on) {
     s32 opt = on ? 1 : 0;
@@ -162,14 +179,6 @@ s32 CNetSocket::setReceiveAll(bool on) {
     }
     return ::ioctl(mSocket, SIOCSIFFLAGS, &iface);
 #endif
-}
-
-
-s32 CNetSocket::setSendOvertime(u32 it) {
-    struct timeval time;
-    time.tv_sec = it / 1000;                     //seconds
-    time.tv_usec = 1000 * (it % 1000);           //microseconds
-    return ::setsockopt(mSocket, SOL_SOCKET, SO_SNDTIMEO, (c8*) &time, sizeof(time));
 }
 
 
@@ -233,7 +242,7 @@ s32 CNetSocket::setBlock(bool it) {
     if(opts < 0) {
         return -1;
     }
-    opts = opts | O_NONBLOCK;
+    opts = it ? (opts & (~O_NONBLOCK)) : opts | O_NONBLOCK;
     opts = ::fcntl(mSocket, F_SETFL, opts);
     return -1 == opts ? opts : 0;
 #endif

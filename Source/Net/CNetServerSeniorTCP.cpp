@@ -9,7 +9,7 @@
 #define APP_SERVER_EXIT_CODE  0
 #define APP_DEFAULT_CLIENT_CACHE (10)
 #define APP_NET_SESSION_TIMEOUT     5000
-#define APP_NET_SESSION_LINGER      5000
+#define APP_NET_SESSION_LINGER      8000
 
 
 namespace irr {
@@ -323,13 +323,6 @@ bool CNetServerSeniorTCP::clearError() {
 
 
 
-
-void CNetServerSeniorTCP::createContext(u32 max) {
-    mSessionPool.create(max);
-}
-
-
-
 bool CNetServerSeniorTCP::start() {
     if(mRunning) {
         return true;
@@ -352,7 +345,7 @@ bool CNetServerSeniorTCP::start() {
     mClosedSocket = 0;
     mCurrentTime = IAppTimer::getTime();
     mStartTime = mCurrentTime;
-    createContext(20000); //TODO>>
+    mSessionPool.create(20000);//TODO>>
     mThread = new CThread();
     mThread->start(*this);
     return true;

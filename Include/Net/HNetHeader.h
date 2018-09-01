@@ -122,12 +122,14 @@ struct SHeadICMP {
     u32 mTimestamp;            //时间戳
 };
 
+#pragma pack(1)
 struct SHeadOptionIP {
     u8 mType;           // 选项类型
     u8 mSize;           //选项头的长度
     u8 mOffset;         //地址偏移量 
     u32 mAddress[9];    // IP地址列表
 };
+#pragma pack()
 
 struct SFakeHeadTCP {
     u32 mLocalIP;        //源地址

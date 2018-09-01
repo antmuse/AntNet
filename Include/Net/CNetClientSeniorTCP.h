@@ -8,13 +8,13 @@
 #include "CEventPoller.h"
 #include "INetClientSeniorTCP.h"
 #include "CTimerWheel.h"
+#include "CNetSession.h"
 
 namespace irr {
 class CMutex;
 class CThread;
 
 namespace net {
-class CNetSession;
 
 class CNetClientSeniorTCP : public INetClientSeniorTCP {
 public:
@@ -73,9 +73,6 @@ protected:
 
     void createContext(u32 max);
 
-    void deleteContext();
-
-
 private:
 #if defined(APP_DEBUG)
     const u32 mMaxContext = 1000;
@@ -83,16 +80,14 @@ private:
     const u32 mMaxContext = 10000;
 #endif
     bool mRunning;
-    u32 mCreatedSession;
     u32 mCreatedSocket;
-    u32 mClosedSocket;      ///closed socket count
-    u32 mTotalSession;      ///<launched session count
+    u32 mClosedSocket;
+    u32 mTotalSession;
     u32 mTimeInterval;
     u64 mStartTime;
     u64 mCurrentTime;
     u64 mTotalReceived;     ///<in bytes
-    CNetSession* mAllContext;
-    core::list<u32> mIdleSession;
+    CNetSessionPool mSessionPool;
     CMutex* mMutex;
     CTimerWheel mWheel;
     CThread* mNetThread;

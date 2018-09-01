@@ -46,8 +46,6 @@ protected:
 
     void remove(CNetSession* iContext);
 
-    void createContext(u32 max);
-
 private:
 
     bool mRunning;

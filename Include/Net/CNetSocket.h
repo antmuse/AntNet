@@ -43,9 +43,9 @@ struct SNetConfig {
     bool mReuse;     ///<reuse IP and port
     bool mOnDelay;
     u32 mLinger;
-    u32 mKeepAlieIdle;
-    u32 mKeepAlieInterval;
-    u32 mKeepAlieMaxTick;
+    u32 mKeepAliveIdle;
+    u32 mKeepAliveInterval;
+    u32 mKeepAliveMaxTick;
     u32 mSendTimeout;
     u32 mReceiveTimeout;
     u32 mSendCacheSize;
