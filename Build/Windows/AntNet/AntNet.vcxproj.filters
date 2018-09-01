@@ -222,6 +222,15 @@
     <ClInclude Include="..\..\..\Include\Net\CNetAddress.h">
       <Filter>Include\Net</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\CConsoleLogReceiver.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\HEngineLog.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\IAntLogReceiver.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\Net\CNetClientUDP.cpp">
@@ -337,6 +346,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Source\Net\CNetAddress.cpp">
       <Filter>Source\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Public\CConsoleLogReceiver.cpp">
+      <Filter>Source\Public</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

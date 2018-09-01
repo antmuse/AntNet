@@ -211,6 +211,7 @@
     <ClInclude Include="..\..\..\Include\Net\INetSession.h" />
     <ClInclude Include="..\..\..\Include\Net\SClientContext.h" />
     <ClInclude Include="..\..\..\Include\Net\CNetAddress.h" />
+    <ClInclude Include="..\..\..\Include\Public\CConsoleLogReceiver.h" />
     <ClInclude Include="..\..\..\Include\Public\coreutil.h" />
     <ClInclude Include="..\..\..\Include\Public\CQueueNode.h" />
     <ClInclude Include="..\..\..\Include\Public\CQueueRing.h" />
@@ -219,6 +220,8 @@
     <ClInclude Include="..\..\..\Include\Public\CTimerWheel.h" />
     <ClInclude Include="..\..\..\Include\Public\fast_atof.h" />
     <ClInclude Include="..\..\..\Include\Public\heapsort.h" />
+    <ClInclude Include="..\..\..\Include\Public\HEngineLog.h" />
+    <ClInclude Include="..\..\..\Include\Public\IAntLogReceiver.h" />
     <ClInclude Include="..\..\..\Include\Public\IAppLogger.h" />
     <ClInclude Include="..\..\..\Include\Public\IAppTimer.h" />
     <ClInclude Include="..\..\..\Include\Public\INoCopy.h" />
@@ -270,6 +273,7 @@
     <ClCompile Include="..\..\..\Source\Net\RawSocket\CNetSynPing.cpp" />
     <ClCompile Include="..\..\..\Source\Net\SClientContext.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetAddress.cpp" />
+    <ClCompile Include="..\..\..\Source\Public\CConsoleLogReceiver.cpp" />
     <ClCompile Include="..\..\..\Source\Public\CQueueNode.cpp" />
     <ClCompile Include="..\..\..\Source\Public\CStreamFile.cpp" />
     <ClCompile Include="..\..\..\Source\Public\CTimeoutManager.cpp" />
