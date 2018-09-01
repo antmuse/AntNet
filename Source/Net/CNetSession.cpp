@@ -222,6 +222,7 @@ s32 CNetSession::stepReceive() {
     if(mEventer) {
         SNetEvent evt;
         evt.mType = ENET_RECEIVED;
+        evt.mInfo.mData.mContext = this;
         evt.mInfo.mData.mBuffer = mPacketReceive.getReadPointer();
         evt.mInfo.mData.mSize = mPacketReceive.getReadSize();
         s32 consumed = mEventer->onEvent(evt);
@@ -313,8 +314,12 @@ void CNetSession::postEvent(ENetEventType iEvent) {
     if(mEventer) {
         SNetEvent evt;
         evt.mType = iEvent;
-        evt.mInfo.mData.mBuffer = 0;
-        evt.mInfo.mData.mSize = 0;
+        //evt.mInfo.mData.mBuffer = 0;
+        //evt.mInfo.mData.mSize = 0;
+        evt.mInfo.mSession.mSocket = &mSocket;
+        evt.mInfo.mSession.mContext = this;
+        evt.mInfo.mSession.mAddressLocal = &mAddressLocal;
+        evt.mInfo.mSession.mAddressRemote = &mAddressRemote;
         mEventer->onEvent(evt);
     }
 }

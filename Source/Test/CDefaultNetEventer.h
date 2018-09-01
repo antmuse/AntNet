@@ -13,6 +13,10 @@ class CDefaultNetEventer : public INetEventer {
 public:
     CDefaultNetEventer();
 
+    void setAutoConnect(bool autoconnect) {
+        mAutoConnect = autoconnect;
+    }
+
     void setHub(INetClientSeniorTCP* hub) {
         mHub = hub;
     }
@@ -26,6 +30,7 @@ public:
     virtual s32 onEvent(SNetEvent& iEvent)override;
 
 private:
+    bool mAutoConnect;
     INetSession* mSession;
     INetClientSeniorTCP* mHub;
 };

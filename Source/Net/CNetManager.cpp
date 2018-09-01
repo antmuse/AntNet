@@ -18,8 +18,9 @@ INetManager* AppGetNetManagerInstance() {
 }
 
 
-CNetManager::CNetManager() : mRunning(false),
-mThread(0) {
+CNetManager::CNetManager() :
+    mRunning(false),
+    mThread(0) {
     mThread = new CThread();
 }
 
@@ -185,8 +186,8 @@ INetClient* CNetManager::createClient(ENetNodeType type) {
 }
 
 
-INetClientSeniorTCP* CNetManager::createClientSeniorTCP() {
-    return new CNetClientSeniorTCP();
+INetClientSeniorTCP* CNetManager::createClientSeniorTCP(CNetConfig* cfg) {
+    return new CNetClientSeniorTCP(cfg);
 }
 
 

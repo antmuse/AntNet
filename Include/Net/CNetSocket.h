@@ -38,28 +38,6 @@ enum ENetErrorCode {
 
 
 
-struct SNetConfig {
-    //socket
-    bool mReuse;     ///<reuse IP and port
-    bool mOnDelay;
-    u32 mLinger;
-    u32 mKeepAliveIdle;
-    u32 mKeepAliveInterval;
-    u32 mKeepAliveMaxTick;
-    u32 mSendTimeout;
-    u32 mReceiveTimeout;
-    u32 mSendCacheSize;
-    u32 mRecieveCacheSize;
-
-    //server
-    u32 mMaxContext; ///<max session on each epoll thread
-    u32 mMaxOnFly;   ///<max fly packets on each TCP
-    u32 mMaxPackets; ///<max packets hold by a server
-    u32 mMaxMessageSize;
-};
-
-
-
 class CNetSocket {
 public:
     enum EShutFlag {

@@ -45,8 +45,17 @@ void AppQuit() {
 
 
 void AppStartServer() {
+    net::CNetConfig* config = new net::CNetConfig();
+    config->mReuse = true;
+    config->mMaxPostAccept = 8;
+    config->mMaxFatchEvents = 28;
+    config->mMaxContext = 20000;
+    config->mPollTimeout = 5000;
+    config->print();
+
     net::CDefaultNetEventer evt;
-    net::CNetServerAcceptor accpetor;
+    net::CNetServerAcceptor accpetor(config);
+    config->drop();
     net::CNetAddress addr(9981);
     accpetor.setLocalAddress(addr);
     accpetor.setEventer(&evt);
@@ -55,17 +64,26 @@ void AppStartServer() {
     accpetor.stop();
 }
 
-
 void AppStartClient() {
-    const s32 max = 1;
+    net::CNetConfig* config = new net::CNetConfig();
+    config->mMaxFatchEvents = 128;
+    config->mMaxContext = 512;
+    config->mPollTimeout = 5000;
+    config->print();
+
+    const s32 max = 10;
     net::CDefaultNetEventer evt[max];
     net::INetSession* session[max];
-    net::CNetClientSeniorTCP chub;
+    net::CNetClientSeniorTCP chub(config);
+    config->drop();
+
     chub.start();
+    //net::CNetAddress addr("221.204.177.67", 9981);
     net::CNetAddress addr("127.0.0.1", 9981);
     s32 i;
     for(i = 0; i < max; ++i) {
         evt[i].setHub(&chub);
+        evt[i].setAutoConnect(true);
         session[i] = chub.getSession(&evt[i]);
         if(session[i]) {
             evt[i].setSession(session[i]);
@@ -100,9 +118,9 @@ void AppStartTimerWheel() {
             mTimer(it) {
         }
         static void timeout(void* nd) {
-            SNode* node = (SNode*)nd;
+            SNode* node = (SNode*) nd;
             s32 leftover = AppAtomicDecrementFetch(node->mAdder->getCount());
-            printf("timeout: [Adder=%p],[id = %d],[time = %llu],[leftover = %d]\n", 
+            printf("timeout: [Adder=%p],[id = %d],[time = %llu],[leftover = %d]\n",
                 node->mAdder, node->mID, node->mTimeNode.mTimeoutStep, leftover);
             delete node;
         }

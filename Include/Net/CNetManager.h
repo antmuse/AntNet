@@ -20,7 +20,7 @@ public:
     virtual INetClient* createClient(ENetNodeType type)override;
 
     //virtual INetClientHttp* createClientHttp()override;
-    virtual INetClientSeniorTCP* createClientSeniorTCP();
+    virtual INetClientSeniorTCP* createClientSeniorTCP(CNetConfig* cfg)override;
 
     virtual INetClient* addClient(ENetNodeType type)override;
 

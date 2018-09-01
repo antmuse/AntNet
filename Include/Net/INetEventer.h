@@ -51,6 +51,7 @@ const c8* const AppNetEventTypeNames[] = {
 
 struct SNetEvent {
     struct SData {
+        INetSession* mContext;
         void* mBuffer;
         s32 mSize;
     };

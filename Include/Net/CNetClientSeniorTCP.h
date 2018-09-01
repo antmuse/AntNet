@@ -19,7 +19,7 @@ namespace net {
 class CNetClientSeniorTCP : public INetClientSeniorTCP {
 public:
 
-    CNetClientSeniorTCP();
+    CNetClientSeniorTCP(CNetConfig* cfg);
 
     virtual ~CNetClientSeniorTCP();
 
@@ -71,14 +71,7 @@ protected:
 
     void remove(CNetSession* iContext);
 
-    void createContext(u32 max);
-
 private:
-#if defined(APP_DEBUG)
-    const u32 mMaxContext = 1000;
-#else
-    const u32 mMaxContext = 10000;
-#endif
     bool mRunning;
     u32 mCreatedSocket;
     u32 mClosedSocket;
@@ -91,6 +84,7 @@ private:
     CMutex* mMutex;
     CTimerWheel mWheel;
     CThread* mNetThread;
+    CNetConfig* mConfig;
     CEventPoller mPoller;
 };
 

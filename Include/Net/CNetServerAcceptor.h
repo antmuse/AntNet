@@ -24,7 +24,7 @@ namespace net {
 */
 class CNetServerAcceptor : public IRunnable {
 public:
-    CNetServerAcceptor();
+    CNetServerAcceptor(CNetConfig* cfg);
 
     virtual ~CNetServerAcceptor();
 
@@ -107,6 +107,7 @@ private:
     void* mFunctionAccept;
     void* mFunctionAcceptSockAddress;
     INetEventer* mReceiver;
+    CNetConfig* mConfig;
 };
 
 

@@ -29,10 +29,10 @@ namespace net {
 //}
 
 
-CNetClientSeniorTCP::CNetClientSeniorTCP() :
+CNetClientSeniorTCP::CNetClientSeniorTCP(CNetConfig* cfg) :
     mWheel(0, 200),//APP_NET_SESSION_TIMEOUT/5
     mTotalReceived(0),
-    mTimeInterval(APP_NET_SESSION_TIMEOUT),
+    mTimeInterval(cfg->mPollTimeout),
     mCurrentTime(0),
     mClosedSocket(0),
     mCreatedSocket(0),
@@ -40,7 +40,9 @@ CNetClientSeniorTCP::CNetClientSeniorTCP() :
     mMutex(0),
     mNetThread(0),
     mRunning(false) {
-
+    APP_ASSERT(cfg);
+    cfg->grab();
+    mConfig = cfg;
     CNetUtility::loadSocketLib();
 }
 
@@ -48,6 +50,10 @@ CNetClientSeniorTCP::CNetClientSeniorTCP() :
 CNetClientSeniorTCP::~CNetClientSeniorTCP() {
     CNetUtility::unloadSocketLib();
     stop();
+    if(mConfig) {
+        mConfig->drop();
+        mConfig = 0;
+    }
 }
 
 
@@ -116,8 +122,8 @@ void CNetClientSeniorTCP::clearError(CNetSession* iContext, SContextIO* iAction)
 
 //IO thread
 void CNetClientSeniorTCP::run() {
-    const u32 maxe = 20;
-    CEventPoller::SEvent iEvent[maxe];
+    const u32 maxe = mConfig->mMaxFatchEvents;
+    CEventPoller::SEvent* iEvent = new CEventPoller::SEvent[maxe];
     CNetSession* iContext;
     SContextIO* iAction = 0;
     u64 last = mCurrentTime;
@@ -264,6 +270,9 @@ void CNetClientSeniorTCP::run() {
             continue;
         }//if
     }//for
+
+    delete[] iEvent;
+    IAppLogger::log(ELOG_INFO, "CNetClientSeniorTCP::run", "thread exited");
 }
 
 
@@ -277,8 +286,8 @@ bool CNetClientSeniorTCP::start() {
     mClosedSocket = 0;
     mCurrentTime = IAppTimer::getTime();
     mStartTime = mCurrentTime;
-    APP_ASSERT(mMaxContext < ENET_SESSION_MASK);
-    mSessionPool.create(mMaxContext);
+    APP_ASSERT(mConfig->mMaxContext < ENET_SESSION_MASK);
+    mSessionPool.create(mConfig->mMaxContext);
     mMutex = new CMutex();
     mNetThread = new CThread();
     mNetThread->start(*this);

@@ -28,7 +28,7 @@ struct SContextIO;
 */
 class CNetServerSeniorTCP : public IRunnable {
 public:
-    CNetServerSeniorTCP();
+    CNetServerSeniorTCP(CNetConfig* cfg);
 
     virtual ~CNetServerSeniorTCP();
 
@@ -63,6 +63,7 @@ private:
     CThread* mThread;
     INetEventer* mReceiver;
     //CMemoryHub mMemHub;
+    CNetConfig* mConfig;
 };
 
 

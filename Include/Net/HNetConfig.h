@@ -95,6 +95,51 @@ const c8* const AppNetNodeNames[] = {
 };
 
 
+
+
+class CNetConfig {
+public:
+    //socket
+    bool mReuse;     ///<reuse IP and port
+    bool mOnDelay;
+
+    //range[8,64]
+    u8 mMaxPostAccept;
+    //range[32,512]
+    u16 mMaxFatchEvents;
+
+    u32 mLinger;
+    u32 mKeepAliveIdle;
+    u32 mKeepAliveInterval;
+    u32 mKeepAliveMaxTick;
+    u32 mSendTimeout;
+    u32 mReceiveTimeout;
+    u32 mSendCacheSize;
+    u32 mRecieveCacheSize;
+
+    //server
+    u32 mMaxContext; ///<max session on each epoll thread
+    u32 mMaxOnFly;   ///<max fly packets on each TCP
+    u32 mMaxPackets; ///<max packets hold by a server
+    u32 mMaxMessageSize;
+    //range[1000,60000]
+    u32 mPollTimeout; ///<in ms
+
+    CNetConfig() {
+        ::memset(this, 0, sizeof(CNetConfig));
+        mReference = 1;
+    }
+    ~CNetConfig() {
+    }
+    void print()const;
+    void grab();
+    void drop();
+
+private:
+    s32 mReference;
+};
+
+
 } // end namespace net
 } // end namespace irr
 

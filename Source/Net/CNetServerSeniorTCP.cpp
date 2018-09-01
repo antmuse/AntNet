@@ -15,7 +15,7 @@
 namespace irr {
 namespace net {
 
-CNetServerSeniorTCP::CNetServerSeniorTCP() :
+CNetServerSeniorTCP::CNetServerSeniorTCP(CNetConfig* cfg) :
     mThread(0),
     mCreatedSocket(0),
     mClosedSocket(0),
@@ -26,22 +26,29 @@ CNetServerSeniorTCP::CNetServerSeniorTCP() :
     mReceiver(0),
     mStartTime(0),
     mCurrentTime(0),
-    mTimeInterval(APP_NET_TICK_TIME) {
+    mTimeInterval(cfg->mPollTimeout) {
     //CNetUtility::loadSocketLib();
+    APP_ASSERT(cfg);
+    cfg->grab();
+    mConfig = cfg;
 }
 
 
 CNetServerSeniorTCP::~CNetServerSeniorTCP() {
     stop();
     //CNetUtility::unloadSocketLib();
+    if(mConfig) {
+        mConfig->drop();
+        mConfig = 0;
+    }
 }
 
 
 
 #if defined(APP_PLATFORM_WINDOWS)
 void CNetServerSeniorTCP::run() {
-    const u32 maxe = 20;
-    CEventPoller::SEvent iEvent[maxe];
+    const u32 maxe = mConfig->mMaxFatchEvents;
+    CEventPoller::SEvent* iEvent = new CEventPoller::SEvent[maxe];
     CNetSession* iContext;
     SContextIO* iAction = 0;
     u64 last = mCurrentTime;
@@ -175,6 +182,9 @@ void CNetServerSeniorTCP::run() {
             continue;
         }//if
     }//for
+
+    delete[] iEvent;
+    IAppLogger::log(ELOG_INFO, "CNetServerSeniorTCP::run", "thread exited");
 }
 
 
@@ -345,7 +355,7 @@ bool CNetServerSeniorTCP::start() {
     mClosedSocket = 0;
     mCurrentTime = IAppTimer::getTime();
     mStartTime = mCurrentTime;
-    mSessionPool.create(20000);//TODO>>
+    mSessionPool.create(mConfig->mMaxContext);
     mThread = new CThread();
     mThread->start(*this);
     return true;

@@ -14,7 +14,7 @@ public:
 
     virtual INetClient* createClient(ENetNodeType type) = 0;
 
-    virtual INetClientSeniorTCP* createClientSeniorTCP() = 0;
+    virtual INetClientSeniorTCP* createClientSeniorTCP(CNetConfig* cfg) = 0;
 
     virtual INetClient* addClient(ENetNodeType type) = 0;
 

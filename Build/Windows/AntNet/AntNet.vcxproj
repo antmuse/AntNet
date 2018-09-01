@@ -262,6 +262,8 @@
     <ClCompile Include="..\..\..\Source\Net\CNetSession.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetSocket.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetUtility.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\CTimerWheel.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\HNetConfig.cpp" />
     <ClCompile Include="..\..\..\Source\Net\HTTP\CNetClientHttp.cpp" />
     <ClCompile Include="..\..\..\Source\Net\HTTP\CNetHttpHead.cpp" />
     <ClCompile Include="..\..\..\Source\Net\HTTP\CNetHttpRequest.cpp" />

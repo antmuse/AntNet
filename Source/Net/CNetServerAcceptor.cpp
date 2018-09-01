@@ -5,12 +5,8 @@
 #include "SClientContext.h"
 
 
-//Max accept
-#define APP_MAX_POST_ACCEPT 10
 ///The infomation to inform workers quit.
 #define APP_SERVER_EXIT_CODE  0
-///cache count for per client context
-#define APP_DEFAULT_CLIENT_CACHE (10)
 
 #define APP_THREAD_MAX_SLEEP_TIME  0xffffffff
 
@@ -41,14 +37,17 @@ bool CNetServerAcceptor::SContextWaiter::reset() {
 
 
 /////////////////////////////////////////////////////////////////////////////////////
-CNetServerAcceptor::CNetServerAcceptor() :
+CNetServerAcceptor::CNetServerAcceptor(CNetConfig* cfg) :
     mReceiver(0),
     mCurrent(0),
     mAcceptCount(0),
     mThread(0),
-    mAllWaiter(APP_MAX_POST_ACCEPT),
+    mAllWaiter(cfg->mMaxPostAccept),
     mAddressLocal(APP_NET_DEFAULT_PORT),
     mRunning(false) {
+    APP_ASSERT(cfg);
+    cfg->grab();
+    mConfig = cfg;
     CNetUtility::loadSocketLib();
 }
 
@@ -56,13 +55,17 @@ CNetServerAcceptor::CNetServerAcceptor() :
 CNetServerAcceptor::~CNetServerAcceptor() {
     stop();
     CNetUtility::unloadSocketLib();
+    if(mConfig) {
+        mConfig->drop();
+        mConfig = 0;
+    }
 }
 
 
 void CNetServerAcceptor::run() {
     SContextIO* iAction = 0;
-    const u32 maxe = 20;
-    CEventPoller::SEvent iEvent[maxe];
+    const u32 maxe = mConfig->mMaxFatchEvents;
+    CEventPoller::SEvent* iEvent = new CEventPoller::SEvent[maxe];
     u32 gotsz = 0;
 
     for(; mRunning; ) {
@@ -99,6 +102,8 @@ void CNetServerAcceptor::run() {
             //continue;
         }//else if
     }//while
+
+    delete[] iEvent;
     IAppLogger::log(ELOG_INFO, "CNetServerAcceptor::run", "acceptor thread exited");
 }
 
@@ -194,12 +199,12 @@ bool CNetServerAcceptor::initialize() {
         return false;
     }
 
-    if(mListener.setReuseIP(true)) {
+    if(mConfig->mReuse && mListener.setReuseIP(true)) {
         IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "set reuse IP fail: [%d]", CNetSocket::getError());
         return false;
     }
 
-    if(mListener.setReusePort(true)) {
+    if(mConfig->mReuse && mListener.setReusePort(true)) {
         IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "set reuse port fail: [%d]", CNetSocket::getError());
         return false;
     }
@@ -213,6 +218,8 @@ bool CNetServerAcceptor::initialize() {
         IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "listen socket error: [%d]", CNetSocket::getError());
         return false;
     }
+    IAppLogger::log(ELOG_CRITICAL, "CNetServerAcceptor::initialize", "listening: [%s:%d]", 
+        mAddressLocal.getIPString(), mAddressLocal.getPort());
 
     mFunctionAccept = mListener.getFunctionAccpet();
     if(!mFunctionAccept) {
@@ -232,17 +239,16 @@ bool CNetServerAcceptor::initialize() {
 
 
 bool CNetServerAcceptor::postAccept() {
-    for(u32 id = mAcceptCount; id < APP_MAX_POST_ACCEPT; ++id) {
+    for(u32 id = mAcceptCount; id < mConfig->mMaxPostAccept; ++id) {
         SContextWaiter* waiter = new SContextWaiter();
         waiter->mContextIO->mID = id;
         waiter->mContextIO->mOperationType = EOP_ACCPET;
         if(!postAccept(waiter)) {
             delete waiter;
-            IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "post accpet fail, id: [%d]", id);
+            IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::postAccept", "post accpet fail, id: [%d]", id);
             return false;
         }
         mAllWaiter.push_back(waiter);
-        ++mAcceptCount;
     }
     return true;
 }
@@ -290,7 +296,7 @@ bool CNetServerAcceptor::stepAccpet(SContextWaiter* iContext) {
 
 
 CNetServerSeniorTCP* CNetServerAcceptor::createServer() {
-    CNetServerSeniorTCP* server = new CNetServerSeniorTCP();
+    CNetServerSeniorTCP* server = new CNetServerSeniorTCP(mConfig);
     if(server->start()) {
         addServer(server);
         return server;
@@ -304,7 +310,7 @@ void CNetServerAcceptor::removeAllServer() {
     u32 sz = mAllService.size();
     for(u32 i = 0; i < sz; ) {
         if(!mAllService[i]->stop()) {
-            CThread::sleep(100);
+            CThread::sleep(1000);
         } else {
             ++i;
         }

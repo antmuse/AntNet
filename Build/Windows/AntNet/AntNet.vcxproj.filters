@@ -350,5 +350,11 @@
     <ClCompile Include="..\..\..\Source\Public\CConsoleLogReceiver.cpp">
       <Filter>Source\Public</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\CTimerWheel.cpp">
+      <Filter>Source\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\HNetConfig.cpp">
+      <Filter>Source\Net</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
