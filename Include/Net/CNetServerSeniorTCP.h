@@ -83,7 +83,7 @@ class CNetSession;
 */
 class CNetServerSeniorTCP : public IRunnable {
 public:
-    CNetServerSeniorTCP();
+    CNetServerSeniorTCP(CNetConfig* cfg);
 
     virtual ~CNetServerSeniorTCP();
 
@@ -97,24 +97,19 @@ public:
         mMaxContext = max;
     };
 
-    virtual u32 getClientCount()const;
-
-    CNetSession* addSession(CNetSocket& sock, const CNetAddress& remote, const CNetAddress& local);
+    CNetSession* addSession(CNetSocket& sock, const CNetAddress& remote,
+        const CNetAddress& local, INetEventer* evter);
 
 protected:
     bool clearError();
 
     void remove(CNetSession* iContext);
 
-    void createContext(u32 max);
-
-    void deleteContext();
 
 private:
 
     bool mRunning;
     u32 mMaxContext;
-    u32 mCreatedSession;
     u32 mCreatedSocket;
     u32 mClosedSocket;      ///closed socket count
     u32 mTotalSession;      ///<launched session count
@@ -125,11 +120,11 @@ private:
     CTimerWheel mWheel;
     CEventPoller mPoller;
     CMutex mMutex;
-    CNetSession* mAllContext;
-    core::list<u32> mIdleSession;
+    CNetSessionPool mSessionPool;
     CThread* mThread;
     INetEventer* mReceiver;
     CNetAddress mAddressLocal;
+    CNetConfig* mConfig;
     //CMemoryHub mMemHub;
 };
 

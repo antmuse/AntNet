@@ -548,7 +548,15 @@ bool CNetSession::onNewSession() {
 
 void CNetSession::postEvent(ENetEventType iEvent) {
     if(mEventer) {
-        mEventer->onEvent(iEvent);
+        SNetEvent evt;
+        evt.mType = iEvent;
+        //evt.mInfo.mData.mBuffer = 0;
+        //evt.mInfo.mData.mSize = 0;
+        evt.mInfo.mSession.mSocket = &mSocket;
+        evt.mInfo.mSession.mContext = this;
+        evt.mInfo.mSession.mAddressLocal = &mAddressLocal;
+        evt.mInfo.mSession.mAddressRemote = &mAddressRemote;
+        mEventer->onEvent(evt);
     }
 }
 

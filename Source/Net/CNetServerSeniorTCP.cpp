@@ -219,8 +219,8 @@ bool CNetServerSeniorTCP::clearError() {
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
 void CNetServerSeniorTCP::run() {
     CNetSocket sock(mPoller.getSocketPair().getSocketA());
-    const u32 maxe = 20;
-    CEventPoller::SEvent iEvent[maxe];
+    const u32 maxe = mConfig->mMaxFatchEvents;
+    CEventPoller::SEvent* iEvent = new CEventPoller::SEvent[maxe];
     CNetSession* iContext;
     u64 last = mCurrentTime;
     u32 gotsz = 0;
@@ -233,7 +233,7 @@ void CNetServerSeniorTCP::run() {
             for(u32 i = 0; i < gotsz; ++i) {
                 s32 ret = 1;
                 if(iEvent[i].mData.mData32 < ENET_SESSION_MASK) {
-                    iContext = &mAllContext[iEvent[i].mData.mData32];
+                    iContext = mSessionPool.getSession(iEvent[i].mData.mData32);
                     //mTotalReceived += iEvent[i].mBytes;
                     if(EPOLLIN & iEvent[i].mEvent) {
                         ret = iContext->stepSend();
@@ -261,7 +261,7 @@ void CNetServerSeniorTCP::run() {
                         break;
                     }
                     action = ENET_CMD_MASK & mask;
-                    iContext = &mAllContext[ENET_SESSION_MASK & mask];
+                    iContext = mSessionPool.getSession(ENET_SESSION_MASK & mask);
 
                     switch(action) {
                     case ENET_CMD_SEND:
@@ -299,7 +299,7 @@ void CNetServerSeniorTCP::run() {
                 mWheel.update(static_cast<u32>(mCurrentTime));
                 IAppLogger::log(ELOG_INFO, "CNetServerSeniorTCP::run",
                     "[context:%u/%u][socket:%u/%u][total:%u]",
-                    mIdleSession.size(), mCreatedSession,
+                    mSessionPool.getIdleCount(), mSessionPool.getMaxContext(),
                     mClosedSocket, mCreatedSocket,
                     mTotalSession);
             }
@@ -312,6 +312,9 @@ void CNetServerSeniorTCP::run() {
             continue;
         }//if
     }//for
+
+    delete[] iEvent;
+    IAppLogger::log(ELOG_INFO, "CNetServerSeniorTCP::run", "thread exited");
 }
 
 
@@ -477,7 +480,7 @@ CNetSession* CNetServerSeniorTCP::addSession(CNetSocket& sock, const CNetAddress
             sock.getValue());
 
         sock.close();
-        mIdleSession.push_back(session.getIndex());
+        mSessionPool.addIdleSession(session.getIndex());
         return 0;
     }
 #endif

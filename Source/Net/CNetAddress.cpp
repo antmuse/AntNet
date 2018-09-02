@@ -301,7 +301,7 @@ APP_INLINE void CNetAddress::mergeIP() {
 }
 
 APP_INLINE void CNetAddress::initPort() {
-    mAddress->sin_port = ::htons(mPort);
+    mAddress->sin_port = htons(mPort);
     mergePort();
 }
 

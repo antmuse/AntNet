@@ -45,7 +45,7 @@ public:
     void setMaxAccept(u32 max) {
         mAcceptCount = max;
     };
-    
+
     void setEventer(INetEventer* evt) {
         mReceiver = evt;
     }
@@ -125,7 +125,7 @@ namespace net {
 */
 class CNetServerAcceptor : public IRunnable {
 public:
-    CNetServerAcceptor();
+    CNetServerAcceptor(CNetConfig* cfg);
 
     virtual ~CNetServerAcceptor();
 
@@ -146,6 +146,10 @@ public:
     void setMaxAccept(u32 max) {
         mAcceptCount = max;
     };
+
+    void setEventer(INetEventer* evt) {
+        mReceiver = evt;
+    }
 
     void addServer(CNetServerSeniorTCP* it);
 
@@ -170,6 +174,8 @@ private:
     u32 mAcceptCount;
     u32 mCurrent;
     CEventPoller mPoller;
+    INetEventer* mReceiver;
+    CNetConfig* mConfig;
     CThread* mThread;						        ///<All workers
     CNetSocket mListener;						///<listen socket's context
     CNetAddress mAddressRemote;

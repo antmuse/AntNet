@@ -394,7 +394,7 @@ INetSession* CNetClientSeniorTCP::getSession(INetEventer* it) {
                 sock.getValue());
 
             sock.close();
-            mIdleSession.push_back(session.getIndex());
+            mSessionPool.addIdleSession(&session);
             return 0;
         }
 #endif

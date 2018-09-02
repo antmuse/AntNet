@@ -13,6 +13,7 @@
 #define	APP_IAPPLOGGER_H
 
 #include "HConfig.h"
+#include <stdarg.h>
 #include "irrList.h"
 #include "HEngineLog.h"
 

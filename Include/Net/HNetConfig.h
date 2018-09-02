@@ -125,12 +125,7 @@ public:
     //range[1000,60000]
     u32 mPollTimeout; ///<in ms
 
-    CNetConfig() {
-        ::memset(this, 0, sizeof(CNetConfig));
-        mReference = 1;
-    }
-    ~CNetConfig() {
-    }
+    CNetConfig();
     void print()const;
     void grab();
     void drop();

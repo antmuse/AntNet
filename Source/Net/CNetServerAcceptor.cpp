@@ -218,7 +218,7 @@ bool CNetServerAcceptor::initialize() {
         IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "listen socket error: [%d]", CNetSocket::getError());
         return false;
     }
-    IAppLogger::log(ELOG_CRITICAL, "CNetServerAcceptor::initialize", "listening: [%s:%d]", 
+    IAppLogger::log(ELOG_CRITICAL, "CNetServerAcceptor::initialize", "listening: [%s:%d]",
         mAddressLocal.getIPString(), mAddressLocal.getPort());
 
     mFunctionAccept = mListener.getFunctionAccpet();
@@ -343,12 +343,16 @@ bool CNetServerAcceptor::removeServer(CNetServerSeniorTCP* it) {
 namespace irr {
 namespace net {
 
-CNetServerAcceptor::CNetServerAcceptor() :
+CNetServerAcceptor::CNetServerAcceptor(CNetConfig* cfg) :
+    mReceiver(0),
     mCurrent(0),
     mAcceptCount(0),
     mThread(0),
     mAddressLocal(APP_NET_DEFAULT_PORT),
     mRunning(false) {
+    APP_ASSERT(cfg);
+    cfg->grab();
+    mConfig = cfg;
     CNetUtility::loadSocketLib();
 }
 
@@ -356,12 +360,16 @@ CNetServerAcceptor::CNetServerAcceptor() :
 CNetServerAcceptor::~CNetServerAcceptor() {
     stop();
     CNetUtility::unloadSocketLib();
+    if(mConfig) {
+        mConfig->drop();
+        mConfig = 0;
+    }
 }
 
 
 void CNetServerAcceptor::run() {
-    const u32 maxe = 20;
-    CEventPoller::SEvent iEvent[maxe];
+    const u32 maxe = mConfig->mMaxFatchEvents;
+    CEventPoller::SEvent* iEvent = new CEventPoller::SEvent[maxe];
     u32 gotsz = 0;
 
     for(; mRunning; ) {
@@ -389,6 +397,9 @@ void CNetServerAcceptor::run() {
             continue;
         }//else if
     }//for
+
+    delete[] iEvent;
+    IAppLogger::log(ELOG_INFO, "CNetServerAcceptor::run", "acceptor thread exited");
 }
 
 
@@ -465,12 +476,12 @@ bool CNetServerAcceptor::initialize() {
         return false;
     }
 
-    if(mListener.setReuseIP(true)) {
+    if(mConfig->mReuse && mListener.setReuseIP(true)) {
         IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "set reuse IP fail: [%d]", CNetSocket::getError());
         return false;
     }
 
-    if(mListener.setReusePort(true)) {
+    if(mConfig->mReuse && mListener.setReusePort(true)) {
         IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "set reuse port fail: [%d]", CNetSocket::getError());
         return false;
     }
@@ -508,13 +519,13 @@ bool CNetServerAcceptor::stepAccpet(CNetSocket& sock) {
     }
     do {
         server = mAllService[mCurrent++];
-        server->addSession(sock, mAddressRemote, mAddressLocal);
+        server->addSession(sock, mAddressRemote, mAddressLocal, mReceiver);
     } while(!server && mCurrent < sz);
 
     if(!server) {
         server = createServer();
         APP_ASSERT(server);
-        server->addSession(sock, mAddressRemote, mAddressLocal);
+        server->addSession(sock, mAddressRemote, mAddressLocal, mReceiver);
     }
 
     return 0 != server;
@@ -522,7 +533,7 @@ bool CNetServerAcceptor::stepAccpet(CNetSocket& sock) {
 
 
 CNetServerSeniorTCP* CNetServerAcceptor::createServer() {
-    CNetServerSeniorTCP* server = new CNetServerSeniorTCP();
+    CNetServerSeniorTCP* server = new CNetServerSeniorTCP(mConfig);
     if(server->start()) {
         addServer(server);
         return server;

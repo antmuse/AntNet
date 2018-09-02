@@ -1,5 +1,4 @@
 ﻿#include <time.h>
-#include <stdarg.h>
 #include "IUtility.h"
 #include "CMutex.h"
 #include "IAppLogger.h"

@@ -321,12 +321,6 @@ s32 CNetSocket::receiveFrom(void* iBuffer, s32 iSize, const CNetAddress& address
 }
 
 
-s32 CNetSocket::updateByAccepter(const CNetSocket& sockListen) {
-    netsocket it = sockListen.getValue();
-    return ::setsockopt(mSocket, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (c8*) &it, sizeof(it));
-}
-
-
 bool CNetSocket::openRaw(s32 protocol) {
     return open(APP_IP_VERSION, SOCK_RAW, protocol);
 }
@@ -444,6 +438,11 @@ CNetSocket CNetSocket::accept(CNetAddress& it) {
 
 
 #if defined(APP_PLATFORM_WINDOWS)
+s32 CNetSocket::updateByAccepter(const CNetSocket& sockListen) {
+    netsocket it = sockListen.getValue();
+    return ::setsockopt(mSocket, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (c8*) &it, sizeof(it));
+}
+
 
 bool CNetSocket::openSeniorTCP() {
     return openSenior(APP_IP_VERSION, SOCK_STREAM, IPPROTO_TCP, 0, 0, WSA_FLAG_OVERLAPPED);
@@ -700,7 +699,7 @@ bool CNetSocketPair::open(s32 domain, s32 type, s32 protocol) {
     }
     mSockA = sockpair[0];
     mSockB = sockpair[1];
-    u32 sz = 128*sizeof(u32);
+    u32 sz = 128 * sizeof(u32);
     mSockA.setSendCache(sz);
     mSockA.setReceiveCache(sz);
     mSockB.setSendCache(sz);

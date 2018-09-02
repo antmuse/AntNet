@@ -1,9 +1,17 @@
 #include "HNetConfig.h"  
 #include "HAtomicOperator.h"  
 #include <stdio.h>  
+#include <stdlib.h>  
+#include <memory.h>
 
 namespace irr {
 namespace net {
+
+
+CNetConfig::CNetConfig() {
+    ::memset(this, 0, sizeof(CNetConfig));
+    mReference = 1;
+}
 
 void CNetConfig::grab() {
     AppAtomicIncrementFetch(&mReference);

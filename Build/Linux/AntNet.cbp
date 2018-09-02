@@ -142,6 +142,7 @@
 		<Unit filename="../../Source/Net/CCheckCRC32.cpp" />
 		<Unit filename="../../Source/Net/CCheckSum.cpp" />
 		<Unit filename="../../Source/Net/CEventPoller.cpp" />
+		<Unit filename="../../Source/Net/CNetAddress.cpp" />
 		<Unit filename="../../Source/Net/CNetClientNatPuncher.cpp" />
 		<Unit filename="../../Source/Net/CNetClientSeniorTCP.cpp" />
 		<Unit filename="../../Source/Net/CNetClientTCP.cpp" />
@@ -158,6 +159,7 @@
 		<Unit filename="../../Source/Net/CNetSocket.cpp" />
 		<Unit filename="../../Source/Net/CNetUtility.cpp" />
 		<Unit filename="../../Source/Net/CTimerWheel.cpp" />
+		<Unit filename="../../Source/Net/HNetConfig.cpp" />
 		<Unit filename="../../Source/Net/HTTP/CNetClientHttp.cpp" />
 		<Unit filename="../../Source/Net/HTTP/CNetHttpHead.cpp" />
 		<Unit filename="../../Source/Net/HTTP/CNetHttpRequest.cpp" />
@@ -169,9 +171,11 @@
 		<Unit filename="../../Source/Net/RawSocket/CNetPing.cpp" />
 		<Unit filename="../../Source/Net/RawSocket/CNetSynPing.cpp" />
 		<Unit filename="../../Source/Net/SClientContext.cpp" />
-		<Unit filename="../../Source/Net/SNetAddress.cpp" />
+		<Unit filename="../../Source/Public/CConsoleLogReceiver.cpp" />
 		<Unit filename="../../Source/Public/CQueueNode.cpp" />
 		<Unit filename="../../Source/Public/CStreamFile.cpp" />
+		<Unit filename="../../Source/Public/CTimeoutManager.cpp" />
+		<Unit filename="../../Source/Public/CTimerWheel.cpp" />
 		<Unit filename="../../Source/Public/IAppLogger.cpp" />
 		<Unit filename="../../Source/Public/IAppTimer.cpp" />
 		<Unit filename="../../Source/Public/IUtility.cpp" />

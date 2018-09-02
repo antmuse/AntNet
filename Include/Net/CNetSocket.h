@@ -223,13 +223,6 @@ public:
     s32 bind();
 
     bool getTcpInfo(STCP_Info* info) const;
-    
-    /**
-    *@brief Update socket by accept socket.
-    *@param sock accept socket.
-    *@return 0 if success, else if failed.
-    */
-    s32 updateByAccepter(const CNetSocket& sock);
 
     /**
     *@brief Open a raw socket.
@@ -303,6 +296,13 @@ public:
 
 
 #if defined(APP_PLATFORM_WINDOWS)
+    /**
+    *@brief Update socket by accept socket.
+    *@param sock accept socket.
+    *@return 0 if success, else if failed.
+    */
+    s32 updateByAccepter(const CNetSocket& sock);
+
     /**
     * @brief Windows only
     */
