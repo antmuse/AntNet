@@ -41,7 +41,7 @@ class IAntLogReceiver;
  */
 class IAppLogger {
 public:
-    static IAppLogger* getInstance();
+    static IAppLogger& getInstance();
 
     static void log(ELogLevel iLevel, const wchar_t* iSender, const wchar_t* iMsg, ...);
 
@@ -101,6 +101,11 @@ public:
     /** Will NOT delete any user added receiver, you must do that yourself.
     \param iLog: The log receiver to remove. */
     static void remove(const IAntLogReceiver* iLog);
+
+    /**
+    * @brief remove all log receivers.
+    */
+    static void clear();
 
 
 protected:

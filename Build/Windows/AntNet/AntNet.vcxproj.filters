@@ -231,6 +231,9 @@
     <ClInclude Include="..\..\..\Include\Public\IAntLogReceiver.h">
       <Filter>Include\Public</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Include\Public\IBigInteger.h">
+      <Filter>Include\Public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\Net\CNetClientUDP.cpp">

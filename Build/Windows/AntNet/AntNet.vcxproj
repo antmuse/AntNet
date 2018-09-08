@@ -224,6 +224,7 @@
     <ClInclude Include="..\..\..\Include\Public\IAntLogReceiver.h" />
     <ClInclude Include="..\..\..\Include\Public\IAppLogger.h" />
     <ClInclude Include="..\..\..\Include\Public\IAppTimer.h" />
+    <ClInclude Include="..\..\..\Include\Public\IBigInteger.h" />
     <ClInclude Include="..\..\..\Include\Public\INoCopy.h" />
     <ClInclude Include="..\..\..\Include\Public\IPairOrderID.h" />
     <ClInclude Include="..\..\..\Include\Public\IReferenceCounted.h" />
