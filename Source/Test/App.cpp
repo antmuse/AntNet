@@ -44,6 +44,7 @@ void AppQuit() {
 }
 
 
+
 void AppStartServer() {
     net::CNetConfig* config = new net::CNetConfig();
     config->mReuse = true;
@@ -56,6 +57,7 @@ void AppStartServer() {
     net::CDefaultNetEventer evt;
     net::CNetServerAcceptor accpetor(config);
     config->drop();
+    evt.setServer(&accpetor);
     net::CNetAddress addr(9981);
     accpetor.setLocalAddress(addr);
     accpetor.setEventer(&evt);
@@ -67,13 +69,13 @@ void AppStartServer() {
 void AppStartClient() {
     net::CNetConfig* config = new net::CNetConfig();
     config->mMaxFatchEvents = 128;
-    config->mMaxContext = 512;
+    config->mMaxContext = 16;
     config->mPollTimeout = 5000;
     config->print();
 
     const s32 max = 10;
     net::CDefaultNetEventer evt[max];
-    net::INetSession* session[max];
+    u32 session[max];
     net::CNetClientSeniorTCP chub(config);
     config->drop();
 
@@ -87,7 +89,7 @@ void AppStartClient() {
         session[i] = chub.getSession(&evt[i]);
         if(session[i]) {
             evt[i].setSession(session[i]);
-            session[i]->connect(addr);
+            chub.connect(session[i], addr);
         } else {
             break;
         }
@@ -111,8 +113,9 @@ void AppStartPing() {
 void AppStartTimerWheel() {
     class CTimeAdder : public IRunnable {
     public:
-        CTimeAdder(CTimerWheel& it, u32 maxStep) :
+        CTimeAdder(CTimerWheel& it, u32 maxStep, s32 repeat) :
             mIndex(0),
+            mMaxRepeat(repeat),
             mMaxStep(maxStep < 5 ? 5 : maxStep),
             mRunning(false),
             mTimer(it) {
@@ -120,9 +123,14 @@ void AppStartTimerWheel() {
         static void timeout(void* nd) {
             SNode* node = (SNode*) nd;
             s32 leftover = AppAtomicDecrementFetch(node->mAdder->getCount());
-            printf("timeout: [Adder=%p],[id = %d],[time = %llu],[leftover = %d]\n",
-                node->mAdder, node->mID, node->mTimeNode.mTimeoutStep, leftover);
-            delete node;
+            if(node->mDeleteFlag) {
+                printf("CTimeAdder::timeout>> delete[Adder=%p],[id = %d],[time = %llu],[leftover = %d]\n",
+                    node->mAdder, node->mID, node->mTimeNode.mTimeoutStep, leftover);
+                delete node;
+            } else {
+                printf("CTimeAdder::timeout>> repeat[Adder=%p],[id = %d],[time = %llu],[leftover = %d]\n",
+                    node->mAdder, node->mID, node->mTimeNode.mTimeoutStep, leftover);
+            }
         }
         virtual void run() {
             for(; mRunning;) {
@@ -136,27 +144,42 @@ void AppStartTimerWheel() {
         void start() {
             if(!mRunning) {
                 mRunning = true;
-                mThread.start(*this);
+                if(mMaxRepeat > 0) {
+                    mThread.start(*this);
+                } else {
+                    mRepeatNode.mDeleteFlag = false;
+                    mRepeatNode.mID = -1;
+                    mRepeatNode.mAdder = this;
+                    mRepeatNode.mTimeNode.mCallback = CTimeAdder::timeout;
+                    mRepeatNode.mTimeNode.mCallbackData = &mRepeatNode;
+                    mTimer.add(mRepeatNode.mTimeNode, 1 * 1000, mMaxRepeat);
+                }
             }
         }
         void stop() {
             if(mRunning) {
                 mRunning = false;
-                mThread.join();
+                if(mMaxRepeat > 0) {
+                    mThread.join();
+                } else {
+                    mTimer.remove(mRepeatNode.mTimeNode);
+                }
             }
         }
     private:
         void add() {
             static s32 id = 0;
             SNode* node = new SNode();
+            node->mDeleteFlag = true;
             node->mID = id++;
             node->mAdder = this;
             node->mTimeNode.mCallback = CTimeAdder::timeout;
             node->mTimeNode.mCallbackData = node;
             AppAtomicIncrementFetch(&mIndex);
-            mTimer.add(node->mTimeNode, 1 * 1000);
+            mTimer.add(node->mTimeNode, 1 * 1000, mMaxRepeat);
         }
         struct SNode {
+            bool mDeleteFlag;
             s32 mID;
             CTimeAdder* mAdder;
             CTimerWheel::STimeNode mTimeNode;
@@ -164,28 +187,22 @@ void AppStartTimerWheel() {
         bool mRunning;
         u32 mMaxStep;
         s32 mIndex;
+        s32 mMaxRepeat;
+        SNode mRepeatNode;
         CTimerWheel& mTimer;
         CThread mThread;
-    };
+    };//CTimeAdder
 
     CTimeoutManager tmanager(5);
-    //const u32 max = 10;
-    CTimeAdder tadder1(tmanager.getTimeWheel(), 50);
-    CTimeAdder tadder2(tmanager.getTimeWheel(), 70);
-    //tmanager.getTimeWheel().setInterval(0x10000000);
-    //tmanager.getTimeWheel().setCurrent(0x7FFFFFFF);
+    CTimeAdder tadder1(tmanager.getTimeWheel(), 50, 1);
     tmanager.start();
     tadder1.start();
-    tadder2.start();
-    //CThread::sleep(10 * 1000);
+
     AppQuit();
     tadder1.stop();
-    tadder2.stop();
     tmanager.stop();
     printf("--------------clear time wheel--------------\n");
-    //tmanager.getTimeWheel().clear();
     printf("finished tadder1 = %p, leftover = %d\n", &tadder1, *tadder1.getCount());
-    printf("finished tadder2 = %p, leftover = %d\n", &tadder2, *tadder2.getCount());
     printf("--------------------------------------------\n");
 }
 

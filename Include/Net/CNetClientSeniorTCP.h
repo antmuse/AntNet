@@ -35,7 +35,15 @@ public:
 
     virtual bool stop()override;
 
-    virtual INetSession* getSession(INetEventer* receiver) override;
+    virtual u32 getSession(INetEventer* receiver) override;
+
+    virtual s32 send(u32 id, const void* buffer, s32 size) override;
+
+    virtual bool connect(u32 id, const CNetAddress& it)override;
+
+    virtual bool disconnect(u32 id)override;
+
+    virtual void setEventer(u32 id, INetEventer* it) override;
 
     bool isRunning()const {
         return mRunning;
@@ -57,6 +65,13 @@ public:
         return mCurrentTime - mStartTime;
     }
 
+    u32 getID() const {
+        return mID;
+    }
+    void setID(u32 id) {
+        mID = (0xFFU & id);
+    }
+
     //u32 updateTimeWheel();
 
     /*CTimerWheel& getTimeWheel() {
@@ -73,6 +88,7 @@ protected:
 
 private:
     bool mRunning;
+    u32 mID;
     u32 mCreatedSocket;
     u32 mClosedSocket;
     u32 mTotalSession;

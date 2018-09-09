@@ -8,6 +8,8 @@
 namespace irr {
 //----------------------------------------------------------------
 CTimerWheel::STimeNode::STimeNode() :
+    mCycleStep(0),
+    mMaxRepeat(1),
     mTimeoutStep(0),
     mCallback(0),
     mCallbackData(0) {
@@ -93,7 +95,7 @@ void CTimerWheel::clearSlot(CQueueNode all[], u32 size) {
 }
 
 
-void CTimerWheel::add(STimeNode& node, u64 period) {
+void CTimerWheel::add(STimeNode& node, u64 period, s32 repeat) {
     mSpinlock.lock();
 
     if(!node.mLinker.isEmpty()) {
@@ -104,6 +106,8 @@ void CTimerWheel::add(STimeNode& node, u64 period) {
         steps = 0x7000000000000000ULL;
     }
     node.mTimeoutStep = mCurrentStep + steps;
+    node.mCycleStep = (u32)steps;
+    node.mMaxRepeat = repeat;
     innerAdd(node);
 
     mSpinlock.unlock();
@@ -201,15 +205,21 @@ void CTimerWheel::innerUpdate() {
         mSlot_0[index].splitAndJoin(queued);
         STimeNode* node;
         AppTimeoutCallback fn;
-
+        s32 repeat;
         mSpinlock.unlock(); //unlock
 
         while(!queued.isEmpty()) {
             node = APP_GET_VALUE_POINTER(queued.getNext(), STimeNode, mLinker);
-            fn = node->mCallback;
             node->mLinker.delink();
+            fn = node->mCallback;
+            repeat = node->mMaxRepeat - (node->mMaxRepeat > 0 ? 1 : 0);
             if(fn) {
-                fn(node->mCallbackData);
+                fn(node->mCallbackData); //@note: node maybe deleted by this call.
+            }
+            if(0 != repeat && node->mCycleStep > 0) {
+                node->mMaxRepeat = repeat;
+                node->mTimeoutStep = mCurrentStep + node->mCycleStep;
+                innerAdd(*node);
             }
         }
 
@@ -232,81 +242,6 @@ void CTimerWheel::update(u64 millisec) {
         innerUpdate();
         mCurrent += mInterval;
         mSpinlock.unlock();
-    }
-}
-
-
-//---------------------------------------------------------------------
-void AppTimeEventCallback(void* data) {
-    CTimerWheel::STimeEvent* evt = (CTimerWheel::STimeEvent*) data;
-    CTimerWheel* mgr = evt->mManger;
-    u64 current = mgr->getCurrent();
-    s32 count = 0;
-    bool stop = false;
-    while(current >= evt->mLastTime) {
-        count++;
-        evt->mLastTime += evt->mPeriod;
-        if(evt->mRepeat == 1) {
-            stop = true;
-            break;
-        }
-        if(evt->mRepeat > 1) {
-            evt->mRepeat--;
-        }
-    }
-
-    if(stop) {
-        evt->stop();
-    } else {
-        mgr->add(evt->mNode, (u64) evt->mPeriod);
-    }
-
-    if(evt->mCallback) {
-        for(; count > 0; count--) {
-            evt->mCallback(evt->mCallbackData);
-        }
-    }
-}
-
-
-CTimerWheel::STimeEvent::STimeEvent(AppTimeoutCallback cback, void* data) :
-    mRepeat(0),
-    mLastTime(0),
-    mPeriod(0),
-    mManger(0),
-    mCallback(cback),
-    mCallbackData(data) {
-    mNode.mCallback = AppTimeEventCallback;
-    mNode.mCallbackData = this;
-}
-
-
-CTimerWheel::STimeEvent::~STimeEvent() {
-    mCallback = 0;
-    mCallbackData = 0;
-    mManger = 0;
-    mPeriod = 0;
-    mLastTime = 0;
-    mRepeat = 0;
-}
-
-
-void CTimerWheel::STimeEvent::start(CTimerWheel* mgr, u32 period, s32 repeat) {
-    if(mgr) {
-        stop();
-        mManger = mgr;
-        mPeriod = period;
-        mRepeat = repeat;
-        mLastTime = mgr->getCurrent() + period;
-        mgr->add(mNode, period);
-    }
-}
-
-
-void CTimerWheel::STimeEvent::stop() {
-    if(mManger) {
-        mManger->remove(mNode);
-        mManger = 0;
     }
 }
 

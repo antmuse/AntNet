@@ -38,8 +38,19 @@ public:
 
     bool stop();
 
-    CNetSession* addSession(CNetSocket& sock, const CNetAddress& remote, 
+    u32 getID() const {
+        return mID;
+    }
+    void setID(u32 id) {
+        mID = (0xFFU & id);
+    }
+
+    void setEventer(u32 id, INetEventer* evt);
+
+    u32 addSession(CNetSocket& sock, const CNetAddress& remote, 
         const CNetAddress& local, INetEventer* evter);
+
+    s32 send(u32 id, const void* buffer, s32 size);
 
 protected:
     bool clearError();
@@ -49,6 +60,7 @@ protected:
 private:
 
     bool mRunning;
+    u32 mID;
     u32 mCreatedSocket;
     u32 mClosedSocket;      ///closed socket count
     u32 mTotalSession;      ///<launched session count
@@ -93,9 +105,12 @@ public:
 
     bool stop();
 
-    void setMaxClients(u32 max) {
-        mMaxContext = max;
-    };
+    u32 getID() const {
+        return mID;
+    }
+    void setID(u32 id) {
+        mID = (0xFFU & id);
+    }
 
     CNetSession* addSession(CNetSocket& sock, const CNetAddress& remote,
         const CNetAddress& local, INetEventer* evter);
@@ -109,6 +124,7 @@ protected:
 private:
 
     bool mRunning;
+    u32 mID;
     u32 mMaxContext;
     u32 mCreatedSocket;
     u32 mClosedSocket;      ///closed socket count

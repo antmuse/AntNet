@@ -25,11 +25,11 @@ public:
 
     virtual INetEventer* getEventer()const = 0;
 
-    virtual s32 send(const void* iBuffer, s32 iSize) = 0;
+    virtual s32 send(u32 id, const void* iBuffer, s32 iSize) = 0;
 
-    virtual bool connect(const CNetAddress& it) = 0;
+    virtual bool connect(u32 id, const CNetAddress& it) = 0;
 
-    virtual bool disconnect() = 0;
+    virtual bool disconnect(u32 id) = 0;
 };
 
 

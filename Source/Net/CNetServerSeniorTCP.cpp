@@ -16,6 +16,7 @@ namespace irr {
 namespace net {
 
 CNetServerSeniorTCP::CNetServerSeniorTCP(CNetConfig* cfg) :
+    mID(0),
     mThread(0),
     mCreatedSocket(0),
     mClosedSocket(0),
@@ -116,7 +117,7 @@ void CNetServerSeniorTCP::run() {
                             evt.mInfo.mSession.mSocket = &iContext->getSocket();
                             evt.mInfo.mSession.mAddressLocal = &iContext->getLocalAddress();
                             evt.mInfo.mSession.mAddressRemote = &iContext->getRemoteAddress();
-                            evt.mInfo.mSession.mContext = iContext;
+                            evt.mInfo.mSession.mContext = iContext->getID();
                             iContext->getEventer()->onEvent(evt);
                         }
                         ret = iContext->postReceive();
@@ -141,12 +142,12 @@ void CNetServerSeniorTCP::run() {
                 }//if
 
                 if(ret >= 0) {
-                    mWheel.add(iContext->getTimeNode(), 2 * mTimeInterval);
+                    mWheel.add(iContext->getTimeNode(), 2 * mTimeInterval, 1);
                 }
             }//for
             if(mCurrentTime - last > mTimeInterval) {
                 last = mCurrentTime;
-                mWheel.update(static_cast<u32>(mCurrentTime));
+                mWheel.update(mCurrentTime);
                 IAppLogger::log(ELOG_INFO, "CNetServerSeniorTCP::run",
                     "[context:%u/%u][socket:%u/%u][total:%u]",
                     mSessionPool.getIdleCount(), mSessionPool.getMaxContext(),
@@ -159,7 +160,7 @@ void CNetServerSeniorTCP::run() {
             case WAIT_TIMEOUT:
                 //mCurrentTime += mTimeInterval;
                 mCurrentTime = IAppTimer::getTime();
-                mWheel.update(static_cast<u32>(mCurrentTime));
+                mWheel.update(mCurrentTime);
                 last = mCurrentTime;
                 IAppLogger::log(ELOG_INFO, "CNetServerSeniorTCP::run",
                     "[context:%u/%u][socket:%u/%u][total:%u]",
@@ -290,13 +291,13 @@ void CNetServerSeniorTCP::run() {
                 }//if
 
                 if(ret > 0) {
-                    mWheel.add(iContext->getTimeNode(), 2 * mTimeInterval);
+                    mWheel.add(iContext->getTimeNode(), 2 * mTimeInterval, 1);
                 }
             }//for
 
             if(mCurrentTime - last > mTimeInterval) {
                 last = mCurrentTime;
-                mWheel.update(static_cast<u32>(mCurrentTime));
+                mWheel.update(mCurrentTime);
                 IAppLogger::log(ELOG_INFO, "CNetServerSeniorTCP::run",
                     "[context:%u/%u][socket:%u/%u][total:%u]",
                     mSessionPool.getIdleCount(), mSessionPool.getMaxContext(),
@@ -306,7 +307,7 @@ void CNetServerSeniorTCP::run() {
         } else {//poller error
             s32 pcode = mPoller.getError();
             mCurrentTime = IAppTimer::getTime();
-            mWheel.update(static_cast<u32>(mCurrentTime));
+            mWheel.update(mCurrentTime);
             last = mCurrentTime;
             //clearError(iContext, iAction);
             continue;
@@ -358,7 +359,7 @@ bool CNetServerSeniorTCP::start() {
     mClosedSocket = 0;
     mCurrentTime = IAppTimer::getTime();
     mStartTime = mCurrentTime;
-    mSessionPool.create(mConfig->mMaxContext);
+    mSessionPool.create(mID, mConfig->mMaxContext);
     mThread = new CThread();
     mThread->start(*this);
     return true;
@@ -417,7 +418,7 @@ void CNetServerSeniorTCP::remove(CNetSession* iContext) {
 }
 
 
-CNetSession* CNetServerSeniorTCP::addSession(CNetSocket& sock, const CNetAddress& remote,
+u32 CNetServerSeniorTCP::addSession(CNetSocket& sock, const CNetAddress& remote,
     const CNetAddress& local, INetEventer* evter) {
     CAutoLock aulock(mMutex);
 
@@ -497,9 +498,18 @@ CNetSession* CNetServerSeniorTCP::addSession(CNetSocket& sock, const CNetAddress
         mSessionPool.addIdleSession(&session);
         return 0;
     }
-    return &session;
+    return session.getID() | (getID() << ENET_SESSION_BITS);
 }
 
+
+s32 CNetServerSeniorTCP::send(u32 id, const void* buffer, s32 size) {
+    return mSessionPool[id&ENET_SESSION_MASK].send(id, buffer, size);
+}
+
+
+void CNetServerSeniorTCP::setEventer(u32 id, INetEventer* evt) {
+    mSessionPool[id&ENET_SESSION_MASK].setEventer(evt);
+}
 
 }//namespace net
 }//namespace irr

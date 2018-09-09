@@ -4,12 +4,14 @@
 #include "IAppLogger.h"
 #include "CNetPacket.h"
 #include "INetSession.h"
+#include "CNetServerAcceptor.h"
 
 namespace irr {
 namespace net {
 
 CDefaultNetEventer::CDefaultNetEventer() :
     mAutoConnect(false),
+    mServer(0),
     mHub(0),
     mSession(0) {
 }
@@ -51,7 +53,9 @@ s32 CDefaultNetEventer::onEvent(SNetEvent& iEvent) {
             iEvent.mInfo.mSession.mAddressRemote->getPort()
         );
 
-        iEvent.mInfo.mSession.mContext->setEventer(this);
+        if(mServer) {
+            mServer->setEventer(iEvent.mInfo.mSession.mContext, this);
+        }
         break;
 
     case ENET_CONNECTED:
@@ -69,7 +73,7 @@ s32 CDefaultNetEventer::onEvent(SNetEvent& iEvent) {
         pack.clear(0x7FFFFFFF);
         pack.add(++count);
         pack.addBuffer("Hey,server", (u32) 11);
-        mSession->send(pack.getPointer(), pack.getAllocatedSize());
+        mHub->send(mSession, pack.getPointer(), pack.getAllocatedSize());
         break;
     }
 
@@ -85,7 +89,7 @@ s32 CDefaultNetEventer::onEvent(SNetEvent& iEvent) {
         if(mAutoConnect) {
             mSession = mHub->getSession(this);
             if(mSession) {
-                mSession->connect(*iEvent.mInfo.mSession.mAddressRemote);
+                mHub->connect(mSession, *iEvent.mInfo.mSession.mAddressRemote);
             } else {
                 IAppLogger::log(ELOG_INFO, "CDefaultNetEventer::onEvent", "[can't got session now-----]");
             }

@@ -112,7 +112,7 @@ s32 CNetClientHttp::onEvent(SNetEvent& it) {
 bool CNetClientHttp::request() {
     CNetPacket pack(256);
     mRequest.getBuffer(pack);
-    return mSession->send(pack.getConstPointer(), (s32) pack.getSize());
+    return mHub->send(mSession, pack.getConstPointer(), (s32) pack.getSize());
 }
 
 
@@ -123,10 +123,10 @@ bool CNetClientHttp::start() {
     clear();
     mSession = mHub->getSession(this);
     if(mSession) {
-        if(mSession->connect(mAddressRemote)) {
+        if(mHub->connect(mSession,mAddressRemote)) {
             return true;
         }
-        mSession->setEventer(0);
+        mHub->setEventer(mSession, 0);
         mSession = 0;
     }
     return false;
@@ -134,10 +134,7 @@ bool CNetClientHttp::start() {
 
 
 bool CNetClientHttp::stop() {
-    if(mSession) {
-        return mSession->disconnect();
-    }
-    return true;
+    return mSession ? mHub->disconnect(mSession) : true;
 }
 
 

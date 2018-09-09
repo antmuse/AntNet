@@ -23,34 +23,16 @@ public:
         AppTimeoutCallback mCallback;
         void* mCallbackData;
         u64 mTimeoutStep;           //Absolute timeout step
+        u32 mCycleStep;             //cycle step,relatively
+        s32 mMaxRepeat;
         STimeNode();
         ~STimeNode();
-    };
-    struct STimeEvent {
-        u32 mPeriod;
-        s32 mRepeat;
-        u64 mLastTime;
-        AppTimeoutCallback mCallback;
-        void* mCallbackData;
-        CTimerWheel* mManger;
-        STimeNode mNode;
-
-
-        STimeEvent(AppTimeoutCallback cback, void* data);
-
-        ~STimeEvent();
-
-        // start timer: repeat <= 0 (infinite repeat)
-        void start(CTimerWheel *mgr, u32 period, s32 repeat);
-
-        // stop timer
-        void stop();
     };
 
     /**
     *@brief Constructor of time wheel.
     *@param time Current time stamp, in millisecond.
-    *@param interval Internal working time interval(in millisecond), 
+    *@param interval Internal working time interval(in millisecond),
     *@note Time wheel's time range is [0, (2^32 * interval)].
     */
     CTimerWheel(u64 time, u64 interval);
@@ -65,8 +47,9 @@ public:
 
     /**
     *@param period The timeout stamp, relative with current time, in millisecond.
+    *@param repeat repeat times.-1=ever
     */
-    void add(STimeNode& node, u64 period);
+    void add(STimeNode& node, u64 period, s32 repeat);
 
     void add(STimeNode& node);
 

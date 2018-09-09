@@ -43,6 +43,7 @@ void CTimeoutManager::stop() {
     if(mRunning) {
         mRunning = false;
         mThread.join();
+        mTimer.clear();
     }
 }
 

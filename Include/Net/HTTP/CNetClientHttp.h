@@ -59,7 +59,7 @@ private:
     void onBody();
 
     bool mRelocation; ///<web host relocation.
-    INetSession* mSession;
+    u32 mSession;
     INetEventerHttp* mReceiver;
     CNetHttpResponse mResponse;
     CNetHttpRequest mRequest;

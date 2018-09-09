@@ -51,15 +51,15 @@ const c8* const AppNetEventTypeNames[] = {
 
 struct SNetEvent {
     struct SData {
-        INetSession* mContext;
-        void* mBuffer;
+        u32 mContext;
         s32 mSize;
+        void* mBuffer;
     };
     struct SSession {
+        u32 mContext;
         const CNetSocket* mSocket;
         const CNetAddress* mAddressLocal;
         const CNetAddress* mAddressRemote;
-        INetSession* mContext;
     };
     union UEventInfo {
         SData mData;

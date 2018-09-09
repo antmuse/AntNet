@@ -269,27 +269,27 @@ bool CNetServerAcceptor::postAccept(SContextWaiter* iContext) {
 
 bool CNetServerAcceptor::stepAccpet(SContextWaiter* iContext) {
     --mAcceptCount;
-    CNetServerSeniorTCP* server = 0;
-    u32 sz = mAllService.size();
-    if(0 == sz) {
-        createServer();
-        sz = mAllService.size();
-        APP_ASSERT(sz > 0);
-    }
     mListener.getAddress(iContext->mCache, mAddressLocal, mAddressRemote, mFunctionAcceptSockAddress);
-
-    if(mCurrent >= sz) {
-        mCurrent = 0;
+    const u32 sz = mAllService.size();
+    u32 nid = 0;
+    for(u32 i = 0; 0 == nid && i < sz; ++i) {
+        nid = mAllService[mCurrent % sz]->addSession(iContext->mSocket, mAddressRemote, mAddressLocal, mReceiver);
+        ++mCurrent;
     }
-    do {
-        server = mAllService[mCurrent++];
-        server->addSession(iContext->mSocket, mAddressRemote, mAddressLocal, mReceiver);
-    } while(!server && mCurrent < sz);
-
-    if(!server) {
-        server = createServer();
-        APP_ASSERT(server);
-        server->addSession(iContext->mSocket, mAddressRemote, mAddressLocal, mReceiver);
+    if(0 == nid && sz < 0xFFU) {
+        if(createServer()) {
+            nid = mAllService.getLast()->addSession(iContext->mSocket, mAddressRemote, mAddressLocal, mReceiver);
+        }
+    }
+    if(0 == nid){
+        iContext->mSocket.close();
+        IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::stepAccpet",
+            "[server:%u][socket:%s:%u->%s:%u]",
+            sz,
+            mAddressRemote.getIPString(),
+            mAddressRemote.getPort(),
+            mAddressLocal.getIPString(),
+            mAddressLocal.getPort());
     }
     return postAccept(iContext);
 }
@@ -297,7 +297,8 @@ bool CNetServerAcceptor::stepAccpet(SContextWaiter* iContext) {
 
 CNetServerSeniorTCP* CNetServerAcceptor::createServer() {
     CNetServerSeniorTCP* server = new CNetServerSeniorTCP(mConfig);
-    if(server->start()) {
+    server->setID(mAllService.size()); //@note: step 1
+    if(server->start()) { //@note: step 2
         addServer(server);
         return server;
     }
@@ -333,6 +334,31 @@ bool CNetServerAcceptor::removeServer(CNetServerSeniorTCP* it) {
         }
     }
     return false;
+}
+
+
+s32 CNetServerAcceptor::send(u32 id, const void* buffer, s32 size) {
+    u32 sid = ((id & ENET_SERVER_MASK) >> ENET_SESSION_BITS);
+    if(sid < mAllService.size()) {
+        return mAllService[sid]->send(id, buffer, size);
+    }
+    return -1;
+}
+
+
+CNetServerSeniorTCP* CNetServerAcceptor::getServer(u32 id) const{
+    u32 sid = ((id & ENET_SERVER_MASK) >> ENET_SESSION_BITS);
+    if(sid < mAllService.size()) {
+        return mAllService[sid];
+    }
+    return 0;
+}
+
+void CNetServerAcceptor::setEventer(u32 id, INetEventer* evt) {
+    u32 sid = ((id & ENET_SERVER_MASK) >> ENET_SESSION_BITS);
+    if(sid < mAllService.size()) {
+        mAllService[sid]->setEventer(id, evt);
+    }
 }
 
 

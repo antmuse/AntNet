@@ -60,7 +60,16 @@ public:
      *@param receiver The event receiver of net session.
      *@return A valid session if success, else 0.
      */
-    virtual INetSession* getSession(INetEventer* receiver) = 0;
+    virtual u32 getSession(INetEventer* receiver) = 0;
+
+    virtual s32 send(u32 id, const void* buffer, s32 size) = 0;
+
+    virtual bool connect(u32 id, const CNetAddress& it) = 0;
+
+    virtual void setEventer(u32 id, INetEventer* it) =0;
+
+    virtual bool disconnect(u32 id) = 0;
+
 };
 
 

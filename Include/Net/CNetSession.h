@@ -13,15 +13,27 @@ namespace net {
 //class CNetClientSeniorTCP;
 
 enum ENetUserCommand {
-    ENET_CMD_CONNECT = 0x00100000U,
-    ENET_CMD_DISCONNECT = 0x00200000U,
-    ENET_CMD_TIMEOUT = 0x00400000U,
-    ENET_CMD_SEND = 0x00800000U,
-    ENET_CMD_NEW_SESSION = 0x00300000U,
-    ENET_CMD_MASK = 0xFFF00000U,
-    ENET_SESSION_MASK = 0x000FFFFFU
+    ENET_CMD_CONNECT = 0x00010000U,
+    ENET_CMD_DISCONNECT = 0x00020000U,
+    ENET_CMD_TIMEOUT = 0x00040000U,
+    ENET_CMD_SEND = 0x00080000U,
+    ENET_CMD_NEW_SESSION = 0x00030000U,
+    ENET_CMD_MASK = 0xFFFF0000U,
+
+    ENET_SESSION_BITS = 16,
+    ENET_SERVER_BITS = 8,
+    ENET_SESSION_MASK = 0x0000FFFFU,
+    ENET_SERVER_MASK = 0x00FF0000U,
+    ENET_SESSION_LEVEL_MASK = 0xFF000000U,
+    ENET_ID_MASK = 0x00FFFFFFU
 };
 
+/**
+*ID of net network is 32 bits: 
+*    16bit: used for session id.
+*    8bit: used for server id.
+*    8bit: used for session level.
+*/
 
 class CNetSession : public INetSession {
 public:
@@ -38,8 +50,12 @@ public:
         return mNext;
     }
 
-    APP_FORCE_INLINE u32 getMask(u32 index, u32 level) {
-        return (ENET_SESSION_MASK&index) | (ENET_CMD_MASK& (level << 20));
+    APP_FORCE_INLINE u32 getMask(u32 index, u32 level)const {
+        return (ENET_SESSION_MASK & index) | (level << (ENET_SESSION_BITS+ ENET_SERVER_BITS));
+    }
+
+    APP_FORCE_INLINE void setHub(u32 hid) {
+        mMask |= (ENET_SERVER_MASK & (hid << ENET_SESSION_BITS));
     }
 
     APP_FORCE_INLINE void setIndex(u32 pos) {
@@ -47,20 +63,20 @@ public:
         mMask = (mMask & ENET_CMD_MASK) | (pos & ENET_SESSION_MASK);
     }
 
-    /*APP_FORCE_INLINE u32 getLevel()const {
-        return (mMask & 0xFF000000U);
-    }*/
+    APP_FORCE_INLINE u32 getLevel(u32 id)const {
+        return (mMask & ENET_SESSION_LEVEL_MASK);
+    }
 
     APP_FORCE_INLINE u32 getIndex()const {
         return (mMask & ENET_SESSION_MASK);
     }
 
     APP_FORCE_INLINE u32 getID()const {
-        return mID;
+        return mMask;
     }
 
-    APP_FORCE_INLINE bool isValid()const {
-        return mID == mMask;
+    APP_FORCE_INLINE bool isValid(u32 id)const {
+        return id == mMask;
     }
 
     CNetAddress& getRemoteAddress() {
@@ -87,9 +103,11 @@ public:
         return mTimeNode;
     }
 
-    virtual s32 send(const void* iBuffer, s32 iSize)override;
-    virtual bool connect(const CNetAddress& it)override;
-    virtual bool disconnect()override;
+    virtual s32 send(u32 id, const void* iBuffer, s32 iSize)override;
+
+    virtual bool connect(u32 id, const CNetAddress& it)override;
+
+    virtual bool disconnect(u32 id)override;
 
     s32 postDisconnect();
 
@@ -139,19 +157,19 @@ public:
 
 protected:
     void upgradeLevel() {
-        u32 level = (mMask & ENET_CMD_MASK);
-        level += 0x00100000U;
+        u32 level = (mMask & ENET_SESSION_LEVEL_MASK);
+        level += 0x01000000U;
         if(0 == level) {//level can not be zero
-            level += 0x00100000U;
+            level += 0x01000000U;
         }
-        mMask = (mMask & ENET_SESSION_MASK) | level;
+        mMask = (mMask & ENET_SESSION_LEVEL_MASK) | level;
     }
 
     void postEvent(ENetEventType iEvent);
 
     CTimerWheel::STimeNode mTimeNode;
+    bool mPostedDisconnect;
     u32 mMask;    //12bits is level, 20bit is index
-    u32 mID;      //last level | index
     u32 mStatus;
     s32 mCount;
     u64 mTime;
@@ -200,7 +218,7 @@ public:
         return mAllContext + idx;
     }
 
-    void create(u32 max);
+    void create(u32 hubID, u32 max);
 
     u32 getMaxContext()const {
         return mMax;

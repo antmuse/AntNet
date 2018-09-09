@@ -34,6 +34,10 @@ public:
 
     bool stop();
 
+    s32 send(u32 id, const void* buffer, s32 size);
+
+    CNetServerSeniorTCP* getServer(u32 id)const;
+
     void setLocalAddress(const CNetAddress& it) {
         mAddressLocal = it;
     }
@@ -46,13 +50,12 @@ public:
         mAcceptCount = max;
     };
 
+    void setEventer(u32 id, INetEventer* evt);
+
     void setEventer(INetEventer* evt) {
         mReceiver = evt;
     }
 
-    void addServer(CNetServerSeniorTCP* it);
-
-    bool removeServer(CNetServerSeniorTCP* it);
 
 protected:
     struct SContextWaiter {
@@ -64,6 +67,8 @@ protected:
         ~SContextWaiter();
         bool reset();
     };
+
+
 
     bool clearError();
 
@@ -92,6 +97,11 @@ protected:
     CNetServerSeniorTCP* createServer();
 
     void removeAllServer();
+
+    void addServer(CNetServerSeniorTCP* it);
+
+    bool removeServer(CNetServerSeniorTCP* it);
+
 
 private:
     bool mRunning;                                  ///<True if started, else false

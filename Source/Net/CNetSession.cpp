@@ -51,7 +51,7 @@ void CNetSessionPool::addIdleSession(CNetSession* it) {
     }
 }
 
-void CNetSessionPool::create(u32 max) {
+void CNetSessionPool::create(u32 id, u32 max) {
     APP_ASSERT(max < ENET_SESSION_MASK);
 
     if(0 == mAllContext) {
@@ -62,6 +62,7 @@ void CNetSessionPool::create(u32 max) {
             //new (&mAllContext[i]) CNetSession();
             mAllContext[i].setIndex(i);
             mAllContext[i].setTime(-1);
+            mAllContext[i].setHub(id);
             addIdleSession(mAllContext + i);
         }
     }
@@ -95,10 +96,10 @@ void AppTimeoutContext(void* it) {
 
 
 CNetSession::CNetSession() :
+    mPostedDisconnect(false),
     mNext(0),
     mTime(-1),
     mMask(getMask(0, 1)),
-    mID(getMask(0, 1)),
     //mSessionHub(0),
     //mFunctionConnect(0),
     //mFunctionDisonnect(0),
@@ -118,8 +119,11 @@ CNetSession::~CNetSession() {
 }
 
 
-bool CNetSession::disconnect() {
+bool CNetSession::disconnect(u32 id) {
     APP_ASSERT(mPoller);
+    if(!isValid(id)) {
+        return false;
+    }
     if(mStatus & ENET_CMD_DISCONNECT) {
         return true;
     }
@@ -130,8 +134,11 @@ bool CNetSession::disconnect() {
 }
 
 
-bool CNetSession::connect(const CNetAddress& it) {
+bool CNetSession::connect(u32 id, const CNetAddress& it) {
     APP_ASSERT(mPoller);
+    if(!isValid(id)) {
+        return false;
+    }
     if(mStatus & ENET_CMD_CONNECT) {
         return true;
     }
@@ -143,8 +150,11 @@ bool CNetSession::connect(const CNetAddress& it) {
 }
 
 
-s32 CNetSession::send(const void* iBuffer, s32 iSize) {
+s32 CNetSession::send(u32 id, const void* iBuffer, s32 iSize) {
     //APP_ASSERT(mPoller);
+    if(!isValid(id)) {
+        return -1;
+    }
     if(!iBuffer || iSize < 0) {//0 byte is ok
         return -1;
     }
@@ -161,9 +171,6 @@ s32 CNetSession::send(const void* iBuffer, s32 iSize) {
 
 
 s32 CNetSession::postSend() {
-    if(!isValid()) {
-        return -1;
-    }
     mActionSend.mBuffer.buf = mPacketSend.getPointer();
     mActionSend.mBuffer.len = mPacketSend.getSize();
     if(mSocket.send(&mActionSend)) {
@@ -222,7 +229,7 @@ s32 CNetSession::stepReceive() {
     if(mEventer) {
         SNetEvent evt;
         evt.mType = ENET_RECEIVED;
-        evt.mInfo.mData.mContext = this;
+        evt.mInfo.mData.mContext = getID();
         evt.mInfo.mData.mBuffer = mPacketReceive.getReadPointer();
         evt.mInfo.mData.mSize = mPacketReceive.getReadSize();
         s32 consumed = mEventer->onEvent(evt);
@@ -244,9 +251,6 @@ s32 CNetSession::stepReceive() {
 
 s32 CNetSession::postConnect() {
     //APP_ASSERT(0 == mCount);
-    if(!isValid()) {
-        return -1;
-    }
     if(mSocket.connect(mAddressRemote, &mActionConnect)) {
         return ++mCount;
     }
@@ -266,11 +270,12 @@ s32 CNetSession::stepConnect() {
 
 
 s32 CNetSession::postDisconnect() {
-    //重复发起postDisconnect事件则返回-1，据此强制关闭socket
-    if(!isValid()) {
+    //重复发起postDisconnect事件则返回-1，据此强制关闭socket, TODO>>
+    if(mPostedDisconnect) {
         return -1;
     }
-    upgradeLevel();//make this context invalid
+    mPostedDisconnect = true;
+    upgradeLevel();
     if(mSocket.disconnect(&mActionDisconnect)) {
         return ++mCount;
     }
@@ -317,7 +322,7 @@ void CNetSession::postEvent(ENetEventType iEvent) {
         //evt.mInfo.mData.mBuffer = 0;
         //evt.mInfo.mData.mSize = 0;
         evt.mInfo.mSession.mSocket = &mSocket;
-        evt.mInfo.mSession.mContext = this;
+        evt.mInfo.mSession.mContext = getID();
         evt.mInfo.mSession.mAddressLocal = &mAddressLocal;
         evt.mInfo.mSession.mAddressRemote = &mAddressRemote;
         mEventer->onEvent(evt);
@@ -333,7 +338,7 @@ void CNetSession::setSocket(const CNetSocket& it) {
 
 
 void CNetSession::clear() {
-    mID = mMask;
+    mPostedDisconnect = false;
     mStatus = 0;
     mCount = 0;
     mEventer = 0;
