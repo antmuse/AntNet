@@ -191,13 +191,13 @@ bool CNetSynPing::send() {
 
     printf("\n----------------------------------------------------------------\n");
     printf("IP = ");
-    IUtility::printToHexString(&ipHead, sizeof(ipHead));
+    utility::AppPrintToHexString(&ipHead, sizeof(ipHead));
     printf("\n");
     printf("TCP = ");
-    IUtility::printToHexString(&tcpHead, sizeof(tcpHead));
+    utility::AppPrintToHexString(&tcpHead, sizeof(tcpHead));
     printf("\n");
     printf("TCP option = ");
-    IUtility::printToHexString(&optionTCP, sizeof(optionTCP));
+    utility::AppPrintToHexString(&optionTCP, sizeof(optionTCP));
     printf("\n----------------------------------------------------------------\n");
 
     //send out
@@ -262,12 +262,12 @@ bool CNetSynPing::sendReset() {
     ipHead.mChecksum = sumchecker.get();
 
     printf("IP = ");
-    IUtility::printToHexString(&ipHead, sizeof(ipHead));
+    utility::AppPrintToHexString(&ipHead, sizeof(ipHead));
     printf("\n--------------------------------------\n");
     printf("TCP = ");
-    IUtility::printToHexString(&tcpHead, sizeof(tcpHead));
+    utility::AppPrintToHexString(&tcpHead, sizeof(tcpHead));
     printf("\n--------------------------------------\n");
-    //IUtility::printToHexText(&ipHead, sizeof(tcpHead)+ sizeof(tcpHead));
+    //utility::AppPrintToHexText(&ipHead, sizeof(tcpHead)+ sizeof(tcpHead));
 
     //send out
     s32 datasize = sizeof(SHeadIP) + sizeof(SHeadTCP);
@@ -359,7 +359,7 @@ s32 CNetSynPing::ping(const c8* remoteIP, u16 remotePort) {
         u16 tcpsz = recvHeadTCP.getSize();
         u16 datasz = totalSize - recvIPsize - tcpsz;
         IAppLogger::log(ELOG_INFO, "CNetSynPing::ping", "TCP data size = [%u]", datasz);
-        IUtility::printToHexText((((c8*) &recvHeadTCP) + tcpsz), datasz);
+        utility::AppPrintToHexText((((c8*) &recvHeadTCP) + tcpsz), datasz);
 
         if(recvHeadIP.mLocalIP != mAddressRemote.getIP()) {
             continue;

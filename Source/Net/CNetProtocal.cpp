@@ -12,8 +12,8 @@
 
 //#define APP_DEBUG_PRINT_ON
 
-namespace irr{
-namespace net{
+namespace irr {
+namespace net {
 
 const u32 APP_NET_NODELAY_MIN_RTO = 30;						///< no delay min RTO
 const u32 APP_NET_NORMAL_MIN_RTO = 100;					///< normal min RTO
@@ -38,16 +38,16 @@ const u32 APP_NET_MIN_SSTHRESHOLD = 2;												///<Min Slow start threshold
 const u32 APP_NET_PROBE_TIME = 7000;													///<7 secs to probe window size
 const u32 APP_NET_PROBE_TIME_LIMIT = 120000;									///<Probe time limit. up to 120 secs to probe window
 
-static inline u64 AppValueDiff(u64 later, u64 earlier){
+static inline u64 AppValueDiff(u64 later, u64 earlier) {
     return (later - earlier);
 }
 
 // output queue
 #if defined(APP_DEBUG_PRINT_ON)
-void AppPrintQueue(const c8* name, const CQueueNode* head){
+void AppPrintQueue(const c8* name, const CQueueNode* head) {
     const CQueueNode *p;
     printf("<%s>: [", name);
-    for(; !head->isEmpty(); ){
+    for(; !head->isEmpty(); ) {
         p = head->getNext();
         //const SKCPSegment *seg = APP_GET_VALUE_POINTER(p, const SKCPSegment, mNode);
         const CNetProtocal::SKCPSegment* seg = (const CNetProtocal::SKCPSegment*) (p->getValue());
@@ -57,16 +57,16 @@ void AppPrintQueue(const c8* name, const CQueueNode* head){
 }
 #endif
 
-APP_INLINE void* CNetProtocal::allocateMemory(s32 size){
+APP_INLINE void* CNetProtocal::allocateMemory(s32 size) {
     return mMallocHook ? mMallocHook(size) : malloc(size);
 }
 
-APP_INLINE void CNetProtocal::releaseMemory(void *ptr){
+APP_INLINE void CNetProtocal::releaseMemory(void *ptr) {
     mFreeHook ? mFreeHook(ptr) : free(ptr);
 }
 
 // allocate a new kcp segment
-CQueueNode* CNetProtocal::createSegment(s32 size){
+CQueueNode* CNetProtocal::createSegment(s32 size) {
     return CQueueNode::createNode(size + sizeof(SKCPSegment), mMallocHook);
 }
 
@@ -76,8 +76,8 @@ CQueueNode* CNetProtocal::createSegment(s32 size){
 //}
 
 // write log
-void CNetProtocal::log(s32 mask, const c8 *fmt, ...){
-    if((mask & mLogMask) == 0 || mLogWriter == 0){
+void CNetProtocal::log(s32 mask, const c8 *fmt, ...) {
+    if((mask & mLogMask) == 0 || mLogWriter == 0) {
         return;
     }
     c8 iBuffer[1024];
@@ -89,9 +89,9 @@ void CNetProtocal::log(s32 mask, const c8 *fmt, ...){
 }
 
 // output segment
-s32 CNetProtocal::sendOut(const c8* data, s32 size){
+s32 CNetProtocal::sendOut(const c8* data, s32 size) {
     APP_ASSERT(mSender);
-    if(size <= 0){
+    if(size <= 0) {
         return 0;
     }
     log(ENET_LOG_OUTPUT, "[RO] %ld bytes", (long) size);
@@ -141,11 +141,11 @@ CNetProtocal::CNetProtocal() :
     mXMIT(0),
     mDeadLink(APP_NET_DEFAULT_DEAD_LINK),
     mSender(0),
-    mLogWriter(0){
+    mLogWriter(0) {
 
     mMSS = mMTU - APP_NET_ENDIANOVERHEAD;
     mBuffer = (c8*) allocateMemory((mMTU + APP_NET_ENDIANOVERHEAD) * 3);
-    if(!mBuffer){
+    if(!mBuffer) {
         return;
     }
     mQueueSend.init();
@@ -155,15 +155,15 @@ CNetProtocal::CNetProtocal() :
 }
 
 
-CNetProtocal::~CNetProtocal(){
+CNetProtocal::~CNetProtocal() {
     mQueueSendBuffer.clear(mFreeHook);
     mQueueReceiveBuffer.clear(mFreeHook);
     mQueueSend.clear(mFreeHook);
     mQueueReceive.clear(mFreeHook);
-    if(mBuffer){
+    if(mBuffer) {
         releaseMemory(mBuffer);
     }
-    if(mListACK){
+    if(mListACK) {
         releaseMemory(mListACK);
     }
     mReceiveBufferCount = 0;
@@ -176,9 +176,9 @@ CNetProtocal::~CNetProtocal(){
 }
 
 
-u32 CNetProtocal::getID(const c8* iBuffer) const{
+u32 CNetProtocal::getID(const c8* iBuffer) const {
     u32 conv;
-    IUtility::decodeU32(iBuffer, &conv);
+    utility::AppDecodeU32(iBuffer, &conv);
     return conv;
 }
 
@@ -186,7 +186,7 @@ u32 CNetProtocal::getID(const c8* iBuffer) const{
 //---------------------------------------------------------------------
 // set output callback, which will be invoked by kcp
 //---------------------------------------------------------------------
-void CNetProtocal::setSender(INetDataSender* iSender){
+void CNetProtocal::setSender(INetDataSender* iSender) {
     mSender = iSender;
 }
 
@@ -194,8 +194,8 @@ void CNetProtocal::setSender(INetDataSender* iSender){
 //---------------------------------------------------------------------
 // user/upper level recv: returns size, returns below zero for EAGAIN
 //---------------------------------------------------------------------
-s32 CNetProtocal::receiveData(c8* iBuffer, s32 len){
-    if(mQueueReceive.isEmpty()){
+s32 CNetProtocal::receiveData(c8* iBuffer, s32 len) {
+    if(mQueueReceive.isEmpty()) {
         return -1;
     }
     s32 peeksize = peekNextSize();
@@ -215,11 +215,11 @@ s32 CNetProtocal::receiveData(c8* iBuffer, s32 len){
     CQueueNode* next;
     s32 fragment;
     len = 0;
-    for(CQueueNode* p = mQueueReceive.getNext(); p != &mQueueReceive; p = next){
+    for(CQueueNode* p = mQueueReceive.getNext(); p != &mQueueReceive; p = next) {
         seg = (SKCPSegment*) (p->getValue());
         next = p->getNext();
 
-        if(iBuffer){
+        if(iBuffer) {
             memcpy(iBuffer, seg->mData, seg->mLength);
             iBuffer += seg->mLength;
         }
@@ -229,7 +229,7 @@ s32 CNetProtocal::receiveData(c8* iBuffer, s32 len){
 
         log(ENET_LOG_RECEIVE, "recv sn=%lu", seg->mSN);
 
-        if(ispeek == 0){
+        if(ispeek == 0) {
             p->delink();
             CQueueNode::deleteNode(p, mFreeHook);
             mReceiveQueueCount--;
@@ -243,22 +243,22 @@ s32 CNetProtocal::receiveData(c8* iBuffer, s32 len){
 
     // move available data from mQueueReceiveBuffer -> mQueueReceive
     CQueueNode* node;
-    while(!mQueueReceiveBuffer.isEmpty()){
+    while(!mQueueReceiveBuffer.isEmpty()) {
         node = mQueueReceiveBuffer.getNext();
         SKCPSegment *seg = (SKCPSegment*) (node->getValue());
-        if(seg->mSN == mReceiveNext && mReceiveQueueCount < mMaxReceiveWindowSize){
+        if(seg->mSN == mReceiveNext && mReceiveQueueCount < mMaxReceiveWindowSize) {
             node->delink();
             mReceiveBufferCount--;
             mQueueReceive.pushBack(node);
             mReceiveQueueCount++;
             mReceiveNext++;
-        } else{
+        } else {
             break;
         }
     }
 
     // fast recover
-    if(mReceiveQueueCount < mMaxReceiveWindowSize && recover){
+    if(mReceiveQueueCount < mMaxReceiveWindowSize && recover) {
         // ready to send back APP_NET_CMD_TELL_WINDOW in flush, tell remote my window size
         mProbeFlag |= APP_NET_ENDIANASK_TELL;
     }
@@ -270,26 +270,26 @@ s32 CNetProtocal::receiveData(c8* iBuffer, s32 len){
 //---------------------------------------------------------------------
 // peek data size
 //---------------------------------------------------------------------
-s32 CNetProtocal::peekNextSize(){
-    if(mQueueReceive.isEmpty()){
+s32 CNetProtocal::peekNextSize() {
+    if(mQueueReceive.isEmpty()) {
         return -1;
     }
 
     SKCPSegment* seg = (SKCPSegment*) (mQueueReceive.getNext()->getValue());
-    if(seg->mFrag == 0){
+    if(seg->mFrag == 0) {
         return seg->mLength;
     }
 
-    if(mReceiveQueueCount < seg->mFrag + 1){
+    if(mReceiveQueueCount < seg->mFrag + 1) {
         return -1;
     }
 
     s32 length = 0;
 
-    for(CQueueNode* p = mQueueReceive.getNext(); p != &mQueueReceive; p = p->getNext()){
+    for(CQueueNode* p = mQueueReceive.getNext(); p != &mQueueReceive; p = p->getNext()) {
         seg = (SKCPSegment*) (p->getValue());
         length += seg->mLength;
-        if(seg->mFrag == 0){
+        if(seg->mFrag == 0) {
             break;
         }
     }
@@ -301,9 +301,9 @@ s32 CNetProtocal::peekNextSize(){
 //---------------------------------------------------------------------
 // user/upper level send, returns below zero for error
 //---------------------------------------------------------------------
-s32 CNetProtocal::sendData(const c8* iBuffer, s32 len){
+s32 CNetProtocal::sendData(const c8* iBuffer, s32 len) {
     APP_ASSERT(mMSS > 0);
-    if(len < 0){
+    if(len < 0) {
         return -1;
     }
     CQueueNode* node;
@@ -312,22 +312,22 @@ s32 CNetProtocal::sendData(const c8* iBuffer, s32 len){
     s32 count;
 
     // append to previous segment in streaming mode (if possible)
-    if(mStreamMode){
-        if(!mQueueSend.isEmpty()){
+    if(mStreamMode) {
+        if(!mQueueSend.isEmpty()) {
             node = mQueueSend.getPrevious();
             SKCPSegment *old = (SKCPSegment*) (node->getValue());
-            if(old->mLength < mMSS){
+            if(old->mLength < mMSS) {
                 s32 capacity = mMSS - old->mLength;
                 s32 extend = (len < capacity) ? len : capacity;
                 newnode = createSegment(old->mLength + extend);
                 seg = (SKCPSegment*) (newnode->getValue());
                 APP_ASSERT(seg);
-                if(seg == NULL){
+                if(seg == NULL) {
                     return -2;
                 }
                 mQueueSend.pushBack(newnode);
                 memcpy(seg->mData, old->mData, old->mLength);
-                if(iBuffer){
+                if(iBuffer) {
                     memcpy(seg->mData + old->mLength, iBuffer, extend);
                     iBuffer += extend;
                 }
@@ -338,14 +338,14 @@ s32 CNetProtocal::sendData(const c8* iBuffer, s32 len){
                 CQueueNode::deleteNode(node, mFreeHook);
             }
         }//if
-        if(len <= 0){
+        if(len <= 0) {
             return 0;
         }
     }//if
 
-    if(len <= (s32) mMSS){
+    if(len <= (s32) mMSS) {
         count = 1;
-    } else{
+    } else {
         count = (len + mMSS - 1) / mMSS;
     }
 
@@ -354,22 +354,22 @@ s32 CNetProtocal::sendData(const c8* iBuffer, s32 len){
     if(count == 0) count = 1;
 
     // fragment
-    for(s32 i = 0; i < count; i++){
+    for(s32 i = 0; i < count; i++) {
         s32 size = len > (s32)mMSS ? (s32) mMSS : len;
         newnode = createSegment(size);
         seg = (SKCPSegment*) (newnode->getValue());
         APP_ASSERT(seg);
-        if(0 == seg){
+        if(0 == seg) {
             return -2;
         }
-        if(iBuffer && len > 0){
+        if(iBuffer && len > 0) {
             memcpy(seg->mData, iBuffer, size);
         }
         seg->mLength = size;
         seg->mFrag = (mStreamMode ? 0 : (count - i - 1));
         mQueueSend.pushBack(newnode);
         mSendQueueCount++;
-        if(iBuffer){
+        if(iBuffer) {
             iBuffer += size;
         }
         len -= size;
@@ -382,12 +382,12 @@ s32 CNetProtocal::sendData(const c8* iBuffer, s32 len){
 //---------------------------------------------------------------------
 // parse ack
 //---------------------------------------------------------------------
-void CNetProtocal::updateACK(s32 rtt){
+void CNetProtocal::updateACK(s32 rtt) {
     s32 rto = 0;
-    if(mSRTT == 0){
+    if(mSRTT == 0) {
         mSRTT = rtt;
         mRTT = rtt / 2;
-    } else{
+    } else {
         long delta = rtt - mSRTT;
         if(delta < 0) delta = -delta;
         mRTT = (3 * mRTT + delta) / 4;
@@ -399,94 +399,94 @@ void CNetProtocal::updateACK(s32 rtt){
 }
 
 
-void CNetProtocal::shrinkBuffer(){
+void CNetProtocal::shrinkBuffer() {
     CQueueNode *p = mQueueSendBuffer.getNext();
-    if(p != &mQueueSendBuffer){
+    if(p != &mQueueSendBuffer) {
         SKCPSegment* seg = (SKCPSegment*) (p->getValue());
         mSendUNA = seg->mSN;
-    } else{
+    } else {
         mSendUNA = mSendNext;
     }
 }
 
 
-void CNetProtocal::parseACK(u32 sn){
-    if(AppValueDiff(sn, mSendUNA) < 0 || AppValueDiff(sn, mSendNext) >= 0){
+void CNetProtocal::parseACK(u32 sn) {
+    if(AppValueDiff(sn, mSendUNA) < 0 || AppValueDiff(sn, mSendNext) >= 0) {
         return;
     }
     SKCPSegment* seg;
     CQueueNode* next;
-    for(CQueueNode* p = mQueueSendBuffer.getNext(); p != &mQueueSendBuffer; p = next){
+    for(CQueueNode* p = mQueueSendBuffer.getNext(); p != &mQueueSendBuffer; p = next) {
         next = p->getNext();
         seg = (SKCPSegment*) (p->getValue());
-        if(sn == seg->mSN){
+        if(sn == seg->mSN) {
             p->delink();
             CQueueNode::deleteNode(p, mFreeHook);
             mSendBufferCount--;
             break;
         }
-        if(AppValueDiff(sn, seg->mSN) < 0){
+        if(AppValueDiff(sn, seg->mSN) < 0) {
             break;
         }
     }//for
 }
 
 
-void CNetProtocal::parseUNA(u32 una){
+void CNetProtocal::parseUNA(u32 una) {
     SKCPSegment* seg;
     CQueueNode* next;
-    for(CQueueNode* p = mQueueSendBuffer.getNext(); p != &mQueueSendBuffer; p = next){
+    for(CQueueNode* p = mQueueSendBuffer.getNext(); p != &mQueueSendBuffer; p = next) {
         next = p->getNext();
         seg = (SKCPSegment*) (p->getValue());
-        if(AppValueDiff(una, seg->mSN) > 0){
+        if(AppValueDiff(una, seg->mSN) > 0) {
             p->delink();
             CQueueNode::deleteNode(p, mFreeHook);
             mSendBufferCount--;
-        } else{
+        } else {
             break;
         }
     }
 }
 
 
-void CNetProtocal::parseFastACK(u32 sn){
-    if(AppValueDiff(sn, mSendUNA) < 0 || AppValueDiff(sn, mSendNext) >= 0){
+void CNetProtocal::parseFastACK(u32 sn) {
+    if(AppValueDiff(sn, mSendUNA) < 0 || AppValueDiff(sn, mSendNext) >= 0) {
         return;
     }
     SKCPSegment* seg;
     CQueueNode* next;
-    for(CQueueNode* p = mQueueSendBuffer.getNext(); p != &mQueueSendBuffer; p = next){
+    for(CQueueNode* p = mQueueSendBuffer.getNext(); p != &mQueueSendBuffer; p = next) {
         next = p->getNext();
         seg = (SKCPSegment*) (p->getValue());
-        if(AppValueDiff(sn, seg->mSN) < 0){
+        if(AppValueDiff(sn, seg->mSN) < 0) {
             break;
-        } else if(sn != seg->mSN){
+        } else if(sn != seg->mSN) {
             seg->mFastACK++;
         }
     }
 }
 
 
-void CNetProtocal::appendACK(u32 sn, u32 ts){
+void CNetProtocal::appendACK(u32 sn, u32 ts) {
     size_t newsize = mCountACK + 1;
     u32 *ptr;
 
-    if(newsize > mBlockACK){
+    if(newsize > mBlockACK) {
         u32 *acklist;
         size_t newblock;
 
-        for(newblock = 8; newblock < newsize; newblock <<= 1){
+        for(newblock = 8; newblock < newsize; newblock <<= 1) {
         }
 
         acklist = (u32*) allocateMemory(newblock * sizeof(u32) * 2);
 
-        if(acklist == NULL){
+        if(acklist == NULL) {
             APP_ASSERT(acklist != NULL);
             abort();
         }
 
-        if(mListACK != NULL){
-            for(u32 x = 0; x < mCountACK; x++){
+        if(mListACK != NULL) {
+            for(u32 x = 0; x < mCountACK; x++) {
                 acklist[x * 2 + 0] = mListACK[x * 2 + 0];
                 acklist[x * 2 + 1] = mListACK[x * 2 + 1];
             }
@@ -504,11 +504,11 @@ void CNetProtocal::appendACK(u32 sn, u32 ts){
 }
 
 
-void CNetProtocal::getACK(s32 p, u32* sn, u32* ts){
-    if(sn){
+void CNetProtocal::getACK(s32 p, u32* sn, u32* ts) {
+    if(sn) {
         sn[0] = mListACK[p * 2 + 0];
     }
-    if(ts){
+    if(ts) {
         ts[0] = mListACK[p * 2 + 1];
     }
 }
@@ -517,12 +517,12 @@ void CNetProtocal::getACK(s32 p, u32* sn, u32* ts){
 //---------------------------------------------------------------------
 // parse data
 //---------------------------------------------------------------------
-void CNetProtocal::parseSegment(CQueueNode* node){
+void CNetProtocal::parseSegment(CQueueNode* node) {
     SKCPSegment* newseg = (SKCPSegment*) (node->getValue());
     u32 sn = newseg->mSN;
 
     if(AppValueDiff(sn, mReceiveNext + mMaxReceiveWindowSize) >= 0 ||
-        AppValueDiff(sn, mReceiveNext) < 0){
+        AppValueDiff(sn, mReceiveNext) < 0) {
         node->delink();
         CQueueNode::deleteNode(node, mFreeHook);
         return;
@@ -531,22 +531,22 @@ void CNetProtocal::parseSegment(CQueueNode* node){
     s32 repeat = 0;
     CQueueNode* p;
     CQueueNode* prev;
-    for(p = mQueueReceiveBuffer.getPrevious(); p != &mQueueReceiveBuffer; p = prev){
+    for(p = mQueueReceiveBuffer.getPrevious(); p != &mQueueReceiveBuffer; p = prev) {
         prev = p->getPrevious();
         SKCPSegment* seg = (SKCPSegment*) (p->getValue());
-        if(seg->mSN == sn){
+        if(seg->mSN == sn) {
             repeat = 1;
             break;
         }
-        if(AppValueDiff(sn, seg->mSN) > 0){
+        if(AppValueDiff(sn, seg->mSN) > 0) {
             break;
         }
     }//for
 
-    if(repeat == 0){
+    if(repeat == 0) {
         p->pushFront(node);
         mReceiveBufferCount++;
-    } else{
+    } else {
         node->delink();
         CQueueNode::deleteNode(node, mFreeHook);
     }
@@ -557,16 +557,16 @@ void CNetProtocal::parseSegment(CQueueNode* node){
 #endif
 
     // move available data from mQueueReceiveBuffer -> mQueueReceive
-    while(!mQueueReceiveBuffer.isEmpty()){
+    while(!mQueueReceiveBuffer.isEmpty()) {
         node = mQueueReceiveBuffer.getNext();
         SKCPSegment* seg = (SKCPSegment*) (node->getValue());
-        if(seg->mSN == mReceiveNext && mReceiveQueueCount < mMaxReceiveWindowSize){
+        if(seg->mSN == mReceiveNext && mReceiveQueueCount < mMaxReceiveWindowSize) {
             node->delink();
             mReceiveBufferCount--;
             mQueueReceive.pushBack(node);
             mReceiveQueueCount++;
             mReceiveNext++;
-        } else{
+        } else {
             break;
         }
     }//while
@@ -586,7 +586,7 @@ void CNetProtocal::parseSegment(CQueueNode* node){
 //---------------------------------------------------------------------
 // import raw data
 //---------------------------------------------------------------------
-s32 CNetProtocal::import(const c8* data, long size){
+s32 CNetProtocal::import(const c8* data, long size) {
     u32 una = mSendUNA;
     u32 maxack = 0;
     s32 flag = 0;
@@ -597,7 +597,7 @@ s32 CNetProtocal::import(const c8* data, long size){
 
     CQueueNode* node;
 
-    for(;;){
+    for(;;) {
         u32 ts;
         u32 sn, len, una, conv;
         u16 wnd;
@@ -606,17 +606,17 @@ s32 CNetProtocal::import(const c8* data, long size){
 
         if(size < (s32) APP_NET_ENDIANOVERHEAD) break;
 
-        data = IUtility::decodeU32(data, &conv);
-        if(conv != mConnectionID){
+        data = utility::AppDecodeU32(data, &conv);
+        if(conv != mConnectionID) {
             return -1;
         }
-        data = IUtility::decodeU8(data, &cmd);
-        data = IUtility::decodeU8(data, &frg);
-        data = IUtility::decodeU16(data, &wnd);
-        data = IUtility::decodeU32(data, &ts);
-        data = IUtility::decodeU32(data, &sn);
-        data = IUtility::decodeU32(data, &una);
-        data = IUtility::decodeU32(data, &len);
+        data = utility::AppDecodeU8(data, &cmd);
+        data = utility::AppDecodeU8(data, &frg);
+        data = utility::AppDecodeU16(data, &wnd);
+        data = utility::AppDecodeU32(data, &ts);
+        data = utility::AppDecodeU32(data, &sn);
+        data = utility::AppDecodeU32(data, &una);
+        data = utility::AppDecodeU32(data, &len);
 
         size -= APP_NET_ENDIANOVERHEAD;
 
@@ -625,7 +625,7 @@ s32 CNetProtocal::import(const c8* data, long size){
         if(cmd != APP_NET_CMD_PUSH_DATA &&
             cmd != APP_NET_CMD_ACK &&
             cmd != APP_NET_CMD_ASK_WINDOW &&
-            cmd != APP_NET_CMD_TELL_WINDOW){
+            cmd != APP_NET_CMD_TELL_WINDOW) {
             return -3;
         }
 
@@ -633,27 +633,27 @@ s32 CNetProtocal::import(const c8* data, long size){
         parseUNA(una);
         shrinkBuffer();
 
-        if(cmd == APP_NET_CMD_ACK){
-            if((mTimeCurrent-ts) >= 0){
-                updateACK((mTimeCurrent- ts));
+        if(cmd == APP_NET_CMD_ACK) {
+            if((mTimeCurrent - ts) >= 0) {
+                updateACK((mTimeCurrent - ts));
             }
             parseACK(sn);
             shrinkBuffer();
-            if(flag == 0){
+            if(flag == 0) {
                 flag = 1;
                 maxack = sn;
-            } else{
-                if((sn- maxack) > 0){
+            } else {
+                if((sn - maxack) > 0) {
                     maxack = sn;
                 }
             }
             log(ENET_LOG_IN_DATA, "input ack: sn=%lu rtt=%ld rto=%ld", sn,
                 (long) (mTimeCurrent - ts), (long) mRTO);
-        } else if(cmd == APP_NET_CMD_PUSH_DATA){
+        } else if(cmd == APP_NET_CMD_PUSH_DATA) {
             log(ENET_LOG_IN_DATA, "input psh: sn=%lu ts=%lu", sn, ts);
-            if(AppValueDiff(sn, mReceiveNext + mMaxReceiveWindowSize) < 0){
+            if(AppValueDiff(sn, mReceiveNext + mMaxReceiveWindowSize) < 0) {
                 appendACK(sn, ts);
-                if((sn- mReceiveNext) >= 0){
+                if((sn - mReceiveNext) >= 0) {
                     //seg = createSegment(len);
                     node = createSegment(len);
                     seg = (SKCPSegment*) (node->getValue());
@@ -666,22 +666,22 @@ s32 CNetProtocal::import(const c8* data, long size){
                     seg->mUNA = una;
                     seg->mLength = len;
 
-                    if(len > 0){
+                    if(len > 0) {
                         memcpy(seg->mData, data, len);
                     }
 
                     parseSegment(node);
                 }
             }
-        } else if(cmd == APP_NET_CMD_ASK_WINDOW){
+        } else if(cmd == APP_NET_CMD_ASK_WINDOW) {
             // ready to send back APP_NET_CMD_TELL_WINDOW in flush
             // tell remote my window size
             mProbeFlag |= APP_NET_ENDIANASK_TELL;
             log(ENET_LOG_IN_PROBE, "input probe");
-        } else if(cmd == APP_NET_CMD_TELL_WINDOW){
+        } else if(cmd == APP_NET_CMD_TELL_WINDOW) {
             // do nothing
             log(ENET_LOG_IN_WINDOW, "input wins: %lu", (u32) (wnd));
-        } else{
+        } else {
             return -3;
         }
 
@@ -689,24 +689,24 @@ s32 CNetProtocal::import(const c8* data, long size){
         size -= len;
     } //for
 
-    if(flag != 0){
+    if(flag != 0) {
         parseFastACK(maxack);
     }
 
-    if(AppValueDiff(mSendUNA, una) > 0){
-        if(mWindowCongestion < mWindowRemote){
+    if(AppValueDiff(mSendUNA, una) > 0) {
+        if(mWindowCongestion < mWindowRemote) {
             u32 mss = mMSS;
-            if(mWindowCongestion < mSSThreshold){
+            if(mWindowCongestion < mSSThreshold) {
                 mWindowCongestion++;
                 mIncrease += mss;
-            } else{
+            } else {
                 if(mIncrease < mss) mIncrease = mss;
                 mIncrease += (mss * mss) / mIncrease + (mss / 16);
-                if((mWindowCongestion + 1) * mss <= mIncrease){
+                if((mWindowCongestion + 1) * mss <= mIncrease) {
                     mWindowCongestion++;
                 }
             }
-            if(mWindowCongestion > mWindowRemote){
+            if(mWindowCongestion > mWindowRemote) {
                 mWindowCongestion = mWindowRemote;
                 mIncrease = mWindowRemote * mss;
             }
@@ -718,28 +718,28 @@ s32 CNetProtocal::import(const c8* data, long size){
 
 
 
-c8* CNetProtocal::encodeSegment(c8 *ptr, const SKCPSegment *seg){
-    ptr = IUtility::encodeU32(seg->mConnectionID, ptr);
-    ptr = IUtility::encodeU8((u8) seg->mCMD, ptr);
-    ptr = IUtility::encodeU8((u8) seg->mFrag, ptr);
-    ptr = IUtility::encodeU16((u16) seg->mWindow, ptr);
-    ptr = IUtility::encodeU32(seg->mTime, ptr);
-    ptr = IUtility::encodeU32(seg->mSN, ptr);
-    ptr = IUtility::encodeU32(seg->mUNA, ptr);
-    ptr = IUtility::encodeU32(seg->mLength, ptr);
+c8* CNetProtocal::encodeSegment(c8 *ptr, const SKCPSegment *seg) {
+    ptr = utility::AppEncodeU32(seg->mConnectionID, ptr);
+    ptr = utility::AppEncodeU8((u8) seg->mCMD, ptr);
+    ptr = utility::AppEncodeU8((u8) seg->mFrag, ptr);
+    ptr = utility::AppEncodeU16((u16) seg->mWindow, ptr);
+    ptr = utility::AppEncodeU32(seg->mTime, ptr);
+    ptr = utility::AppEncodeU32(seg->mSN, ptr);
+    ptr = utility::AppEncodeU32(seg->mUNA, ptr);
+    ptr = utility::AppEncodeU32(seg->mLength, ptr);
     return ptr;
 }
 
 
-s32 CNetProtocal::getUnusedWindowCount(){
-    if(mReceiveQueueCount < mMaxReceiveWindowSize){
+s32 CNetProtocal::getUnusedWindowCount() {
+    if(mReceiveQueueCount < mMaxReceiveWindowSize) {
         return mMaxReceiveWindowSize - mReceiveQueueCount;
     }
     return 0;
 }
 
 
-void CNetProtocal::flush(){
+void CNetProtocal::flush() {
     u32 current = mTimeCurrent;
     c8* iBuffer = mBuffer;
     c8 *ptr = iBuffer;
@@ -751,7 +751,7 @@ void CNetProtocal::flush(){
     SKCPSegment seg;
 
     // 'update' haven't been called. 
-    if(mUpdated == 0){
+    if(mUpdated == 0) {
         return;
     }
     seg.mConnectionID = mConnectionID;
@@ -765,9 +765,9 @@ void CNetProtocal::flush(){
 
     // flush acknowledges
     count = mCountACK;
-    for(s32 i = 0; i < count; i++){
+    for(s32 i = 0; i < count; i++) {
         size = (s32) (ptr - iBuffer);
-        if(size + (s32) APP_NET_ENDIANOVERHEAD > (s32)mMTU){
+        if(size + (s32) APP_NET_ENDIANOVERHEAD > (s32)mMTU) {
             sendOut(iBuffer, size);
             ptr = iBuffer;
         }
@@ -778,12 +778,12 @@ void CNetProtocal::flush(){
     mCountACK = 0;
 
     // probe window size (if remote window size equals zero)
-    if(mWindowRemote == 0){
-        if(mTimeProbeWait == 0){
+    if(mWindowRemote == 0) {
+        if(mTimeProbeWait == 0) {
             mTimeProbeWait = APP_NET_PROBE_TIME;
             mTimeProbe = mTimeCurrent + mTimeProbeWait;
-        } else{
-            if(AppValueDiff(mTimeCurrent, mTimeProbe) >= 0){
+        } else {
+            if(AppValueDiff(mTimeCurrent, mTimeProbe) >= 0) {
                 if(mTimeProbeWait < APP_NET_PROBE_TIME)
                     mTimeProbeWait = APP_NET_PROBE_TIME;
                 mTimeProbeWait += mTimeProbeWait / 2;
@@ -793,16 +793,16 @@ void CNetProtocal::flush(){
                 mProbeFlag |= APP_NET_ENDIANASK_SEND;
             }
         }
-    } else{
+    } else {
         mTimeProbe = 0;
         mTimeProbeWait = 0;
     }
 
     // flush window probing commands
-    if(mProbeFlag & APP_NET_ENDIANASK_SEND){
+    if(mProbeFlag & APP_NET_ENDIANASK_SEND) {
         seg.mCMD = APP_NET_CMD_ASK_WINDOW;
         size = (s32) (ptr - iBuffer);
-        if(size + (s32) APP_NET_ENDIANOVERHEAD > (s32) mMTU){
+        if(size + (s32) APP_NET_ENDIANOVERHEAD > (s32) mMTU) {
             sendOut(iBuffer, size);
             ptr = iBuffer;
         }
@@ -810,10 +810,10 @@ void CNetProtocal::flush(){
     }//if
 
     // flush window probing commands
-    if(mProbeFlag & APP_NET_ENDIANASK_TELL){
+    if(mProbeFlag & APP_NET_ENDIANASK_TELL) {
         seg.mCMD = APP_NET_CMD_TELL_WINDOW;
         size = (s32) (ptr - iBuffer);
-        if(size + (s32) APP_NET_ENDIANOVERHEAD > (s32) mMTU){
+        if(size + (s32) APP_NET_ENDIANOVERHEAD > (s32) mMTU) {
             sendOut(iBuffer, size);
             ptr = iBuffer;
         }
@@ -825,15 +825,15 @@ void CNetProtocal::flush(){
     // calculate window size
     cwnd = core::min_<u32>(mMaxSendWindowSize, mWindowRemote);
 
-    if(mNoCongestionControl == 0){
+    if(mNoCongestionControl == 0) {
         cwnd = core::min_<u32>(mWindowCongestion, cwnd);
     }
 
     // move data from mQueueSend to mQueueSendBuffer
     CQueueNode* node;
     SKCPSegment *newseg;
-    while(AppValueDiff(mSendNext, mSendUNA + cwnd) < 0){
-        if(mQueueSend.isEmpty()){
+    while(AppValueDiff(mSendNext, mSendUNA + cwnd) < 0) {
+        if(mQueueSend.isEmpty()) {
             break;
         }
         node = mQueueSend.getNext();
@@ -861,26 +861,26 @@ void CNetProtocal::flush(){
 
     // flush data segments
     SKCPSegment *segment;
-    for(CQueueNode* p = mQueueSendBuffer.getNext(); p != &mQueueSendBuffer; p = p->getNext()){
+    for(CQueueNode* p = mQueueSendBuffer.getNext(); p != &mQueueSendBuffer; p = p->getNext()) {
         segment = (SKCPSegment*) (p->getValue());
         s32 needsend = 0;
-        if(segment->mXMIT == 0){
+        if(segment->mXMIT == 0) {
             needsend = 1;
             segment->mXMIT++;
             segment->mRTO = mRTO;
             segment->mResendTime = current + segment->mRTO + rtomin;
-        } else if(AppValueDiff(current, segment->mResendTime) >= 0){
+        } else if(AppValueDiff(current, segment->mResendTime) >= 0) {
             needsend = 1;
             segment->mXMIT++;
             mXMIT++;
-            if(mNodelay == 0){
+            if(mNodelay == 0) {
                 segment->mRTO += mRTO;
-            } else{
+            } else {
                 segment->mRTO += mRTO / 2;
             }
             segment->mResendTime = current + segment->mRTO;
             lost = 1;
-        } else if(segment->mFastACK >= resent){
+        } else if(segment->mFastACK >= resent) {
             needsend = 1;
             segment->mXMIT++;
             segment->mFastACK = 0;
@@ -888,7 +888,7 @@ void CNetProtocal::flush(){
             change++;
         }
 
-        if(needsend){
+        if(needsend) {
             s32 size, need;
             segment->mTime = current;
             segment->mWindow = seg.mWindow;
@@ -897,19 +897,19 @@ void CNetProtocal::flush(){
             size = (s32) (ptr - iBuffer);
             need = APP_NET_ENDIANOVERHEAD + segment->mLength;
 
-            if(size + need > (s32) mMTU){
+            if(size + need > (s32) mMTU) {
                 sendOut(iBuffer, size);
                 ptr = iBuffer;
             }
 
             ptr = encodeSegment(ptr, segment);
 
-            if(segment->mLength > 0){
+            if(segment->mLength > 0) {
                 memcpy(ptr, segment->mData, segment->mLength);
                 ptr += segment->mLength;
             }
 
-            if(segment->mXMIT >= mDeadLink){
+            if(segment->mXMIT >= mDeadLink) {
                 mState = -1;
             }
         }
@@ -917,12 +917,12 @@ void CNetProtocal::flush(){
 
     // flash remain segments
     size = (s32) (ptr - iBuffer);
-    if(size > 0){
+    if(size > 0) {
         sendOut(iBuffer, size);
     }
 
     // update ssthresh
-    if(change){
+    if(change) {
         u32 inflight = mSendNext - mSendUNA;
         mSSThreshold = inflight / 2;
         if(mSSThreshold < APP_NET_MIN_SSTHRESHOLD)
@@ -931,7 +931,7 @@ void CNetProtocal::flush(){
         mIncrease = mWindowCongestion * mMSS;
     }
 
-    if(lost){
+    if(lost) {
         mSSThreshold = cwnd / 2;
         if(mSSThreshold < APP_NET_MIN_SSTHRESHOLD)
             mSSThreshold = APP_NET_MIN_SSTHRESHOLD;
@@ -939,22 +939,22 @@ void CNetProtocal::flush(){
         mIncrease = mMSS;
     }
 
-    if(mWindowCongestion < 1){
+    if(mWindowCongestion < 1) {
         mWindowCongestion = 1;
         mIncrease = mMSS;
     }
 }
 
 
-void CNetProtocal::update(u64 current){
+void CNetProtocal::update(u64 current) {
     mTimeCurrent = current;
-    if(mUpdated == 0){
+    if(mUpdated == 0) {
         mUpdated = 1;
     }
     if(mTimeCurrent <= mTimeFlush) {
         return;
     }
-    if((mTimeCurrent - mTimeFlush) >= 10000){
+    if((mTimeCurrent - mTimeFlush) >= 10000) {
         mTimeFlush = mTimeCurrent;
     } else {
         mTimeFlush = mTimeCurrent + mInterval;
@@ -964,8 +964,8 @@ void CNetProtocal::update(u64 current){
 }
 
 
-u64 CNetProtocal::check(u64 current){
-    if(mUpdated == 0){
+u64 CNetProtocal::check(u64 current) {
+    if(mUpdated == 0) {
         return current;
     }
     u64 ts_flush = mTimeFlush;
@@ -974,20 +974,20 @@ u64 CNetProtocal::check(u64 current){
     u32 minimal = 0;
 
     if(AppValueDiff(current, ts_flush) >= 10000 ||
-        AppValueDiff(current, ts_flush) < -10000){
+        AppValueDiff(current, ts_flush) < -10000) {
         ts_flush = current;
     }
 
-    if(AppValueDiff(current, ts_flush) >= 0){
+    if(AppValueDiff(current, ts_flush) >= 0) {
         return current;
     }
 
     tm_flush = AppValueDiff(ts_flush, current);
 
-    for(CQueueNode* p = mQueueSendBuffer.getNext(); p != &mQueueSendBuffer; p = p->getNext()){
+    for(CQueueNode* p = mQueueSendBuffer.getNext(); p != &mQueueSendBuffer; p = p->getNext()) {
         const SKCPSegment* seg = (SKCPSegment*) (p->getValue());
         s32 diff = AppValueDiff(seg->mResendTime, current);
-        if(diff <= 0){
+        if(diff <= 0) {
             return current;
         }
         if(diff < tm_packet) tm_packet = diff;
@@ -1001,14 +1001,14 @@ u64 CNetProtocal::check(u64 current){
 }
 
 
-s32 CNetProtocal::setMTU(s32 iMTU){
-    if(iMTU < sizeof(SKCPSegment) || iMTU < (s32) APP_NET_ENDIANOVERHEAD){
+s32 CNetProtocal::setMTU(s32 iMTU) {
+    if(iMTU < sizeof(SKCPSegment) || iMTU < (s32) APP_NET_ENDIANOVERHEAD) {
         return -1;
     }
 
     c8* iBuffer = (c8*) allocateMemory((iMTU + APP_NET_ENDIANOVERHEAD) * 3);
 
-    if(!iBuffer){
+    if(!iBuffer) {
         return -2;
     }
 
@@ -1020,34 +1020,34 @@ s32 CNetProtocal::setMTU(s32 iMTU){
 }
 
 
-void CNetProtocal::setInterval(s32 interval){
-    if(interval > 5000){
+void CNetProtocal::setInterval(s32 interval) {
+    if(interval > 5000) {
         interval = 5000;
-    } else if(interval < 10){
+    } else if(interval < 10) {
         interval = 10;
     }
     mInterval = interval;
 }
 
 
-s32 CNetProtocal::setNodelay(s32 nodelay, s32 interval, s32 resend, s32 nc){
+s32 CNetProtocal::setNodelay(s32 nodelay, s32 interval, s32 resend, s32 nc) {
     setInterval(interval);
 
-    if(nodelay >= 0){
+    if(nodelay >= 0) {
         mNodelay = nodelay;
-        if(nodelay){
+        if(nodelay) {
             mMinRTO = APP_NET_NODELAY_MIN_RTO;
-        } else{
+        } else {
             mMinRTO = APP_NET_NORMAL_MIN_RTO;
         }
     }
 
 
-    if(resend >= 0){
+    if(resend >= 0) {
         mFastResend = resend;
     }
 
-    if(nc >= 0){
+    if(nc >= 0) {
         mNoCongestionControl = nc;
     }
 
@@ -1055,17 +1055,17 @@ s32 CNetProtocal::setNodelay(s32 nodelay, s32 interval, s32 resend, s32 nc){
 }
 
 
-void CNetProtocal::setMaxWindowSize(s32 iSendWindow, s32 iReceiveWindow){
-    if(iSendWindow > 0){
+void CNetProtocal::setMaxWindowSize(s32 iSendWindow, s32 iReceiveWindow) {
+    if(iSendWindow > 0) {
         mMaxSendWindowSize = iSendWindow;
     }
-    if(iReceiveWindow > 0){
+    if(iReceiveWindow > 0) {
         mMaxReceiveWindowSize = iReceiveWindow;
     }
 }
 
 
-s32 CNetProtocal::getWaitSendCount(){
+s32 CNetProtocal::getWaitSendCount() {
     return mSendBufferCount + mSendQueueCount;
 }
 

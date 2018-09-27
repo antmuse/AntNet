@@ -12,22 +12,19 @@
 #include "IAntLogReceiver.h"
 
 
-#ifdef APP_COMPILE_WITH_CONSOLE_LOG_RECEIVER
 
 namespace irr {
 
 class CConsoleLogReceiver : public IAntLogReceiver {
 public:
-	CConsoleLogReceiver();
-	~CConsoleLogReceiver();
-	virtual bool log(ELogLevel iLevel, const c8* iSender, const c8* iMessage);
-	virtual bool log(ELogLevel iLevel, const wchar_t* iSender, const wchar_t* iMessage);
+    CConsoleLogReceiver();
+    ~CConsoleLogReceiver();
+    virtual bool log(ELogLevel iLevel, const c8* iSender, const c8* iMessage)override;
+    virtual bool log(ELogLevel iLevel, const wchar_t* iSender, const wchar_t* iMessage)override;
 };
 
 
 }//namespace irr 
-
-#endif //APP_COMPILE_WITH_CONSOLE_LOG_RECEIVER
 
 #endif	/* ANTMUSE_CCONSOLELOGRECEIVER_H */
 

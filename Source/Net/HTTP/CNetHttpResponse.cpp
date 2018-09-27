@@ -57,7 +57,7 @@ const c8* CNetHttpResponse::import(const c8* iBuffer, u32 size) {
             if(0 == mChunkSize) {
                 mReadHead = true;
                 mPageFull = true;
-                iStart = IUtility::goNextLine(iStart, iEnd);
+                iStart = utility::AppGoNextLine(iStart, iEnd);
                 continue;
             }
         }
@@ -74,7 +74,7 @@ const c8* CNetHttpResponse::import(const c8* iBuffer, u32 size) {
             }
 
             if(mReadedSize == mPageSize) {
-                iStart = IUtility::goNextLine(iStart, iEnd);
+                iStart = utility::AppGoNextLine(iStart, iEnd);
                 if(isByChunk()) {
                     mReadChunk = true;
                 } else {
@@ -116,8 +116,8 @@ void CNetHttpResponse::writePage(const c8* iBuffer, u32 size) {
 
 
 const c8* CNetHttpResponse::goValue(const c8* iStart, const c8* const iEnd) {
-    iStart = 1 + IUtility::goNextFlag(iStart, iEnd, ':');
-    return IUtility::goFirstWord(iStart, iEnd, false);
+    iStart = 1 + utility::AppGoNextFlag(iStart, iEnd, ':');
+    return utility::AppGoFirstWord(iStart, iEnd, false);
 }
 
 
@@ -125,13 +125,13 @@ const c8* CNetHttpResponse::parseChuck(const c8* iStart, const c8* const iEnd) {
     if(mChunked) {
         if(iEnd - iStart <= 2) return 0;
 
-        const c8* pos = IUtility::goNextLine(iStart, iEnd) - 1;
+        const c8* pos = utility::AppGoNextLine(iStart, iEnd) - 1;
 
         if(*pos != '\n') return 0;
 
         mChunkSize = core::strtoul16(iStart, &iStart);
         mPageSize += mChunkSize;
-        iStart = IUtility::goNextLine(iStart, iEnd);
+        iStart = utility::AppGoNextLine(iStart, iEnd);
 
         //mChunked = (0 != mPageSize);
     }
@@ -145,45 +145,45 @@ const c8* CNetHttpResponse::parseHeadInner(const c8* iStart, const c8* const iEn
     const c8* npos;
     const c8* linetail;
     for(; iStart < iEnd; iStart = linetail + 1) {
-        linetail = IUtility::goNextLine(iStart, iEnd) - 1;
+        linetail = utility::AppGoNextLine(iStart, iEnd) - 1;
         switch(*iStart) {
         case 'H':
             if(*(iStart + 1) == 'T') {//HTTP/1.1 200
-                npos = 1 + IUtility::goNextFlag(iStart, linetail, '/');
-                iStart = IUtility::goNextFlag(npos, linetail, ' ');
+                npos = 1 + utility::AppGoNextFlag(iStart, linetail, '/');
+                iStart = utility::AppGoNextFlag(npos, linetail, ' ');
                 mHttpVersion = core::stringc(npos, u32(iStart - npos));
 
-                iStart = IUtility::goFirstWord(iStart, linetail, false);
+                iStart = utility::AppGoFirstWord(iStart, linetail, false);
                 mStatusCode = (EHttpStatus) core::strtoul10(iStart, &iStart);
             }
             break;
 
         case 'c':
         case 'C':
-            if(IUtility::isChar(*(iStart + 1), 'o')) {
-                if(IUtility::isChar(*(iStart + 3), 'n')) {//Connection: close
+            if(utility::AppCharEquals(*(iStart + 1), 'o')) {
+                if(utility::AppCharEquals(*(iStart + 3), 'n')) {//Connection: close
                     iStart = goValue(iStart, linetail);
-                    mKeepAlive = IUtility::isChar(*(iStart), 'k');
-                } else if(IUtility::isChar(*(iStart + 8), 't')) {//Content-Type
+                    mKeepAlive = utility::AppCharEquals(*(iStart), 'k');
+                } else if(utility::AppCharEquals(*(iStart + 8), 't')) {//Content-Type
                     npos = goValue(iStart, linetail);
-                    iStart = IUtility::goNextFlag(npos, linetail, '\r');
+                    iStart = utility::AppGoNextFlag(npos, linetail, '\r');
                     core::stringc node(npos, u32(iStart - npos));
                     mHead.setValue(EHHID_CONTENT_TYPE, node);
-                } else if(IUtility::isChar(*(iStart + 8), 'm')) {//Content-MD5: base64
+                } else if(utility::AppCharEquals(*(iStart + 8), 'm')) {//Content-MD5: base64
                     iStart = goValue(iStart, linetail);
-                } else if(IUtility::isChar(*(iStart + 8), 'r')) {//Content-Range: 
+                } else if(utility::AppCharEquals(*(iStart + 8), 'r')) {//Content-Range: 
                     iStart = goValue(iStart, linetail);
-                } else if(IUtility::isChar(*(iStart + 8), 'e')) {//Content-Encoding: 
+                } else if(utility::AppCharEquals(*(iStart + 8), 'e')) {//Content-Encoding: 
                     iStart = goValue(iStart, linetail);
-                } else if(IUtility::isChar(*(iStart + 9), 'e')) {//Content-Length:
+                } else if(utility::AppCharEquals(*(iStart + 9), 'e')) {//Content-Length:
                     if(!mChunked) {//有了Transfer-Encoding，则不能有Content-Length
                         iStart = goValue(iStart, linetail);
                         mPageSize = core::strtol10(iStart, &iStart);
                     }
-                } else if(IUtility::isChar(*(iStart + 9), 'o')) {//Content-Location:
+                } else if(utility::AppCharEquals(*(iStart + 9), 'o')) {//Content-Location:
                     iStart = goValue(iStart, linetail);
                 }
-            } else if(IUtility::isChar(*(iStart + 1), 'a')) {//Cache-Control: no-store
+            } else if(utility::AppCharEquals(*(iStart + 1), 'a')) {//Cache-Control: no-store
                 iStart = goValue(iStart, linetail);
             }
             break;
@@ -191,36 +191,36 @@ const c8* CNetHttpResponse::parseHeadInner(const c8* iStart, const c8* const iEn
 
         case 'l':
         case 'L':
-            if(IUtility::isChar(*(iStart + 1), 'o')) {//Location:
+            if(utility::AppCharEquals(*(iStart + 1), 'o')) {//Location:
                 npos = goValue(iStart, linetail);
-                iStart = IUtility::goNextFlag(npos, linetail, '\r');
+                iStart = utility::AppGoNextFlag(npos, linetail, '\r');
                 core::stringc node(npos, u32(iStart - npos));
                 mHead.setValue(EHHID_LOCATION, node);
-            } else if(IUtility::isChar(*(iStart + 1), 'a')) {//Last-Modified:
+            } else if(utility::AppCharEquals(*(iStart + 1), 'a')) {//Last-Modified:
                 iStart = goValue(iStart, linetail);
             }
             break;
 
         case 't':
-        case 'T': 
-            if(IUtility::isChar(*(iStart + 3), 'n')) {//Transfer-Encoding: chunked
+        case 'T':
+            if(utility::AppCharEquals(*(iStart + 3), 'n')) {//Transfer-Encoding: chunked
                 iStart = goValue(iStart, linetail);
-                mChunked = IUtility::isChar(*(iStart), 'c');
-            } else if(IUtility::isChar(*(iStart + 3), 'i')) {//Trailer: Max-Forwards
+                mChunked = utility::AppCharEquals(*(iStart), 'c');
+            } else if(utility::AppCharEquals(*(iStart + 3), 'i')) {//Trailer: Max-Forwards
                 iStart = goValue(iStart, linetail);
             }
             break;
 
         case 's':
         case 'S':
-            if(IUtility::isChar(*(iStart + 1), 'e')) {
-                if(IUtility::isChar(*(iStart + 2), 'r')) {//Server
+            if(utility::AppCharEquals(*(iStart + 1), 'e')) {
+                if(utility::AppCharEquals(*(iStart + 2), 'r')) {//Server
                     iStart = goValue(iStart, linetail);
                     npos = iStart;
-                    iStart = IUtility::goNextFlag(iStart, linetail, '\r');
+                    iStart = utility::AppGoNextFlag(iStart, linetail, '\r');
                     core::stringc val(npos, u32(iStart - npos));
                     mHead.setValue(EHRID_SERVER, val);
-                } else if(IUtility::isChar(*(iStart + 2), 't')) {//Set-Cookie: path=/
+                } else if(utility::AppCharEquals(*(iStart + 2), 't')) {//Set-Cookie: path=/
                     iStart = goValue(iStart, linetail);
                 }
             }
@@ -229,10 +229,10 @@ const c8* CNetHttpResponse::parseHeadInner(const c8* iStart, const c8* const iEn
         case 'x':
         case 'X':
             if(*(iStart + 1) == '-') {
-                if(IUtility::isChar(*(iStart + 2), 'p')) {//X-Powered-By
+                if(utility::AppCharEquals(*(iStart + 2), 'p')) {//X-Powered-By
                     iStart = goValue(iStart, linetail);
                     npos = iStart;
-                    iStart = IUtility::goNextFlag(iStart, linetail, '\r');
+                    iStart = utility::AppGoNextFlag(iStart, linetail, '\r');
                     u32 xsize = u32(iStart - npos);
                     const core::stringc* oldval = mHead.getValue(EHRID_X_POWERED_BY);
                     if(oldval) {
@@ -246,13 +246,13 @@ const c8* CNetHttpResponse::parseHeadInner(const c8* iStart, const c8* const iEn
                         core::stringc val(npos, xsize);
                         mHead.setValue(EHRID_X_POWERED_BY, val);
                     }
-                }else if(IUtility::isChar(*(iStart + 2), 'c')) {//X-Cache: MISS from squid27
+                } else if(utility::AppCharEquals(*(iStart + 2), 'c')) {//X-Cache: MISS from squid27
                     iStart = goValue(iStart, linetail);
                 }
             }
             break;
 
-            
+
         case 'W': //Warning:
                   //WWW-Authenticate:
         case 'R': //Retry-After:

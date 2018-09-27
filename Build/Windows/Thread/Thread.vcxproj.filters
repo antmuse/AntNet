@@ -19,9 +19,6 @@
     <Filter Include="Source\Thread">
       <UniqueIdentifier>{65029b2f-ffea-4a8f-9f80-92dd5d839fce}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Include\Public">
-      <UniqueIdentifier>{541dd53a-926a-4017-86b9-205ec82645d1}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />

@@ -103,10 +103,10 @@ bool CNetHttpURL::set(const core::stringc& it) {
 
     bool full_url = false;
     if(':' == url[4] && '/' == url[5] && '/' == url[6]) {//http://
-        IUtility::toLower(&url[0], 4);
+        utility::AppToLower(&url[0], 4);
         full_url = true;
     } else if(':' == url[5] && '/' == url[6] && '/' == url[7]) {//https://
-        IUtility::toLower(&url[0], 5);
+        utility::AppToLower(&url[0], 5);
         full_url = true;
     }
 
@@ -187,7 +187,7 @@ bool CNetHttpURL::isSameHost(const core::stringc& host1, const core::stringc& ho
         if(extsz1 != extsz2) {
             return false;
         }
-        if(!IUtility::equalsn(host1.c_str() + pos1 + 1, host2.c_str() + pos2 + 1, extsz1)) {
+        if(0 != memcmp(host1.c_str() + pos1 + 1, host2.c_str() + pos2 + 1, extsz1)) {
             return false;
         }
         if(0 == count) {
@@ -219,14 +219,14 @@ bool CNetHttpURL::isPublicExt(const c8* host, s32 size) {
     switch(size) {
     case 3:
         for(u32 i = 0; ext3[i]; ++i) {
-            if(IUtility::equalsn(ext3[i], host, size)) {
+            if(0 == memcmp(ext3[i], host, size)) {
                 return true;
             }
         }
         break;
     case 2:
         for(u32 i = 0; ext2[i]; ++i) {
-            if(IUtility::equalsn(ext2[i], host, size)) {
+            if(0 == memcmp(ext2[i], host, size)) {
                 return true;
             }
         }

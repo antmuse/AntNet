@@ -3,7 +3,7 @@
 #include "CMutex.h"
 #include "IAppLogger.h"
 #include "CConsoleLogReceiver.h"
-//#include "CFileLogReceiver.h"
+#include "CFileLogReceiver.h"
 
 namespace irr {
 
@@ -22,14 +22,6 @@ ELogLevel IAppLogger::mMinLogLevel = ELOG_INFO;
 
 IAppLogger::IAppLogger() {
     //IAppLogger::mMinLogLevel = ELOG_DEBUG;
-
-#ifdef APP_COMPILE_WITH_CONSOLE_LOG_RECEIVER
-    IAppLogger::add(new CConsoleLogReceiver());
-#endif
-
-#ifdef APP_COMPILE_WITH_FILE_LOG_RECEIVER
-    IAppLogger::add(new CFileLogReceiver());
-#endif
 }
 
 
@@ -43,6 +35,17 @@ IAppLogger& IAppLogger::getInstance() {
     return it;
 }
 
+void IAppLogger::addReceiver(u32 flag) {
+    if(IAppLogger::ELRT_CONSOLE & flag) {
+        IAppLogger::add(new CConsoleLogReceiver());
+    }
+    if(IAppLogger::ELRT_FILE_TEXT & flag) {
+        //IAppLogger::add(new CConsoleLogReceiver()); //TODO
+    }
+    if(IAppLogger::ELRT_FILE_HTML & flag) {
+        IAppLogger::add(new CFileLogReceiver());
+    }
+}
 
 void IAppLogger::log(ELogLevel iLevel, const wchar_t* iSender, const wchar_t* iMsg, ...) {
     if(iLevel >= mMinLogLevel) {

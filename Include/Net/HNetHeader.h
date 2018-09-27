@@ -8,11 +8,19 @@
 namespace irr {
 namespace net {
 
+#pragma pack(1)
+
 struct SHeadIP {
     enum EFlag {
         EFLAG_MORE_FRAG = 0x1,  //more fragment
         EFLAG_NO_FRAG = 0x2,    //don't fragment
         EFLAG_R = 0x4,          //abandon
+    };
+    //@see SHeadIP::mProtocol
+    enum EProtocalType {
+        EPT_ICMP = 1,
+        EPT_TCP = 6,
+        EPT_UDP = 17
     };
     u8  mVerAndSize;        // 四位IP版本号，四位首部长度
     u8  mType;              // 服务类型
@@ -122,14 +130,12 @@ struct SHeadICMP {
     u32 mTimestamp;            //时间戳
 };
 
-#pragma pack(1)
 struct SHeadOptionIP {
     u8 mType;           // 选项类型
     u8 mSize;           //选项头的长度
     u8 mOffset;         //地址偏移量 
     u32 mAddress[9];    // IP地址列表
 };
-#pragma pack()
 
 struct SFakeHeadTCP {
     u32 mLocalIP;        //源地址
@@ -325,6 +331,7 @@ struct SNetPackARP {
     SHeadARP mARP;
 };
 
+#pragma pack()
 
 }//namespace net
 }//namespace irr

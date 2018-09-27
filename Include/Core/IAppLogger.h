@@ -41,7 +41,17 @@ class IAntLogReceiver;
  */
 class IAppLogger {
 public:
+    enum ELoggerRecieverType {
+        ELRT_CONSOLE = 1,
+        ELRT_FILE_TEXT = 2,
+        ELRT_FILE_HTML = 4,
+        ELRT_MAX = 8
+    };
+
+
     static IAppLogger& getInstance();
+
+    static void addReceiver(u32 flag);
 
     static void log(ELogLevel iLevel, const wchar_t* iSender, const wchar_t* iMsg, ...);
 
@@ -83,7 +93,9 @@ public:
     static void logDebug(const c8* sender, const c8 *msg, ...);
 
     //! Returns the minimum log level that will be sent to the log receivers.
-    static const ELogLevel getLogLevel();
+    static const ELogLevel getLogLevel(){
+        return mMinLogLevel;
+    }
 
     //! Sets the minimum log level that the engine will send to log receivers.
     /** Primarily used to prevent too much verbose information from being sent to disk/console.

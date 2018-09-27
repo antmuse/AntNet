@@ -58,7 +58,7 @@ bool CNetClientTCP::update(u64 iTime) {
             mPacket.setUsed(psize);
             if(0 == mPacketSize) {
                 if(psize >= APP_NET_PACKET_HEAD_SIZE) {
-                    IUtility::decodeU32(mPacket.getPointer(), &mPacketSize);
+                    utility::AppDecodeU32(mPacket.getPointer(), &mPacketSize);
                     mPacket.setUsed(0);
                     mPacketSize -= APP_NET_PACKET_HEAD_SIZE;
                     mPacket.reallocate(mPacketSize);
@@ -152,7 +152,7 @@ void CNetClientTCP::sendTick() {
     if(mStream.isEmpty()) {
         const u32 psize = sizeof(u32) + 1;
         c8 msg[psize];
-        IUtility::encodeU32(psize, msg);
+        utility::AppEncodeU32(psize, msg);
         msg[psize - 1] = ENM_HELLO;
         mStream.write(msg, psize);
     } else {
@@ -306,7 +306,7 @@ s32 CNetClientTCP::sendData(const c8* iData, s32 iLength) {
         }
     }
 
-    IUtility::encodeU32(psize, (c8*) &psize);
+    utility::AppEncodeU32(psize, (c8*) &psize);
     mStream.write((c8*) &psize, sizeof(psize), false, false);
     return mStream.write(iData, iLength, false, true);
 }

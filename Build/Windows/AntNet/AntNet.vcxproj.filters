@@ -16,17 +16,8 @@
     <Filter Include="Include\Net">
       <UniqueIdentifier>{0c19c623-2304-4bfc-af10-afe8ba6000cc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Include\Public">
-      <UniqueIdentifier>{72572b08-13f4-437c-b2a4-c0e67229e483}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Net">
       <UniqueIdentifier>{98488cf7-ef5f-4bf3-9510-174e175d937e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Include\Thread">
-      <UniqueIdentifier>{1b2e1017-3d6b-42e8-bce6-d23e7ba91dbe}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Public">
-      <UniqueIdentifier>{aa95cccc-bf33-4e93-a0a6-c97bd43b1ff7}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Net\HTTP">
       <UniqueIdentifier>{0c0fb9e4-78ad-4a62-aafc-c5a2d630736c}</UniqueIdentifier>
@@ -36,6 +27,9 @@
     </Filter>
     <Filter Include="Source\Net\RawSocket">
       <UniqueIdentifier>{8f88d2fc-ef1a-45cb-9ad8-c3537ec4de9e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Core">
+      <UniqueIdentifier>{da405b80-8dbd-4805-9989-b71bc3fb324f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -54,18 +48,6 @@
     <ClInclude Include="..\..\..\Include\HConfig.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Include\Thread\CMutex.h">
-      <Filter>Include\Thread</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Thread\CThread.h">
-      <Filter>Include\Thread</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Thread\CThreadEvent.h">
-      <Filter>Include\Thread</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Thread\CThreadPool.h">
-      <Filter>Include\Thread</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Include\Net\CNetClientUDP.h">
       <Filter>Include\Net</Filter>
     </ClInclude>
@@ -74,9 +56,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Include\Net\CNetUtility.h">
       <Filter>Include\Net</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Thread\IRunnable.h">
-      <Filter>Include\Thread</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Include\Net\CNetManager.h">
       <Filter>Include\Net</Filter>
@@ -101,48 +80,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Include\irrTypes.h">
       <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Public\CQueueRing.h">
-      <Filter>Include\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Public\CStreamFile.h">
-      <Filter>Include\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Public\fast_atof.h">
-      <Filter>Include\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Public\heapsort.h">
-      <Filter>Include\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Public\IAppLogger.h">
-      <Filter>Include\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Public\IPairOrderID.h">
-      <Filter>Include\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Public\IReferenceCounted.h">
-      <Filter>Include\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Public\irrAllocator.h">
-      <Filter>Include\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Public\irrArray.h">
-      <Filter>Include\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Public\irrList.h">
-      <Filter>Include\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Public\irrMap.h">
-      <Filter>Include\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Public\irrMath.h">
-      <Filter>Include\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Public\irrString.h">
-      <Filter>Include\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Public\IUtility.h">
-      <Filter>Include\Public</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Include\Net\CNetPacket.h">
       <Filter>Include\Net</Filter>
@@ -195,44 +132,11 @@
     <ClInclude Include="..\..\..\Include\Net\INetSession.h">
       <Filter>Include\Net</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Include\Public\coreutil.h">
-      <Filter>Include\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Public\CQueueNode.h">
-      <Filter>Include\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Public\IAppTimer.h">
-      <Filter>Include\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Public\INoCopy.h">
-      <Filter>Include\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Public\path.h">
-      <Filter>Include\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Public\CTimeoutManager.h">
-      <Filter>Include\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Public\CTimerWheel.h">
-      <Filter>Include\Public</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Include\Net\SClientContext.h">
       <Filter>Include\Net</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Include\Net\CNetAddress.h">
       <Filter>Include\Net</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Public\CConsoleLogReceiver.h">
-      <Filter>Include\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Public\HEngineLog.h">
-      <Filter>Include\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Public\IAntLogReceiver.h">
-      <Filter>Include\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Public\IBigInteger.h">
-      <Filter>Include\Public</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -260,23 +164,8 @@
     <ClCompile Include="..\..\..\Source\Net\CNetProtocal.cpp">
       <Filter>Source\Net</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\Public\CStreamFile.cpp">
-      <Filter>Source\Public</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Source\Public\IAppLogger.cpp">
-      <Filter>Source\Public</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Source\Public\IUtility.cpp">
-      <Filter>Source\Public</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\Source\Net\CNetPacket.cpp">
       <Filter>Source\Net</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Source\Public\IAppTimer.cpp">
-      <Filter>Source\Public</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Source\Public\CQueueNode.cpp">
-      <Filter>Source\Public</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Source\Net\CBase64Coder.cpp">
       <Filter>Source\Net</Filter>
@@ -341,20 +230,38 @@
     <ClCompile Include="..\..\..\Source\Net\CCheckCRC32.cpp">
       <Filter>Source\Net</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\Public\CTimeoutManager.cpp">
-      <Filter>Source\Public</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Source\Public\CTimerWheel.cpp">
-      <Filter>Source\Public</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\Source\Net\CNetAddress.cpp">
       <Filter>Source\Net</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\Public\CConsoleLogReceiver.cpp">
-      <Filter>Source\Public</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\Source\Net\HNetConfig.cpp">
       <Filter>Source\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Core\CConsoleLogReceiver.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Core\CFileLogReceiver.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Core\CQueueNode.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Core\CStreamFile.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Core\CTimeoutManager.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Core\CTimerWheel.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Core\IAppLogger.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Core\IAppTimer.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Core\IUtility.cpp">
+      <Filter>Source\Core</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

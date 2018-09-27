@@ -1,12 +1,10 @@
 #include "IUtility.h"
-#include "irrMath.h"
-#include "fast_atof.h"
-#include "coreutil.h"
+#include <stdio.h>
+//#include "irrMath.h"
 
-
+/*
 #if defined(APP_PLATFORM_WINDOWS) && defined(_MSC_VER) && (_MSC_VER > 1298)
-//#include <stdio.h>
-//#include <stdlib.h>
+#include <stdlib.h>
 #define bswap_16(X) _byteswap_ushort(X)
 #define bswap_32(X) _byteswap_ulong(X)
 #define bswap_64(X) _byteswap_uint64(X)
@@ -20,6 +18,7 @@
                     | (((X)&0x0000000000FF0000ULL)<<24) | (((X)&0x0000FF0000000000ULL)>>24)  \
                     | (((X)&0x00000000FF000000ULL)<< 8) | (((X)&0x000000FF00000000ULL)>> 8))
 #endif
+*/
 
 
 #ifdef APP_PLATFORM_WINDOWS
@@ -43,76 +42,9 @@
 #endif
 
 namespace irr {
+namespace utility {
 
-
-IUtility& IUtility::getInstance() {
-    static IUtility it;
-    return it;
-}
-
-
-IUtility::IUtility() {
-}
-
-
-IUtility::~IUtility() {
-}
-
-u16 IUtility::swapByte(u16 num) {
-    return bswap_16(num);
-}
-
-
-s16 IUtility::swapByte(s16 num) {
-    return bswap_16(num);
-}
-
-
-u32 IUtility::swapByte(u32 num) {
-    return bswap_32(num);
-}
-
-
-s32 IUtility::swapByte(s32 num) {
-    return bswap_32(num);
-}
-
-
-f32 IUtility::swapByte(f32 num) {
-    u32 tmp = IR(num);
-    tmp = bswap_32(tmp);
-    return (FR(tmp));
-}
-
-
-s64 IUtility::swapByte(s64 num) {
-    return bswap_64(num);
-}
-
-u64 IUtility::swapByte(u64 num) {
-    return bswap_64(num);
-}
-
-// prevent accidental byte swapping of chars
-APP_FORCE_INLINE u8  IUtility::swapByte(u8 num) {
-    return num;
-}
-
-
-// prevent accidental byte swapping of chars
-APP_FORCE_INLINE s8  IUtility::swapByte(s8 num) {
-    return num;
-}
-
-
-bool IUtility::isSmallEndian() {
-    u16 it = 0xFF00;
-    u8* c = (u8*) (&it);
-    return ((c[0] == 0x00) && (c[1] == 0xFF));
-}
-
-
-u32 IUtility::convertToHexString(const u8* iData, u32 iDataSize, c8* iResult, u32 iSize) {
+u32 AppConvertToHexString(const u8* iData, u32 iDataSize, c8* iResult, u32 iSize) {
     if(iSize < iDataSize * 2 + 1) {
         return 0;
     }
@@ -125,20 +57,20 @@ u32 IUtility::convertToHexString(const u8* iData, u32 iDataSize, c8* iResult, u3
 }
 
 
-u32 IUtility::convertToU8(const c8* iData, u32 iDataSize, u8* iResult, u32 iSize) {
+u32 AppConvertToU8(const c8* iData, u32 iDataSize, u8* iResult, u32 iSize) {
     if(iDataSize > iSize * 2) {
         iDataSize = iSize * 2;
     }
     for(u32 i = 0; i < iDataSize; i += 2) {
-        u8 a = convertToU8(*iData++);
-        u8 b = convertToU8(*iData++);
+        u8 a = AppConvertToU8(*iData++);
+        u8 b = AppConvertToU8(*iData++);
         *iResult++ = a << 4 | b;
     }
-    return iDataSize / 2;
+    return iDataSize >> 1;
 }
 
 
-void IUtility::printToHexString(const void* iData, u32 iSize) {
+void AppPrintToHexString(const void* iData, u32 iSize) {
     const u8* buffer = (const u8*) iData;
     for(u32 i = 0; i < iSize; ++i) {
         printf("%02X", buffer[i]);
@@ -146,7 +78,7 @@ void IUtility::printToHexString(const void* iData, u32 iSize) {
 }
 
 
-void IUtility::printToHexText(const void* buffer, u32 len) {
+void AppPrintToHexText(const void* buffer, u32 len) {
     printf("////////////////////////////////////////////////////////////////////////////////////\n");
     const u32 max = 88;
     const c8* const buf = (const c8*) buffer;
@@ -183,10 +115,8 @@ void IUtility::printToHexText(const void* buffer, u32 len) {
 }
 
 
-
-
-const c8* IUtility::skipFlag(const c8* iStart, const c8* const iEnd, const c8 iLeft, const c8 iRight) {
-    iStart = goNextFlag(iStart, iEnd, iLeft);
+const c8* AppSkipFlag(const c8* iStart, const c8* const iEnd, const c8 iLeft, const c8 iRight) {
+    iStart = AppGoNextFlag(iStart, iEnd, iLeft);
     ++iStart;
     s32 it = 1;
     while(iStart != iEnd) {
@@ -205,7 +135,7 @@ const c8* IUtility::skipFlag(const c8* iStart, const c8* const iEnd, const c8 iL
 }
 
 
-const c8* IUtility::goNextFlag(const c8* iStart, const c8* const iEnd, const c8 ichar) {
+const c8* AppGoNextFlag(const c8* iStart, const c8* const iEnd, const c8 ichar) {
     while((iStart < iEnd) && (*iStart != ichar)) {
         ++iStart;
     }
@@ -213,7 +143,7 @@ const c8* IUtility::goNextFlag(const c8* iStart, const c8* const iEnd, const c8 
 }
 
 
-const c8* IUtility::goBackFlag(const c8* iStart, const c8* iEnd, const c8 it) {
+const c8* AppGoBackFlag(const c8* iStart, const c8* iEnd, const c8 it) {
     while((iStart > iEnd) && (*iStart != it)) {
         --iStart;
     }
@@ -221,7 +151,7 @@ const c8* IUtility::goBackFlag(const c8* iStart, const c8* iEnd, const c8 it) {
 }
 
 
-const c8* IUtility::goNextLine(const c8* iStart, const c8* const iEnd) {
+const c8* AppGoNextLine(const c8* iStart, const c8* const iEnd) {
     while(iStart < iEnd) {
         if(*iStart == '\n') {
             ++iStart;
@@ -233,13 +163,13 @@ const c8* IUtility::goNextLine(const c8* iStart, const c8* const iEnd) {
 }
 
 
-const c8* IUtility::goAndCopyNextWord(c8* iOutBuffer, const c8* iStart, u32 outBufLength, const c8* iEnd, bool acrossNewlines) {
-    iStart = goNextWord(iStart, iEnd, acrossNewlines);
-    return iStart += copyWord(iOutBuffer, iStart, outBufLength, iEnd);
+const c8* AppGoAndCopyNextWord(c8* iOutBuffer, const c8* iStart, u32 outBufLength, const c8* iEnd, bool acrossNewlines) {
+    iStart = AppGoNextWord(iStart, iEnd, acrossNewlines);
+    return iStart += AppCopyWord(iOutBuffer, iStart, outBufLength, iEnd);
 }
 
 
-u32 IUtility::copyWord(c8* iOutBuffer, const c8* const iStart, u32 outBufLength, const c8* const iEnd) {
+u32 AppCopyWord(c8* iOutBuffer, const c8* const iStart, u32 outBufLength, const c8* const iEnd) {
     if(!outBufLength) {
         return 0;
     }
@@ -263,7 +193,7 @@ u32 IUtility::copyWord(c8* iOutBuffer, const c8* const iStart, u32 outBufLength,
 }
 
 
-const c8* IUtility::goFirstWord(const c8* iStart, const c8* const iEnd, bool acrossNewlines) {
+const c8* AppGoFirstWord(const c8* iStart, const c8* const iEnd, bool acrossNewlines) {
     if(acrossNewlines) {
         while((iStart < iEnd) && core::isspace(*iStart)) {
             ++iStart;
@@ -277,16 +207,15 @@ const c8* IUtility::goFirstWord(const c8* iStart, const c8* const iEnd, bool acr
 }
 
 
-const c8* IUtility::goNextWord(const c8* iStart, const c8* const iEnd, bool acrossNewlines) {
+const c8* AppGoNextWord(const c8* iStart, const c8* const iEnd, bool acrossNewlines) {
     while((iStart < iEnd) && !core::isspace(*iStart)) {
         ++iStart;
     }
-    return goFirstWord(iStart, iEnd, acrossNewlines);
+    return AppGoFirstWord(iStart, iEnd, acrossNewlines);
 }
 
 
-
-bool IUtility::createPath(const io::path& iPath) {
+bool AppCreatePath(const io::path& iPath) {
     bool ret = true;
 #if defined(APP_PLATFORM_WINDOWS)
     io::path realpath;
@@ -313,7 +242,7 @@ bool IUtility::createPath(const io::path& iPath) {
     //CEngine::getInstance().get->add(iPath.c_str());
     DIR* pDirect = opendir(iPath.c_str());
     if(0 == pDirect) {
-        if(0 == mkdir(iPath.c_str(), 0777)) {
+        if(0 == ::mkdir(iPath.c_str(), 0777)) {
             //IAppLogger::logCritical("IUtility::createPath", "new path=%s", iPath.c_str());
             //CEngine::mPrinter->addW(L"created new path");
         } else {
@@ -321,7 +250,7 @@ bool IUtility::createPath(const io::path& iPath) {
             //CEngine::mPrinter->addW(L"path create error");
         }
     } else {
-        closedir(pDirect);
+        ::closedir(pDirect);
         //CEngine::mPrinter->addW(L"Old path already there");
     }
 #endif
@@ -367,5 +296,5 @@ bool IUtility::createPath(const io::path& iPath) {
 //};
 
 
-
+} //namespace utility
 } //namespace irr
