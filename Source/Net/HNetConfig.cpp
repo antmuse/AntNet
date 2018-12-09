@@ -25,6 +25,10 @@ void CNetConfig::drop() {
     }
 }
 
+bool CNetConfig::check() {
+    return true;
+}
+
 void CNetConfig::print() const {
     printf("CNetConfig::print>> mReuse=%s\n", mReuse ? "true" : "false");
     printf("CNetConfig::print>> mMaxPostAccept=%u\n", mMaxPostAccept);

@@ -42,7 +42,7 @@ public:
         return mID;
     }
     void setID(u32 id) {
-        mID = (0xFFU & id);
+        mID = id & (((u32) ENET_SERVER_MASK) >> ENET_SESSION_BITS);
     }
 
     void setEventer(u32 id, INetEventer* evt);

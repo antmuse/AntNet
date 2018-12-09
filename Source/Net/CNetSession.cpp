@@ -8,24 +8,36 @@ namespace irr {
 namespace net {
 
 CNetSessionPool::CNetSessionPool() :
-    mAllContext(0),
     mIdle(0),
     mMax(0),
     mHead(0),
     mTail(0) {
-    //create(mMax);
+    ::memset(mAllContext, 0, sizeof(mAllContext));
 }
 
 CNetSessionPool::~CNetSessionPool() {
     clearAll();
 }
 
+CNetSession* CNetSessionPool::createSession() {
+    APP_ASSERT(0 == mAllContext[mMax]);
+    if(mMax < ENET_SESSION_MASK) {
+        mAllContext[mMax] = new CNetSession();
+        mAllContext[mMax]->setIndex(mMax);
+        mAllContext[mMax]->setTime(0xFFFFFFFFFFFFFFFFULL);
+        return mAllContext[mMax++];
+    }
+    return 0;
+}
 
-CNetSession* CNetSessionPool::getIdleSession() {
+CNetSession* CNetSessionPool::getIdleSession(u64 now_ms, u32 timeinterval_ms) {
     if(!mHead) {
-        return 0;
+        return createSession();
     }
     CNetSession* ret = mHead;
+    if(ret->getTime() + timeinterval_ms > now_ms) {
+        return createSession();
+    }
     if(mHead == mTail) {
         mHead = 0;
         mTail = 0;
@@ -51,19 +63,24 @@ void CNetSessionPool::addIdleSession(CNetSession* it) {
     }
 }
 
-void CNetSessionPool::create(u32 id, u32 max) {
+void CNetSessionPool::create(u32 max) {
     APP_ASSERT(max < ENET_SESSION_MASK);
-
-    if(0 == mAllContext) {
-        mMax = (0 == max ? 20000 : max);
-        //mIdle = mMax;
-        mAllContext = new CNetSession[mMax];
+    if(0 == mMax) {
+        if(max > ENET_SESSION_MASK) {
+            mMax = ENET_SESSION_MASK;
+        } else {
+#ifdef NDEBUG
+            mMax = (max < 1000 ? 1000 : max);
+#else
+            mMax = (max < 10 ? 10 : max);
+#endif
+        }
         for(u32 i = 0; i < mMax; ++i) {
             //new (&mAllContext[i]) CNetSession();
-            mAllContext[i].setIndex(i);
-            mAllContext[i].setTime(-1);
-            mAllContext[i].setHub(id);
-            addIdleSession(mAllContext + i);
+            mAllContext[i] = new CNetSession();
+            mAllContext[i]->setIndex(i);
+            mAllContext[i]->setTime(0xFFFFFFFFFFFFFFFFULL);
+            addIdleSession(mAllContext[i]);
         }
     }
 }
@@ -72,10 +89,13 @@ void CNetSessionPool::create(u32 id, u32 max) {
 void CNetSessionPool::clearAll() {
     for(u32 i = 0; i < mMax; ++i) {
         //mAllContext[i].~CNetSession();
-        mAllContext[i].getSocket().close();
+        mAllContext[i]->getSocket().close();
+        delete mAllContext[i];
+        mAllContext[i] = 0;
     }
-    delete[] mAllContext;
-    mAllContext = 0;
+    //delete[] mAllContext;
+    //mAllContext = 0;
+    mMax = 0;
     mHead = 0;
     mTail = 0;
 }

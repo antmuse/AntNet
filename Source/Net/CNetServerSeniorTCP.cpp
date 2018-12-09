@@ -359,7 +359,7 @@ bool CNetServerSeniorTCP::start() {
     mClosedSocket = 0;
     mCurrentTime = IAppTimer::getTime();
     mStartTime = mCurrentTime;
-    mSessionPool.create(mID, mConfig->mMaxContext);
+    mSessionPool.create(mConfig->mMaxContext);
     mThread = new CThread();
     mThread->start(*this);
     return true;
@@ -422,12 +422,8 @@ u32 CNetServerSeniorTCP::addSession(CNetSocket& sock, const CNetAddress& remote,
     const CNetAddress& local, INetEventer* evter) {
     CAutoLock aulock(mMutex);
 
-    if(0 == mSessionPool.getIdleCount()) {
-        return 0;
-    }
-    CNetSession& session = *mSessionPool.getIdleSession();
-    if(mCurrentTime <= (session.getTime() + APP_NET_SESSION_LINGER)) {
-        mSessionPool.addIdleSession(&session);
+    CNetSession* session = mSessionPool.getIdleSession(mCurrentTime, APP_NET_SESSION_LINGER);
+    if(!session) {
         return 0;
     }
 
@@ -455,24 +451,24 @@ u32 CNetServerSeniorTCP::addSession(CNetSocket& sock, const CNetAddress& remote,
     //}
     if(!success) {
         sock.close();
-        mSessionPool.addIdleSession(&session);
+        mSessionPool.addIdleSession(session);
         return 0;
     }
 #if defined(APP_PLATFORM_WINDOWS)
     //don't add in iocp twice
-    if(!mPoller.add(sock, reinterpret_cast<void*>(session.getIndex()))) {
+    if(!mPoller.add(sock, reinterpret_cast<void*>(session->getIndex()))) {
         APP_ASSERT(0);
         IAppLogger::log(ELOG_ERROR, "CNetServerSeniorTCP::getSession",
             "can't add in epoll, socket: [%ld]",
             sock.getValue());
 
         sock.close();
-        mSessionPool.addIdleSession(session.getIndex());
+        mSessionPool.addIdleSession(session->getIndex());
         return 0;
     }
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
     CEventPoller::SEvent addevt;
-    addevt.mData.mPointer = &session;
+    addevt.mData.mPointer = session;
     addevt.mEvent = EPOLLIN | EPOLLOUT;
     if(!mPoller.add(sock, addevt)) {
         APP_ASSERT(0);
@@ -481,24 +477,25 @@ u32 CNetServerSeniorTCP::addSession(CNetSocket& sock, const CNetAddress& remote,
             sock.getValue());
 
         sock.close();
-        mSessionPool.addIdleSession(session.getIndex());
+        mSessionPool.addIdleSession(session->getIndex());
         return 0;
     }
 #endif
     ++mCreatedSocket;
     ++mTotalSession;
-    session.clear();
-    session.setPoller(&mPoller);
-    session.setSocket(sock);
-    session.setTime(0);//busy session
-    session.getLocalAddress() = local;
-    session.getRemoteAddress() = remote;
-    session.setEventer(evter);
-    if(!session.onNewSession()) {
-        mSessionPool.addIdleSession(&session);
+    session->clear();
+    session->setHub(mID);
+    session->setPoller(&mPoller);
+    session->setSocket(sock);
+    session->setTime(0);//busy session
+    session->getLocalAddress() = local;
+    session->getRemoteAddress() = remote;
+    session->setEventer(evter);
+    if(!session->onNewSession()) {
+        mSessionPool.addIdleSession(session);
         return 0;
     }
-    return session.getID() | (getID() << ENET_SESSION_BITS);
+    return session->getID();
 }
 
 

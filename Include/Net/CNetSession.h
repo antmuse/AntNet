@@ -22,7 +22,7 @@ enum ENetUserCommand {
 
     ENET_SESSION_BITS = 16,
     ENET_SERVER_BITS = 8,
-    ENET_SESSION_MASK = 0x0000FFFFU,
+    ENET_SESSION_MASK = ~ENET_CMD_MASK, //0x0000FFFFU,
     ENET_SERVER_MASK = 0x00FF0000U,
     ENET_SESSION_LEVEL_MASK = 0xFF000000U,
     ENET_ID_MASK = 0x00FFFFFFU
@@ -55,6 +55,7 @@ public:
     }
 
     APP_FORCE_INLINE void setHub(u32 hid) {
+        mMask &= (~ENET_SERVER_MASK);
         mMask |= (ENET_SERVER_MASK & (hid << ENET_SESSION_BITS));
     }
 
@@ -158,11 +159,11 @@ public:
 protected:
     void upgradeLevel() {
         u32 level = (mMask & ENET_SESSION_LEVEL_MASK);
-        level += 0x01000000U;
+        level += 1 + ENET_ID_MASK;
         if(0 == level) {//level can not be zero
-            level += 0x01000000U;
+            level += 1 + ENET_ID_MASK;
         }
-        mMask = (mMask & ENET_SESSION_LEVEL_MASK) | level;
+        mMask = (mMask & ENET_ID_MASK) | level;
     }
 
     void postEvent(ENetEventType iEvent);
@@ -198,27 +199,27 @@ public:
 
     ~CNetSessionPool();
 
-    CNetSession* getIdleSession();
+    CNetSession* getIdleSession(u64 now_ms, u32 timeinterval_ms);
 
     void addIdleSession(CNetSession* it);
 
     void addIdleSession(u32 idx) {
-        addIdleSession(mAllContext + idx);
+        addIdleSession(mAllContext[idx]);
     }
 
     CNetSession& operator[](u32 idx)const {
-        return *(mAllContext + idx);
+        return *(mAllContext[idx]);
     }
 
     CNetSession* getSession(u32 idx)const {
-        return mAllContext + idx;
+        return mAllContext[idx];
     }
 
     CNetSession* getSession(u64 idx)const {
-        return mAllContext + idx;
+        return mAllContext[idx];
     }
 
-    void create(u32 hubID, u32 max);
+    void create(u32 max);
 
     u32 getMaxContext()const {
         return mMax;
@@ -233,11 +234,11 @@ public:
 
 private:
     void clearAll();
-
+    CNetSession* createSession();
 
     u32 mMax;
     u32 mIdle;
-    CNetSession* mAllContext;
+    CNetSession* mAllContext[ENET_SESSION_MASK];
     CNetSession* mHead;
     CNetSession* mTail;
 };

@@ -20,16 +20,13 @@ namespace irr {
 namespace net {
 
 APP_INLINE void CNetAddress::init() {
+    ::memset(mAddress, 0, sizeof(mAddress));
 #if defined(APP_NET_USE_IPV6)
     APP_ASSERT(28 == sizeof(sockaddr_in6));
-    mAddress = (sockaddr_in6*) mCache;
-    ::memset(mAddress, 0, sizeof(*mAddress));
-    mAddress->sin6_family = AF_INET6;
+    getAddress()->sin6_family = AF_INET6;
 #else
     APP_ASSERT(16 == sizeof(sockaddr_in));
-    mAddress = (sockaddr_in*) mCache;
-    ::memset(mAddress, 0, sizeof(*mAddress));
-    mAddress->sin_family = AF_INET;
+    getAddress()->sin_family = AF_INET;
 #endif
     //printf("sizeof(sockaddr_in)=%u\n", sizeof(sockaddr_in));
     //printf("sizeof(sockaddr_in6)=%u\n", sizeof(sockaddr_in6));
@@ -38,7 +35,6 @@ APP_INLINE void CNetAddress::init() {
 
 CNetAddress::CNetAddress() :
     mID(0),
-    mAddress(0),
     mPort(APP_NET_ANY_PORT) {
     ::strcpy(mIP, APP_NET_ANY_IP);
     init();
@@ -49,7 +45,6 @@ CNetAddress::CNetAddress() :
 
 CNetAddress::CNetAddress(const c8* ip) :
     mID(0),
-    mAddress(0),
     mPort(APP_NET_ANY_PORT) {
     if(ip) {
         ::memcpy(mIP, ip, core::min_<size_t>(APP_IP_STRING_MAX_SIZE - sizeof(c8), ::strlen(ip) + sizeof(c8)));
@@ -65,7 +60,6 @@ CNetAddress::CNetAddress(const c8* ip) :
 
 CNetAddress::CNetAddress(const core::stringc& ip) :
     mID(0),
-    mAddress(0),
     mPort(APP_NET_ANY_PORT) {
     if(ip.size() < APP_IP_STRING_MAX_SIZE) {
         ::memcpy(mIP, ip.c_str(), ip.size() + sizeof(c8));
@@ -80,7 +74,6 @@ CNetAddress::CNetAddress(const core::stringc& ip) :
 
 CNetAddress::CNetAddress(u16 port) :
     mID(0),
-    mAddress(0),
     mPort(port) {
     ::strcpy(mIP, APP_NET_ANY_IP);
     init();
@@ -91,7 +84,6 @@ CNetAddress::CNetAddress(u16 port) :
 
 CNetAddress::CNetAddress(const c8* ip, u16 port) :
     mID(0),
-    mAddress(0),
     mPort(port) {
     if(ip) {
         ::memcpy(mIP, ip, core::min_<size_t>(APP_IP_STRING_MAX_SIZE - sizeof(c8), ::strlen(ip) + sizeof(c8)));
@@ -107,13 +99,11 @@ CNetAddress::CNetAddress(const c8* ip, u16 port) :
 
 
 CNetAddress::~CNetAddress() {
-    //delete mAddress;
 }
 
 
 CNetAddress::CNetAddress(const core::stringc& ip, u16 port) :
     mID(0),
-    mAddress(0),
     mPort(port) {
     if(ip.size() < APP_IP_STRING_MAX_SIZE) {
         ::memcpy(mIP, ip.c_str(), ip.size() + sizeof(c8));
@@ -127,14 +117,7 @@ CNetAddress::CNetAddress(const core::stringc& ip, u16 port) :
 
 
 CNetAddress::CNetAddress(const CNetAddress& other) {
-#if defined(APP_NET_USE_IPV6)
-    APP_ASSERT(28 == sizeof(sockaddr_in6));
-    mAddress = (sockaddr_in6*) mCache;
-#else
-    APP_ASSERT(16 == sizeof(sockaddr_in));
-    mAddress = (sockaddr_in*) mCache;
-#endif
-    ::memcpy(mAddress, other.mAddress, sizeof(*mAddress));
+    ::memcpy(mAddress, other.mAddress, sizeof(mAddress));
     ::memcpy(mIP, other.mIP, sizeof(mIP));
     mPort = other.mPort;
     mID = other.mID;
@@ -145,7 +128,7 @@ CNetAddress& CNetAddress::operator=(const CNetAddress& other) {
     if(this == &other) {
         return *this;
     }
-    ::memcpy(mAddress, other.mAddress, sizeof(*mAddress));
+    ::memcpy(mAddress, other.mAddress, sizeof(mAddress));
     ::memcpy(mIP, other.mIP, sizeof(mIP));
     mID = other.mID;
     mPort = other.mPort;
@@ -182,9 +165,9 @@ bool CNetAddress::setIP() {
     struct addrinfo* head = 0;
     struct addrinfo hints;
 #if defined(APP_NET_USE_IPV6)
-    hints.ai_family = mAddress->sin6_family;
+    hints.ai_family = getAddress()->sin6_family;
 #else
-    hints.ai_family = mAddress->sin_family;
+    hints.ai_family = getAddress()->sin_family;
 #endif
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;    // IPPROTO_TCP; //0£¬Ä¬ÈÏ
@@ -200,19 +183,19 @@ bool CNetAddress::setIP() {
     //while(curr && curr->ai_canonname)
     for(struct addrinfo* curr = head; curr; curr = curr->ai_next) {
 #if defined(APP_NET_USE_IPV6)
-        if(curr->ai_family == mAddress->sin6_family) {
+        if(curr->ai_family == getAddress()->sin6_family) {
             struct sockaddr_in6* sockaddr = (struct sockaddr_in6*) curr->ai_addr;
-            mAddress->sin6_addr = sockaddr->sin6_addr;
-            ::inet_ntop(mAddress->sin6_family, &mAddress->sin6_addr, mIP, sizeof(mIP));
+            getAddress()->sin6_addr = sockaddr->sin6_addr;
+            ::inet_ntop(getAddress()->sin6_family, &getAddress()->sin6_addr, mIP, sizeof(mIP));
             mergeIP();
             //APP_LOG(ELOG_INFO, "CNetAddress::setIP", "IPV6 = %s", mIP.c_str());
             break;
         }
 #else
-        if(curr->ai_family == mAddress->sin_family) {
+        if(curr->ai_family == getAddress()->sin_family) {
             struct sockaddr_in* sockaddr = (struct sockaddr_in*) curr->ai_addr;
-            mAddress->sin_addr = sockaddr->sin_addr;
-            ::inet_ntop(mAddress->sin_family, &mAddress->sin_addr, mIP, sizeof(mIP));
+            getAddress()->sin_addr = sockaddr->sin_addr;
+            ::inet_ntop(getAddress()->sin_family, &getAddress()->sin_addr, mIP, sizeof(mIP));
             mergeIP();
             //APP_LOG(ELOG_INFO, "CNetAddress::setIP", "IPV4 = %s", mIP.c_str());
             break;
@@ -227,13 +210,13 @@ bool CNetAddress::setIP() {
 
 void CNetAddress::setIP(const IP& ip) {
 #if defined(APP_NET_USE_IPV6)
-    APP_ASSERT(sizeof(ip) == sizeof(mAddress->sin6_addr));
-    *(IP*) &mAddress->sin6_addr = ip;
-    ::inet_ntop(mAddress->sin6_family, &mAddress->sin6_addr, mIP, sizeof(mIP));
+    APP_ASSERT(sizeof(ip) == sizeof(getAddress()->sin6_addr));
+    *(IP*) &getAddress()->sin6_addr = ip;
+    ::inet_ntop(getAddress()->sin6_family, &getAddress()->sin6_addr, mIP, sizeof(mIP));
 #else
-    APP_ASSERT(sizeof(ip) == sizeof(mAddress->sin_addr));
-    *(IP*) &mAddress->sin_addr = ip;
-    ::inet_ntop(mAddress->sin_family, &mAddress->sin_addr, mIP, sizeof(mIP));
+    APP_ASSERT(sizeof(ip) == sizeof(getAddress()->sin_addr));
+    *(IP*) &getAddress()->sin_addr = ip;
+    ::inet_ntop(getAddress()->sin_family, &getAddress()->sin_addr, mIP, sizeof(mIP));
 #endif
     mergeIP();
 }
@@ -248,7 +231,7 @@ void CNetAddress::setPort(u16 port) {
 
 
 u16 CNetAddress::getPort()const {
-    return mPort; // mAddress->sin_port;
+    return mPort; // getAddress()->sin_port;
 }
 
 
@@ -268,17 +251,17 @@ void CNetAddress::setDomain(const c8* iDNS) {
     if(!hostTent) {
         return;
     }
-    mAddress->sin_addr = *((LPIN_ADDR) (*hostTent->h_addr_list));
-    ::inet_ntop(mAddress->sin_family, &mAddress->sin_addr, mIP, sizeof(mIP));
+    getAddress()->sin_addr = *((LPIN_ADDR) (*hostTent->h_addr_list));
+    ::inet_ntop(getAddress()->sin_family, &getAddress()->sin_addr, mIP, sizeof(mIP));
     */
 
     struct addrinfo* head = 0;
     struct addrinfo hints;
     ::memset(&hints, 0, sizeof(hints));
 #if defined(APP_NET_USE_IPV6)
-    hints.ai_family = mAddress->sin6_family;
+    hints.ai_family = getAddress()->sin6_family;
 #else
-    hints.ai_family = mAddress->sin_family;
+    hints.ai_family = getAddress()->sin_family;
 #endif
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
@@ -289,19 +272,19 @@ void CNetAddress::setDomain(const c8* iDNS) {
 
     for(struct addrinfo* curr = head; curr; curr = curr->ai_next) {
 #if defined(APP_NET_USE_IPV6)
-        if(curr->ai_family == mAddress->sin6_family) {
+        if(curr->ai_family == getAddress()->sin6_family) {
             struct sockaddr_in6* sockaddr = (struct sockaddr_in6*) curr->ai_addr;
-            mAddress->sin6_addr = sockaddr->sin6_addr;
-            ::inet_ntop(mAddress->sin6_family, &mAddress->sin6_addr, mIP, sizeof(mIP));
+            getAddress()->sin6_addr = sockaddr->sin6_addr;
+            ::inet_ntop(getAddress()->sin6_family, &getAddress()->sin6_addr, mIP, sizeof(mIP));
             mergeIP();
             //APP_LOG(ELOG_INFO, "CCollector::getLocalIP", "IPV6 = %s", mIP.c_str());
             break;
         }
 #else
-        if(curr->ai_family == mAddress->sin_family) {
+        if(curr->ai_family == getAddress()->sin_family) {
             struct sockaddr_in* sockaddr = (struct sockaddr_in*) curr->ai_addr;
-            mAddress->sin_addr = sockaddr->sin_addr;
-            ::inet_ntop(mAddress->sin_family, &mAddress->sin_addr, mIP, sizeof(mIP));
+            getAddress()->sin_addr = sockaddr->sin_addr;
+            ::inet_ntop(getAddress()->sin_family, &getAddress()->sin_addr, mIP, sizeof(mIP));
             mergeIP();
             //APP_LOG(ELOG_INFO, "CCollector::getLocalIP", "IPV4 = %s", mIP.c_str());
             break;
@@ -315,22 +298,22 @@ void CNetAddress::setDomain(const c8* iDNS) {
 
 u16 CNetAddress::getFamily()const {
 #if defined(APP_NET_USE_IPV6)
-    APP_ASSERT(sizeof(u16) == sizeof(mAddress->sin6_family));
-    return (u16) mAddress->sin6_family;
+    APP_ASSERT(sizeof(u16) == sizeof(getAddress()->sin6_family));
+    return (u16) getAddress()->sin6_family;
 #else
-    APP_ASSERT(sizeof(u16) == sizeof(mAddress->sin_family));
-    return (u16) mAddress->sin_family;
+    APP_ASSERT(sizeof(u16) == sizeof(getAddress()->sin_family));
+    return (u16) getAddress()->sin_family;
 #endif
 }
 
 
 APP_INLINE void CNetAddress::initIP() {
 #if defined(APP_NET_USE_IPV6)
-    ::inet_pton(mAddress->sin6_family, mIP, &(mAddress->sin6_addr));
+    ::inet_pton(getAddress()->sin6_family, mIP, &(getAddress()->sin6_addr));
 #else
-    //APP_ASSERT(mAddress);
-    //mAddress->sin_addr.S_un.S_addr = inet_addr(mIP.c_str());
-    ::inet_pton(mAddress->sin_family, mIP, &(mAddress->sin_addr));
+    //APP_ASSERT(getAddress());
+    //getAddress()->sin_addr.S_un.S_addr = inet_addr(mIP.c_str());
+    ::inet_pton(getAddress()->sin_family, mIP, &(getAddress()->sin_addr));
 #endif
     mergeIP();
 }
@@ -338,19 +321,19 @@ APP_INLINE void CNetAddress::initIP() {
 APP_INLINE void CNetAddress::mergeIP() {
     u8* pos = (u8*) (&mID);
 #if defined(APP_NET_USE_IPV6)
-    APP_ASSERT(sizeof(IP) == sizeof(mAddress->sin6_addr));
-    ::memcpy(pos, (&mAddress->sin6_addr), sizeof(IP)); //128bit
+    APP_ASSERT(sizeof(IP) == sizeof(getAddress()->sin6_addr));
+    ::memcpy(pos, (&getAddress()->sin6_addr), sizeof(IP)); //128bit
 #else
-    APP_ASSERT(sizeof(IP) == sizeof(mAddress->sin_addr));
-    *((IP*) pos) = (*(IP*) (&mAddress->sin_addr)); //32bit
+    APP_ASSERT(sizeof(IP) == sizeof(getAddress()->sin_addr));
+    *((IP*) pos) = (*(IP*) (&getAddress()->sin_addr)); //32bit
 #endif
 }
 
 APP_INLINE void CNetAddress::initPort() {
 #if defined(APP_NET_USE_IPV6)
-    mAddress->sin6_port = htons(mPort);
+    getAddress()->sin6_port = htons(mPort);
 #else
-    mAddress->sin_port = htons(mPort);
+    getAddress()->sin_port = htons(mPort);
 #endif
     mergePort();
 }
@@ -358,15 +341,15 @@ APP_INLINE void CNetAddress::initPort() {
 APP_INLINE void CNetAddress::mergePort() {
     u8* pos = (u8*) (&mID);
 #if defined(APP_NET_USE_IPV6)
-    APP_ASSERT(sizeof(u16) == sizeof(mAddress->sin6_port));
-    APP_ASSERT(sizeof(IP) == sizeof(mAddress->sin6_addr));
+    APP_ASSERT(sizeof(u16) == sizeof(getAddress()->sin6_port));
+    APP_ASSERT(sizeof(IP) == sizeof(getAddress()->sin6_addr));
     pos += sizeof(IP);
-    *((u16*) pos) = (*(u16*) (&mAddress->sin6_port));
+    *((u16*) pos) = (*(u16*) (&getAddress()->sin6_port));
 #else
-    APP_ASSERT(sizeof(u16) == sizeof(mAddress->sin_port));
-    APP_ASSERT(sizeof(IP) == sizeof(mAddress->sin_addr));
+    APP_ASSERT(sizeof(u16) == sizeof(getAddress()->sin_port));
+    APP_ASSERT(sizeof(IP) == sizeof(getAddress()->sin_addr));
     pos += sizeof(IP);
-    *((u16*) pos) = (*(u16*) (&mAddress->sin_port));
+    *((u16*) pos) = (*(u16*) (&getAddress()->sin_port));
 #endif
 }
 
@@ -376,18 +359,18 @@ void CNetAddress::setAddress(const sockaddr_in6& it) {
 #else
 void CNetAddress::setAddress(const sockaddr_in& it) {
 #endif
-    *mAddress = it;
+    *getAddress() = it;
     reverse();
 }
 
 
 void CNetAddress::reverse() {
 #if defined(APP_NET_USE_IPV6)
-    ::inet_ntop(mAddress->sin6_family, &mAddress->sin6_addr, mIP, sizeof(mIP));
-    mPort = ntohs(mAddress->sin6_port);
+    ::inet_ntop(getAddress()->sin6_family, &getAddress()->sin6_addr, mIP, sizeof(mIP));
+    mPort = ntohs(getAddress()->sin6_port);
 #else
-    ::inet_ntop(mAddress->sin_family, &mAddress->sin_addr, mIP, sizeof(mIP));
-    mPort = ntohs(mAddress->sin_port);
+    ::inet_ntop(getAddress()->sin_family, &getAddress()->sin_addr, mIP, sizeof(mIP));
+    mPort = ntohs(getAddress()->sin_port);
 #endif
     mergeIP();
     mergePort();
@@ -396,11 +379,11 @@ void CNetAddress::reverse() {
 
 const CNetAddress::IP& CNetAddress::getIP() const {
 #if defined(APP_NET_USE_IPV6)
-    APP_ASSERT(sizeof(IP) == sizeof(mAddress->sin6_addr));
-    return *(IP*) (&mAddress->sin6_addr);
+    APP_ASSERT(sizeof(IP) == sizeof(getAddress()->sin6_addr));
+    return *(IP*) (&getAddress()->sin6_addr);
 #else
-    APP_ASSERT(sizeof(IP) == sizeof(mAddress->sin_addr));
-    return *(IP*) (&mAddress->sin_addr);
+    APP_ASSERT(sizeof(IP) == sizeof(getAddress()->sin_addr));
+    return *(IP*) (&getAddress()->sin_addr);
 #endif
 }
 
@@ -451,7 +434,7 @@ void CNetAddress::convertIPToString(const CNetAddress::IP& ip, core::stringc& re
 //    printf("id-ip = %u-%s\n", idp, ip.c_str());
 //    irr::IUtility::print((irr::u8*) &idp, sizeof(idp));
 //    printf("\n");
-//    irr::IUtility::print((irr::u8*) &addr.mAddress->sin_addr, sizeof(addr.mAddress->sin_addr));
-//    printf("\nid=%u\n", *(irr::u32*) &addr.mAddress->sin_addr);
+//    irr::IUtility::print((irr::u8*) &addr.getAddress()->sin_addr, sizeof(addr.getAddress()->sin_addr));
+//    printf("\nid=%u\n", *(irr::u32*) &addr.getAddress()->sin_addr);
 //    return 0;
 //}

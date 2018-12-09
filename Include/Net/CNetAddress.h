@@ -168,20 +168,20 @@ public:
 #if defined(APP_NET_USE_IPV6)
     void setAddress(const sockaddr_in6& it);
 
-    const sockaddr_in6* getAddress() const {
-        return mAddress;
+    APP_FORCE_INLINE const sockaddr_in6* getAddress() const {
+        return reinterpret_cast<const sockaddr_in6*>(mAddress);
     }
-    sockaddr_in6* getAddress() {
-        return mAddress;
+    APP_FORCE_INLINE sockaddr_in6* getAddress() {
+        return reinterpret_cast<sockaddr_in6*>(mAddress);
     }
 #else
     void setAddress(const sockaddr_in& it);
 
-    const sockaddr_in* getAddress() const {
-        return mAddress;
+    APP_FORCE_INLINE const sockaddr_in* getAddress() const {
+        return reinterpret_cast<const sockaddr_in*>(mAddress);
     }
-    sockaddr_in* getAddress() {
-        return mAddress;
+    APP_FORCE_INLINE sockaddr_in* getAddress() {
+        return reinterpret_cast<sockaddr_in*>(mAddress);
     }
 #endif
 
@@ -215,13 +215,11 @@ private:
     ID mID;     ///<merged IP&Port, in big endian as network
 
 #if defined(APP_NET_USE_IPV6)
-    sockaddr_in6* mAddress;
     //sizeof(sockaddr_in6)=28
-    s8 mCache[28];
+    s8 mAddress[28];
 #else
-    sockaddr_in* mAddress;
     //sizeof(sockaddr_in)=16
-    s8 mCache[16];
+    s8 mAddress[16];
 #endif
 
 };

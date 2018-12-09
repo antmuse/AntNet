@@ -129,7 +129,7 @@ void CNetClientSeniorTCP::run() {
     SContextIO* iAction = 0;
     u64 last = mCurrentTime;
     u32 gotsz = 0;
-    mWheel.setCurrent(static_cast<u32>(mCurrentTime));
+    mWheel.setCurrent(mCurrentTime);
     u32 action;
     s32 ret;
     for(; mRunning; ) {
@@ -230,7 +230,7 @@ void CNetClientSeniorTCP::run() {
 #endif
             if(mCurrentTime - last > mTimeInterval) {
                 last = mCurrentTime;
-                mWheel.update(static_cast<u32>(mCurrentTime));
+                mWheel.update(mCurrentTime);
                 IAppLogger::log(ELOG_INFO, "CNetClientSeniorTCP::run",
                     "[context:%u/%u][socket:%u/%u][total:%u]",
                     mSessionPool.getIdleCount(), mSessionPool.getMaxContext(),
@@ -244,7 +244,7 @@ void CNetClientSeniorTCP::run() {
             case WAIT_TIMEOUT:
                 //mCurrentTime += mTimeInterval;
                 mCurrentTime = IAppTimer::getTime();
-                mWheel.update(static_cast<u32>(mCurrentTime));
+                mWheel.update(mCurrentTime);
                 last = mCurrentTime;
                 IAppLogger::log(ELOG_INFO, "CNetClientSeniorTCP::run",
                     "[context:%u/%u][socket:%u/%u][total:%u]",
@@ -288,7 +288,7 @@ bool CNetClientSeniorTCP::start() {
     mCurrentTime = IAppTimer::getTime();
     mStartTime = mCurrentTime;
     APP_ASSERT(mConfig->mMaxContext < ENET_SESSION_MASK);
-    mSessionPool.create(mID, mConfig->mMaxContext);
+    mSessionPool.create(mConfig->mMaxContext);
     mMutex = new CMutex();
     mNetThread = new CThread();
     mNetThread->start(*this);
@@ -348,16 +348,12 @@ u32 CNetClientSeniorTCP::getSession(INetEventer* it) {
 
     CAutoLock aulock(*mMutex);
 
-    if(0 == mSessionPool.getIdleCount()) {
+    CNetSession* session = mSessionPool.getIdleSession(mCurrentTime, APP_NET_SESSION_LINGER);
+    if(!session) {
         return 0;
     }
-    CNetSession& session = *mSessionPool.getIdleSession();
-    if(mCurrentTime <= (session.getTime() + APP_NET_SESSION_LINGER)) {
-        mSessionPool.addIdleSession(&session);
-        return 0;
-    }
-    session.setTime(0);//busy session
-    CNetSocket& sock = session.getSocket();
+    session->setTime(0);//busy session
+    CNetSocket& sock = session->getSocket();
     if(!sock.isOpen()) { // a new node
 #if defined(APP_PLATFORM_WINDOWS)
         bool success = sock.openSeniorTCP();
@@ -387,19 +383,19 @@ u32 CNetClientSeniorTCP::getSession(INetEventer* it) {
         }
         if(!success) {
             sock.close();
-            mSessionPool.addIdleSession(&session);
+            mSessionPool.addIdleSession(session);
             return 0;
         }
 #if defined(APP_PLATFORM_WINDOWS)
         //don't add in iocp twice
-        if(!mPoller.add(sock, reinterpret_cast<void*>(session.getIndex()))) {
+        if(!mPoller.add(sock, reinterpret_cast<void*>(session->getIndex()))) {
             APP_ASSERT(0);
             IAppLogger::log(ELOG_ERROR, "CNetClientSeniorTCP::getSession",
                 "can't add in epoll, socket: [%ld]",
                 sock.getValue());
 
             sock.close();
-            mSessionPool.addIdleSession(&session);
+            mSessionPool.addIdleSession(session);
             return 0;
         }
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
@@ -422,15 +418,16 @@ u32 CNetClientSeniorTCP::getSession(INetEventer* it) {
 
     //APP_ASSERT(1);
     ++mTotalSession;
-    session.clear();
-    session.setEventer(it);
-    session.setPoller(&mPoller);
-    if(!session.onNewSession()) {
-        mSessionPool.addIdleSession(&session);
+    session->clear();
+    session->setHub(mID);
+    session->setEventer(it);
+    session->setPoller(&mPoller);
+    if(!session->onNewSession()) {
+        mSessionPool.addIdleSession(session);
         return 0;
     }
-    return session.getID() | (getID() << ENET_SESSION_BITS);
-}
+    return session->getID();
+        }
 
 
 void CNetClientSeniorTCP::remove(CNetSession* iContext) {
@@ -453,8 +450,8 @@ void CNetClientSeniorTCP::remove(CNetSession* iContext) {
     iContext->setTime(mCurrentTime);
     mWheel.remove(iContext->getTimeNode());
     mSessionPool.addIdleSession(iContext);
-}
+    }
 
 
 } //namespace net
-} //namespace irr
+    } //namespace irr

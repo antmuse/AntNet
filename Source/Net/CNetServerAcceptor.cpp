@@ -281,7 +281,7 @@ bool CNetServerAcceptor::stepAccpet(SContextWaiter* iContext) {
             nid = mAllService.getLast()->addSession(iContext->mSocket, mAddressRemote, mAddressLocal, mReceiver);
         }
     }
-    if(0 == nid){
+    if(0 == nid) {
         iContext->mSocket.close();
         IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::stepAccpet",
             "[server:%u][socket:%s:%u->%s:%u]",
@@ -346,7 +346,7 @@ s32 CNetServerAcceptor::send(u32 id, const void* buffer, s32 size) {
 }
 
 
-CNetServerSeniorTCP* CNetServerAcceptor::getServer(u32 id) const{
+CNetServerSeniorTCP* CNetServerAcceptor::getServer(u32 id) const {
     u32 sid = ((id & ENET_SERVER_MASK) >> ENET_SESSION_BITS);
     if(sid < mAllService.size()) {
         return mAllService[sid];

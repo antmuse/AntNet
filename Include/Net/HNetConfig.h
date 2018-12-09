@@ -129,6 +129,7 @@ public:
     void print()const;
     void grab();
     void drop();
+    bool check();
 
 private:
     s32 mReference;

@@ -72,23 +72,5 @@ private:
     bool  mHaveTail;
 };
 
-
-
-/* 32-bit crc16 */
-static u32 APP_CRC16(const c8* data, s32 len) {
-    u32 sum;
-    for(sum = 0; len; len--) {
-        /*
-        * gcc 2.95.2 x86 and icc 7.1.006 compile
-        * that operator into the single "rol" opcode,
-        * msvc 6.0sp2 compiles it into four opcodes.
-        */
-        sum = sum >> 1 | sum << 31;
-        sum += *data++;
-    }
-    return sum;
-}
-
-
 }//namespace irr
 #endif //APP_CCHECKSUM_H

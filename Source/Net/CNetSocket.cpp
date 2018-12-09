@@ -191,13 +191,11 @@ s32 CNetSocket::keepAlive(bool on, s32 idleTime, s32 timeInterval, s32 maxTick) 
     //   // 发 5 次 (2000 XP 2003 默认 ), 10 次 (Vista 后系统默认 )
     //};
     tcp_keepalive alive;
-    tcp_keepalive alive_out;
     DWORD rbytes;
     alive.onoff = on ? TRUE : FALSE;
     alive.keepalivetime = 1000 * idleTime;
     alive.keepaliveinterval = 1000 * timeInterval;
-    return ::WSAIoctl(mSocket, SIO_KEEPALIVE_VALS, &alive, sizeof(alive),
-        &alive_out, sizeof(alive_out), &rbytes, 0, 0);
+    return ::WSAIoctl(mSocket, SIO_KEEPALIVE_VALS, &alive, sizeof(alive), 0, 0, &rbytes, 0, 0);
 
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
     s32 opt = on ? 1 : 0;
