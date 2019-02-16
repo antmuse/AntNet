@@ -1,4 +1,4 @@
-AntNet V1.0.0.4
+AntNet V0.0.0.1
 ====
 A cross-platform net lib, current for Windows&amp;Linux&amp;Android.
 # Usage
@@ -7,8 +7,21 @@ A cross-platform net lib, current for Windows&amp;Linux&amp;Android.
 ```cpp
 //wait for more
 void AppStartServer() {
+    net::CNetConfig* config = new net::CNetConfig();
+    config->mReuse = true;
+    config->mMaxPostAccept = 8;
+    config->mMaxFetchEvents = 28;
+    config->mMaxContext = 200;
+    config->mPollTimeout = 1000;
+    config->mSessionTimeout = 30000;
+    config->mMaxWorkThread = 2;
+    config->check();
+    config->print();
+
     net::CDefaultNetEventer evt;
-    net::CNetServerAcceptor accpetor;
+    net::CNetServerAcceptor accpetor(config);
+    config->drop();
+    evt.setServer(&accpetor);
     net::CNetAddress addr(9981);
     accpetor.setLocalAddress(addr);
     accpetor.setEventer(&evt);
@@ -17,49 +30,26 @@ void AppStartServer() {
     accpetor.stop();
 }
 
+class CDefaultNetEventer : public INetEventer {
+    public:
+        CDefaultNetEventer();
 
-s32 CDefaultNetEventer::onEvent(SNetEvent& iEvent) {
-    s32 ret = 0;
-    //static core::stringc req("Hey,server");
-    CNetPacket pack(8 * 1024);
-    static u32 count = 0;
+        virtual ~CDefaultNetEventer();
 
-    IAppLogger::log(ELOG_INFO, "CDefaultNetEventer::onEvent",
-            "[%u] on [%s]", count, AppNetEventTypeNames[iEvent.mType]);
+        virtual s32 onConnect(u32 sessionID,
+                const CNetAddress& local, const CNetAddress& remote)override;
 
-    switch(iEvent.mType) {
-        case ENET_RECEIVED:
-            {
-                ret = iEvent.mInfo.mData.mSize;
-                IAppLogger::log(ELOG_INFO, "CDefaultNetEventer::onEvent", "[received size=%u:%s]",
-                        iEvent.mInfo.mData.mSize, iEvent.mInfo.mData.mBuffer);
-                break;
-            }
-        case ENET_LINKED:
-            IAppLogger::log(ELOG_INFO, "CDefaultNetEventer::onEvent", "[%u,%s:%u->%s:%u]",
-                    iEvent.mInfo.mSession.mSocket->getValue(),
-                    iEvent.mInfo.mSession.mAddressRemote->getIPString(),
-                    iEvent.mInfo.mSession.mAddressRemote->getPort(),
-                    iEvent.mInfo.mSession.mAddressLocal->getIPString(),
-                    iEvent.mInfo.mSession.mAddressLocal->getPort());
-            break;
+        virtual s32 onDisconnect(u32 sessionID,
+                const CNetAddress& local, const CNetAddress& remote)override;
 
-        case ENET_CONNECTED:
-        case ENET_SENT:
-            {
-                pack.setUsed(sizeof(u32));
-                pack.add(++count);
-                pack.add("Hey,server", (u32) 11);
-                pack.setU32(0, pack.getSize());
-                mSession->send(pack.getPointer(), pack.getAllocatedSize());
-                break;
-            }
+        virtual s32 onSend(u32 sessionID, void* buffer, s32 size, s32 result)override;
 
-        case ENET_CLOSED:
-            count = 0;
-            break;
-    }//switch
+        virtual s32 onReceive(u32 sessionID, void* buffer, s32 size)override;
 
-    return ret;
-}
+        virtual s32 onLink(u32 sessionID,
+                const CNetAddress& local, const CNetAddress& remote)override;
+
+    private:
+        u32 mSession;
+};
 ```
