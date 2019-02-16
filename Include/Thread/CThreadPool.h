@@ -9,7 +9,6 @@
 #define APP_CTHREADPOOL_H
 
 #include "irrList.h"
-#include "IRunnable.h"
 #include "CThread.h"
 #include "CCondition.h"
 
@@ -48,28 +47,33 @@ public:
         return mThreadCount;
     }
 
-
+    u32 getWaitingTasks()const {
+        return mWaitingTasks;
+    }
+    
 private:
     enum {
         ESTATUS_STOPED = 1,
-        ESTATUS_RUNNIG = 1<<1,
-        ESTATUS_JOINING = 1<<2,
+        ESTATUS_RUNNIG = 1 << 1,
+        ESTATUS_JOINING = 1 << 2,
     };
-    CThreadPool() {
-    }
+    CThreadPool() { }
+    CThreadPool(const CThreadPool& it) = delete;
+    CThreadPool& operator=(const CThreadPool& it) = delete;
 
     void creatThread(u32 iCount);
 
     void removeAll();
 
-    u16 mActiveCount;
-    u16 mStatus;
+    volatile u16 mActiveCount;
+    volatile u16 mStatus;
+    volatile u32 mWaitingTasks;
     u32 mThreadCount;
     u32 mMaxTasks;          ///<0: disable limit, else limit the max tasks saved in list. default: 0
     CMutex mMutex;          ///<note: mutex type PTHREAD_MUTEX_TIMED_NP,PTHREAD_MUTEX_ADAPTIVE_NP
     CCondition mCondition;
-    core::list<IRunnable*> mHoldTasks;
-    core::list<SCallbackData> mHoldCallTasks;
+    SThreadTask mTaskListHead;
+    SThreadTask* mTaskListTail;
     CThread** mWorker;
 };
 

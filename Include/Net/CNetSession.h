@@ -1,23 +1,23 @@
 #ifndef APP_CNETSESSION_H
 #define	APP_CNETSESSION_H
 
+#include "HAtomicOperator.h"
 #include "INetSession.h"
 #include "SClientContext.h"
-#include "CNetPacket.h"
 #include "CTimerWheel.h"
+#include "CBufferQueue.h"
 
 
 namespace irr {
-class CEventPoller;
 namespace net {
-//class CNetClientSeniorTCP;
+class CNetServiceTCP;
 
 enum ENetUserCommand {
     ENET_CMD_CONNECT = 0x00010000U,
     ENET_CMD_DISCONNECT = 0x00020000U,
-    ENET_CMD_TIMEOUT = 0x00040000U,
-    ENET_CMD_SEND = 0x00080000U,
-    ENET_CMD_NEW_SESSION = 0x00030000U,
+    ENET_CMD_SEND = 0x00030000U,
+    ENET_CMD_RECEIVE = 0x00040000U,
+    ENET_CMD_TIMEOUT = 0x00050000U,
     ENET_CMD_MASK = 0xFFFF0000U,
 
     ENET_SESSION_BITS = 16,
@@ -29,18 +29,19 @@ enum ENetUserCommand {
 };
 
 /**
-*ID of net network is 32 bits: 
+*ID of net network is 32 bits:
 *    16bit: used for session id.
 *    8bit: used for server id.
 *    8bit: used for session level.
 */
-
 class CNetSession : public INetSession {
 public:
 
     CNetSession();
 
     virtual ~CNetSession();
+
+    void setService(CNetServiceTCP* it);
 
     void setNext(CNetSession* it) {
         mNext = it;
@@ -51,33 +52,33 @@ public:
     }
 
     APP_FORCE_INLINE u32 getMask(u32 index, u32 level)const {
-        return (ENET_SESSION_MASK & index) | (level << (ENET_SESSION_BITS+ ENET_SERVER_BITS));
+        return (ENET_SESSION_MASK & index) | (level << (ENET_SESSION_BITS + ENET_SERVER_BITS));
     }
 
     APP_FORCE_INLINE void setHub(u32 hid) {
-        mMask &= (~ENET_SERVER_MASK);
-        mMask |= (ENET_SERVER_MASK & (hid << ENET_SESSION_BITS));
+        mID &= (~ENET_SERVER_MASK);
+        mID |= (ENET_SERVER_MASK & (hid << ENET_SESSION_BITS));
     }
 
     APP_FORCE_INLINE void setIndex(u32 pos) {
         APP_ASSERT(pos <= ENET_SESSION_MASK);
-        mMask = (mMask & ENET_CMD_MASK) | (pos & ENET_SESSION_MASK);
+        mID = (mID & ENET_CMD_MASK) | (pos & ENET_SESSION_MASK);
     }
 
     APP_FORCE_INLINE u32 getLevel(u32 id)const {
-        return (mMask & ENET_SESSION_LEVEL_MASK);
+        return (mID & ENET_SESSION_LEVEL_MASK);
     }
 
     APP_FORCE_INLINE u32 getIndex()const {
-        return (mMask & ENET_SESSION_MASK);
+        return (mID & ENET_SESSION_MASK);
     }
 
     APP_FORCE_INLINE u32 getID()const {
-        return mMask;
+        return mID;
     }
 
     APP_FORCE_INLINE bool isValid(u32 id)const {
-        return id == mMask;
+        return id == mID;
     }
 
     CNetAddress& getRemoteAddress() {
@@ -104,41 +105,40 @@ public:
         return mTimeNode;
     }
 
-    virtual s32 send(u32 id, const void* iBuffer, s32 iSize)override;
+    bool connect(const CNetAddress& it);
 
-    virtual bool connect(u32 id, const CNetAddress& it)override;
+    bool disconnect(u32 id);
 
-    virtual bool disconnect(u32 id)override;
+    bool receive();
 
     s32 postDisconnect();
+    s32 stepDisonnect();
 
     s32 postConnect();
+    s32 stepConnect();
 
+    /**called by IO thread
+    * @param id sessionID that hold by user.
+    * @param buf buf to been sent.
+    * @return -1 if error, 0 if cached for send, >0 if post send now.
+    */
+    s32 postSend(u32 id, CBufferQueue::SBuffer* buf);
+
+    //called by IO thread
     s32 postSend();
+    s32 stepSend();
 
     s32 postReceive();
+    s32 stepReceive();
+
+    void postTimeout();
+    s32 stepTimeout();
+    s32 stepError();
+    s32 stepClose();
 
     void clear();
 
     void setSocket(const CNetSocket& it);
-
-    s32 stepSend();
-    s32 stepReceive();
-    s32 stepConnect();
-    s32 stepDisonnect();
-
-    bool onTimeout();
-
-    //add in time wheel
-    bool onNewSession();
-
-    void setPoller(CEventPoller* iPoller) {
-        mPoller = iPoller;
-    }
-
-    CEventPoller* getPoller() {
-        return mPoller;
-    }
 
     APP_FORCE_INLINE void setTime(u64 it) {
         mTime = it;
@@ -148,47 +148,61 @@ public:
         return mTime;
     }
 
-    /*void setSessionHub(CNetClientSeniorTCP* it) {
-        mSessionHub = it;
+    s32 postEvent(ENetEventType iEvent);
+
+
+    void pushGlobalQueue(CEventQueue::SNode* nd);
+    bool popGlobalQueue() {
+        return setInGlobalQueue(0);
     }
 
-    CNetClientSeniorTCP* getSessionHub() {
-        return mSessionHub;
-    }*/
+    void dispatchEvents();
+
 
 protected:
+
     void upgradeLevel() {
-        u32 level = (mMask & ENET_SESSION_LEVEL_MASK);
+        u32 level = (mID & ENET_SESSION_LEVEL_MASK);
         level += 1 + ENET_ID_MASK;
         if(0 == level) {//level can not be zero
             level += 1 + ENET_ID_MASK;
         }
-        mMask = (mMask & ENET_ID_MASK) | level;
+        mID = (mID & ENET_ID_MASK) | level;
     }
 
-    void postEvent(ENetEventType iEvent);
+    /**
+    *@brief inner function
+    *@param in 1=enqueue, 0=dequeu
+    *@return true if need launch a event*/
+    APP_INLINE bool setInGlobalQueue(s32 in) {
+        const s32 cmp = in ? 0 : 1;
+        return (cmp == AppAtomicFetchCompareSet(in, cmp, &mInGlobalQueue));
+    }
 
-    CTimerWheel::STimeNode mTimeNode;
-    bool mPostedDisconnect;
-    u32 mMask;    //12bits is level, 20bit is index
+    s32 mInGlobalQueue; //1=in global queue, 0=not in global queue.
+    u32 mID;    //12bits is level, 20bit is index
     u32 mStatus;
     s32 mCount;
     u64 mTime;
+    CTimerWheel::STimeNode mTimeNode;
     CNetSocket mSocket;
     INetEventer* mEventer;
-    CEventPoller* mPoller;
     CNetSession* mNext;
-    //CNetClientSeniorTCP* mSessionHub;
-    //void* mFunctionConnect;             ///<Windows only
-    //void* mFunctionDisonnect;           ///<Windows only
     SContextIO mActionSend;
     SContextIO mActionReceive;
     SContextIO mActionConnect;
     SContextIO mActionDisconnect;
-    CNetPacket mPacketSend;
-    CNetPacket mPacketReceive;
+    CEventQueue::SNode* mPacketSend;
+    CEventQueue::SNode* mPacketReceive;
+    CEventQueue mQueueInput; //processed by IO thread
+    CEventQueue mQueueEvent; //processed by worker threads
     CNetAddress mAddressRemote;
     CNetAddress mAddressLocal;
+    CNetServiceTCP* mService;
+
+private:
+    CNetSession(const CNetSession& it) = delete;
+    CNetSession& operator=(const CNetSession& it) = delete;
 };
 
 
@@ -233,6 +247,9 @@ public:
     }
 
 private:
+    CNetSessionPool(const CNetSessionPool& it) = delete;
+    CNetSessionPool& operator=(const CNetSessionPool& it) = delete;
+
     void clearAll();
     CNetSession* createSession();
 

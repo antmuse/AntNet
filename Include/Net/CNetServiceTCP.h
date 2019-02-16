@@ -1,21 +1,24 @@
 /**
-*@file CNetServerSeniorTCP.h
-*Defined CNetServerSeniorTCP, SContextIO, SClientContext
+*@file CNetServiceTCP.h
+*Defined CNetServiceTCP, SContextIO, SClientContext
 */
 
-#ifndef APP_CNETSERVERSENIORTCP_H
-#define APP_CNETSERVERSENIORTCP_H
+#ifndef APP_CNETSERVICETCP_H
+#define APP_CNETSERVICETCP_H
 
 
 #include "irrString.h"
 #include "irrArray.h"
 #include "irrList.h"
 #include "IRunnable.h"
+#include "CSemaphore.h"
 #include "CThread.h"
+#include "CThreadPool.h"
 #include "CEventPoller.h"
 #include "CNetSocket.h"
 #include "CTimerWheel.h"
 #include "CNetSession.h"
+#include "CBufferQueue.h"
 
 #if defined(APP_PLATFORM_WINDOWS)
 namespace irr {
@@ -24,15 +27,19 @@ class INetEventer;
 struct SContextIO;
 
 /**
-*@class CNetServerSeniorTCP
+*@class CNetServiceTCP
 */
-class CNetServerSeniorTCP : public IRunnable {
+class CNetServiceTCP : public IRunnable {
 public:
-    CNetServerSeniorTCP(CNetConfig* cfg);
+    CNetServiceTCP(CNetConfig* cfg);
 
-    virtual ~CNetServerSeniorTCP();
+    virtual ~CNetServiceTCP();
 
     virtual void run()override;
+
+    static void threadPoolCall(void* it);
+
+    void dispatchBuffers();
 
     bool start();
 
@@ -47,23 +54,60 @@ public:
 
     void setEventer(u32 id, INetEventer* evt);
 
-    u32 addSession(CNetSocket& sock, const CNetAddress& remote, 
+    u32 receive(CNetSocket& sock, const CNetAddress& remote, 
         const CNetAddress& local, INetEventer* evter);
+
+    u32 connect(const CNetAddress& remote, INetEventer* it);
+
+    bool disconnect(u32 id);
 
     s32 send(u32 id, const void* buffer, s32 size);
 
+    s32 send(const u32* id, u16 maxUID, const void* buffer, s32 size);
+
+    CEventPoller& getPoller() {
+        return mPoller;
+    }
+
+    CMemoryHub& getMemoryHub() {
+        return *mMemHub;
+    }
+
+    void setMemoryHub(CMemoryHub* it) {
+        if(it && it != mMemHub) {
+            it->grab();
+            if(mMemHub) {
+                mMemHub->drop();
+            }
+            mMemHub = it;
+            mQueueSend.setMemoryHub(mMemHub);
+            mQueueEvent.setMemoryHub(mMemHub);
+        }
+    }
+
+    void addNetEvent(CNetSession& session);
+    
+    CEventQueue& getEventQueue() {
+        return mQueueEvent;
+    }
+
+    CNetSession& getSession(u32 idx) {
+        return mSessionPool[idx];
+    }
+
 protected:
     bool clearError();
-
+    void postSend();
     void remove(CNetSession* iContext);
+    bool activePoller(u32 cmd, u32 id = 0);
 
 private:
 
     bool mRunning;
+    s32 mIsActive; //0=unactive, 1=acitve
     u32 mID;
     u32 mCreatedSocket;
     u32 mClosedSocket;      ///closed socket count
-    u32 mTotalSession;      ///<launched session count
     u32 mTimeInterval;
     u64 mStartTime;
     u64 mCurrentTime;
@@ -73,8 +117,11 @@ private:
     CMutex mMutex;
     CNetSessionPool mSessionPool;
     CThread* mThread;
+    CThreadPool* mThreadPool;
     INetEventer* mReceiver;
-    //CMemoryHub mMemHub;
+    CBufferQueue mQueueSend;
+    CEventQueue mQueueEvent;//processecd by worker threads
+    CMemoryHub* mMemHub;
     CNetConfig* mConfig;
 };
 
@@ -91,13 +138,13 @@ class INetEventer;
 class CNetSession;
 
 /**
-*@class CNetServerSeniorTCP
+*@class CNetServiceTCP
 */
-class CNetServerSeniorTCP : public IRunnable {
+class CNetServiceTCP : public IRunnable {
 public:
-    CNetServerSeniorTCP(CNetConfig* cfg);
+    CNetServiceTCP(CNetConfig* cfg);
 
-    virtual ~CNetServerSeniorTCP();
+    virtual ~CNetServiceTCP();
 
     virtual void run()override;
 
@@ -141,7 +188,7 @@ private:
     INetEventer* mReceiver;
     CNetAddress mAddressLocal;
     CNetConfig* mConfig;
-    //CMemoryHub mMemHub;
+    CMemoryHub* mMemHub;
 };
 
 
@@ -150,4 +197,4 @@ private:
 
 #endif //APP_PLATFORM_LINUX
 
-#endif //APP_CNETSERVERSENIORTCP_H
+#endif //APP_CNETSERVICETCP_H

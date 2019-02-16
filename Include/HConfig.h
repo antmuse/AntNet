@@ -151,6 +151,10 @@
     ((_TYPE_*)(((s8*)((_TYPE_*)_POINTER_)) - ((size_t) &((_TYPE_*)0)->_ELEMENT_NAME_)))
 
 
+//d=整数,a=对齐单位(必须是2的幂次方)
+#define APP_ALIGN_DATA(d, a)         (((d) + ((a) - 1)) & ~((a) - 1))
+//p=指针,a=对齐单位(必须是2的幂次方)
+#define APP_ALIGN_POINTER(p, a) ((char*) (((unsigned long long) (p) + ((a) - 1ULL)) & ~((a) -1ULL)))
 
 
 #define APP_COMPILE_WITH_CONSOLE_LOG_RECEIVER

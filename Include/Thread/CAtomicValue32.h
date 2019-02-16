@@ -17,7 +17,7 @@ namespace irr {
 *@class CAtomicS32
 *@brief A 32bit atomic value.
 */
-class APP_ALIGN(32) CAtomicS32 {
+class CAtomicS32 {
 public:
     CAtomicS32();
 
@@ -28,6 +28,8 @@ public:
     CAtomicS32& operator=(const CAtomicS32& it);
 
     ~CAtomicS32();
+
+    s32 operator()()const;
 
     s32 operator+(const CAtomicS32& it)const;
     s32 operator-(const CAtomicS32& it)const;
@@ -58,12 +60,8 @@ public:
 
     bool operator<=(const s32 it)const;
 
-    s32 getValue()const {
-        return mValue;
-    }
-
 protected:
-    mutable s32 mValue; //volatile
+    mutable s32 mValue;
 };
 
 

@@ -1,18 +1,68 @@
-#ifndef APP_NET_CQUEUERING_H
-#define APP_NET_CQUEUERING_H
+#ifndef APP_CQUEUENODE_H
+#define APP_CQUEUENODE_H
 
 
 #include "HConfig.h"
 #include "irrTypes.h"
+//#include "HAtomicOperator.h"
 
 
 namespace irr {
 
-typedef  void* (*AppMallocFunction)(s32);
+typedef  void* (*AppMallocFunction)(u32);
 typedef  void(*AppFreeFunction)(void*);
+
+
+class CQueueSingleNode {
+public:
+    APP_FORCE_INLINE static CQueueSingleNode* getNode(const void* value) {
+        return  (CQueueSingleNode*) (((s8*) value) - sizeof(CQueueSingleNode));
+    }
+
+    static CQueueSingleNode* createNode(u32 iSize = 0, AppMallocFunction iMalloc = 0);
+
+    static void deleteNode(CQueueSingleNode* iNode, AppFreeFunction iFree = 0);
+
+
+    CQueueSingleNode() : mNext(0) {
+    }
+
+    ~CQueueSingleNode() {
+    }
+
+    APP_FORCE_INLINE CQueueSingleNode* getNext() const {
+        return mNext;
+    }
+
+    APP_FORCE_INLINE void pushBack(CQueueSingleNode& it) {
+        mNext = &it;
+    }
+
+    //APP_FORCE_INLINE void atomicPushBack(CQueueSingleNode* it) {
+    //    mNext = &it;
+    //}
+
+    APP_FORCE_INLINE void pushBack(CQueueSingleNode* it) {
+        mNext = it;
+    }
+
+protected:
+    CQueueSingleNode* mNext;
+};
+
+
 
 class CQueueNode {
 public:
+    APP_FORCE_INLINE static CQueueNode* getNode(const void* value) {
+        return  (CQueueNode*) (((s8*) value) - sizeof(CQueueNode));
+    }
+
+    static CQueueNode* createNode(u32 iSize = 0, AppMallocFunction iMalloc = 0);
+
+    static void deleteNode(CQueueNode* iNode, AppFreeFunction iFree = 0);
+
+
     CQueueNode();
     ~CQueueNode();
 
@@ -53,13 +103,7 @@ public:
     */
     void splitAndJoin(CQueueNode& newHead);
 
-    static CQueueNode* getNode(const void* value);
-
-    static CQueueNode* createNode(u32 iSize = 0, AppMallocFunction iMalloc = 0);
-
-    static void deleteNode(CQueueNode* iNode, AppFreeFunction iFree = 0);
-
-private:
+protected:
     CQueueNode* mNext;
     CQueueNode* mPrevious;
 };
@@ -118,4 +162,4 @@ struct SQueueRingFreelock {
 
 
 } //namespace irr 
-#endif //APP_NET_CQUEUERING_H
+#endif //APP_CQUEUENODE_H

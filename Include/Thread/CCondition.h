@@ -10,8 +10,6 @@
 
 #include "HConfig.h"
 #include "irrTypes.h"
-#include "INoCopy.h"
-
 
 #if defined( APP_PLATFORM_WINDOWS )
 #include <winsock2.h>   //just here to prevent <winsock.h>
@@ -29,7 +27,7 @@ class CMutex;
 *@class CCondition
 *@brief A CCondition is a synchronization object used for threads, not processes.
 */
-class  CCondition : public INoCopy {
+class  CCondition {
 public:
     /**
     *@brief Constructor
@@ -77,9 +75,6 @@ public:
     bool wait(CMutex& mutex, u32 milliseconds);
 
 private:
-    //CCondition(const CCondition&);
-    //CCondition& operator = (const CCondition&);
-
 #if defined(APP_PLATFORM_WINDOWS)
     CONDITION_VARIABLE mCondition;
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)

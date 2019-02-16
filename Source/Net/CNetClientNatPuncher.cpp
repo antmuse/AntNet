@@ -327,11 +327,7 @@ bool CNetClientNatPuncher::bindLocal() {
 
 APP_INLINE void CNetClientNatPuncher::onPacket(CNetPacket& it) {
     if(mReceiver) {
-        SNetEvent evt;
-        evt.mType = ENET_RECEIVED;
-        evt.mInfo.mData.mBuffer = it.getReadPointer();
-        evt.mInfo.mData.mSize = it.getReadSize();
-        mReceiver->onEvent(evt);
+        mReceiver->onReceive(0, it.getReadPointer(), it.getReadSize());
     }
 }
 

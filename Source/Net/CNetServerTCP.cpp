@@ -56,7 +56,6 @@ void CNetServerTCP::run() {
 
     s32 oldsize;
     s32 ret;
-    SNetEvent evt;
 
     while(mRunning) {
         switch(mStatus) {
@@ -65,10 +64,8 @@ void CNetServerTCP::run() {
             ret = mSocketSub.receive(mPacket.getWritePointer(), mPacket.getWriteSize());
             if(ret > 0) {
                 mPacket.setUsed(oldsize + ret);
-                evt.mType = ENET_RECEIVED;
-                evt.mInfo.mData.mBuffer = mPacket.getReadPointer();
-                evt.mInfo.mData.mSize = mPacket.getReadSize();
-                mReceiver->onEvent(evt);
+                mReceiver->onReceive(0, mPacket.getReadPointer(), mPacket.getReadSize());
+
             } else if(0 == ret) {
                 IAppLogger::log(ELOG_CRITICAL, "CNetServerTCP::run", "client quit: [%s:%u]",
                     mAddressRemote.getIPString(), mAddressRemote.getPort());
@@ -86,16 +83,13 @@ void CNetServerTCP::run() {
             mSocketSub = mSocket.accept(mAddressRemote);
             if(mSocketSub.isOpen()) {
                 mAddressRemote.reverse();
-                IAppLogger::log(ELOG_CRITICAL, "CNetServerTCP::run", "client incoming: [%s:%u]", 
+                IAppLogger::log(ELOG_CRITICAL, "CNetServerTCP::run", "client incoming: [%s:%u]",
                     mAddressRemote.getIPString(), mAddressRemote.getPort());
                 mStatus = ENM_WAIT;
                 mPacket.setUsed(0);
 
                 if(mReceiver) {
-                    evt.mType = ENET_CONNECTED;
-                    evt.mInfo.mData.mBuffer = 0;
-                    evt.mInfo.mData.mSize = 0;
-                    mReceiver->onEvent(evt);
+                    mReceiver->onConnect(0, mAddressLocal, mAddressLocal);
                 }
             }
             break;

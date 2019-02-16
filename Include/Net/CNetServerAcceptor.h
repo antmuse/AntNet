@@ -13,7 +13,7 @@
 #include "CThread.h"
 #include "CEventPoller.h"
 #include "CNetSocket.h"
-#include "CNetServerSeniorTCP.h"
+#include "CNetServiceTCP.h"
 
 #if defined(APP_PLATFORM_WINDOWS)
 namespace irr {
@@ -36,7 +36,7 @@ public:
 
     s32 send(u32 id, const void* buffer, s32 size);
 
-    CNetServerSeniorTCP* getServer(u32 id)const;
+    CNetServiceTCP* getServer(u32 id)const;
 
     void setLocalAddress(const CNetAddress& it) {
         mAddressLocal = it;
@@ -94,13 +94,13 @@ protected:
 
     bool postAccept();
 
-    CNetServerSeniorTCP* createServer();
+    CNetServiceTCP* createServer();
 
     void removeAllServer();
 
-    void addServer(CNetServerSeniorTCP* it);
+    void addServer(CNetServiceTCP* it);
 
-    bool removeServer(CNetServerSeniorTCP* it);
+    bool removeServer(CNetServiceTCP* it);
 
 
 private:
@@ -113,7 +113,7 @@ private:
     CNetAddress mAddressRemote;
     CNetAddress mAddressLocal;
     core::array<SContextWaiter*>  mAllWaiter;
-    core::array<CNetServerSeniorTCP*>  mAllService;
+    core::array<CNetServiceTCP*>  mAllService;
     void* mFunctionAccept;
     void* mFunctionAcceptSockAddress;
     INetEventer* mReceiver;
@@ -161,9 +161,9 @@ public:
         mReceiver = evt;
     }
 
-    void addServer(CNetServerSeniorTCP* it);
+    void addServer(CNetServiceTCP* it);
 
-    bool removeServer(CNetServerSeniorTCP* it);
+    bool removeServer(CNetServiceTCP* it);
 
 private:
     bool clearError();
@@ -176,7 +176,7 @@ private:
 
     bool postAccept();
 
-    CNetServerSeniorTCP* createServer();
+    CNetServiceTCP* createServer();
 
     void removeAllServer();
 
@@ -190,7 +190,7 @@ private:
     CNetSocket mListener;						///<listen socket's context
     CNetAddress mAddressRemote;
     CNetAddress mAddressLocal;
-    core::array<CNetServerSeniorTCP*>  mAllService;
+    core::array<CNetServiceTCP*>  mAllService;
 };
 
 }// end namespace net

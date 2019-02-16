@@ -18,6 +18,10 @@ CAtomicS32::CAtomicS32(const s32 val) :
 CAtomicS32::~CAtomicS32() {
 }
 
+s32 CAtomicS32::operator()()const {
+    return AppAtomicFetch(&mValue);
+}
+
 CAtomicS32& CAtomicS32::operator=(const CAtomicS32& it) {
     AppAtomicFetchSet(it.mValue, &mValue);
     return *this;
@@ -58,9 +62,7 @@ s32 CAtomicS32::operator++() {
 }
 
 s32 CAtomicS32::operator++(const s32 it) {
-    s32 ret = mValue;
-    AppAtomicIncrementFetch(&mValue);
-    return ret;
+    return AppAtomicIncrementFetch(&mValue) - 1;
 }
 
 s32 CAtomicS32::operator--() {
@@ -68,9 +70,7 @@ s32 CAtomicS32::operator--() {
 }
 
 s32 CAtomicS32::operator--(const s32 it) {
-    s32 ret = mValue;
-    AppAtomicDecrementFetch(&mValue);
-    return ret;
+    return AppAtomicDecrementFetch(&mValue) + 1;
 }
 
 s32 CAtomicS32::operator=(const s32 it) {

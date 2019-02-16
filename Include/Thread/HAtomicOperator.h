@@ -19,9 +19,23 @@ void AppAtomicWriteBarrier();
 
 void AppAtomicReadWriteBarrier();
 
+/**
+*@brief s32 iTarget |= value;
+*/
 s32 AppAtomicFetchOr(s32 value, s32* iTarget);
+s32 AppAtomicFetchOr(s16 value, s16* iTarget);
 
-s32 AppAtomicFetchAnd (s32 value, s32* iTarget);
+/**
+*@brief s32 iTarget ^= value;
+*/
+s32 AppAtomicFetchXor(s32 value, s32* iTarget);
+s32 AppAtomicFetchXor(s16 value, s16* iTarget);
+
+/**
+*@brief s32 iTarget &= value;
+*/
+s32 AppAtomicFetchAnd(s32 value, s32* iTarget);
+s32 AppAtomicFetchAnd (s16 value, s16* iTarget);
 
 /**
 *@param iTarget A pointer to the value to be incremented,

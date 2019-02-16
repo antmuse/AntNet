@@ -237,7 +237,7 @@ void CTimerWheel::update(u64 millisec) {
     } else if(diff < -APP_TIMER_MANAGER_LIMIT - limit) {
         mCurrent = millisec;
     }
-    while((s64) (millisec - mCurrent) >= 0) {
+    while((s64) (millisec - mCurrent) > 0) {
         mSpinlock.lock();
         innerUpdate();
         mCurrent += mInterval;

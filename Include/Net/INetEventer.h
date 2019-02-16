@@ -9,64 +9,57 @@ namespace net {
 
 class CNetSocket;
 class CNetAddress;
-class INetSession;
-
+class INetEventer;
 
 enum ENetEventType {
     ENET_INVALID,
-    ENET_CLOSED,             ///<closed
-    ENET_POSTED,             ///<posted any
-    ENET_STEPED,             ///<steped any
-    ENET_SENT,               ///<send finished
-    ENET_RECEIVED,           ///<received data
-    ENET_CONNECTED,          ///<success connect
-    ENET_DISCONNECTED,       ///<passive stop
-    ENET_LINKED,             ///<client's TCP linked
+    ENET_SEND,               ///<request launch send
+    ENET_RECEIVE,            ///<request launch receive
+    ENET_CONNECT,            ///<request launch connect
+    ENET_DISCONNECT,         ///<request launch disconnect
+    ENET_LINKED,             ///<for server, a client coming
+    ENET_TIMEOUT,
     ENET_ERROR,
-    ENET_CONNECT_TIMEOUT,    ///<Can't connect
-    ENET_SEND_TIMEOUT,
-    ENET_RECEIVE_TIMEOUT,
-    ENET_UNSUPPORT,
     ENET_ET_COUNT
 };
 
 const c8* const AppNetEventTypeNames[] = {
-    "NetInit",
-    "NetClosed",
-    "NetPosted",
-    "NetSteped",
-    "NetSent",
-    "NetReceived",
-    "NetConnected",
-    "NetDisconnected",
+    "NetInvalid",
+    "NetSend",
+    "NetReceive",
+    "NetConnect",
+    "NetDisconnect",
     "NetLinked",
+    "NetTimeout",
     "NetError",
-    "NetConnectTimeout",
-    "NetSendTimeout",
-    "NetReceiveTimeout",
-    "NetUnsupport",
     0
 };
 
 
 struct SNetEvent {
-    struct SData {
-        u32 mContext;
+    struct SDataSend {
+        s32 mAllocatedSize;
         s32 mSize;
         void* mBuffer;
     };
-    struct SSession {
-        u32 mContext;
-        const CNetSocket* mSocket;
+    struct SDataReceive {
+        s32 mAllocatedSize;
+        s32 mSize;
+        void* mBuffer;
+    };
+    struct SSessionInfo {
         const CNetAddress* mAddressLocal;
         const CNetAddress* mAddressRemote;
     };
+
     union UEventInfo {
-        SData mData;
-        SSession mSession;
+        SDataSend mDataSend;
+        SDataReceive mDataReceive;
+        SSessionInfo mSession;
     };
 
     ENetEventType mType;
+    u32 mSessionID;
     UEventInfo mInfo;
 };
 
@@ -81,10 +74,22 @@ public:
 
 
     /**
-    *@brief Called when net event.
-    *@param iEvent The event.
+    *@brief Called when connected.
+    *@param sessionID The ID of session.
+    *@param sock The socket of session.
     */
-    virtual s32 onEvent(SNetEvent& iEvent) = 0;
+    virtual s32 onConnect(u32 sessionID,
+        const CNetAddress& local, const CNetAddress& remote) = 0;
+
+    virtual s32 onLink(u32 sessionID,
+        const CNetAddress& local, const CNetAddress& remote) = 0;
+
+    virtual s32 onDisconnect(u32 sessionID,
+        const CNetAddress& local, const CNetAddress& remote) = 0;
+
+    virtual s32 onSend(u32 sessionID, void* buffer, s32 size, s32 result) = 0;
+
+    virtual s32 onReceive(u32 sessionID, void* buffer, s32 size) = 0;
 };
 
 

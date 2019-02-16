@@ -59,14 +59,15 @@ struct SContextIO {
     SContextIO() {
         init();
     }
+
     ~SContextIO() {
     }
+
     void init() {
-        mFlags = 0;
+        /*mFlags = 0;
         mOperationType = EOP_INVALID;
-        mBytes = 0;
-        ::memset(&mOverlapped, 0, sizeof(mOverlapped));
-        ::memset(&mBuffer, 0, sizeof(mBuffer));
+        mBytes = 0;*/
+        ::memset(this, 0, sizeof(*this));
     }
 };
 
@@ -100,7 +101,10 @@ struct SClientContext {
 
 }// end namespace net
 }// end namespace irr
+
+
 #elif defined( APP_PLATFORM_ANDROID )  || defined( APP_PLATFORM_LINUX )
+
 namespace irr {
 namespace net {
 

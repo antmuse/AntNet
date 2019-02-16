@@ -103,10 +103,14 @@ public:
     bool mReuse;     ///<reuse IP and port
     bool mOnDelay;
 
+    //max worker's threads, range[1-255]
+    u8 mMaxWorkThread;
     //range[8,64]
     u8 mMaxPostAccept;
     //range[32,512]
-    u16 mMaxFatchEvents;
+    u16 mMaxFetchEvents;
+    //range[32,512]
+    u32 mMaxSendMsg;
 
     u32 mLinger;
     u32 mKeepAliveIdle;
@@ -124,6 +128,8 @@ public:
     u32 mMaxMessageSize;
     //range[1000,60000]
     u32 mPollTimeout; ///<in ms
+    //range[1000,60000]
+    u32 mSessionTimeout; ///<in ms
 
     CNetConfig();
     void print()const;

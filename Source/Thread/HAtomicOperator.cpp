@@ -42,10 +42,25 @@ s32 AppAtomicFetchOr(s32 value, s32* iTarget) {
     return ::InterlockedOr((LONG*) iTarget, value);
 }
 
+s32 AppAtomicFetchOr(s16 value, s16* iTarget) {
+    return ::InterlockedOr16((short*) iTarget, value);
+}
+
+s32 AppAtomicFetchXor(s32 value, s32* iTarget) {
+    return ::InterlockedXor((LONG*) iTarget, value);
+}
+
+s32 AppAtomicFetchXor16(s16 value, s16* iTarget) {
+    return ::InterlockedXor16((short*) iTarget, value);
+}
+
 s32 AppAtomicFetchAnd(s32 value, s32* iTarget) {
     return ::InterlockedAnd((LONG*) iTarget, value);
 }
 
+s32 AppAtomicFetchAnd(s16 value, s16* iTarget) {
+    return ::InterlockedAnd16((short*) iTarget, value);
+}
 
 s32 AppAtomicFetchAdd(s32 addValue, s32* iTarget) {
     return ::InterlockedExchangeAdd((LONG*) iTarget, addValue);

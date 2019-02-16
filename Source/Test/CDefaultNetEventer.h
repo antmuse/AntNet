@@ -6,7 +6,7 @@
 namespace irr {
 namespace net {
 class INetSession;
-class INetClientSeniorTCP;
+class CNetServiceTCP;
 class CNetServerAcceptor;
 
 
@@ -19,7 +19,7 @@ public:
         mAutoConnect = autoconnect;
     }
 
-    void setHub(INetClientSeniorTCP* hub) {
+    void setHub(CNetServiceTCP* hub) {
         mHub = hub;
     }
 
@@ -33,13 +33,25 @@ public:
 
     virtual ~CDefaultNetEventer();
 
-    virtual s32 onEvent(SNetEvent& iEvent)override;
+    virtual s32 onConnect(u32 sessionID,
+        const CNetAddress& local, const CNetAddress& remote)override;
+
+    virtual s32 onDisconnect(u32 sessionID,
+        const CNetAddress& local, const CNetAddress& remote)override;
+
+    virtual s32 onSend(u32 sessionID, void* buffer, s32 size, s32 result)override;
+
+    virtual s32 onReceive(u32 sessionID, void* buffer, s32 size)override;
+
+    virtual s32 onLink(u32 sessionID,
+        const CNetAddress& local, const CNetAddress& remote)override;
 
 private:
     bool mAutoConnect;
     u32 mSession;
-    INetClientSeniorTCP* mHub;
+    CNetServiceTCP* mHub;
     CNetServerAcceptor* mServer;
+    CNetPacket mPacket;
 };
 
 }//namespace net

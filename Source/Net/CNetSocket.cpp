@@ -457,6 +457,8 @@ bool CNetSocket::openSenior(s32 domain, s32 type, s32 protocol, void* info, u32 
 
 
 bool CNetSocket::receive(SContextIO* iAction) {
+    APP_ASSERT(0 == iAction->mFlags);
+    APP_ASSERT(0 == iAction->mBytes);
     s32 ret = ::WSARecv(mSocket,
         &(iAction->mBuffer),
         1,

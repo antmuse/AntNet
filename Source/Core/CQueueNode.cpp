@@ -6,6 +6,24 @@
 
 
 namespace irr {
+
+CQueueSingleNode* CQueueSingleNode::createNode(u32 iSize, AppMallocFunction iMalloc) {
+    iSize += sizeof(CQueueSingleNode);
+    CQueueSingleNode* node = (CQueueSingleNode*) (iMalloc ? iMalloc(iSize) : malloc(iSize));
+    node->mNext = 0;
+    return node;
+}
+
+void CQueueSingleNode::deleteNode(CQueueSingleNode* iNode, AppFreeFunction iFree) {
+    APP_ASSERT(iNode);
+    iFree ? iFree((void*) iNode) : free((void*) iNode);
+}
+
+
+
+
+
+
 /////////////////////SQueueRingFreelock/////////////////////
 void SQueueRingFreelock::init(s32 size) {
     //APP_ASSERT(size>sizeof(SQueueRingFreelock));
@@ -68,11 +86,6 @@ CQueueNode* CQueueNode::getNext() const {
 
 CQueueNode* CQueueNode::getPrevious() const {
     return mPrevious;
-}
-
-
-CQueueNode* CQueueNode::getNode(const void* value) {
-    return  (CQueueNode*) (((s8*) value) - sizeof(CQueueNode));
 }
 
 

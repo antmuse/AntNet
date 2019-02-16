@@ -14,7 +14,8 @@ CFileLogReceiver::~CFileLogReceiver() {
 
 
 bool CFileLogReceiver::log(ELogLevel level, const wchar_t* pSender, const wchar_t* pMessage) {
-    //wprintf(L"[%s] %s> %s\n", AppWLogLevelNames[level], pSender, pMessage);
+    wchar_t wcache[1024];
+    swprintf(wcache, 1024, L"[%s] %s> %s\n", AppWLogLevelNames[level], pSender, pMessage);
     return true;
 }
 
@@ -26,7 +27,7 @@ bool CFileLogReceiver::log(ELogLevel level, const c8* sender, const c8* message)
             // Reset log file
             outf.setf(std::ios::fixed);
             outf.precision(3);
-            outf.open("antLog.html", std::ios::out);
+            outf.open("./Temp/antLog.html", std::ios::out);
 
             if(!outf) {
                 return false;

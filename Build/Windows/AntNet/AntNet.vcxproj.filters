@@ -69,9 +69,6 @@
     <ClInclude Include="..\..\..\Include\Net\CNetClientTCP.h">
       <Filter>Include\Net</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Include\Net\CNetServerSeniorTCP.h">
-      <Filter>Include\Net</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Include\Net\CNetServerNormalTCP.h">
       <Filter>Include\Net</Filter>
     </ClInclude>
@@ -100,9 +97,6 @@
       <Filter>Include\Net</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Include\Net\CNetClientNatPuncher.h">
-      <Filter>Include\Net</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Net\CNetClientSeniorTCP.h">
       <Filter>Include\Net</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Include\Net\CNetServerAcceptor.h">
@@ -138,6 +132,15 @@
     <ClInclude Include="..\..\..\Include\Net\CNetAddress.h">
       <Filter>Include\Net</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\CBufferQueue.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\CNetCheckIP.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\CNetServiceTCP.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\Net\CNetClientUDP.cpp">
@@ -158,9 +161,6 @@
     <ClCompile Include="..\..\..\Source\Net\CNetClientTCP.cpp">
       <Filter>Source\Net</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\Net\CNetServerSeniorTCP.cpp">
-      <Filter>Source\Net</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\Source\Net\CNetProtocal.cpp">
       <Filter>Source\Net</Filter>
     </ClCompile>
@@ -177,9 +177,6 @@
       <Filter>Source\Net</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Source\Net\CNetClientNatPuncher.cpp">
-      <Filter>Source\Net</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Source\Net\CNetClientSeniorTCP.cpp">
       <Filter>Source\Net</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Source\Net\CNetServerAcceptor.cpp">
@@ -262,6 +259,18 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Source\Core\IUtility.cpp">
       <Filter>Source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Core\CMemoryHub.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\CBufferQueue.cpp">
+      <Filter>Source\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\CNetCheckIP.cpp">
+      <Filter>Source\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\CNetServiceTCP.cpp">
+      <Filter>Source\Net</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

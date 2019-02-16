@@ -40,7 +40,7 @@ void IAppLogger::addReceiver(u32 flag) {
         IAppLogger::add(new CConsoleLogReceiver());
     }
     if(IAppLogger::ELRT_FILE_TEXT & flag) {
-        //IAppLogger::add(new CConsoleLogReceiver()); //TODO
+        IAppLogger::add(new CConsoleLogReceiver());
     }
     if(IAppLogger::ELRT_FILE_HTML & flag) {
         IAppLogger::add(new CFileLogReceiver());

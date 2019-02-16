@@ -33,6 +33,24 @@ public:
 
 private:
     s32 mValue;
+    CSpinlock(const CSpinlock& it) = delete;
+    CSpinlock& operator=(const CSpinlock& it) = delete;
+};
+
+
+
+class CAutoSpinlock {
+public:
+    CAutoSpinlock(CSpinlock& it) : mLock(it) {
+        mLock.lock();
+    }
+
+    ~CAutoSpinlock() {
+        mLock.unlock();
+    }
+
+private:
+    CSpinlock& mLock;
 };
 
 

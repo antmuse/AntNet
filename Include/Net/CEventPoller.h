@@ -52,10 +52,26 @@ public:
     //IOCP does not support remove fd.
     //bool remove(void* fd, void* overlp);
 
-    //useless
-    //bool getResult(void* fd, void* overlp);
+    static bool getResult(void* fd, void* overlp, u32* bytes, u32 wait);
 
-    bool cancel(const net::CNetSocket& iSock, void* overlp);
+    /**
+    *@brief cancel IO of this thread.
+    *@param handle The IO handle.
+    */
+    static bool cancelIO(void* handle);
+
+    static bool cancelIO(const net::CNetSocket& sock);
+
+    /**
+    *@brief cancel IO of all thread.
+    *@param handle The IO handle.
+    *@param overlp 0 to cancel all IO of handle, else just cancel the IO against to \p overlp.
+    */
+    static bool cancelIO(void* handle, void* overlp);
+
+    static bool cancelIO(const net::CNetSocket& sock, void* overlp);
+
+    static bool hasOverlappedIoCompleted(void* overlp);
 
     bool postEvent(SEvent& iEvent);
 

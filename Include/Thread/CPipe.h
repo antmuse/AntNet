@@ -10,7 +10,6 @@
 
 #include "HConfig.h"
 #include "IReferenceCounted.h"
-//#include "INoCopy.h"
 
 
 namespace irr {

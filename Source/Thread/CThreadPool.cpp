@@ -4,11 +4,14 @@
 namespace irr {
 
 CThreadPool::CThreadPool(u32 iThreadCount) :
+    mWaitingTasks(0),
     mActiveCount(0),
     mWorker(0),
+    mTaskListTail(0),
     mThreadCount(iThreadCount),
     mStatus(ESTATUS_STOPED),
     mMaxTasks(0) {
+    mTaskListTail = &mTaskListHead;
 }
 
 
@@ -36,55 +39,59 @@ void CThreadPool::removeAll() {
     }
     delete mWorker;
     mWorker = 0;
-    mHoldTasks.clear();
-    mHoldCallTasks.clear();
+
+    SThreadTask* nd;
+    while(mTaskListHead.mNext) {
+        nd = mTaskListHead.mNext;
+        mTaskListHead.mNext = mTaskListHead.mNext->mNext;
+        delete nd;
+        --mWaitingTasks;
+    }
+    mTaskListHead.mNext = 0;
+    mTaskListTail = &mTaskListHead;
+    APP_ASSERT(0 == mWaitingTasks);
 }
 
 
 void CThreadPool::run() {
-    IRunnable* iTask = 0;
-    SCallbackData iCallTask;
-    iCallTask.mCallback = 0;
-    iCallTask.mData = 0;
-    u32 leftover = 0; //leftover tasks
     mMutex.lock();
     ++mActiveCount;
     IAppLogger::log(ELOG_CRITICAL, "CThreadPool::run", "thread start: %u", CThread::getCurrentThread()->getID());
     mMutex.unlock();
 
+    SThreadTask* iTask = 0;
     for(; true;) {
-        mMutex.lock();//lock
-        //for(; true;) //antmuse: as we are in thread pool's loop yet, needless to avoid spurious wakeup
-        if(mHoldTasks.size() > 0) {
-            core::list<IRunnable*>::Iterator it = mHoldTasks.begin();
-            iTask = (*it);
-            mHoldTasks.erase(it);
-        } else if(mHoldCallTasks.size() > 0) {
-            core::list<SCallbackData>::Iterator it = mHoldCallTasks.begin();
-            iCallTask.mCallback = (*it).mCallback;
-            iCallTask.mData = (*it).mData;
-            mHoldCallTasks.erase(it);
+        mMutex.lock();
+        //@note: as we are in thread pool's loop yet,
+        //so it's needless to avoid spurious wakeup here.
+        if(mTaskListHead.mNext) {
+            iTask = mTaskListHead.mNext;
+            mTaskListHead.mNext = mTaskListHead.mNext->mNext;
+            --mWaitingTasks;
+            if(0 == mTaskListHead.mNext) {
+                APP_ASSERT(0 == mWaitingTasks);
+                APP_ASSERT(mTaskListTail == iTask);
+                mTaskListTail = &mTaskListHead;
+            }
         } else {
-            mCondition.wait(mMutex);
+            mCondition.wait(mMutex);//mMutex locked
         }
-        leftover = mHoldCallTasks.size() + mHoldTasks.size();
-        mMutex.unlock();//unlock
+        mMutex.unlock();
 
-        if(ESTATUS_STOPED == mStatus) {//ignore leftover tasks and exit
+        if(ESTATUS_STOPED == mStatus) {
+            //ignore leftover tasks and exit
             break;
         }
-        if(leftover > 0) {
+        if(mWaitingTasks > 0) {
             mCondition.notify();
         }
         if(iTask) {
-            iTask->run();
+            (*iTask)();
+            delete iTask;
             iTask = 0;
-        } else if(iCallTask.mCallback) {
-            iCallTask.mCallback(iCallTask.mData);
-            iCallTask.mCallback = 0;
-            iCallTask.mData = 0;
         }
-        if(ESTATUS_JOINING == mStatus && 0 == leftover) {//finished all tasks then exit
+        if(ESTATUS_JOINING == mStatus && 0 == mWaitingTasks) {
+            //finished all tasks then exit
             break;
         }
     }//for
@@ -101,13 +108,15 @@ void CThreadPool::start() {
         return;
     }
     mStatus = ESTATUS_RUNNIG;
+
     mMutex.lock();
     mActiveCount = 0;
     mMutex.unlock();
     creatThread(mThreadCount);
-    while(mActiveCount<mThreadCount){
-        IAppLogger::log(ELOG_CRITICAL, "CThreadPool::start", "waiting all threads start: %u", mActiveCount);
-      CThread::sleep(10);
+    while(mActiveCount < mThreadCount) {
+        IAppLogger::log(ELOG_CRITICAL, "CThreadPool::start",
+            "waiting all threads start: %u/%u", mActiveCount, mThreadCount);
+        CThread::sleep(10);
     }
 }
 
@@ -117,14 +126,17 @@ void CThreadPool::stop() {
         return;
     }
     mStatus = ESTATUS_STOPED;
-    IAppLogger::log(ELOG_CRITICAL, "CThreadPool::stop", "[active=%u],[threads=%u],[tasks=%u]",
-        mActiveCount,mThreadCount, mHoldTasks.size() + mHoldCallTasks.size());
+    IAppLogger::log(ELOG_CRITICAL, "CThreadPool::stop",
+        "[active=%u],[threads=%u],[tasks=%u]",
+        mActiveCount, mThreadCount, mWaitingTasks);
     while(mActiveCount > 0) {
         CThread::sleep(10);
         mCondition.notifyAll();
     }
     removeAll();
-    IAppLogger::log(ELOG_CRITICAL, "CThreadPool::stop", "threads[%u], tasks[%u]", mThreadCount, mHoldTasks.size() + mHoldCallTasks.size());
+    IAppLogger::log(ELOG_CRITICAL, "CThreadPool::stop",
+        "threads[%u], tasks[%u]",
+        mThreadCount, mWaitingTasks);
 }
 
 
@@ -133,14 +145,17 @@ void CThreadPool::join() {
         return;
     }
     mStatus = ESTATUS_JOINING;
-    IAppLogger::log(ELOG_CRITICAL, "CThreadPool::join", "[active=%u],[threads=%u],[tasks=%u]",
-        mActiveCount, mThreadCount, mHoldTasks.size() + mHoldCallTasks.size());
+    IAppLogger::log(ELOG_CRITICAL, "CThreadPool::join",
+        "[active=%u],[threads=%u],[tasks=%u]",
+        mActiveCount, mThreadCount, mWaitingTasks);
     while(mActiveCount > 0) {
         CThread::sleep(10);
         mCondition.notify();
     }
     removeAll();
-    IAppLogger::log(ELOG_CRITICAL, "CThreadPool::join", "threads[%u], tasks[%u]", mThreadCount, mHoldTasks.size() + mHoldCallTasks.size());
+    IAppLogger::log(ELOG_CRITICAL, "CThreadPool::join",
+        "threads[%u], tasks[%u]",
+        mThreadCount, mWaitingTasks);
 }
 
 
@@ -149,17 +164,14 @@ bool CThreadPool::start(AppCallable iFunc, void* iData/* = 0*/) {
         return false;
     }
     bool ret = true;
-
-    mMutex.lock();
-
-    if(mMaxTasks > 0 && mHoldCallTasks.size() >= mMaxTasks) {
+    CAutoLock ak(mMutex);
+    if(mMaxTasks > 0 && mWaitingTasks >= mMaxTasks) {
         ret = false;
     } else {
-        SCallbackData scd(iFunc, iData);
-        mHoldCallTasks.push_back(scd);
+        mTaskListTail->mNext = new SThreadTask(iFunc, iData);
+        mTaskListTail = mTaskListTail->mNext;
+        ++mWaitingTasks;
     }
-
-    mMutex.unlock();
     if(ret) {
         mCondition.notify();
     }
@@ -172,14 +184,14 @@ bool CThreadPool::start(IRunnable* it) {
         return false;
     }
     bool ret = true;
-    mMutex.lock();
-    if(mMaxTasks > 0 && mHoldTasks.size() >= mMaxTasks) {
+    CAutoLock ak(mMutex);
+    if(mMaxTasks > 0 && mWaitingTasks) {
         ret = false;
     } else {
-        mHoldTasks.push_back(it);
+        mTaskListTail->mNext = new SThreadTask(it);
+        mTaskListTail = mTaskListTail->mNext;
+        ++mWaitingTasks;
     }
-
-    mMutex.unlock();
     if(ret) {
         mCondition.notify();
     }

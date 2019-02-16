@@ -1,18 +1,12 @@
 #include <stdio.h>
-#include "HAtomicOperator.h"
 #include "CNetAddress.h"
 #include "INetManager.h"
 #include "IAppLogger.h"
 #include "CNetServerAcceptor.h"
-#include "CNetClientSeniorTCP.h"
+#include "CNetServiceTCP.h"
 #include "CDefaultNetEventer.h"
 #include "CNetPing.h"
-#include "CTimeoutManager.h"
-#include "IAppTimer.h"
-#include "CAtomicValue32.h"
-
-
-//#include "CNetSynPing.h"
+#include "CNetSynPing.h"
 
 
 #ifdef   APP_PLATFORM_WINDOWS
@@ -43,15 +37,16 @@ void AppQuit() {
     printf("@App quitting...\n");
 }
 
-
-
 void AppStartServer() {
     net::CNetConfig* config = new net::CNetConfig();
     config->mReuse = true;
     config->mMaxPostAccept = 8;
-    config->mMaxFatchEvents = 28;
-    config->mMaxContext = 20000;
-    config->mPollTimeout = 5000;
+    config->mMaxFetchEvents = 28;
+    config->mMaxContext = 200;
+    config->mPollTimeout = 1000;
+    config->mSessionTimeout = 30000;
+    config->mMaxWorkThread = 2;
+    config->check();
     config->print();
 
     net::CDefaultNetEventer evt;
@@ -68,29 +63,28 @@ void AppStartServer() {
 
 void AppStartClient() {
     net::CNetConfig* config = new net::CNetConfig();
-    config->mMaxFatchEvents = 128;
+    config->mMaxWorkThread = 2;
+    config->mMaxFetchEvents = 128;
     config->mMaxContext = 16;
-    config->mPollTimeout = 5000;
+    config->mPollTimeout = 1000;
+    config->mSessionTimeout = 30000;
+    config->check();
     config->print();
 
-    const s32 max = 10;
+    const s32 max = 1;
     net::CDefaultNetEventer evt[max];
     u32 session[max];
-    net::CNetClientSeniorTCP chub(config);
+    net::CNetServiceTCP chub(config);
     config->drop();
 
     chub.start();
-    //net::CNetAddress addr("221.204.177.67", 9981);
     net::CNetAddress addr("127.0.0.1", 9981);
     s32 i;
     for(i = 0; i < max; ++i) {
         evt[i].setHub(&chub);
         evt[i].setAutoConnect(true);
-        session[i] = chub.getSession(&evt[i]);
-        if(session[i]) {
-            evt[i].setSession(session[i]);
-            chub.connect(session[i], addr);
-        } else {
+        session[i] = chub.connect(addr, &evt[i]);
+        if(0 == session[i]) {
             break;
         }
         //CThread::sleep(100);
@@ -100,7 +94,6 @@ void AppStartClient() {
     chub.stop();
 }
 
-
 void AppStartPing() {
     irr::net::CNetPing rpin;
     bool got = rpin.ping("61.135.169.121", 2, 1000);
@@ -108,113 +101,34 @@ void AppStartPing() {
     printf("-------------------------------------\n");
 }
 
-
-
-void AppStartTimerWheel() {
-    class CTimeAdder : public IRunnable {
-    public:
-        CTimeAdder(CTimerWheel& it, u32 maxStep, s32 repeat) :
-            mIndex(0),
-            mMaxRepeat(repeat),
-            mMaxStep(maxStep < 5 ? 5 : maxStep),
-            mRunning(false),
-            mTimer(it) {
-        }
-        static void timeout(void* nd) {
-            SNode* node = (SNode*) nd;
-            s32 leftover = AppAtomicDecrementFetch(node->mAdder->getCount());
-            if(node->mDeleteFlag) {
-                printf("CTimeAdder::timeout>> delete[Adder=%p],[id = %d],[time = %llu],[leftover = %d]\n",
-                    node->mAdder, node->mID, node->mTimeNode.mTimeoutStep, leftover);
-                delete node;
-            } else {
-                printf("CTimeAdder::timeout>> repeat[Adder=%p],[id = %d],[time = %llu],[leftover = %d]\n",
-                    node->mAdder, node->mID, node->mTimeNode.mTimeoutStep, leftover);
-            }
-        }
-        virtual void run() {
-            for(; mRunning;) {
-                add();
-                CThread::sleep(mMaxStep);
-            }
-        }
-        s32* getCount() {
-            return &mIndex;
-        }
-        void start() {
-            if(!mRunning) {
-                mRunning = true;
-                if(mMaxRepeat > 0) {
-                    mThread.start(*this);
-                } else {
-                    mRepeatNode.mDeleteFlag = false;
-                    mRepeatNode.mID = -1;
-                    mRepeatNode.mAdder = this;
-                    mRepeatNode.mTimeNode.mCallback = CTimeAdder::timeout;
-                    mRepeatNode.mTimeNode.mCallbackData = &mRepeatNode;
-                    mTimer.add(mRepeatNode.mTimeNode, 1 * 1000, mMaxRepeat);
-                }
-            }
-        }
-        void stop() {
-            if(mRunning) {
-                mRunning = false;
-                if(mMaxRepeat > 0) {
-                    mThread.join();
-                } else {
-                    mTimer.remove(mRepeatNode.mTimeNode);
-                }
-            }
-        }
-    private:
-        void add() {
-            static s32 id = 0;
-            SNode* node = new SNode();
-            node->mDeleteFlag = true;
-            node->mID = id++;
-            node->mAdder = this;
-            node->mTimeNode.mCallback = CTimeAdder::timeout;
-            node->mTimeNode.mCallbackData = node;
-            AppAtomicIncrementFetch(&mIndex);
-            mTimer.add(node->mTimeNode, 1 * 1000, mMaxRepeat);
-        }
-        struct SNode {
-            bool mDeleteFlag;
-            s32 mID;
-            CTimeAdder* mAdder;
-            CTimerWheel::STimeNode mTimeNode;
-        };
-        bool mRunning;
-        u32 mMaxStep;
-        s32 mIndex;
-        s32 mMaxRepeat;
-        SNode mRepeatNode;
-        CTimerWheel& mTimer;
-        CThread mThread;
-    };//CTimeAdder
-
-    CTimeoutManager tmanager(5);
-    CTimeAdder tadder1(tmanager.getTimeWheel(), 50, 1);
-    tmanager.start();
-    tadder1.start();
-
-    AppQuit();
-    tadder1.stop();
-    tmanager.stop();
-    printf("--------------clear time wheel--------------\n");
-    printf("finished tadder1 = %p, leftover = %d\n", &tadder1, *tadder1.getCount());
-    printf("--------------------------------------------\n");
+void AppStartSynPing() {
+    irr::net::CNetSynPing synping;
+    s32 ret;
+    if(synping.init()) {
+        //ret = synping.ping("61.135.169.121", 80);
+        ret = synping.ping("221.204.177.67", 80);
+        //ret = synping.ping("192.168.1.200", 3306);
+        //ret = synping.ping("192.168.1.102", 9981);
+        //0: 主机不存在
+        //1: 主机存在但没监听指定端口
+        //2: 主机存在并监听指定端口
+        printf("syn ping ret = %d\n", ret);
+    } else {
+        printf("syn ping init fail\n");
+    }
+    printf("-------------------------------------\n");
 }
 
 }//namespace irr
 
 
 int main(int argc, char** argv) {
-    irr::IAppLogger::getInstance().addReceiver(1);
+    irr::IAppLogger::getInstance().addReceiver(irr::IAppLogger::ELRT_CONSOLE);
+
     printf("@1 = Net Server\n");
     printf("@2 = Net Client\n");
     printf("@3 = Net Ping\n");
-    printf("@4 = Time wheel\n");
+    printf("@4 = Net Syn Ping\n");
     printf("@Input menu id = ");
     irr::u32 key;
     scanf("%u", &key);
@@ -229,7 +143,7 @@ int main(int argc, char** argv) {
         irr::AppStartPing();
         break;
     case 4:
-        irr::AppStartTimerWheel();
+        irr::AppStartSynPing();
         break;
     }
     irr::AppQuit();

@@ -13,7 +13,6 @@
 
 #include "HConfig.h"
 #include "HMutexType.h"
-#include "INoCopy.h"
 
 #if defined( APP_PLATFORM_WINDOWS )
 #include <winsock2.h>   //just here to prevent <winsock.h>
@@ -35,7 +34,7 @@ namespace irr {
 * Using the CAutoLock class is the preferred way to automatically
 * lock and unlock a mutex.
 */
-class CMutex : public INoCopy {
+class CMutex {
 public:
 
     /**
@@ -88,8 +87,8 @@ public:
 
 
 private:
-    CMutex(const CMutex& it);
-    CMutex& operator = (const CMutex& it);
+    CMutex(const CMutex& it) = delete;
+    CMutex& operator=(const CMutex& it) = delete;
 
 #if defined( APP_PLATFORM_WINDOWS )
     CRITICAL_SECTION mCriticalSection;

@@ -50,8 +50,6 @@ bool CEventPoller::getEvent(SEvent& iEvent, u32 iTime) {
 
 
 u32 CEventPoller::getEvents(SEvent* iEvent, u32 iSize, u32 iTime) {
-    //u32 getoff = APP_GET_OFFSET(iEvent, mInternal);
-    //u32 off = APP_OFFSET(OVERLAPPED_ENTRY, Internal);
     APP_ASSERT(sizeof(u32) == sizeof(ULONG));
     APP_ASSERT(sizeof(OVERLAPPED_ENTRY) == sizeof(SEvent));
     APP_ASSERT(APP_GET_OFFSET(iEvent, mBytes) == APP_OFFSET(OVERLAPPED_ENTRY, dwNumberOfBytesTransferred));
@@ -86,20 +84,38 @@ bool CEventPoller::add(void* fd, void* key) {
         ));
 }
 
-
-bool CEventPoller::cancel(const net::CNetSocket& iSock, void* overlp) {
-    if(FALSE == ::CancelIoEx((void*) iSock.getValue(), (LPOVERLAPPED) overlp)) {
+bool CEventPoller::cancelIO(void* handle) {
+    if(FALSE == ::CancelIo(handle)) {
         return (ERROR_NOT_FOUND == getError() || ERROR_OPERATION_ABORTED == getError());
     }
     return true;
 }
 
+bool CEventPoller::hasOverlappedIoCompleted(void* overlp) {
+    return (overlp && HasOverlappedIoCompleted(reinterpret_cast<LPOVERLAPPED>(overlp)));
+}
 
-//useless
-//bool CEventPoller::getResult(void* fd, void* userPointer) {
-//    DWORD bytes;
-//    return TRUE == ::GetOverlappedResult(fd, (LPOVERLAPPED) userPointer, &bytes, FALSE);
-//}
+bool CEventPoller::cancelIO(void* handle, void* overlp) {
+    if(FALSE == ::CancelIoEx(handle, reinterpret_cast<LPOVERLAPPED>(overlp))) {
+        return (ERROR_NOT_FOUND == getError() || ERROR_OPERATION_ABORTED == getError());
+    }
+    return true;
+}
+
+bool CEventPoller::cancelIO(const net::CNetSocket& sock) {
+    return cancelIO(reinterpret_cast<void*>(sock.getValue()));
+}
+
+bool CEventPoller::cancelIO(const net::CNetSocket& sock, void* overlp) {
+    return cancelIO(reinterpret_cast<void*>(sock.getValue()), overlp);
+}
+
+bool CEventPoller::getResult(void* fd, void* userPointer, u32* bytes, u32 wait) {
+    return TRUE == ::GetOverlappedResult(fd,
+        reinterpret_cast<LPOVERLAPPED>(userPointer),
+        reinterpret_cast<LPDWORD>(bytes),
+        wait);
+}
 
 
 bool CEventPoller::postEvent(SEvent& iEvent) {

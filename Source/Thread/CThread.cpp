@@ -1,5 +1,4 @@
 ﻿#include "CThread.h"
-#include "IRunnable.h"
 
 namespace irr {
 
@@ -36,27 +35,26 @@ void setThreadName(DWORD dwThreadID, const char* threadName) {
 #endif //APP_DEBUG
 
 
-CThread::CThread() : mID(getUniqueID()),
-mRunnableTarget(0),
-mThread(0),
-mThreadID(0),
-mPriority(PRIO_NORMAL),
-mPolicy(POLICY_DEFAULT),
-mStackSize(APP_THREAD_STACK_SIZE) {
+CThread::CThread() :
+    mID(getUniqueID()),
+    mThread(0),
+    mThreadID(0),
+    mPriority(PRIO_NORMAL),
+    mPolicy(POLICY_DEFAULT),
+    mStackSize(APP_THREAD_STACK_SIZE) {
     mEvent.init(0, true);
     makeName();
 }
 
 
-CThread::CThread(const core::stringc& name) : mID(getUniqueID()),
-mRunnableTarget(0),
-mThread(0),
-mThreadID(0),
-mPriority(PRIO_NORMAL),
-mPolicy(POLICY_DEFAULT),
-mStackSize(APP_THREAD_STACK_SIZE),
-mName(name) {
-
+CThread::CThread(const core::stringc& name) :
+    mID(getUniqueID()),
+    mThread(0),
+    mThreadID(0),
+    mPriority(PRIO_NORMAL),
+    mPolicy(POLICY_DEFAULT),
+    mStackSize(APP_THREAD_STACK_SIZE),
+    mName(name) {
     mEvent.init(0, true);
 }
 
@@ -73,7 +71,7 @@ void CThread::setPriority(EThreadPriority iPriority) {
         mPriority = iPriority;
         if(mThread) {
             if(0 == ::SetThreadPriority(mThread, mPriority)) {
-                //printf("cannot set thread priority");
+                printf("cannot set thread priority");
             }
         }
     }
@@ -84,18 +82,18 @@ void CThread::start(IRunnable& target) {
     if(isRunning()) {
         return;  //printf("thread already running");
     }
-    mRunnableTarget = &target;
+    mTask = target;
     createThread(runnableEntry, this);
 }
 
 
 void CThread::start(AppCallable iTarget, void* iData) {
-    if(isRunning()) {
-        return; //printf("thread already running");
+    if(isRunning() || 0 == iTarget) {
+        //printf("thread already running");
+        return;
     }
     threadCleanup();
-    mCallbackTarget.mCallback = iTarget;
-    mCallbackTarget.mData = iData;
+    mTask.setTarget(iTarget, iData);
     createThread(callableEntry, this);
 }
 
@@ -209,8 +207,7 @@ unsigned __stdcall CThread::runnableEntry(void* iThread) {
 #if defined(APP_DEBUG)
     setThreadName(-1, pTI->getName().c_str());
 #endif
-    pTI->mRunnableTarget->run();
-    pTI->mRunnableTarget = 0;
+    pTI->mTask();
     return 0;
 }
 
@@ -225,9 +222,7 @@ unsigned __stdcall CThread::callableEntry(void* iThread) {
 #if defined(APP_DEBUG)
     setThreadName(-1, pTI->getName().c_str());
 #endif
-    pTI->mCallbackTarget.mCallback(pTI->mCallbackTarget.mData);
-    pTI->mCallbackTarget.mCallback = 0;
-    pTI->mCallbackTarget.mData = 0;
+    pTI->mTask();
     return 0;
 }
 
@@ -236,23 +231,23 @@ unsigned __stdcall CThread::callableEntry(void* iThread) {
 #include <time.h>
 
 
-CThread::CThread() : mID(getUniqueID()),
-mRunnableTarget(0),
-mThreadID(0),
-mPriority(PRIO_NORMAL),
-mPolicy(POLICY_DEFAULT),
-mStackSize(APP_THREAD_STACK_SIZE) {
+CThread::CThread() :
+    mID(getUniqueID()),
+    mThreadID(0),
+    mPriority(PRIO_NORMAL),
+    mPolicy(POLICY_DEFAULT),
+    mStackSize(APP_THREAD_STACK_SIZE) {
     makeName();
     mEvent.init(0, true);
 }
 
-CThread::CThread(const core::stringc& name) : mID(getUniqueID()),
-mRunnableTarget(0),
-mThreadID(0),
-mPriority(PRIO_NORMAL),
-mPolicy(POLICY_DEFAULT),
-mStackSize(APP_THREAD_STACK_SIZE),
-mName(name) {
+CThread::CThread(const core::stringc& name) :
+    mID(getUniqueID()),
+    mThreadID(0),
+    mPriority(PRIO_NORMAL),
+    mPolicy(POLICY_DEFAULT),
+    mStackSize(APP_THREAD_STACK_SIZE),
+    mName(name) {
 
     mEvent.init(0, true);
 }
@@ -265,7 +260,7 @@ CThread::~CThread() {
 
 
 bool CThread::isRunning() const {
-    return mRunnableTarget || (mCallbackTarget.mCallback && mCallbackTarget.mData);
+    return SThreadTask::ETT_NONE != mTask.mType;
 }
 
 
@@ -298,7 +293,7 @@ s32 CThread::getMaxPriority(s32 iPolicy/* = POLICY_DEFAULT*/) {
 
 
 void CThread::start(IRunnable& target) {
-    if(mRunnableTarget) {
+    if(isRunning()) {
         //printf("thread already running");
         return;
     }
@@ -312,9 +307,9 @@ void CThread::start(IRunnable& target) {
         }
     }
 
-    mRunnableTarget = &target;
+    mTask = target;
     if(pthread_create(&mThreadID, &attributes, runnableEntry, this)) {
-        mRunnableTarget = 0;
+        mTask.mType = SThreadTask::ETT_NONE;
         pthread_attr_destroy(&attributes);
         //printf("cannot start thread");
     }
@@ -339,7 +334,7 @@ void CThread::start(IRunnable& target) {
 
 
 void CThread::start(AppCallable target, void* pData) {
-    if(mCallbackTarget.mCallback) {
+    if(isRunning() || 0 == target) {
         //printf("thread already running");
         return;
     }
@@ -351,13 +346,9 @@ void CThread::start(AppCallable target, void* pData) {
             //printf("can not set thread stack size");
         }
     }
-
-    mCallbackTarget.mCallback = target;
-    mCallbackTarget.mData = pData;
-
+    mTask.setTarget(target, pData);
     if(pthread_create(&mThreadID, &attributes, callableEntry, this)) {
-        mCallbackTarget.mCallback = 0;
-        mCallbackTarget.mData = 0;
+        mTask.mType = SThreadTask::ETT_NONE;
         //printf("cannot start thread");
     }
 
@@ -467,8 +458,7 @@ void* CThread::runnableEntry(void* iThread) {
     sigaddset(&sset, SIGPIPE);
     pthread_sigmask(SIG_BLOCK, &sset, 0);
 
-    pThreadImpl->mRunnableTarget->run();
-    pThreadImpl->mRunnableTarget = 0;
+    pThreadImpl->mTask();
     //pThreadImpl->mEvent.set();
     return 0;
 }
@@ -485,9 +475,7 @@ void* CThread::callableEntry(void* iThread) {
     sigaddset(&sset, SIGPIPE);
     pthread_sigmask(SIG_BLOCK, &sset, 0);
 
-    pThreadImpl->mCallbackTarget.mCallback(pThreadImpl->mCallbackTarget.mData);
-    pThreadImpl->mCallbackTarget.mCallback = 0;
-    pThreadImpl->mCallbackTarget.mData = 0;
+    pThreadImpl->mTask();
     //pThreadImpl->mEvent.set();
     return 0;
 }
@@ -524,8 +512,8 @@ bool CThread::wait(long milliseconds) {
 }
 
 
-bool wait(CThreadEvent& iEvent, long milliseconds) {
-    CThread* thr = CThread::getCurrentThread();
+bool CThread::wait(CThreadEvent& iEvent, long milliseconds) {
+    //CThread* thr = CThread::getCurrentThread();
     return !(iEvent.wait(milliseconds));
 }
 

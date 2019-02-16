@@ -9,9 +9,8 @@
 #define  APP_CTHREAD_H
 
 #include "HConfig.h"
-//#include "IThread.h"
 #include "irrString.h"
-#include "INoCopy.h"
+#include "IRunnable.h"
 #include "CMutex.h"
 #include "CThreadEvent.h"
 
@@ -19,25 +18,88 @@
 #include <process.h>
 #elif defined( APP_PLATFORM_ANDROID )  || defined( APP_PLATFORM_LINUX )
 #include <pthread.h>
-#include<signal.h>
+#include <signal.h>
 #endif
 
 namespace irr {
-class IRunnable;
 
 ///A callable function pointer for threads.
 typedef void(*AppCallable)(void*);
 
-///A callable packet for threads.
-struct SCallbackData {
-    SCallbackData() : mCallback(0), mData(0) {
-    }
-    SCallbackData(AppCallable call, void* data) : mCallback(call), mData(data) {
-    }
-    AppCallable  mCallback;
-    void* mData;
-};
 
+///A callable task for threads.
+struct SThreadTask {
+    enum ETaskType {
+        ETT_NONE = 0,
+        ETT_RUN,
+        ETT_CALL
+    };
+    struct SCallbackData {
+        AppCallable  mCallback;
+        void* mData;
+    };
+    union {
+        IRunnable* mCaller; //ETT_RUN
+        SCallbackData mCallFunction;//ETT_CALL
+    } mTarget;
+    s32 mType;
+    s32 mCount;
+    SThreadTask* mNext;
+
+    SThreadTask() {
+        clear();
+    }
+
+    SThreadTask(IRunnable* target) {
+        mType = SThreadTask::ETT_RUN;
+        mTarget.mCaller = target;
+        mCount = 0;
+        mNext = 0;
+    }
+
+    SThreadTask(AppCallable iTarget, void* iData) {
+        mType = SThreadTask::ETT_CALL;
+        mTarget.mCallFunction.mCallback = iTarget;
+        mTarget.mCallFunction.mData = iData;
+        mCount = 0;
+        mNext = 0;
+    }
+
+    SThreadTask& operator=(const SThreadTask& it) {
+        ::memcpy(this, &it, sizeof(it));
+        return *this;
+    }
+
+    SThreadTask& operator=(IRunnable& target) {
+        mType = SThreadTask::ETT_RUN;
+        mTarget.mCaller = &target;
+        mCount = 0;
+        mNext = 0;
+        return *this;
+    }
+
+    SThreadTask& setTarget(AppCallable iTarget, void* iData) {
+        mType = SThreadTask::ETT_CALL;
+        mTarget.mCallFunction.mCallback = iTarget;
+        mTarget.mCallFunction.mData = iData;
+        mCount = 0;
+        mNext = 0;
+        return *this;
+    }
+
+    void clear() {
+        ::memset(this, 0, sizeof(SThreadTask));
+    }
+
+    void operator()() {
+        if(ETT_CALL == mType && mTarget.mCallFunction.mCallback) {
+            mTarget.mCallFunction.mCallback(mTarget.mCallFunction.mData);
+        } else if(ETT_RUN == mType && mTarget.mCaller) {
+            mTarget.mCaller->run();
+        }
+        mType = ETT_NONE;
+    }
+};
 
 /**
 *@class CThread
@@ -316,8 +378,8 @@ protected:
 
 
 private:
-    CThread(const CThread& other);
-    CThread& operator = (const CThread& other);
+    CThread(const CThread& other) = delete;
+    CThread& operator=(const CThread& other) = delete;
 
 
     s32 mID;
@@ -327,8 +389,7 @@ private:
     TID mThreadID;
     core::stringc mName;
     CThreadEvent mEvent;
-    SCallbackData mCallbackTarget;
-    IRunnable* mRunnableTarget;
+    SThreadTask mTask;
 
 #if defined( APP_PLATFORM_WINDOWS )
     class CCurrentThreadHolder {

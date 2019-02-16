@@ -180,12 +180,13 @@
     <ClInclude Include="..\..\..\Include\HConfig.h" />
     <ClInclude Include="..\..\..\Include\irrTypes.h" />
     <ClInclude Include="..\..\..\Include\Net\CBase64Coder.h" />
+    <ClInclude Include="..\..\..\Include\Net\CBufferQueue.h" />
     <ClInclude Include="..\..\..\Include\Net\CCheckCRC16.h" />
     <ClInclude Include="..\..\..\Include\Net\CCheckCRC32.h" />
     <ClInclude Include="..\..\..\Include\Net\CCheckSum.h" />
     <ClInclude Include="..\..\..\Include\Net\CEventPoller.h" />
+    <ClInclude Include="..\..\..\Include\Net\CNetCheckIP.h" />
     <ClInclude Include="..\..\..\Include\Net\CNetClientNatPuncher.h" />
-    <ClInclude Include="..\..\..\Include\Net\CNetClientSeniorTCP.h" />
     <ClInclude Include="..\..\..\Include\Net\CNetClientTCP.h" />
     <ClInclude Include="..\..\..\Include\Net\CNetClientUDP.h" />
     <ClInclude Include="..\..\..\Include\Net\CNetManager.h" />
@@ -194,9 +195,9 @@
     <ClInclude Include="..\..\..\Include\Net\CNetServerAcceptor.h" />
     <ClInclude Include="..\..\..\Include\Net\CNetServerNatPuncher.h" />
     <ClInclude Include="..\..\..\Include\Net\CNetServerNormalTCP.h" />
-    <ClInclude Include="..\..\..\Include\Net\CNetServerSeniorTCP.h" />
     <ClInclude Include="..\..\..\Include\Net\CNetServerSeniorUDP.h" />
     <ClInclude Include="..\..\..\Include\Net\CNetServerTCP.h" />
+    <ClInclude Include="..\..\..\Include\Net\CNetServiceTCP.h" />
     <ClInclude Include="..\..\..\Include\Net\CNetSession.h" />
     <ClInclude Include="..\..\..\Include\Net\CNetSocket.h" />
     <ClInclude Include="..\..\..\Include\Net\CNetUtility.h" />
@@ -215,6 +216,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\Core\CConsoleLogReceiver.cpp" />
     <ClCompile Include="..\..\..\Source\Core\CFileLogReceiver.cpp" />
+    <ClCompile Include="..\..\..\Source\Core\CMemoryHub.cpp" />
     <ClCompile Include="..\..\..\Source\Core\CQueueNode.cpp" />
     <ClCompile Include="..\..\..\Source\Core\CStreamFile.cpp" />
     <ClCompile Include="..\..\..\Source\Core\CTimeoutManager.cpp" />
@@ -223,12 +225,13 @@
     <ClCompile Include="..\..\..\Source\Core\IAppTimer.cpp" />
     <ClCompile Include="..\..\..\Source\Core\IUtility.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CBase64Coder.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\CBufferQueue.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CCheckCRC16.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CCheckCRC32.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CCheckSum.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CEventPoller.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\CNetCheckIP.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetClientNatPuncher.cpp" />
-    <ClCompile Include="..\..\..\Source\Net\CNetClientSeniorTCP.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetClientTCP.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetClientUDP.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetManager.cpp" />
@@ -236,9 +239,9 @@
     <ClCompile Include="..\..\..\Source\Net\CNetProtocal.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetServerAcceptor.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetServerNatPuncher.cpp" />
-    <ClCompile Include="..\..\..\Source\Net\CNetServerSeniorTCP.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetServerSeniorUDP.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetServerTCP.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\CNetServiceTCP.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetSession.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetSocket.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetUtility.cpp" />

@@ -6,9 +6,8 @@
 #include "CNetClientUDP.h"
 #include "CNetClientHttp.h"
 #include "CNetServerTCP.h"
-#include "CNetServerSeniorTCP.h"
+#include "CNetServiceTCP.h"
 #include "CNetServerSeniorUDP.h"
-#include "CNetClientSeniorTCP.h"
 
 namespace irr {
 namespace net {
@@ -153,7 +152,7 @@ INetServer* CNetManager::createServer(ENetNodeType type) {
 
     switch(type) {
     case ENET_TCP_SERVER:
-        it = 0;// new CNetServerSeniorTCP();
+        it = 0;// new CNetServiceTCP();
         break;
 
     case ENET_UDP_SERVER:
@@ -183,11 +182,6 @@ INetClient* CNetManager::createClient(ENetNodeType type) {
     }
 
     return it;
-}
-
-
-INetClientSeniorTCP* CNetManager::createClientSeniorTCP(CNetConfig* cfg) {
-    return new CNetClientSeniorTCP(cfg);
 }
 
 

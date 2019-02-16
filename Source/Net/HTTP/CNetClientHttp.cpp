@@ -8,7 +8,7 @@
 namespace irr {
 namespace net {
 
-CNetClientHttp::CNetClientHttp(INetClientSeniorTCP* hub) :
+CNetClientHttp::CNetClientHttp(CNetServiceTCP* hub) :
     mHub(hub),
     mSession(0),
     mReceiver(0) {
@@ -65,45 +65,54 @@ void CNetClientHttp::onBody() {
 }
 
 
-
-s32 CNetClientHttp::onEvent(SNetEvent& it) {
+s32 CNetClientHttp::onConnect(u32 sessionID,
+    const CNetAddress& local, const CNetAddress& remote) {
     s32 ret = 0;
-    switch(it.mType) {
-    case ENET_CLOSED:
-    {
-        mSession = 0;
-        if(mRelocation) {
-            mRelocation = false;
-            if(start()) {
-                return ret;
-            }
-        } else {
-            if(mResponse.getContentSize() == 0 && !mResponse.isKeepAlive()) {
-                postData();
-            }
+    if(mReceiver) {
+        //mReceiver->onConnect(sessionID, sock, local, remote);
+    }
+    return ret;
+}
+
+s32 CNetClientHttp::onDisconnect(u32 sessionID,
+    const CNetAddress& local, const CNetAddress& remote) {
+    s32 ret = 0;
+    mSession = 0;
+    if(mRelocation) {
+        mRelocation = false;
+        if(start()) {
+            return ret;
         }
-        break;
+    } else {
+        if(mResponse.getContentSize() == 0 && !mResponse.isKeepAlive()) {
+            postData();
+        }
+    }
+    return ret;
+}
+
+s32 CNetClientHttp::onSend(u32 sessionID, void* buffer, s32 size, s32 result) {
+    s32 ret = 0;
+    if(mReceiver) {
+        //mReceiver->onConnect(sessionID, sock, local, remote);
+    }
+    return ret;
+}
+
+s32 CNetClientHttp::onReceive(u32 sessionID, void* buffer, s32 size) {
+    s32 ret = 0;
+    const c8* pos = mResponse.import((c8*) buffer, size);
+    if(!pos) return ret;
+
+    if(mResponse.isFull()) {
+        onBody();
+        //mResponse.clear();
     }
 
-    case ENET_RECEIVED:
-    {
-        const c8* pos = mResponse.import((c8*)it.mInfo.mData.mBuffer, it.mInfo.mData.mSize);
-        if(!pos) return ret;
-
-        if(mResponse.isFull()) {
-            onBody();
-            //mResponse.clear();
-        }
-
-        ret = (s32)(pos - ((c8*)it.mInfo.mData.mBuffer));
-        break;
-    }
-
-
-    }//switch
+    ret = (s32) (pos - ((c8*) buffer));
 
     if(mReceiver) {
-        mReceiver->onEvent(it);
+        //mReceiver->onConnect(sessionID, sock, local, remote);
     }
     return ret;
 }
@@ -121,15 +130,8 @@ bool CNetClientHttp::start() {
         return true;
     }
     clear();
-    mSession = mHub->getSession(this);
-    if(mSession) {
-        if(mHub->connect(mSession,mAddressRemote)) {
-            return true;
-        }
-        mHub->setEventer(mSession, 0);
-        mSession = 0;
-    }
-    return false;
+    mSession = mHub->connect(mAddressRemote, this);
+    return mSession > 0;
 }
 
 
