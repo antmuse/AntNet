@@ -1,4 +1,4 @@
-AntNet V0.0.0.1
+AntNet V0.0.0.2
 ====
 A cross-platform net lib, current for Windows&amp;Linux&amp;Android.
 # Usage
