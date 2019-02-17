@@ -3,11 +3,15 @@
 #include "CThread.h"
 #include "IAppLogger.h"
 #include "CNetPacket.h"
-#include "INetSession.h"
 #include "CNetServerAcceptor.h"
 
 namespace irr {
 namespace net {
+
+s32 CDefaultNetEventer::mSentCount = 0;
+s32 CDefaultNetEventer::mRecvCount = 0;
+s32 CDefaultNetEventer::mSentBytes = 0;
+s32 CDefaultNetEventer::mRecvBytes = 0;
 
 CDefaultNetEventer::CDefaultNetEventer() :
     mPacket(1024 * 8),
@@ -86,11 +90,17 @@ s32 CDefaultNetEventer::onSend(u32 sessionID, void* buffer, s32 size, s32 result
         reinterpret_cast<c8*>(buffer)
     );
     //mHub->send(mSession, buffer, size);
+    if(0 == result) {
+        AppAtomicFetchAdd(size, &mSentBytes);
+        AppAtomicIncrementFetch(&mSentCount);
+    }
     return ret;
 }
 
 
 s32 CDefaultNetEventer::onReceive(u32 sessionID, void* buffer, s32 size) {
+    AppAtomicFetchAdd(size, &mRecvBytes);
+
     s32 ret = 0;
     mPacket.addBuffer(buffer, size);
     for(ret = 0; mPacket.getReadSize() - ret >= 11; ret += 11) {
@@ -101,6 +111,7 @@ s32 CDefaultNetEventer::onReceive(u32 sessionID, void* buffer, s32 size) {
         } else {
             mHub->send(mSession, mPacket.getReadPointer() + ret, 11);
         }
+        AppAtomicIncrementFetch(&mRecvCount);
     }
     mPacket.clear(ret);
     return ret;

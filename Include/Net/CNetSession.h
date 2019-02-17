@@ -2,11 +2,9 @@
 #define	APP_CNETSESSION_H
 
 #include "HAtomicOperator.h"
-#include "INetSession.h"
 #include "SClientContext.h"
 #include "CTimerWheel.h"
 #include "CBufferQueue.h"
-
 
 namespace irr {
 namespace net {
@@ -34,12 +32,11 @@ enum ENetUserCommand {
 *    8bit: used for server id.
 *    8bit: used for session level.
 */
-class CNetSession : public INetSession {
+class CNetSession {
 public:
-
     CNetSession();
 
-    virtual ~CNetSession();
+    ~CNetSession();
 
     void setService(CNetServiceTCP* it);
 
@@ -81,23 +78,32 @@ public:
         return id == mID;
     }
 
-    CNetAddress& getRemoteAddress() {
+    const CNetAddress& getRemoteAddress()const {
         return mAddressRemote;
     }
 
-    CNetAddress& getLocalAddress() {
+    const CNetAddress& getLocalAddress()const {
         return mAddressLocal;
     }
 
-    virtual CNetSocket& getSocket() override {
+    void setRemoteAddress(const CNetAddress& it) {
+        mAddressRemote = it;
+    }
+
+    void setLocalAddress(const CNetAddress& it) {
+        mAddressLocal = it;
+    }
+
+    void setSocket(const CNetSocket& it);
+    CNetSocket& getSocket() {
         return mSocket;
     }
 
-    virtual void setEventer(INetEventer* it)override {
+    void setEventer(INetEventer* it) {
         mEventer = it;
     }
 
-    virtual INetEventer* getEventer()const override {
+    INetEventer* getEventer()const {
         return mEventer;
     }
 
@@ -105,17 +111,11 @@ public:
         return mTimeNode;
     }
 
-    bool connect(const CNetAddress& it);
-
-    bool disconnect(u32 id);
-
-    bool receive();
-
     s32 postDisconnect();
-    s32 stepDisonnect();
+    s32 stepDisonnect(SContextIO& act);
 
     s32 postConnect();
-    s32 stepConnect();
+    s32 stepConnect(SContextIO& act);
 
     /**called by IO thread
     * @param id sessionID that hold by user.
@@ -125,20 +125,18 @@ public:
     s32 postSend(u32 id, CBufferQueue::SBuffer* buf);
 
     //called by IO thread
-    s32 postSend();
-    s32 stepSend();
+    s32 postSend(CEventQueue::SNode* it);
+    s32 stepSend(SContextIO& act);
 
     s32 postReceive();
-    s32 stepReceive();
+    s32 stepReceive(SContextIO& act);
 
     void postTimeout();
     s32 stepTimeout();
-    s32 stepError();
+
     s32 stepClose();
 
     void clear();
-
-    void setSocket(const CNetSocket& it);
 
     APP_FORCE_INLINE void setTime(u64 it) {
         mTime = it;
@@ -160,7 +158,6 @@ public:
 
 
 protected:
-
     void upgradeLevel() {
         u32 level = (mID & ENET_SESSION_LEVEL_MASK);
         level += 1 + ENET_ID_MASK;
@@ -168,6 +165,17 @@ protected:
             level += 1 + ENET_ID_MASK;
         }
         mID = (mID & ENET_ID_MASK) | level;
+    }
+
+    APP_FORCE_INLINE SContextIO* getAction(CEventQueue::SNode* it) const {
+        APP_ASSERT(it);
+        return reinterpret_cast<SContextIO*>(it + 1);
+    }
+
+    APP_FORCE_INLINE CEventQueue::SNode* getEventNode(SContextIO* it) const {
+        APP_ASSERT(it);
+        return reinterpret_cast<CEventQueue::SNode*>(
+            reinterpret_cast<c8*>(it) - sizeof(CEventQueue::SNode));
     }
 
     /**
@@ -184,21 +192,16 @@ protected:
     u32 mStatus;
     s32 mCount;
     u64 mTime;
-    CTimerWheel::STimeNode mTimeNode;
     CNetSocket mSocket;
     INetEventer* mEventer;
+    //CNetSession* mPrevious;
     CNetSession* mNext;
-    SContextIO mActionSend;
-    SContextIO mActionReceive;
-    SContextIO mActionConnect;
-    SContextIO mActionDisconnect;
-    CEventQueue::SNode* mPacketSend;
-    CEventQueue::SNode* mPacketReceive;
+    CNetServiceTCP* mService;
+    CTimerWheel::STimeNode mTimeNode;
     CEventQueue mQueueInput; //processed by IO thread
     CEventQueue mQueueEvent; //processed by worker threads
     CNetAddress mAddressRemote;
     CNetAddress mAddressLocal;
-    CNetServiceTCP* mService;
 
 private:
     CNetSession(const CNetSession& it) = delete;
@@ -209,6 +212,7 @@ private:
 
 class CNetSessionPool {
 public:
+
     CNetSessionPool();
 
     ~CNetSessionPool();
@@ -216,6 +220,8 @@ public:
     CNetSession* getIdleSession(u64 now_ms, u32 timeinterval_ms);
 
     void addIdleSession(CNetSession* it);
+
+    void addBusySession(CNetSession* it);
 
     void addIdleSession(u32 idx) {
         addIdleSession(mAllContext[idx]);
@@ -246,6 +252,8 @@ public:
         return mMax - mIdle;
     }
 
+    bool waitClose();
+
 private:
     CNetSessionPool(const CNetSessionPool& it) = delete;
     CNetSessionPool& operator=(const CNetSessionPool& it) = delete;
@@ -253,9 +261,12 @@ private:
     void clearAll();
     CNetSession* createSession();
 
+    volatile bool mClosed;
     u32 mMax;
     u32 mIdle;
     CNetSession* mAllContext[ENET_SESSION_MASK];
+
+    //idle list
     CNetSession* mHead;
     CNetSession* mTail;
 };

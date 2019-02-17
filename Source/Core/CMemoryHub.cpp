@@ -5,7 +5,6 @@ namespace irr {
 
 CMemoryHub::CMemoryHub() :
     mReferenceCount(1) {
-
     mPool128.setPageSize(1024 * 16);
     mPool512.setPageSize(2048 * 16);
     mPool2048.setPageSize(4096 * 16);
@@ -14,6 +13,7 @@ CMemoryHub::CMemoryHub() :
 
 
 CMemoryHub::~CMemoryHub() {
+    APP_ASSERT(0 == mReferenceCount);
 }
 
 void CMemoryHub::grab() {
@@ -39,6 +39,10 @@ void CMemoryHub::setPageSize(s32 size) {
 
 
 c8 *CMemoryHub::allocate(u32 bytesWanted, u32 align/* = sizeof(void*)*/) {
+#if defined(APP_DEBUG)
+    grab();
+#endif
+
     align = align < (u32)sizeof(SMemHead) ? (u32)sizeof(SMemHead) : align;
     bytesWanted += align;
     bytesWanted = APP_ALIGN_DATA(bytesWanted, align);
@@ -93,10 +97,13 @@ c8 *CMemoryHub::allocate(u32 bytesWanted, u32 align/* = sizeof(void*)*/) {
 
 
 void CMemoryHub::release(void* data) {
-    APP_ASSERT(data);
     if(!data) {
         return;
     }
+#if defined(APP_DEBUG)
+    drop();
+#endif
+
 #ifdef APP_DISABLE_BYTE_POOL
     ::free(data);
 #endif

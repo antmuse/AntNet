@@ -39,8 +39,6 @@ public:
 
     static void threadPoolCall(void* it);
 
-    void dispatchBuffers();
-
     bool start();
 
     bool stop();
@@ -97,14 +95,14 @@ public:
 
 protected:
     bool clearError();
-    void postSend();
     void remove(CNetSession* iContext);
     bool activePoller(u32 cmd, u32 id = 0);
+    void dispatchBuffers();
+    void clearBuffers();
 
 private:
-
-    bool mRunning;
-    s32 mIsActive; //0=unactive, 1=acitve
+    volatile bool mRunning;
+    s32 mLaunchedSendRequest;
     u32 mID;
     u32 mCreatedSocket;
     u32 mClosedSocket;      ///closed socket count

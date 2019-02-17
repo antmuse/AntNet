@@ -46,7 +46,25 @@ public:
     virtual s32 onLink(u32 sessionID,
         const CNetAddress& local, const CNetAddress& remote)override;
 
+    static u32 getSentCount() {
+        return mSentCount;
+    }
+    static u32 getRecvCount() {
+        return mRecvCount;
+    }
+    static u32 getSentSize() {
+        return mSentBytes;
+    }
+    static u32 getRecvSize() {
+        return mRecvBytes;
+    }
+
 private:
+    static s32 mSentCount;
+    static s32 mRecvCount;
+    static s32 mSentBytes;
+    static s32 mRecvBytes;
+
     bool mAutoConnect;
     u32 mSession;
     CNetServiceTCP* mHub;

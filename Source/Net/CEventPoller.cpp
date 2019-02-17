@@ -19,12 +19,15 @@ CEventPoller::CEventPoller() {
 
 
 CEventPoller::~CEventPoller() {
+    close();
+}
+
+void CEventPoller::close() {
     if(INVALID_HANDLE_VALUE != mHandle) {
         ::CloseHandle(mHandle);
         mHandle = INVALID_HANDLE_VALUE;
     }
 }
-
 
 s32 CEventPoller::getError() {
     return ::GetLastError();

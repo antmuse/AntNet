@@ -55,7 +55,7 @@ bool CNetCheckIP::isValidLittleEndianIP(u32 ip)const {
 
 
 bool CNetCheckIP::addNode(const c8* iStart, const c8* iEnd) {
-    assert(iStart && iEnd);
+    APP_ASSERT(iStart && iEnd);
     if(m_size >= APP_MAX_IP_CHECK_NODE) {//full
         return false;
     }

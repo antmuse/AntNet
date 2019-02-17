@@ -22,10 +22,10 @@ namespace net {
 APP_INLINE void CNetAddress::init() {
     ::memset(mAddress, 0, sizeof(mAddress));
 #if defined(APP_NET_USE_IPV6)
-    APP_ASSERT(sizeof(mAddress) == sizeof(sockaddr_in6));
+    APP_ASSERT(28 == sizeof(sockaddr_in6));
     getAddress()->sin6_family = AF_INET6;
 #else
-    APP_ASSERT(sizeof(mAddress) == sizeof(sockaddr_in));
+    APP_ASSERT(16 == sizeof(sockaddr_in));
     getAddress()->sin_family = AF_INET;
 #endif
     //printf("sizeof(sockaddr_in)=%u\n", sizeof(sockaddr_in));

@@ -27,14 +27,12 @@
 namespace irr {
 
 void AppQuit() {
-    /*printf("@Please any key to quit\n");
-    * system("PAUSE");*/
+    //system("PAUSE");
     irr::c8 key = '\0';
     while('*' != key) {
         printf("@Please input [*] to quit\n");
         scanf("%c", &key);
     }
-    printf("@App quitting...\n");
 }
 
 void AppStartServer() {
@@ -45,7 +43,7 @@ void AppStartServer() {
     config->mMaxContext = 200;
     config->mPollTimeout = 1000;
     config->mSessionTimeout = 30000;
-    config->mMaxWorkThread = 2;
+    config->mMaxWorkThread = 3;
     config->check();
     config->print();
 
@@ -58,12 +56,18 @@ void AppStartServer() {
     accpetor.setEventer(&evt);
     accpetor.start();
     AppQuit();
+    //evt.setAutoConnect(false);
     accpetor.stop();
+    IAppLogger::log(ELOG_INFO, "AppStartServer", "count=%u/%u,size=%u/%u",
+        net::CDefaultNetEventer::getSentCount(),
+        net::CDefaultNetEventer::getRecvCount(),
+        net::CDefaultNetEventer::getSentSize(),
+        net::CDefaultNetEventer::getRecvSize());
 }
 
 void AppStartClient() {
     net::CNetConfig* config = new net::CNetConfig();
-    config->mMaxWorkThread = 2;
+    config->mMaxWorkThread = 3;
     config->mMaxFetchEvents = 128;
     config->mMaxContext = 16;
     config->mPollTimeout = 1000;
@@ -91,7 +95,15 @@ void AppStartClient() {
     }
 
     AppQuit();
+    for(i = 0; i < max; ++i) {
+        evt[i].setAutoConnect(false);
+    }
     chub.stop();
+    IAppLogger::log(ELOG_INFO, "AppStartServer", "count=%u/%u,size=%u/%u",
+        net::CDefaultNetEventer::getSentCount(),
+        net::CDefaultNetEventer::getRecvCount(),
+        net::CDefaultNetEventer::getSentSize(),
+        net::CDefaultNetEventer::getRecvSize());
 }
 
 void AppStartPing() {
@@ -124,29 +136,34 @@ void AppStartSynPing() {
 
 int main(int argc, char** argv) {
     irr::IAppLogger::getInstance().addReceiver(irr::IAppLogger::ELRT_CONSOLE);
+    irr::u32 key = 1;
+    while(key) {
+        printf("@0 = Exit\n");
+        printf("@1 = Net Server\n");
+        printf("@2 = Net Client\n");
+        printf("@3 = Net Ping\n");
+        printf("@4 = Net Syn Ping\n");
+        printf("@Input menu id = ");
+        scanf("%u", &key);
+        switch(key) {
+        case 1:
+            irr::AppStartServer();
+            break;
+        case 2:
+            irr::AppStartClient();
+            break;
+        case 3:
+            irr::AppStartPing();
+            break;
+        case 4:
+            irr::AppStartSynPing();
+            break;
+        default:break;
+        }
+        printf("@Task finished\n\n");
+    }//while
 
-    printf("@1 = Net Server\n");
-    printf("@2 = Net Client\n");
-    printf("@3 = Net Ping\n");
-    printf("@4 = Net Syn Ping\n");
-    printf("@Input menu id = ");
-    irr::u32 key;
-    scanf("%u", &key);
-    switch(key) {
-    case 1:
-        irr::AppStartServer();
-        break;
-    case 2:
-        irr::AppStartClient();
-        break;
-    case 3:
-        irr::AppStartPing();
-        break;
-    case 4:
-        irr::AppStartSynPing();
-        break;
-    }
-    irr::AppQuit();
+    printf("@App exit success\n");
     return 0;
 }
 

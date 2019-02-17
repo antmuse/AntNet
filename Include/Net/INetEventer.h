@@ -51,13 +51,11 @@ struct SNetEvent {
         const CNetAddress* mAddressLocal;
         const CNetAddress* mAddressRemote;
     };
-
     union UEventInfo {
         SDataSend mDataSend;
         SDataReceive mDataReceive;
         SSessionInfo mSession;
     };
-
     ENetEventType mType;
     u32 mSessionID;
     UEventInfo mInfo;

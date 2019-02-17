@@ -106,6 +106,18 @@ public:
         }
     }
 
+    void push(CEventQueue& it) {
+        if(!it.isEmpty()) {
+            if(mTail) {
+                mTail->pushBack(it.mHead);
+                mTail = it.mTail;
+            } else {
+                mTail = it.mTail;
+                mHead = it.mHead;
+            }
+        }
+    }
+
     void lockPush(SNode* it) {
         CAutoSpinlock ak(mLock);
         push(it);

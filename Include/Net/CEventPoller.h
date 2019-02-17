@@ -20,16 +20,10 @@ public:
         u64 mKey;           ///< PULONG_PTR
         void* mPointer;     ///< LPOVERLAPPED
         u64 mInternal;
-        void setMessage(u64 msg) {
-            mKey = msg;
-        }
 #else
         u32 mKey;           ///< PULONG_PTR
         void* mPointer;     ///< LPOVERLAPPED
         u32 mInternal;
-        void setMessage(u32 msg) {
-            mKey = msg;
-        }
 #endif
         u32 mBytes;         ///< DWORD, Bytes Transferred
     };
@@ -40,6 +34,8 @@ public:
     ~CEventPoller();
 
     static s32 getError();
+
+    void close();
 
     bool getEvent(SEvent& iEvent, u32 time);
 

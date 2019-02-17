@@ -58,6 +58,9 @@ protected:
 private:
     s32 mReferenceCount;
 
+    CMemoryHub(const CMemoryHub& it) = delete;
+    CMemoryHub& operator=(const CMemoryHub& it) = delete;
+
     APP_FORCE_INLINE c8* getUserPointer(const c8* real, const u32 align, const EMemType tp)const {
         c8* user = APP_ALIGN_POINTER(real, align);
         user = user >= real + sizeof(SMemHead) ? user : user + align;
@@ -70,7 +73,7 @@ private:
     APP_FORCE_INLINE const EMemType getRealPointer(const void* user, c8*& real)const {
         const SMemHead& hd = *(reinterpret_cast<const SMemHead*>(((c8*) user) - sizeof(SMemHead)));
         real = ((c8*) user) - hd.mHeadSize;
-        return (EMemType)hd.mMemTypte;
+        return (EMemType) hd.mMemTypte;
     }
 };
 

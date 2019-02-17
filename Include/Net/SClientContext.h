@@ -49,24 +49,14 @@ struct SContextIO {
         EFLAG_REUSE = TF_REUSE_SOCKET
     };
 
+    OVERLAPPED mOverlapped;        ///<Used for each operation of every socket
     EOperationType mOperationType;   ///<Current operation type.
     u32 mID;
-    DWORD mFlags;                      ///<send or receive flags
-    DWORD mBytes;                      ///<Bytes Transferred
-    OVERLAPPED   mOverlapped;        ///<Used for each operation of every socket
-    WSABUF       mBuffer;			 ///<Pointer & cache size, point to the real cache.
+    DWORD mFlags;            ///<send or receive flags
+    DWORD mBytes;            ///<Bytes Transferred
+    WSABUF mBuffer;			 ///<Pointer & cache size, point to the real cache.
 
-    SContextIO() {
-        init();
-    }
-
-    ~SContextIO() {
-    }
-
-    void init() {
-        /*mFlags = 0;
-        mOperationType = EOP_INVALID;
-        mBytes = 0;*/
+    void clear() {
         ::memset(this, 0, sizeof(*this));
     }
 };

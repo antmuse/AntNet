@@ -13,7 +13,7 @@ namespace net {
 
 CNetServiceTCP::CNetServiceTCP(CNetConfig* cfg) :
     mID(0),
-    mIsActive(0),
+    mLaunchedSendRequest(0),
     mThread(0),
     mThreadPool(0),
     mMemHub(0),
@@ -56,15 +56,12 @@ void CNetServiceTCP::run() {
     u32 action;
     s32 ret;
     for(; mRunning; ) {
-        //AppAtomicFetchCompareSet(0, 1, &mIsActive);
-        AppAtomicFetchSet(0, &mIsActive);
         gotsz = mPoller.getEvents(iEvent, maxe, mTimeInterval);
-        AppAtomicFetchSet(1, &mIsActive);
         if(gotsz > 0) {
             mCurrentTime = IAppTimer::getTime();
             for(u32 i = 0; i < gotsz; ++i) {
                 ret = 2;
-                if(iEvent[i].mKey < ENET_SESSION_MASK) {
+                if(iEvent[i].mKey < ENET_SESSION_MASK && iEvent[i].mPointer) {
                     iContext = mSessionPool.getSession(iEvent[i].mKey);
                     iAction = APP_GET_VALUE_POINTER(iEvent[i].mPointer, SContextIO, mOverlapped);
                     iAction->mBytes = iEvent[i].mBytes;
@@ -72,19 +69,19 @@ void CNetServiceTCP::run() {
 
                     switch(iAction->mOperationType) {
                     case EOP_SEND:
-                        ret = iContext->stepSend();
+                        ret = iContext->stepSend(*iAction);
                         break;
 
                     case EOP_RECEIVE:
-                        ret = iContext->stepReceive();
+                        ret = iContext->stepReceive(*iAction);
                         break;
 
                     case EOP_CONNECT:
-                        ret = iContext->stepConnect();
+                        ret = iContext->stepConnect(*iAction);
                         break;
 
                     case EOP_DISCONNECT:
-                        ret = iContext->stepDisonnect();
+                        ret = iContext->stepDisonnect(*iAction);
                         break;
 
                     default:
@@ -93,6 +90,7 @@ void CNetServiceTCP::run() {
                         continue;
                     }//switch
                 } else {
+                    APP_ASSERT(0 == iEvent[i].mPointer);
                     if(ENET_SESSION_MASK == iEvent[i].mKey) {
                         mRunning = false;
                         continue;
@@ -102,6 +100,7 @@ void CNetServiceTCP::run() {
 
                     switch(action) {
                     case ENET_CMD_SEND:
+                        AppAtomicDecrementFetch(&mLaunchedSendRequest);
                         ret = -1;
                         break;
                     case ENET_CMD_RECEIVE:
@@ -115,6 +114,10 @@ void CNetServiceTCP::run() {
                         break;
                     case ENET_CMD_TIMEOUT:
                         ret = iContext->stepTimeout();
+                        break;
+                    default:
+                        //APP_ASSERT(0);
+                        ret = -1;
                         break;
                     }//switch
                 }//if
@@ -138,6 +141,7 @@ void CNetServiceTCP::run() {
             }
         } else {//poller error
             s32 pcode = mPoller.getError();
+            bool bigerror = false;
             switch(pcode) {
             case WAIT_TIMEOUT:
                 mCurrentTime = IAppTimer::getTime();
@@ -150,16 +154,16 @@ void CNetServiceTCP::run() {
                 break;
 
             case ERROR_ABANDONED_WAIT_0: //socket closed
-                APP_ASSERT(0);
-                break;
-
             default:
-                IAppLogger::log(ELOG_WARNING, "CNetServiceTCP::run",
+                IAppLogger::log(ELOG_ERROR, "CNetServiceTCP::run",
                     "invalid overlap, ecode: [%lu]", pcode);
                 APP_ASSERT(0);
+                bigerror = true;
                 break;
             }//switch
-            //clearError(iContext, iAction);
+            if(bigerror) {
+                break;
+            }
         }//if
 
         dispatchBuffers();
@@ -169,22 +173,22 @@ void CNetServiceTCP::run() {
     IAppLogger::log(ELOG_INFO, "CNetServiceTCP::run", "thread exited");
 }
 
-void CNetServiceTCP::postSend() {
-    for(u32 i = 0; i < mConfig->mMaxSendMsg; ) {
-        CBufferQueue::SBuffer* buf = mQueueSend.getHead();
-        if(0 == buf) { break; }
-        if(buf->mSessionCount >= buf->mSessionMax) {
-            ++i;
-            mQueueSend.pop();
-            continue;
-        }
-        for(; buf->mSessionCount < buf->mSessionMax; ++buf->mSessionCount) {
-            mSessionPool[buf->getSessionID(buf->mSessionCount)].postSend();
-            ++i;
-        }
-        mQueueSend.pop();
-    }
-}
+//void CNetServiceTCP::postSend() {
+//    for(u32 i = 0; i < mConfig->mMaxSendMsg; ) {
+//        CBufferQueue::SBuffer* buf = mQueueSend.getHead();
+//        if(0 == buf) { break; }
+//        if(buf->mSessionCount >= buf->mSessionMax) {
+//            ++i;
+//            mQueueSend.pop();
+//            continue;
+//        }
+//        for(; buf->mSessionCount < buf->mSessionMax; ++buf->mSessionCount) {
+//            mSessionPool[buf->getSessionID(buf->mSessionCount)].postSend();
+//            ++i;
+//        }
+//        mQueueSend.pop();
+//    }
+//}
 
 
 bool CNetServiceTCP::clearError() {
@@ -361,7 +365,7 @@ bool CNetServiceTCP::start() {
         hub->drop();
     }
     mRunning = true;
-    mIsActive = 0;
+    mLaunchedSendRequest = 0;
     mThreadPool = new CThreadPool(mConfig->mMaxWorkThread);
     mThreadPool->start();
     mTotalReceived = 0;
@@ -380,12 +384,28 @@ bool CNetServiceTCP::stop() {
         //IAppLogger::log(ELOG_INFO, "CNetServiceTCP::stop", "server had stoped.");
         return true;
     }
+    for(bool clean = false; !clean;) {
+        //mMutex.lock();
+        clean = mSessionPool.waitClose();
+        //mMutex.unlock();
+        mThread->sleep(100);
+    }
     mCurrentTime = IAppTimer::getTime();
     if(activePoller(ENET_SESSION_MASK)) {
         mRunning = false;
         mThread->join();
         delete mThread;
         mThread = 0;
+        mThreadPool->join();
+        mThreadPool->stop();
+        delete mThreadPool;
+        mThreadPool = 0;
+        //APP_LOG(ELOG_INFO, "CNetServiceTCP::stop", "server stoped success");
+        //mQueueSend.clear();
+        clearBuffers();
+        if(mMemHub) {
+            mMemHub->drop();
+        }
         IAppLogger::log(ELOG_INFO, "CNetServiceTCP::stop",
             "Statistics: [session=%u][speed=%luKb/s][size=%uKb][seconds=%lu]",
             mCreatedSocket,
@@ -393,16 +413,6 @@ bool CNetServiceTCP::stop() {
             (mTotalReceived >> 10),
             (mCurrentTime - mStartTime) / 1000
         );
-        return true;
-    }
-    mThreadPool->join();
-    mThreadPool->stop();
-    delete mThreadPool;
-    mThreadPool = 0;
-    //APP_LOG(ELOG_INFO, "CNetServiceTCP::stop", "server stoped success");
-    //mQueueSend.clear();
-    if(mMemHub) {
-        mMemHub->drop();
     }
     return false;
 }
@@ -437,10 +447,16 @@ void CNetServiceTCP::remove(CNetSession* iContext) {
 
 u32 CNetServiceTCP::receive(CNetSocket& sock, const CNetAddress& remote,
     const CNetAddress& local, INetEventer* evter) {
+    if(!mRunning) {
+        sock.close();
+        return 0;
+    }
+
     CAutoLock aulock(mMutex);
 
     CNetSession* session = mSessionPool.getIdleSession(mCurrentTime, APP_NET_SESSION_LINGER);
     if(!session) {
+        sock.close();
         return 0;
     }
 
@@ -504,11 +520,12 @@ u32 CNetServiceTCP::receive(CNetSocket& sock, const CNetAddress& remote,
     session->setService(this);
     session->setSocket(sock);
     session->setTime(0);//busy session
-    session->getLocalAddress() = local;
-    session->getRemoteAddress() = remote;
+    session->setLocalAddress(local);
+    session->setRemoteAddress(remote);
     session->setEventer(evter);
     session->postEvent(ENET_LINKED);
-    if(!session->receive()) {
+
+    if(!activePoller(ENET_CMD_RECEIVE, session->getID())) {
         session->getSocket().close();
         mSessionPool.addIdleSession(session);
         return 0;
@@ -518,8 +535,9 @@ u32 CNetServiceTCP::receive(CNetSocket& sock, const CNetAddress& remote,
 
 
 u32 CNetServiceTCP::connect(const CNetAddress& remote, INetEventer* it) {
-    if(!it) return 0;
-
+    if(!it || !mRunning) {
+        return 0;
+    }
     CAutoLock aulock(mMutex);
 
     CNetSession* session = mSessionPool.getIdleSession(mCurrentTime, APP_NET_SESSION_LINGER);
@@ -595,8 +613,11 @@ u32 CNetServiceTCP::connect(const CNetAddress& remote, INetEventer* it) {
     session->setHub(mID);
     session->setEventer(it);
     session->setService(this);
-    sock.getLocalAddress(session->getLocalAddress());
-    if(!session->connect(remote)) {
+    CNetAddress local;
+    sock.getLocalAddress(local);
+    session->setLocalAddress(local);
+    session->setRemoteAddress(remote);
+    if(!activePoller(ENET_CMD_CONNECT, session->getID())) {
         session->getSocket().close();
         mSessionPool.addIdleSession(session);
         return 0;
@@ -607,8 +628,11 @@ u32 CNetServiceTCP::connect(const CNetAddress& remote, INetEventer* it) {
 
 s32 CNetServiceTCP::send(u32 id, const void* buffer, s32 size) {
     APP_ASSERT(id > 0);
-    if(mQueueSend.lockPush(buffer, size, id)) {
-        activePoller(ENET_CMD_SEND);
+    if(mRunning && mQueueSend.lockPush(buffer, size, id)) {
+        if(0 == mLaunchedSendRequest) {
+            AppAtomicIncrementFetch(&mLaunchedSendRequest);
+            activePoller(ENET_CMD_SEND);
+        }
         return size;
     }
     return 0;
@@ -616,17 +640,20 @@ s32 CNetServiceTCP::send(u32 id, const void* buffer, s32 size) {
 
 
 bool CNetServiceTCP::activePoller(u32 cmd, u32 id/* = 0*/) {
-    //if(0 == AppAtomicFetchCompareSet(1, 0, &mIsActive)) {
-    //}
     CEventPoller::SEvent evt;
-    evt.setMessage(cmd | (ENET_SESSION_MASK&id));
+    evt.mPointer = 0;
+    evt.mKey = ((ENET_CMD_MASK&cmd) | (ENET_SESSION_MASK&id));
     return mPoller.postEvent(evt);
 }
 
+
 s32 CNetServiceTCP::send(const u32* uid, u16 maxUID, const void* buffer, s32 size) {
     APP_ASSERT(uid && maxUID > 0);
-    if(mQueueSend.lockPush(buffer, size, uid, maxUID)) {
-        activePoller(ENET_CMD_SEND);
+    if(mRunning && mQueueSend.lockPush(buffer, size, uid, maxUID)) {
+        if(0 == mLaunchedSendRequest) {
+            AppAtomicIncrementFetch(&mLaunchedSendRequest);
+            activePoller(ENET_CMD_SEND);
+        }
         return size;
     }
     return 0;
@@ -635,7 +662,8 @@ s32 CNetServiceTCP::send(const u32* uid, u16 maxUID, const void* buffer, s32 siz
 
 bool CNetServiceTCP::disconnect(u32 id) {
     APP_ASSERT(id > 0);
-    return mSessionPool[id&ENET_SESSION_MASK].disconnect(id);
+    CNetSession& nd = mSessionPool[id&ENET_SESSION_MASK];
+    return nd.isValid(id) && activePoller(ENET_CMD_DISCONNECT, nd.getID());
 }
 
 
@@ -644,12 +672,14 @@ void CNetServiceTCP::setEventer(u32 id, INetEventer* evt) {
     mSessionPool[id&ENET_SESSION_MASK].setEventer(evt);
 }
 
+
 void CNetServiceTCP::addNetEvent(CNetSession& session) {
     CEventQueue::SNode* it = mQueueEvent.create(0);
     it->mEvent.mSessionID = session.getIndex();
     mQueueEvent.lockPush(it);
     mThreadPool->start(CNetServiceTCP::threadPoolCall, this);
 }
+
 
 void CNetServiceTCP::threadPoolCall(void* it) {
     CNetServiceTCP& hub = *reinterpret_cast<CNetServiceTCP*>(it);
@@ -667,6 +697,9 @@ void CNetServiceTCP::dispatchBuffers() {
     static u32 cnt = 0;
     static u32 cntf = 0;
     u32 bk = cnt;
+    /*if(bk > 100) {
+        mPoller.close();
+    }*/
 #endif
     if(mQueueSend.isEmpty()) {
         return;
@@ -699,6 +732,16 @@ void CNetServiceTCP::dispatchBuffers() {
 #endif
 }
 
+
+void CNetServiceTCP::clearBuffers() {
+    u32 cnt = 0;
+    CBufferQueue::SBuffer* buf = mQueueSend.lockPop();
+    for(; buf; buf = mQueueSend.lockPop()) {
+        buf->drop();
+        ++cnt;
+    }
+    IAppLogger::log(ELOG_INFO, "CNetServiceTCP::clearBuffers", "count=%u", cnt);
+}
 
 }//namespace net
 }//namespace irr
