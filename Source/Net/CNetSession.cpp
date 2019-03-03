@@ -6,6 +6,16 @@
 
 namespace irr {
 namespace net {
+#if defined(APP_DEBUG)
+static s32 G_ENQUEUE_COUNT = 0;
+static s32 G_DEQUEUE_COUNT = 0;
+#endif
+
+void AppTimeoutContext(void* it) {
+    CNetSession& iContext = *reinterpret_cast<CNetSession*>(it);
+    iContext.postTimeout();
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 CNetSessionPool::CNetSessionPool() :
     mIdle(0),
@@ -114,19 +124,8 @@ void CNetSessionPool::clearAll() {
     mTail = 0;
 }
 
-} //namespace net
-} //namespace irr
 
-
-#if defined(APP_PLATFORM_WINDOWS)
-namespace irr {
-namespace net {
-
-
-void AppTimeoutContext(void* it) {
-    CNetSession& iContext = *reinterpret_cast<CNetSession*>(it);
-    iContext.postTimeout();
-}
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 CNetSession::CNetSession() :
@@ -155,6 +154,67 @@ void CNetSession::setService(CNetServiceTCP* it) {
     mQueueEvent.setMemoryHub(&it->getMemoryHub());
 }
 
+
+void CNetSession::setSocket(const CNetSocket& it) {
+    mSocket = it;
+}
+
+
+void CNetSession::clear() {
+    mCount = 1;
+    mStatus = 0;
+    mEventer = 0;
+    mInGlobalQueue = 0;
+}
+
+
+
+void CNetSession::pushGlobalQueue(CEventQueue::SNode* nd) {
+    APP_ASSERT(nd);
+    mQueueEvent.lock();
+    mQueueEvent.push(nd);
+    bool evt = setInGlobalQueue(1);
+    mQueueEvent.unlock();
+
+    if(evt) {
+#if defined(APP_DEBUG)
+        AppAtomicIncrementFetch(&G_ENQUEUE_COUNT);
+#endif
+        mService->addNetEvent(*this);
+    }
+}
+
+
+
+s32 CNetSession::postEvent(ENetEventType iEvent) {
+    if(mEventer) {
+        CEventQueue::SNode* nd = mQueueEvent.create(0);
+        nd->mEventer = mEventer;
+        nd->mEvent.mType = iEvent;
+        nd->mEvent.mSessionID = getID();
+        nd->mEvent.mInfo.mSession.mAddressLocal = &mAddressLocal;
+        nd->mEvent.mInfo.mSession.mAddressRemote = &mAddressRemote;
+        pushGlobalQueue(nd);
+        if(ENET_DISCONNECT == iEvent) {
+            upgradeLevel();
+            mEventer = 0;
+        }
+        return 0;
+    }
+    return -1;
+}
+
+
+} //namespace net
+} //namespace irr
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+#if defined(APP_PLATFORM_WINDOWS)
+namespace irr {
+namespace net {
 
 s32 CNetSession::postSend(u32 id, CBufferQueue::SBuffer* buf) {
     if(!isValid(id) || !buf) {
@@ -250,7 +310,7 @@ s32 CNetSession::postReceive() {
     nd->mEvent.mInfo.mDataReceive.mAllocatedSize = bufsz;
     nd->mEvent.mInfo.mDataReceive.mBuffer
         = reinterpret_cast<c8*>(nd + 1) + sizeof(SContextIO);
-    
+
     SContextIO* act = getAction(nd);
     act->clear();
     act->mOperationType = EOP_RECEIVE;
@@ -323,7 +383,7 @@ s32 CNetSession::postDisconnect() {
     }
     mStatus |= ENET_CMD_DISCONNECT;
     //APP_LOG(ELOG_ERROR, "CNetSession::postDisconnect", "ecode=%u", CNetSocket::getError());
-    
+
     CEventQueue::SNode* nd = mQueueEvent.create(sizeof(SContextIO));
     nd->mEventer = mEventer;
     nd->mEvent.mType = ENET_DISCONNECT;
@@ -395,17 +455,24 @@ s32 CNetSession::stepTimeout() {
         mQueueInput.swap(que);
         mQueueInput.unlock();
 
-        mQueueEvent.lock();
         bool notept = !que.isEmpty();
+        mQueueEvent.lock();
         if(notept) {
             mQueueEvent.push(que);
+        } else {
+            notept = !mQueueEvent.isEmpty();
         }
-        notept = (notept || !mQueueEvent.isEmpty());
         bool evt = (notept && setInGlobalQueue(1));
         mQueueEvent.unlock();
         if(evt) {
             mService->addNetEvent(*this);
+#if defined(APP_DEBUG)
+            AppAtomicIncrementFetch(&G_ENQUEUE_COUNT);
+#endif
         }
+        APP_LOG(ELOG_INFO, "CNetSession::stepTimeout",
+            "enqueue=%u, dequeue=%u",
+            G_ENQUEUE_COUNT, G_DEQUEUE_COUNT);
         if(notept) {
             return mCount;
         }
@@ -414,71 +481,9 @@ s32 CNetSession::stepTimeout() {
 }
 
 
-s32 CNetSession::postEvent(ENetEventType iEvent) {
-    if(mEventer) {
-        CEventQueue::SNode* nd = mQueueEvent.create(0);
-        nd->mEventer = mEventer;
-        nd->mEvent.mType = iEvent;
-        nd->mEvent.mSessionID = getID();
-        nd->mEvent.mInfo.mSession.mAddressLocal = &mAddressLocal;
-        nd->mEvent.mInfo.mSession.mAddressRemote = &mAddressRemote;
-        pushGlobalQueue(nd);
-        if(ENET_DISCONNECT == iEvent) {
-            upgradeLevel();
-            mEventer = 0;
-        }
-        return 0;
-    }
-    return -1;
-}
-
-
-void CNetSession::setSocket(const CNetSocket& it) {
-    mSocket = it;
-}
-
-
-void CNetSession::clear() {
-    mCount = 1;
-    mStatus = 0;
-    mEventer = 0;
-}
-
-
-void CNetSession::pushGlobalQueue(CEventQueue::SNode* nd) {
-    APP_ASSERT(nd);
-#if defined(APP_DEBUG)
-    static s32 cnt = 0;
-    static s32 ecnt = 0;
-    AppAtomicIncrementFetch(&cnt);
-    //static CMutex mtx;
-    //CAutoLock ak(mtx);
-#endif
-
-    mQueueEvent.lock();
-    mQueueEvent.push(nd);
-    bool evt = setInGlobalQueue(1);
-    mQueueEvent.unlock();
-
-    if(evt) {
-#if defined(APP_DEBUG)
-        AppAtomicIncrementFetch(&ecnt);
-#endif
-        mService->addNetEvent(*this);
-    }
-
-    APP_LOG(ELOG_INFO, "CNetSession::pushGlobalQueue", "count=%u/%u",
-        AppAtomicFetchAdd(0, &ecnt), AppAtomicFetchAdd(0, &cnt));
-}
-
-
 void CNetSession::dispatchEvents() {
 #if defined(APP_DEBUG)
-    static s32 cnt = 0;
-    static s32 ecnt = 0;
-    AppAtomicIncrementFetch(&ecnt);
-    //static CMutex mtx;
-    //CAutoLock ak(mtx);
+    AppAtomicIncrementFetch(&G_DEQUEUE_COUNT);
 #endif
 
     CEventQueue que;
@@ -487,9 +492,6 @@ void CNetSession::dispatchEvents() {
     mQueueEvent.unlock();
     do {
         for(CEventQueue::SNode* nd = nd = que.pop(); nd; nd = que.pop()) {
-#if defined(APP_DEBUG)
-            AppAtomicIncrementFetch(&cnt);
-#endif
             switch(nd->mEvent.mType) {
             case ENET_RECEIVE:
             {
@@ -549,10 +551,6 @@ void CNetSession::dispatchEvents() {
         }
         mQueueEvent.unlock();
     } while(!que.isEmpty());
-
-    APP_ASSERT(cnt >= ecnt);
-    APP_LOG(ELOG_INFO, "CNetSession::dispatchEvents", "count=%u/%u", 
-        AppAtomicFetchAdd(0, &ecnt), AppAtomicFetchAdd(0, &cnt));
 }
 
 } //namespace net
@@ -563,56 +561,6 @@ void CNetSession::dispatchEvents() {
 
 namespace irr {
 namespace net {
-
-void AppTimeoutContext(void* it) {
-    CNetSession& iContext = *(CNetSession*) it;
-    iContext.onTimeout();
-}
-
-
-CNetSession::CNetSession() :
-    mTime(-1),
-    mID(getMask(0, 1)),
-    mID(getMask(0, 1)),
-    //mSessionHub(0),
-    mCount(0),
-    mPoller(0),
-    mStatus(0),
-    mPacketSend(8 * 1024),
-    mPacketReceive(8 * 1024),
-    mEventer(0) {
-    clear();
-    mTimeNode.mCallback = AppTimeoutContext;
-    mTimeNode.mCallbackData = this;
-}
-
-
-CNetSession::~CNetSession() {
-}
-
-
-bool CNetSession::disconnect() {
-    if(mStatus & ENET_CMD_DISCONNECT) {
-        return true;
-    }
-    mStatus |= ENET_CMD_DISCONNECT;
-    CEventPoller::SEvent evt;
-    evt.setMessage(ENET_CMD_DISCONNECT | getIndex());
-    return mService->getPoller().postEvent(evt);
-}
-
-
-bool CNetSession::connect(const CNetAddress& it) {
-    if(mStatus & ENET_CMD_CONNECT) {
-        return true;
-    }
-    mStatus |= ENET_CMD_CONNECT;
-    mAddressRemote = it;
-    CEventPoller::SEvent evt;
-    evt.setMessage(ENET_CMD_CONNECT | getIndex());
-    return mService->getPoller().postEvent(evt);
-}
-
 
 s32 CNetSession::send(const void* iBuffer, s32 iSize) {
     if(!iBuffer || iSize < 0) {//0 byte is ok
@@ -727,46 +675,10 @@ s32 CNetSession::stepDisonnect() {
 }
 
 
-bool CNetSession::onTimeout() {
+void CNetSession::postTimeout() {
     CEventPoller::SEvent evt;
-    evt.setMessage(ENET_CMD_TIMEOUT | getIndex());
+    evt.mEvent = (ENET_CMD_TIMEOUT | getIndex());
     return mService->getPoller().postEvent(evt);
-}
-
-
-bool CNetSession::onNewSession() {
-    CEventPoller::SEvent evt;
-    evt.setMessage(ENET_CMD_NEW_SESSION | getIndex());
-    return mService->getPoller().postEvent(evt);
-}
-
-
-void CNetSession::postEvent(ENetEventType iEvent) {
-    if(mEventer) {
-        SNetEvent evt;
-        evt.mType = iEvent;
-        //evt.mInfo.mData.mBuffer = 0;
-        //evt.mInfo.mData.mSize = 0;
-        evt.mInfo.mSession.mSocket = &mSocket;
-        evt.mInfo.mSession.mContext = this;
-        evt.mInfo.mSession.mAddressLocal = &mAddressLocal;
-        evt.mInfo.mSession.mAddressRemote = &mAddressRemote;
-        mEventer->onEvent(evt);
-    }
-}
-
-
-void CNetSession::setSocket(const CNetSocket& it) {
-}
-
-
-void CNetSession::clear() {
-    mID = mID;
-    mStatus = 0;
-    mCount = 0;
-    mEventer = 0;
-    mPacketSend.setUsed(0);
-    mPacketReceive.setUsed(0);
 }
 
 

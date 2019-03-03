@@ -20,7 +20,6 @@
 #include "CNetSession.h"
 #include "CBufferQueue.h"
 
-#if defined(APP_PLATFORM_WINDOWS)
 namespace irr {
 namespace net {
 class INetEventer;
@@ -52,7 +51,7 @@ public:
 
     void setEventer(u32 id, INetEventer* evt);
 
-    u32 receive(CNetSocket& sock, const CNetAddress& remote, 
+    u32 receive(CNetSocket& sock, const CNetAddress& remote,
         const CNetAddress& local, INetEventer* evter);
 
     u32 connect(const CNetAddress& remote, INetEventer* it);
@@ -84,7 +83,7 @@ public:
     }
 
     void addNetEvent(CNetSession& session);
-    
+
     CEventQueue& getEventQueue() {
         return mQueueEvent;
     }
@@ -102,7 +101,6 @@ protected:
 
 private:
     volatile bool mRunning;
-    s32 mLaunchedSendRequest;
     u32 mID;
     u32 mCreatedSocket;
     u32 mClosedSocket;      ///closed socket count
@@ -121,78 +119,16 @@ private:
     CEventQueue mQueueEvent;//processecd by worker threads
     CMemoryHub* mMemHub;
     CNetConfig* mConfig;
-};
 
-
-}// end namespace net
-}// end namespace irr
-
+#if defined(APP_PLATFORM_WINDOWS)
 
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
 
-namespace irr {
-namespace net {
-class INetEventer;
-class CNetSession;
-
-/**
-*@class CNetServiceTCP
-*/
-class CNetServiceTCP : public IRunnable {
-public:
-    CNetServiceTCP(CNetConfig* cfg);
-
-    virtual ~CNetServiceTCP();
-
-    virtual void run()override;
-
-    bool start();
-
-    bool stop();
-
-    u32 getID() const {
-        return mID;
-    }
-    void setID(u32 id) {
-        mID = (0xFFU & id);
-    }
-
-    CNetSession* addSession(CNetSocket& sock, const CNetAddress& remote,
-        const CNetAddress& local, INetEventer* evter);
-
-protected:
-    bool clearError();
-
-    void remove(CNetSession* iContext);
-
-
-private:
-
-    bool mRunning;
-    u32 mID;
-    u32 mMaxContext;
-    u32 mCreatedSocket;
-    u32 mClosedSocket;      ///closed socket count
-    u32 mTotalSession;      ///<launched session count
-    u32 mTimeInterval;
-    u64 mStartTime;
-    u64 mCurrentTime;
-    u64 mTotalReceived;
-    CTimerWheel mWheel;
-    CEventPoller mPoller;
-    CMutex mMutex;
-    CNetSessionPool mSessionPool;
-    CThread* mThread;
-    INetEventer* mReceiver;
-    CNetAddress mAddressLocal;
-    CNetConfig* mConfig;
-    CMemoryHub* mMemHub;
+#endif //APP_PLATFORM_LINUX
 };
 
 
 }// end namespace net
 }// end namespace irr
-
-#endif //APP_PLATFORM_LINUX
 
 #endif //APP_CNETSERVICETCP_H

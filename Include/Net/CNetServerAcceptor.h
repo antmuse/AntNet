@@ -104,12 +104,12 @@ protected:
 
 
 private:
-    bool mRunning;                                  ///<True if started, else false
+    volatile bool mRunning;                ///<True if started, else false
     u32 mAcceptCount;
     u32 mCurrent;
     CEventPoller mPoller;
-    CThread* mThread;						        ///<All workers
-    CNetSocket mListener;						///<listen socket's context
+    CThread* mThread;						///<All workers
+    CNetSocket mListener;					///<listen socket's context
     CNetAddress mAddressRemote;
     CNetAddress mAddressLocal;
     core::array<SContextWaiter*>  mAllWaiter;
@@ -180,13 +180,13 @@ private:
 
     void removeAllServer();
 
-    bool mRunning;                                  ///<True if started, else false
+    volatile bool mRunning;                    ///<True if started, else false
     u32 mAcceptCount;
     u32 mCurrent;
     CEventPoller mPoller;
     INetEventer* mReceiver;
     CNetConfig* mConfig;
-    CThread* mThread;						        ///<All workers
+    CThread* mThread;						    ///<All workers
     CNetSocket mListener;						///<listen socket's context
     CNetAddress mAddressRemote;
     CNetAddress mAddressLocal;

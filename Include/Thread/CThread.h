@@ -73,8 +73,7 @@ struct SThreadTask {
     SThreadTask& operator=(IRunnable& target) {
         mType = SThreadTask::ETT_RUN;
         mTarget.mCaller = &target;
-        mCount = 0;
-        mNext = 0;
+        mCount = 1;
         return *this;
     }
 
@@ -82,8 +81,7 @@ struct SThreadTask {
         mType = SThreadTask::ETT_CALL;
         mTarget.mCallFunction.mCallback = iTarget;
         mTarget.mCallFunction.mData = iData;
-        mCount = 0;
-        mNext = 0;
+        mCount = 1;
         return *this;
     }
 
@@ -97,7 +95,6 @@ struct SThreadTask {
         } else if(ETT_RUN == mType && mTarget.mCaller) {
             mTarget.mCaller->run();
         }
-        mType = ETT_NONE;
     }
 };
 

@@ -172,10 +172,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\Test\App.cpp" />
-    <ClCompile Include="..\..\..\Source\Test\CDefaultNetEventer.cpp" />
+    <ClCompile Include="..\..\..\Source\Test\CNetEchoClient.cpp" />
+    <ClCompile Include="..\..\..\Source\Test\CNetEchoServer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\Source\Test\CDefaultNetEventer.h" />
+    <ClInclude Include="..\..\..\Source\Test\CNetEchoClient.h" />
+    <ClInclude Include="..\..\..\Source\Test\CNetEchoServer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

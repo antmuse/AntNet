@@ -206,7 +206,7 @@ bool CEventPoller::modify(s32 fd, SEvent& iEvent) {
 
 
 bool CEventPoller::postEvent(SEvent& iEvent) {
-    return sizeof(iEvent.mEvent) == mSocketPair.getSocketB().send((c8*) iEvent.mEvent, sizeof(iEvent.mEvent));
+    return sizeof(iEvent.mEvent) == mSocketPair.getSocketB().send(&iEvent.mEvent, sizeof(iEvent.mEvent));
 }
 
 

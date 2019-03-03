@@ -473,10 +473,10 @@ bool CNetServerAcceptor::stop() {
         //IAppLogger::log(ELOG_INFO, "CNetServerAcceptor::stop", "server had stoped.");
         return true;
     }
+    mRunning = false;
     CEventPoller::SEvent evt;
     evt.setMessage(APP_SERVER_EXIT_CODE);
     if(mPoller.postEvent(evt)) {
-        mRunning = false;
         mThread->join();
         delete mThread;
         mThread = 0;
@@ -545,13 +545,13 @@ bool CNetServerAcceptor::stepAccpet(CNetSocket& sock) {
     }
     do {
         server = mAllService[mCurrent++];
-        server->addSession(sock, mAddressRemote, mAddressLocal, mReceiver);
+        server->receive(sock, mAddressRemote, mAddressLocal, mReceiver);
     } while(!server && mCurrent < sz);
 
     if(!server) {
         server = createServer();
         APP_ASSERT(server);
-        server->addSession(sock, mAddressRemote, mAddressLocal, mReceiver);
+        server->receive(sock, mAddressRemote, mAddressLocal, mReceiver);
     }
 
     return 0 != server;

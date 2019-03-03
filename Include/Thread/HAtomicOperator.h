@@ -23,19 +23,22 @@ void AppAtomicReadWriteBarrier();
 *@brief s32 iTarget |= value;
 */
 s32 AppAtomicFetchOr(s32 value, s32* iTarget);
-s32 AppAtomicFetchOr(s16 value, s16* iTarget);
+s16 AppAtomicFetchOr(s16 value, s16* iTarget);
+
 
 /**
 *@brief s32 iTarget ^= value;
 */
 s32 AppAtomicFetchXor(s32 value, s32* iTarget);
-s32 AppAtomicFetchXor(s16 value, s16* iTarget);
+s16 AppAtomicFetchXor(s16 value, s16* iTarget);
+
 
 /**
 *@brief s32 iTarget &= value;
 */
 s32 AppAtomicFetchAnd(s32 value, s32* iTarget);
-s32 AppAtomicFetchAnd (s16 value, s16* iTarget);
+s16 AppAtomicFetchAnd(s16 value, s16* iTarget);
+
 
 /**
 *@param iTarget A pointer to the value to be incremented,
@@ -43,6 +46,7 @@ s32 AppAtomicFetchAnd (s16 value, s16* iTarget);
 *@return The resulting incremented value.
 */
 s32 AppAtomicIncrementFetch(s32* it);
+
 
 /**
 *@param iTarget A pointer to the value to be incremented,
@@ -52,12 +56,14 @@ s32 AppAtomicIncrementFetch(s32* it);
 s64 AppAtomicIncrementFetch(s64* it);
 s16 AppAtomicIncrementFetch(s16* it);
 
+
 /**
 *@param iTarget A pointer to the value to be decremented.
 *must be aligned on a 32-bit boundary; otherwise, See _aligned_malloc().
 *@return The resulting decremented value.
 */
 s32 AppAtomicDecrementFetch(s32* it);
+
 
 /**
 *@param iTarget A pointer to the value to be decremented.
@@ -66,6 +72,7 @@ s32 AppAtomicDecrementFetch(s32* it);
 */
 s64 AppAtomicDecrementFetch(s64* it);
 s16 AppAtomicDecrementFetch(s16* it);
+
 
 /**
 *@brief The function AppAtomicFetchAdd target with a new value, AppFetchAnd returns its prior value.

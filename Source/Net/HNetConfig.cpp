@@ -12,6 +12,7 @@ namespace net {
 CNetConfig::CNetConfig() {
     ::memset(this, 0, sizeof(CNetConfig));
     mReference = 1;
+    check();
 }
 
 void CNetConfig::grab() {

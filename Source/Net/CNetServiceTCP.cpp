@@ -13,7 +13,6 @@ namespace net {
 
 CNetServiceTCP::CNetServiceTCP(CNetConfig* cfg) :
     mID(0),
-    mLaunchedSendRequest(0),
     mThread(0),
     mThreadPool(0),
     mMemHub(0),
@@ -50,6 +49,8 @@ void CNetServiceTCP::run() {
     CEventPoller::SEvent* iEvent = new CEventPoller::SEvent[maxe];
     CNetSession* iContext;
     SContextIO* iAction = 0;
+    const u64 tmgap = mWheel.getInterval();
+    u64 lastshow = mCurrentTime;
     u64 last = mCurrentTime;
     u32 gotsz = 0;
     mWheel.setCurrent(static_cast<u32>(mCurrentTime));
@@ -100,7 +101,7 @@ void CNetServiceTCP::run() {
 
                     switch(action) {
                     case ENET_CMD_SEND:
-                        AppAtomicDecrementFetch(&mLaunchedSendRequest);
+                        //AppAtomicDecrementFetch(&mLaunchedSendRequest);
                         ret = -1;
                         break;
                     case ENET_CMD_RECEIVE:
@@ -130,14 +131,9 @@ void CNetServiceTCP::run() {
                     remove(iContext);                  //step 2
                 }
             }//for
-            if(mCurrentTime - last > mTimeInterval) {
+            if(mCurrentTime - last >= tmgap) {
                 last = mCurrentTime;
                 mWheel.update(mCurrentTime);
-                /*IAppLogger::log(ELOG_INFO, "CNetServiceTCP::run",
-                "[context:%u/%u][socket:%u/%u][total:%u]",
-                mSessionPool.getIdleCount(), mSessionPool.getMaxContext(),
-                mClosedSocket, mCreatedSocket,
-                mTotalSession);*/
             }
         } else {//poller error
             s32 pcode = mPoller.getError();
@@ -147,10 +143,13 @@ void CNetServiceTCP::run() {
                 mCurrentTime = IAppTimer::getTime();
                 mWheel.update(mCurrentTime);
                 last = mCurrentTime;
-                IAppLogger::log(ELOG_INFO, "CNetServiceTCP::run",
-                    "[context:%u/%u][socket:%u/%u]",
-                    mSessionPool.getIdleCount(), mSessionPool.getMaxContext(),
-                    mClosedSocket, mCreatedSocket);
+                if(mCurrentTime - lastshow >= 1000) {
+                    IAppLogger::log(ELOG_INFO, "CNetServiceTCP::run",
+                        "[context:%u/%u][socket:%u/%u]",
+                        mSessionPool.getIdleCount(), mSessionPool.getMaxContext(),
+                        mClosedSocket, mCreatedSocket);
+                    lastshow = mCurrentTime;
+                }
                 break;
 
             case ERROR_ABANDONED_WAIT_0: //socket closed
@@ -224,12 +223,12 @@ bool CNetServiceTCP::clearError() {
 
 void CNetServiceTCP::run() {
     CNetSocket sock(mPoller.getSocketPair().getSocketA());
-    const u32 maxe = mConfig->mMaxFatchEvents;
+    const u32 maxe = mConfig->mMaxFetchEvents;
     CEventPoller::SEvent* iEvent = new CEventPoller::SEvent[maxe];
     CNetSession* iContext;
     u64 last = mCurrentTime;
     u32 gotsz = 0;
-    mWheel.setCurrent(static_cast<u32>(mCurrentTime));
+    mWheel.setCurrent(mCurrentTime);
     u32 action;
     for(; mRunning; ) {
         gotsz = mPoller.getEvents(iEvent, maxe, mTimeInterval);
@@ -272,7 +271,7 @@ void CNetServiceTCP::run() {
                     case ENET_CMD_SEND:
                         ret = iContext->postSend();
                         break;
-                    case ENET_CMD_NEW_SESSION:
+                    case ENET_CMD_RECEIVE:
                         //just add in time wheel
                         break;
                     case ENET_CMD_CONNECT:
@@ -346,7 +345,7 @@ bool CNetServiceTCP::start() {
         return true;
     }
 #if defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
-    CNetSocket sock(mPoller.getSocketPair().getSocketA());
+    CNetSocket& sock = mPoller.getSocketPair().getSocketA();
     if(!sock.isOpen()) {
         //printf("error %d on socketpair\n", errno);
         return false;
@@ -365,7 +364,6 @@ bool CNetServiceTCP::start() {
         hub->drop();
     }
     mRunning = true;
-    mLaunchedSendRequest = 0;
     mThreadPool = new CThreadPool(mConfig->mMaxWorkThread);
     mThreadPool->start();
     mTotalReceived = 0;
@@ -384,20 +382,19 @@ bool CNetServiceTCP::stop() {
         //IAppLogger::log(ELOG_INFO, "CNetServiceTCP::stop", "server had stoped.");
         return true;
     }
-    for(bool clean = false; !clean;) {
-        //mMutex.lock();
+    for(bool clean = false; !clean; mThread->sleep(100)) {
+        mMutex.lock();
         clean = mSessionPool.waitClose();
-        //mMutex.unlock();
-        mThread->sleep(100);
+        mMutex.unlock();
     }
+    IAppLogger::log(ELOG_INFO, "CNetServiceTCP::stop", "all session exited");
+    mRunning = false;
     mCurrentTime = IAppTimer::getTime();
     if(activePoller(ENET_SESSION_MASK)) {
-        mRunning = false;
         mThread->join();
         delete mThread;
         mThread = 0;
         mThreadPool->join();
-        mThreadPool->stop();
         delete mThreadPool;
         mThreadPool = 0;
         //APP_LOG(ELOG_INFO, "CNetServiceTCP::stop", "server stoped success");
@@ -407,9 +404,9 @@ bool CNetServiceTCP::stop() {
             mMemHub->drop();
         }
         IAppLogger::log(ELOG_INFO, "CNetServiceTCP::stop",
-            "Statistics: [session=%u][speed=%luKb/s][size=%uKb][seconds=%lu]",
+            "Statistics: [session=%u][speed=%lluKb/s][size=%lluKb][seconds=%llu]",
             mCreatedSocket,
-            (mTotalReceived >> 10) / ((mCurrentTime - mStartTime) / 1000),
+            (mTotalReceived >> 10) / ((mCurrentTime - mStartTime + 1000 - 1) / 1000),
             (mTotalReceived >> 10),
             (mCurrentTime - mStartTime) / 1000
         );
@@ -629,10 +626,9 @@ u32 CNetServiceTCP::connect(const CNetAddress& remote, INetEventer* it) {
 s32 CNetServiceTCP::send(u32 id, const void* buffer, s32 size) {
     APP_ASSERT(id > 0);
     if(mRunning && mQueueSend.lockPush(buffer, size, id)) {
-        if(0 == mLaunchedSendRequest) {
-            AppAtomicIncrementFetch(&mLaunchedSendRequest);
+        /*if(1 == AppAtomicIncrementFetch(&mLaunchedSendRequest)) {
             activePoller(ENET_CMD_SEND);
-        }
+        }*/
         return size;
     }
     return 0;
@@ -641,8 +637,12 @@ s32 CNetServiceTCP::send(u32 id, const void* buffer, s32 size) {
 
 bool CNetServiceTCP::activePoller(u32 cmd, u32 id/* = 0*/) {
     CEventPoller::SEvent evt;
+#if defined(APP_PLATFORM_WINDOWS)
     evt.mPointer = 0;
     evt.mKey = ((ENET_CMD_MASK&cmd) | (ENET_SESSION_MASK&id));
+#elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
+    evt.mEvent = ((ENET_CMD_MASK&cmd) | (ENET_SESSION_MASK&id));
+#endif
     return mPoller.postEvent(evt);
 }
 
@@ -650,10 +650,9 @@ bool CNetServiceTCP::activePoller(u32 cmd, u32 id/* = 0*/) {
 s32 CNetServiceTCP::send(const u32* uid, u16 maxUID, const void* buffer, s32 size) {
     APP_ASSERT(uid && maxUID > 0);
     if(mRunning && mQueueSend.lockPush(buffer, size, uid, maxUID)) {
-        if(0 == mLaunchedSendRequest) {
-            AppAtomicIncrementFetch(&mLaunchedSendRequest);
+        /*if(1 == AppAtomicIncrementFetch(&mLaunchedSendRequest)) {
             activePoller(ENET_CMD_SEND);
-        }
+        }*/
         return size;
     }
     return 0;
@@ -673,11 +672,21 @@ void CNetServiceTCP::setEventer(u32 id, INetEventer* evt) {
 }
 
 
+#if defined(APP_DEBUG)
+static s32 G_ENQUEUE_COUNT = 0;
+static s32 G_DEQUEUE_COUNT = 0;
+static s32 G_ERROR_COUNT = 0;
+#endif
+
 void CNetServiceTCP::addNetEvent(CNetSession& session) {
     CEventQueue::SNode* it = mQueueEvent.create(0);
     it->mEvent.mSessionID = session.getIndex();
     mQueueEvent.lockPush(it);
-    mThreadPool->start(CNetServiceTCP::threadPoolCall, this);
+    bool ret = mThreadPool->addSoleTask(CNetServiceTCP::threadPoolCall, this);
+    APP_ASSERT(ret);
+#if defined(APP_DEBUG)
+    AppAtomicIncrementFetch(&G_ENQUEUE_COUNT);
+#endif
 }
 
 
@@ -685,10 +694,17 @@ void CNetServiceTCP::threadPoolCall(void* it) {
     CNetServiceTCP& hub = *reinterpret_cast<CNetServiceTCP*>(it);
     CEventQueue::SNode* nd = hub.getEventQueue().lockPop();
     if(!nd) {
+#if defined(APP_DEBUG)
+        AppAtomicIncrementFetch(&G_ERROR_COUNT);
+#endif
+        APP_ASSERT(0);
         return;
     }
     hub.getSession(nd->mEvent.mSessionID).dispatchEvents();
     nd->mMemHub->release(nd);
+#if defined(APP_DEBUG)
+    AppAtomicIncrementFetch(&G_DEQUEUE_COUNT);
+#endif
 }
 
 

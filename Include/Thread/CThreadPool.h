@@ -39,9 +39,15 @@ public:
 
     void join();
 
-    bool start(AppCallable iFunc, void* iData = 0);
+    bool addTask(AppCallable iFunc, void* iData = 0);
 
-    bool start(IRunnable* it);
+    bool addTask(IRunnable* it);
+
+    /**
+    * @bire A threadpool only have one Sole-Task.
+    */
+    bool addSoleTask(IRunnable* it);
+    bool addSoleTask(AppCallable iFunc, void* iData = 0);
 
     u32 getMaxThreads()const {
         return mThreadCount;
@@ -55,15 +61,8 @@ private:
     enum {
         ESTATUS_STOPED = 1,
         ESTATUS_RUNNIG = 1 << 1,
-        ESTATUS_JOINING = 1 << 2,
+        ESTATUS_JOINING = 1 << 2
     };
-    CThreadPool() { }
-    CThreadPool(const CThreadPool& it) = delete;
-    CThreadPool& operator=(const CThreadPool& it) = delete;
-
-    void creatThread(u32 iCount);
-
-    void removeAll();
 
     volatile u16 mActiveCount;
     volatile u16 mStatus;
@@ -75,6 +74,15 @@ private:
     SThreadTask mTaskListHead;
     SThreadTask* mTaskListTail;
     CThread** mWorker;
+
+
+    CThreadPool() { }
+    CThreadPool(const CThreadPool& it) = delete;
+    CThreadPool& operator=(const CThreadPool& it) = delete;
+
+    void creatThread(u32 iCount);
+
+    void removeAll();
 };
 
 }//irr

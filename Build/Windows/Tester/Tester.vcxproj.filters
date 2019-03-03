@@ -21,12 +21,18 @@
     <ClCompile Include="..\..\..\Source\Test\App.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\Test\CDefaultNetEventer.cpp">
+    <ClCompile Include="..\..\..\Source\Test\CNetEchoClient.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Test\CNetEchoServer.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\Source\Test\CDefaultNetEventer.h">
+    <ClInclude Include="..\..\..\Source\Test\CNetEchoClient.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\Test\CNetEchoServer.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,19 +1,19 @@
-#ifndef APP_CDEFAULTNETEVENTER_H
-#define APP_CDEFAULTNETEVENTER_H
+#ifndef APP_CNETECHOCLIENT_H
+#define APP_CNETECHOCLIENT_H
 
+#include "irrList.h"
 #include "INetEventer.h"
 
 namespace irr {
 namespace net {
-class INetSession;
 class CNetServiceTCP;
-class CNetServerAcceptor;
 
-
-//for net test
-class CDefaultNetEventer : public INetEventer {
+//echo client
+class CNetEchoClient : public INetEventer {
 public:
-    CDefaultNetEventer();
+    CNetEchoClient();
+
+    virtual ~CNetEchoClient();
 
     void setAutoConnect(bool autoconnect) {
         mAutoConnect = autoconnect;
@@ -23,15 +23,9 @@ public:
         mHub = hub;
     }
 
-    void setServer(CNetServerAcceptor* hub) {
-        mServer = hub;
-    }
-
     void setSession(u32 it) {
         mSession = it;
     }
-
-    virtual ~CDefaultNetEventer();
 
     virtual s32 onConnect(u32 sessionID,
         const CNetAddress& local, const CNetAddress& remote)override;
@@ -46,33 +40,30 @@ public:
     virtual s32 onLink(u32 sessionID,
         const CNetAddress& local, const CNetAddress& remote)override;
 
-    static u32 getSentCount() {
-        return mSentCount;
-    }
-    static u32 getRecvCount() {
-        return mRecvCount;
-    }
-    static u32 getSentSize() {
-        return mSentBytes;
-    }
-    static u32 getRecvSize() {
-        return mRecvBytes;
-    }
+    static s32 mSendRequest;
+    static s32 mSendSuccess;
+    static s32 mSendFail;
+    static s32 mRecvCount;
+    static s32 mSendSuccessBytes;
+    static s32 mSendFailBytes;
+    static s32 mRecvBytes;
+    static s32 mRecvBadCount;
+    static s32 mMaxSendPackets;
+
+    static void initData(const c8* msg, s32 mb);
 
 private:
-    static s32 mSentCount;
-    static s32 mRecvCount;
-    static s32 mSentBytes;
-    static s32 mRecvBytes;
+    static c8 mTestData[4 * 1024];
 
     bool mAutoConnect;
     u32 mSession;
     CNetServiceTCP* mHub;
-    CNetServerAcceptor* mServer;
     CNetPacket mPacket;
+
+    void send();
 };
 
 }//namespace net
 }//namespace irr
 
-#endif //APP_CDEFAULTNETEVENTER_H
+#endif //APP_CNETECHOCLIENT_H
