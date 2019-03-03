@@ -1,4 +1,4 @@
-AntNet V0.0.0.2
+AntNet V0.0.0.3
 ====
 A cross-platform net lib, current for Windows&amp;Linux&amp;Android.
 # Usage
@@ -8,16 +8,7 @@ A cross-platform net lib, current for Windows&amp;Linux&amp;Android.
 //wait for more
 void AppStartServer() {
     net::CNetConfig* config = new net::CNetConfig();
-    config->mReuse = true;
-    config->mMaxPostAccept = 8;
-    config->mMaxFetchEvents = 28;
-    config->mMaxContext = 200;
-    config->mPollTimeout = 1000;
-    config->mSessionTimeout = 30000;
-    config->mMaxWorkThread = 2;
     config->check();
-    config->print();
-
     net::CDefaultNetEventer evt;
     net::CNetServerAcceptor accpetor(config);
     config->drop();
