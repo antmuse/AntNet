@@ -52,6 +52,22 @@ void CBufferQueue::clear() {
     mTail = 0;
 }
 
+CBufferQueue::SBuffer* CBufferQueue::pop() {
+    CBufferQueue::SBuffer* ret = mHead;
+    if(ret) {
+        mHead = reinterpret_cast<SBuffer*>(mHead->mQueueNode.getNext());
+        if(0 == mHead) {
+            APP_ASSERT(ret == mTail);
+            mTail = 0;
+        }
+        ret->mQueueNode.pushBack(0);
+        AppAtomicFetchAdd(-ret->mBufferSize, &mCachedSize);
+        AppAtomicDecrementFetch(&mCount);
+        //APP_ASSERT(ret->mBufferSize == (*((u32*) (ret->mBuffer)+ret->mSessionMax)));
+    }
+    return ret;
+}
+
 
 CBufferQueue::SBuffer* CBufferQueue::createBuffer(u32 size, u16 sessionMax) {
     CMemoryHub* hub = mMemHub;
@@ -74,6 +90,7 @@ bool CBufferQueue::lockPush(CBufferQueue::SBuffer* it) {
     if(!it || mCachedSize + it->mBufferSize >= mMaxCachedSize || mCount >= mMaxEnqueue) {
         return false;
     }
+    //APP_ASSERT(it->mBufferSize == (*((u32*) (it->mBuffer) + it->mSessionMax)));
     APP_ASSERT(0 == it->mQueueNode.getNext());
     it->mQueueNode.pushBack(0);
 
@@ -105,6 +122,7 @@ bool CBufferQueue::lockPush(const void* buffer, s32 size, const u32* uid, u16 ma
     }
     ::memcpy(id, buffer, size);
     buf->mBufferSize = size;
+    //APP_ASSERT(buf->mBufferSize == (*((u32*) (buf->mBuffer) + buf->mSessionMax)));
 
     CAutoSpinlock alk(mLock);
     if(mTail) {

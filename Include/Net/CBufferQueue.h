@@ -201,18 +201,7 @@ public:
         return 0 == mHead;
     }
 
-    SBuffer* pop() {
-        CBufferQueue::SBuffer* ret = mHead;
-        if(ret) {
-            mHead = reinterpret_cast<SBuffer*>(mHead->mQueueNode.getNext());
-            if(0 == mHead) {
-                APP_ASSERT(ret == mTail);
-                mTail = 0;
-            }
-            ret->mQueueNode.pushBack(0);
-        }
-        return ret;
-    }
+    SBuffer* pop();
 
     SBuffer* lockPop() {
         CAutoSpinlock ak(mLock);

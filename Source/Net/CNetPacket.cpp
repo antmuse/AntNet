@@ -150,6 +150,8 @@ u32 CNetPacket::clear(u32 position) {
         ::memmove(mData, mData + position, size);
         setUsed(size);
         return size;
+    } else if(0 == position) {
+        return size;
     } else {
         setUsed(0);
         return 0;

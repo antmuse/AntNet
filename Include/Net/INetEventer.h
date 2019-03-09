@@ -70,6 +70,7 @@ public:
     virtual ~INetEventer() {
     }
 
+    virtual INetEventer* onAccept() = 0;
 
     /**
     *@brief Called when connected.

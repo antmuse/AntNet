@@ -11,6 +11,7 @@ CNetEchoServer::CNetEchoServer() :
     mSendSuccessBytes(0),
     mSendFailBytes(0),
     mRecvBytes(0),
+    mSendBytes(0),
     mDislinkCount(0),
     mLinkCount(0) {
 }
@@ -38,7 +39,7 @@ s32 CNetEchoServer::onLink(u32 sessionID,
         remote.getPort()
     );
     AppAtomicIncrementFetch(&mLinkCount);
-    mServer->setEventer(sessionID, this);
+    //mServer->setEventer(sessionID, this);
     return ret;
 }
 
@@ -87,9 +88,15 @@ s32 CNetEchoServer::onSend(u32 sessionID, void* buffer, s32 size, s32 result) {
 s32 CNetEchoServer::onReceive(u32 sessionID, void* buffer, s32 size) {
     /*IAppLogger::log(ELOG_ERROR, "CNetEchoServer::onReceive", "[%u,%d]",
         sessionID, size);*/
+    APP_ASSERT(size > 0);
+
     AppAtomicFetchAdd(size, &mRecvBytes);
 
-    return mServer->send(sessionID, buffer, size);
+    s32 ret = mServer->send(sessionID, buffer, size);
+    if(ret == size) {
+        AppAtomicFetchAdd(size, &mSendBytes);
+    }
+    return ret;
 }
 
 

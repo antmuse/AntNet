@@ -11,6 +11,7 @@ namespace net {
 
 s32 CNetEchoClient::mMaxSendPackets = 20000;
 s32 CNetEchoClient::mSendRequest = 0;
+s32 CNetEchoClient::mSendRequestFail = 0;
 s32 CNetEchoClient::mSendSuccess = 0;
 s32 CNetEchoClient::mSendFailBytes = 0;
 s32 CNetEchoClient::mSendFail = 0;
@@ -24,6 +25,7 @@ void CNetEchoClient::initData(const c8* msg, s32 mb) {
     AppAtomicFetchSet((sizeof(mTestData) - 1 + 1024 * 1024 * mb) / sizeof(mTestData),
         &mMaxSendPackets);
     AppAtomicFetchSet(0, &mSendRequest);
+    AppAtomicFetchSet(0, &mSendRequestFail);
     AppAtomicFetchSet(0, &mSendSuccess);
     AppAtomicFetchSet(0, &mSendFail);
     AppAtomicFetchSet(0, &mSendSuccessBytes);
@@ -33,9 +35,11 @@ void CNetEchoClient::initData(const c8* msg, s32 mb) {
     AppAtomicFetchSet(0, &mRecvBytes);
 
     u64 size = 1 + (msg ? strlen(msg) : 0);
-    size = core::min_<u64>(size, sizeof(mTestData) - 1);
-    ::memcpy(mTestData, msg ? msg : "", size);
-    ::memset(mTestData + size, 'v', sizeof(mTestData) - size);
+    size = core::min_<u64>(size, sizeof(mTestData) - sizeof(u32));
+    ::memcpy(mTestData + sizeof(u32), msg ? msg : "", size);
+    ::memset(mTestData + sizeof(u32) + size, 'v',
+        sizeof(mTestData) - sizeof(u32) - size);
+    *(u32*) mTestData = sizeof(mTestData);
 }
 
 
@@ -85,7 +89,10 @@ s32 CNetEchoClient::onConnect(u32 sessionID,
 void CNetEchoClient::send() {
     s32 cnt = AppAtomicIncrementFetch(&mSendRequest);
     if(cnt <= mMaxSendPackets) {
-        mHub->send(mSession, mTestData, sizeof(mTestData));
+        s32 ret = mHub->send(mSession, mTestData, sizeof(mTestData));
+        if(sizeof(mTestData) != ret) {
+            AppAtomicIncrementFetch(&mSendRequestFail);
+        }
     } else {
         AppAtomicDecrementFetch(&mSendRequest);
         IAppLogger::log(ELOG_INFO, "CNetEchoClient::send", "task finished");
@@ -136,18 +143,21 @@ s32 CNetEchoClient::onSend(u32 sessionID, void* buffer, s32 size, s32 result) {
 
 
 s32 CNetEchoClient::onReceive(u32 sessionID, void* buffer, s32 size) {
+    APP_ASSERT(mSession == sessionID);
     AppAtomicFetchAdd(size, &mRecvBytes);
 
     s32 ret = 0;
     mPacket.addBuffer(buffer, size);
-    for(ret = 0; mPacket.getReadSize() - ret >= sizeof(mTestData);
-        ret += sizeof(mTestData)) {
-        if((*(u64*) (mPacket.getReadPointer() + ret)) != (*(u64*) (mTestData))) {
+    for(; mPacket.getReadSize() >= sizeof(mTestData);) {
+        ret += sizeof(mTestData);
+        if(sizeof(mTestData) == (*(u32*) mPacket.getReadPointer())) {
+            /*IAppLogger::log(ELOG_INFO, "CNetEchoClient::onReceive", "[%u,%d,%s]",
+            sessionID, size, mPacket.getReadPointer() + ret);*/
+            AppAtomicIncrementFetch(&mRecvCount);
+        } else {
             AppAtomicIncrementFetch(&mRecvBadCount);
         }
-        /*IAppLogger::log(ELOG_INFO, "CNetEchoClient::onReceive", "[%u,%d,%s]",
-            sessionID, size, mPacket.getReadPointer() + ret);*/
-        AppAtomicIncrementFetch(&mRecvCount);
+        mPacket.seek(sizeof(mTestData), false);
     }
     mPacket.clear(ret);
     return ret;

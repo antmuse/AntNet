@@ -269,28 +269,34 @@ bool CNetServerAcceptor::postAccept(SContextWaiter* iContext) {
 
 bool CNetServerAcceptor::stepAccpet(SContextWaiter* iContext) {
     --mAcceptCount;
-    mListener.getAddress(iContext->mCache, mAddressLocal, mAddressRemote, mFunctionAcceptSockAddress);
-    const u32 sz = mAllService.size();
-    u32 nid = 0;
-    for(u32 i = 0; 0 == nid && i < sz; ++i) {
-        nid = mAllService[mCurrent % sz]->receive(iContext->mSocket, mAddressRemote, mAddressLocal, mReceiver);
-        ++mCurrent;
-    }
-    if(0 == nid && sz < 0xFFU) {
-        if(createServer()) {
-            nid = mAllService.getLast()->receive(iContext->mSocket, mAddressRemote, mAddressLocal, mReceiver);
+    INetEventer* evt = mReceiver->onAccept();
+    if(evt) {
+        mListener.getAddress(iContext->mCache, mAddressLocal, mAddressRemote, mFunctionAcceptSockAddress);
+        const u32 sz = mAllService.size();
+        u32 nid = 0;
+        for(u32 i = 0; 0 == nid && i < sz; ++i) {
+            nid = mAllService[mCurrent % sz]->receive(iContext->mSocket, mAddressRemote, mAddressLocal, evt);
+            ++mCurrent;
         }
-    }
-    if(0 == nid) {
+        if(0 == nid && sz < 0xFFU) {
+            if(createServer()) {
+                nid = mAllService.getLast()->receive(iContext->mSocket, mAddressRemote, mAddressLocal, evt);
+            }
+        }
+        if(0 == nid) {
+            iContext->mSocket.close();
+            IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::stepAccpet",
+                "[server:%u][socket:%s:%u->%s:%u]",
+                sz,
+                mAddressRemote.getIPString(),
+                mAddressRemote.getPort(),
+                mAddressLocal.getIPString(),
+                mAddressLocal.getPort());
+        }
+    } else {
         iContext->mSocket.close();
-        IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::stepAccpet",
-            "[server:%u][socket:%s:%u->%s:%u]",
-            sz,
-            mAddressRemote.getIPString(),
-            mAddressRemote.getPort(),
-            mAddressLocal.getIPString(),
-            mAddressLocal.getPort());
-    }
+    }//if
+
     return postAccept(iContext);
 }
 

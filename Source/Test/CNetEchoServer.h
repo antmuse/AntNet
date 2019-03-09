@@ -17,6 +17,10 @@ public:
 
     void setServer(CNetServerAcceptor* hub);
 
+    virtual INetEventer* onAccept()override {
+        return this;
+    }
+
     virtual s32 onConnect(u32 sessionID,
         const CNetAddress& local, const CNetAddress& remote)override;
 
@@ -45,13 +49,17 @@ public:
     u32 getRecvSize() const {
         return mRecvBytes;
     }
-
+    u32 getSendSize() const {
+        return mSendBytes;
+    }
+    
 private:
     s32 mLinkCount;
     s32 mDislinkCount;
     s32 mSendSuccessBytes;
     s32 mSendFailBytes;
     s32 mRecvBytes;
+    s32 mSendBytes;
     CNetServerAcceptor* mServer;
 };
 

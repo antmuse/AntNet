@@ -27,6 +27,10 @@ public:
         mSession = it;
     }
 
+    virtual INetEventer* onAccept()override {
+        return NULL;
+    }
+
     virtual s32 onConnect(u32 sessionID,
         const CNetAddress& local, const CNetAddress& remote)override;
 
@@ -41,6 +45,7 @@ public:
         const CNetAddress& local, const CNetAddress& remote)override;
 
     static s32 mSendRequest;
+    static s32 mSendRequestFail;
     static s32 mSendSuccess;
     static s32 mSendFail;
     static s32 mRecvCount;

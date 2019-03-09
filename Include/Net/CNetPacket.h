@@ -122,8 +122,8 @@ public:
         if(absolute) {
             mCurrent = mData + core::min_<u32>(iPos, mDataSize);
         } else {
-            mCurrent = mData + iPos;
-            mCurrent = core::min_<c8*>(mData, getEnd());
+            mCurrent += iPos;
+            mCurrent = core::clamp<c8*>(mCurrent, mData, getEnd());
         }
     }
 

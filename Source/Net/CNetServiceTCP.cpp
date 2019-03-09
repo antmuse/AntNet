@@ -146,7 +146,7 @@ void CNetServiceTCP::run() {
                 if(mCurrentTime - lastshow >= 1000) {
                     IAppLogger::log(ELOG_INFO, "CNetServiceTCP::run",
                         "[context:%u/%u][socket:%u/%u]",
-                        mSessionPool.getIdleCount(), mSessionPool.getMaxContext(),
+                        mSessionPool.getActiveCount(), mSessionPool.getMaxContext(),
                         mClosedSocket, mCreatedSocket);
                     lastshow = mCurrentTime;
                 }
@@ -742,7 +742,7 @@ void CNetServiceTCP::dispatchBuffers() {
     }//for
 
 #if defined(APP_DEBUG)
-    if(cnt != bk) {
+    if(cntf>0 && cnt != bk) {
         APP_LOG(ELOG_INFO, "CNetServiceTCP::dispatchBuffers", "count=%u/%u", cntf, ++cnt);
     }
 #endif
