@@ -85,15 +85,9 @@ public:
 
     ~CNetCheckIP();
 
-    CNetCheckIP(const CNetCheckIP& it) : m_size(it.m_size) {
-        ::memcpy(m_data, it.m_data, m_size * sizeof(SNetIPNode));
-    }
+    CNetCheckIP(const CNetCheckIP& it);
 
-    CNetCheckIP& operator=(const CNetCheckIP& it) {
-        m_size = it.m_size;
-        ::memcpy(m_data, it.m_data, m_size * sizeof(SNetIPNode));
-        return *this;
-    }
+    CNetCheckIP& operator=(const CNetCheckIP& it);
 
     bool isValidIP(const c8* str)const {
         return (str ? isValidLittleEndianIP(convertToIP(str)) : false);

@@ -2,7 +2,7 @@
 #define APP_CNETCLIENTHTTP_H
 
 
-#include "CNetServiceTCP.h"
+#include "CNetService.h"
 #include "irrString.h"
 #include "CNetAddress.h"
 #include "CNetHttpRequest.h"

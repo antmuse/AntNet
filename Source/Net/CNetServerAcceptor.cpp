@@ -391,11 +391,11 @@ CNetServerAcceptor::CNetServerAcceptor(CNetConfig* cfg) :
 
 CNetServerAcceptor::~CNetServerAcceptor() {
     stop();
-    CNetUtility::unloadSocketLib();
     if(mConfig) {
         mConfig->drop();
         mConfig = 0;
     }
+    CNetUtility::unloadSocketLib();
 }
 
 
@@ -495,6 +495,14 @@ bool CNetServerAcceptor::stop() {
     return false;
 }
 
+
+s32 CNetServerAcceptor::send(u32 id, const void* buffer, s32 size) {
+    u32 sid = ((id & ENET_SERVER_MASK) >> ENET_SESSION_BITS);
+    if(sid < mAllService.size()) {
+        return mAllService[sid]->send(id, buffer, size);
+    }
+    return -1;
+}
 
 void CNetServerAcceptor::removeAll() {
     mListener.close();

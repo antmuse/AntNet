@@ -6,16 +6,11 @@
 #include "CNetClientUDP.h"
 #include "CNetClientHttp.h"
 #include "CNetServerTCP.h"
-#include "CNetServiceTCP.h"
+#include "CNetService.h"
 #include "CNetServerSeniorUDP.h"
 
 namespace irr {
 namespace net {
-
-INetManager* AppGetNetManagerInstance() {
-    return CNetManager::getInstance();
-}
-
 
 CNetManager::CNetManager() :
     mRunning(false),
@@ -30,9 +25,9 @@ CNetManager::~CNetManager() {
 }
 
 
-INetManager* CNetManager::getInstance() {
+CNetManager& CNetManager::getInstance() {
     static CNetManager it;
-    return &it;
+    return it;
 }
 
 
@@ -113,22 +108,24 @@ bool CNetManager::stop() {
 
 
 INetClient* CNetManager::getClientTCP(u32 index) {
-    if(index >= mAllConnectionTCP.size()) return 0;
-
+    if(index >= mAllConnectionTCP.size()) {
+        return nullptr;
+    }
     return mAllConnectionTCP[index];
 }
 
 
 INetClient* CNetManager::getClientUDP(u32 index) {
-    if(index >= mAllConnectionUDP.size()) return 0;
-
+    if(index >= mAllConnectionUDP.size()) {
+        return nullptr;
+    }
     return mAllConnectionUDP[index];
 }
 
 
-INetClient* CNetManager::addClient(ENetNodeType type) {
+INetClient* CNetManager::addClient(ENetNodeType type, INetEventer* iEvt) {
     CAutoLock alock(mMutex);
-    INetClient* it = 0;
+    INetClient* it = nullptr;
 
     switch(type) {
     case ENET_TCP_CLIENT:
@@ -141,14 +138,16 @@ INetClient* CNetManager::addClient(ENetNodeType type) {
         mAllConnectionUDP.push_back(it);
         break;
     }
-
+    if(it) {
+        it->setNetEventer(iEvt);
+    }
     return it;
 }
 
 
-INetServer* CNetManager::createServer(ENetNodeType type) {
+INetServer* CNetManager::createServer(ENetNodeType type, INetEventer* iEvt) {
     CAutoLock alock(mMutex);
-    INetServer* it = 0;
+    INetServer* it = nullptr;
 
     switch(type) {
     case ENET_TCP_SERVER:
@@ -163,13 +162,15 @@ INetServer* CNetManager::createServer(ENetNodeType type) {
         it = new CNetServerTCP();
         break;
     }
-
+    if(it) {
+        it->setNetEventer(iEvt);
+    }
     return it;
 }
 
 
-INetClient* CNetManager::createClient(ENetNodeType type) {
-    INetClient* it = 0;
+INetClient* CNetManager::createClient(ENetNodeType type, INetEventer* iEvt) {
+    INetClient* it = nullptr;
 
     switch(type) {
     case ENET_TCP_CLIENT:
@@ -180,7 +181,9 @@ INetClient* CNetManager::createClient(ENetNodeType type) {
         it = new CNetClientUDP();
         break;
     }
-
+    if(it) {
+        it->setNetEventer(iEvt);
+    }
     return it;
 }
 

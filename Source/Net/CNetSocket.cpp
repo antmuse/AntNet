@@ -391,22 +391,22 @@ s32 CNetSocket::send(const void* iBuffer, s32 iSize) {
 
 
 s32 CNetSocket::receiveAll(void* iBuffer, s32 iSize) {
-    /*s32 ret = 0;
+    s32 ret = 0;
     s32 step;
     for(; ret < iSize;) {
-    step = ::recv(mSocket, iBuffer + ret, iSize - ret, 0);
-    if(step > 0) {
-    ret += step;
-    } else {
-    return step;
+        step = ::recv(mSocket, ((c8*) iBuffer) + ret, iSize - ret, MSG_WAITALL);
+        if(step > 0) {
+            ret += step;
+        } else {
+            return step;
+        }
     }
-    }
-    return ret;*/
-#if defined(APP_PLATFORM_WINDOWS)
-    return ::recv(mSocket, (c8*) iBuffer, iSize, MSG_WAITALL);
-#elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
-    return ::recv(mSocket, iBuffer, iSize, MSG_WAITALL);
-#endif
+    return ret;
+//#if defined(APP_PLATFORM_WINDOWS)
+//    return ::recv(mSocket, (c8*) iBuffer, iSize, MSG_WAITALL);
+//#elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
+//    return ::recv(mSocket, iBuffer, iSize, MSG_WAITALL);
+//#endif
 }
 
 

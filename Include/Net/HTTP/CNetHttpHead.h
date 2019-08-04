@@ -3,7 +3,11 @@
 
 #include "irrString.h"
 #include "irrMap.h"
-//#include "irrArray.h"
+
+
+#define APP_INIT_STRING(X) sizeof(X) - 1, X
+#define APP_NULL_STRING    0, NULL
+
 
 namespace irr {
 namespace net {
@@ -36,59 +40,36 @@ enum EHttpHeadID {
     EHRID_COUNT
 };
 
-
-const c8* const AppHttpHeadIDName[] = {
-    "Host",
-    "Location",
-    "Keep-Alive",
-    "Connection",
-    "Accpet",
-    "Content-Type",
-    "Content-Length",
-    "User-Agent",
-    "Accept-Encoding",
-    "Referer",
-    "Accept-Language",
-    "Accept-Charset",
-    "Authorization",
-    "Cookie",
-    "Date",
-    "Range",
-    "Content-MD5",
-    "Content-Range",
-    "Content-Location",
-    "Server",
-    "X-Powered-By",
-    "Transfer-Encoding",
-    0
+struct SHttpHead {
+    u16 mID;
+    u8 mLen;
+    c8* mKey;
 };
 
-
-const u8 AppHttpHeadIDNameSize[] = {
-    (u8) ::strlen(AppHttpHeadIDName[EHHID_HOST]),
-    (u8) ::strlen(AppHttpHeadIDName[EHHID_LOCATION]),
-    (u8) ::strlen(AppHttpHeadIDName[EHHID_KEEP_ALIVE]),
-    (u8) ::strlen(AppHttpHeadIDName[EHRID_CONNECTION]),
-    (u8) ::strlen(AppHttpHeadIDName[EHRID_ACCEPT]),
-    (u8) ::strlen(AppHttpHeadIDName[EHHID_CONTENT_TYPE]),
-    (u8) ::strlen(AppHttpHeadIDName[EHHID_CONTENT_SIZE]),
-    (u8) ::strlen(AppHttpHeadIDName[EHHID_USER_AGENT]),
-    (u8) ::strlen(AppHttpHeadIDName[EHRID_ACCEPT_ENCODE]),
-    (u8) ::strlen(AppHttpHeadIDName[EHRID_REFERER]),
-    (u8) ::strlen(AppHttpHeadIDName[EHRID_ACCEPT_LANGUAGE]),
-    (u8) ::strlen(AppHttpHeadIDName[EHRID_ACCEPT_CHARSET]),
-    (u8) ::strlen(AppHttpHeadIDName[EHRID_AUTHORIZATION]),
-    (u8) ::strlen(AppHttpHeadIDName[EHRID_COOKIE]),
-    (u8) ::strlen(AppHttpHeadIDName[EHRID_DATE]),
-    (u8) ::strlen(AppHttpHeadIDName[EHRID_RANGE]),
-    (u8) ::strlen(AppHttpHeadIDName[EHRID_CONTENT_MD5]),
-    (u8) ::strlen(AppHttpHeadIDName[EHRID_CONTENT_RANGE]),
-    (u8) ::strlen(AppHttpHeadIDName[EHRID_CONTENT_LOCATION]),
-    (u8) ::strlen(AppHttpHeadIDName[EHRID_SERVER]),
-    (u8) ::strlen(AppHttpHeadIDName[EHRID_TRANSFER_ENCODE]),
-    //(u8) ::strlen(AppHttpHeadIDName[EHRID_COUNT])
+const SHttpHead AppHttpHeads[] = {
+    {EHHID_HOST, APP_INIT_STRING("Host")},
+    {EHHID_LOCATION, APP_INIT_STRING("Location")},
+    {EHHID_KEEP_ALIVE, APP_INIT_STRING("Keep-Alive")},
+    {EHRID_CONNECTION, APP_INIT_STRING("Connection")},
+    {EHRID_ACCEPT, APP_INIT_STRING("Accpet")},
+    {EHHID_CONTENT_TYPE, APP_INIT_STRING("Content-Type")},
+    {EHHID_CONTENT_SIZE, APP_INIT_STRING("Content-Length")},
+    {EHHID_USER_AGENT, APP_INIT_STRING("User-Agent")},
+    {EHRID_ACCEPT_ENCODE, APP_INIT_STRING("Accept-Encoding")},
+    {EHRID_REFERER, APP_INIT_STRING("Referer")},
+    {EHRID_ACCEPT_LANGUAGE, APP_INIT_STRING("Accept-Language")},
+    {EHRID_ACCEPT_CHARSET, APP_INIT_STRING("Accept-Charset")},
+    {EHRID_AUTHORIZATION, APP_INIT_STRING("Authorization")},
+    {EHRID_COOKIE, APP_INIT_STRING("Cookie")},
+    {EHRID_DATE, APP_INIT_STRING("Date")},
+    {EHRID_RANGE, APP_INIT_STRING("Range")},
+    {EHRID_CONTENT_MD5, APP_INIT_STRING("Content-MD5")},
+    {EHRID_CONTENT_RANGE, APP_INIT_STRING("Content-Range")},
+    {EHRID_CONTENT_LOCATION, APP_INIT_STRING("Content-Location")},
+    {EHRID_SERVER, APP_INIT_STRING("Server")},
+    {EHRID_X_POWERED_BY, APP_INIT_STRING("X-Powered-By")},
+    {EHRID_TRANSFER_ENCODE, APP_INIT_STRING("Transfer-Encoding")}
 };
-
 
 class CNetHttpHead {
 public:

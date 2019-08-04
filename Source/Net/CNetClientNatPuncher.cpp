@@ -3,15 +3,21 @@
 #include "CThread.h"
 #include "IAppLogger.h"
 
+//TODO>> fix
 
 #define APP_PER_CACHE_SIZE	(512)
 
+///The tick time, we need keep the net link alive.
+#define APP_NET_TICK_TIME  (30*1000)
+
+///We will relink the socket if tick count >= APP_NET_TICK_MAX_COUNT
+#define APP_NET_TICK_MAX_COUNT  (4)
 
 namespace irr {
 namespace net {
 
 CNetClientNatPuncher::CNetClientNatPuncher() :
-    mStatus(ENM_RESET),
+    mStatus(ENET_INVALID),
     mPacket(APP_PER_CACHE_SIZE),
     mUpdateTime(0),
     mReceiver(0),
@@ -45,16 +51,13 @@ s32 CNetClientNatPuncher::sendBuffer(void* iUserPointer, const c8* iData, s32 iL
 }
 
 
-s32 CNetClientNatPuncher::sendData(const c8* iData, s32 iLength) {
+s32 CNetClientNatPuncher::send(const void* iData, s32 iLength) {
     switch(mStatus) {
-    case ENM_HELLO:
-        return 0;
+    case ENET_INVALID:
     default:
-        if(ENM_WAIT != mStatus) {
-            return -1;
-        }
+        return 0;
     }
-    return mProtocal.sendData(iData, iLength);
+    return mProtocal.sendData((const c8*)iData, iLength);
 }
 
 
@@ -85,24 +88,21 @@ bool CNetClientNatPuncher::clearError() {
 }
 
 
-bool CNetClientNatPuncher::update(u64 iTime) {
-    u64 steptime = iTime - mUpdateTime;
+bool CNetClientNatPuncher::update(s64 iTime) {
+    s64 steptime = iTime - mUpdateTime;
     mUpdateTime = iTime;
     s32 ret;
 
     switch(mStatus) {
-    case ENM_WAIT:
+    case ENET_SEND:
         mProtocal.sendData("hello peer", 11);
         step(steptime);
         break;
 
-    case ENM_LINK:
-        break;
-
-    case ENM_NAT_PUNCH:
+    case ENET_TIMEOUT:
     {
         if(mPunchCount >= 0) {
-            c8 lk = ENM_LINK;
+            c8 lk = ENET_TIMEOUT;
             mConnector.sendto(&lk, sizeof(lk), mAddressPeer);
             --mPunchCount;
         } else {
@@ -112,7 +112,7 @@ bool CNetClientNatPuncher::update(u64 iTime) {
         if(ret > 0) {
             mPacket.setUsed(ret);
             switch(mPacket.readU8()) {
-            case ENM_LINK:
+            case ENET_TIMEOUT:
             {
                 mAddressRemote.reverse();
                 IAppLogger::log(ELOG_INFO, "CNetClientNatPuncher::run",
@@ -120,7 +120,7 @@ bool CNetClientNatPuncher::update(u64 iTime) {
                     mAddressRemote.getIPString(),
                     mAddressRemote.getPort());
 
-                mStatus = ENM_WAIT;
+                mStatus = ENET_TIMEOUT;
                 break;
             }
             }//switch
@@ -132,19 +132,19 @@ bool CNetClientNatPuncher::update(u64 iTime) {
         break;
     }
 
-    case ENM_HELLO:
+    case ENET_RECEIVE:
     {
-        c8 hi = ENM_HELLO;
+        c8 hi = ENET_RECEIVE;
         mConnector.sendto(&hi, sizeof(hi), mAddressServer);
         ret = mConnector.receiveFrom(mPacket.getPointer(), mPacket.getAllocatedSize(), mAddressRemote);
         if(ret > 0) {
             mPacket.setUsed(ret);
             switch(mPacket.readU8()) {
-            case ENM_NAT_PUNCH:
+            case ENET_RECEIVE:
             {
                 mAddressPeer.setIP(mPacket.readU32());
                 mAddressPeer.setPort(mPacket.readU16());
-                mStatus = ENM_NAT_PUNCH;
+                mStatus = ENET_RECEIVE;
                 mPunchCount = 5;
                 IAppLogger::log(ELOG_INFO, "CNetClientNatPuncher::run",
                     "peer address: [%s:%u]",
@@ -152,7 +152,7 @@ bool CNetClientNatPuncher::update(u64 iTime) {
                     mAddressPeer.getPort());
                 break;
             }
-            case ENM_HELLO:
+            case ENET_SEND:
             {
                 CNetAddress::IP ipid = mPacket.readU32();
                 core::stringc pip;
@@ -161,7 +161,7 @@ bool CNetClientNatPuncher::update(u64 iTime) {
                     "my address: [%s:%u]",
                     pip.c_str(), mPacket.readU16());
                 mPacket.setUsed(0);
-                mPacket.add(u8(ENM_NAT_PUNCH));
+                mPacket.add(u8(ENET_TIMEOUT));
                 mPacket.add(u32(0));
                 mPacket.add(u16(0));
                 mConnector.sendto(mPacket.getPointer(), mPacket.getSize(), mAddressServer);
@@ -169,19 +169,19 @@ bool CNetClientNatPuncher::update(u64 iTime) {
             }
             }//switch
         } else if(0 == ret) {
-            mStatus = ENM_HELLO;
-        } else if(!clearError()) {
-            IAppLogger::log(ELOG_ERROR, "CNetClientNatPuncher::run", "hi error: %u", mPunchCount);
+            mStatus = ENET_DISCONNECT;
+        } else if(clearError()) {
+            mStatus = ENET_TIMEOUT;
+        } else {
+            mStatus = ENET_ERROR;
         }
         break;
     }
-
-
-    case ENM_RESET:
+    case ENET_ERROR:
         resetSocket();
         break;
 
-    case ENM_BYE:
+    case ENET_DISCONNECT:
         sendBye();
         mProtocal.flush();
         mRunning = false;
@@ -198,7 +198,7 @@ bool CNetClientNatPuncher::update(u64 iTime) {
 }
 
 
-bool CNetClientNatPuncher::start() {
+bool CNetClientNatPuncher::start(bool useThread) {
     if(mRunning) {
         IAppLogger::log(ELOG_INFO, "CNetClientNatPuncher::start", "client is running currently.");
         return false;
@@ -217,8 +217,7 @@ bool CNetClientNatPuncher::stop() {
         IAppLogger::log(ELOG_INFO, "CNetClientNatPuncher::stop", "client stoped.");
         return false;
     }
-
-    mStatus = ENM_BYE; //mRunning = false
+    mStatus = ENET_INVALID;
     return true;
 }
 
@@ -235,7 +234,7 @@ void CNetClientNatPuncher::resetSocket() {
     mConnector.close();
     if(mConnector.openUDP()) {
         bindLocal();
-        mStatus = ENM_HELLO;
+        mStatus = ENET_RECEIVE;
         mProtocal.flush();
         IAppLogger::log(ELOG_CRITICAL, "CNetClientNatPuncher::resetSocket", "reused previous socket");
     }
@@ -243,7 +242,7 @@ void CNetClientNatPuncher::resetSocket() {
 
 
 void CNetClientNatPuncher::sendTick() {
-    c8 hi = ENM_HELLO;
+    c8 hi = ENET_RECEIVE;
     mConnector.sendto(&hi, sizeof(hi), mAddressServer);
     mConnector.sendto(&hi, sizeof(hi), mAddressServer);
     mConnector.sendto(&hi, sizeof(hi), mAddressServer);
@@ -273,12 +272,12 @@ void CNetClientNatPuncher::step(u64 iTime) {
         onPacket(mPacket);
     } else {
         if(mTickTime >= APP_NET_TICK_TIME) {
-            mStatus = ENM_HELLO;
+            mStatus = ENET_TIMEOUT;
             ++mTickCount;
             if(mTickCount >= APP_NET_TICK_MAX_COUNT) { //relink
                 mTickCount = 0;
                 mTickTime = 0;
-                mStatus = ENM_RESET;
+                mStatus = ENET_INVALID;
                 IAppLogger::log(ELOG_CRITICAL, "CNetClientNatPuncher::step", "over tick count[%s:%d]",
                     mAddressServer.getIPString(), mAddressServer.getPort());
             }
@@ -297,12 +296,12 @@ void CNetClientNatPuncher::step(u64 iTime) {
         }
     } else if(ret < 0) {
         if(!clearError()) {
-            mStatus = ENM_RESET;
+            mStatus = ENET_INVALID;
             IAppLogger::log(ELOG_CRITICAL, "CNetClientNatPuncher::step", "server maybe quit[%s:%d]",
                 mAddressServer.getIPString(), mAddressServer.getPort());
         }
     } else if(0 == ret) {
-        mStatus = ENM_RESET;
+        mStatus = ENET_INVALID;
         IAppLogger::log(ELOG_CRITICAL, "CNetClientNatPuncher::step", "server quit[%s:%d]",
             mAddressServer.getIPString(), mAddressServer.getPort());
     }

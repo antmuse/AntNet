@@ -11,17 +11,17 @@ namespace net {
 class CNetServiceTCP;
 
 enum ENetUserCommand {
-    ENET_CMD_CONNECT = 0x00010000U,
-    ENET_CMD_DISCONNECT = 0x00020000U,
-    ENET_CMD_SEND = 0x00030000U,
-    ENET_CMD_RECEIVE = 0x00040000U,
-    ENET_CMD_TIMEOUT = 0x00050000U,
-    ENET_CMD_MASK = 0xFFFF0000U,
+    ENET_CMD_CONNECT = 0x00100000U,
+    ENET_CMD_DISCONNECT = 0x00200000U,
+    ENET_CMD_SEND = 0x00300000U,
+    ENET_CMD_RECEIVE = 0x00400000U,
+    ENET_CMD_TIMEOUT = 0x00500000U,
+    ENET_CMD_MASK = 0xFFF00000U,
 
-    ENET_SESSION_BITS = 16,
-    ENET_SERVER_BITS = 8,
-    ENET_SESSION_MASK = ~ENET_CMD_MASK, //0x0000FFFFU,
-    ENET_SERVER_MASK = 0x00FF0000U,
+    ENET_SESSION_BITS = 20,
+    ENET_SERVER_BITS = 4,
+    ENET_SESSION_MASK = ~ENET_CMD_MASK, //0x000FFFFFU,
+    ENET_SERVER_MASK = 0x00F00000U,
     ENET_SESSION_LEVEL_MASK = 0xFF000000U,
     ENET_ID_MASK = 0x00FFFFFFU
 };
@@ -95,6 +95,7 @@ public:
     }
 
     void setSocket(const CNetSocket& it);
+
     CNetSocket& getSocket() {
         return mSocket;
     }
@@ -191,6 +192,7 @@ protected:
     u32 mID;    //12bits is level, 20bit is index
     u32 mStatus;
     s32 mCount;
+    s32 mMaxTick; //heart beat
     u64 mTime;
     CNetSocket mSocket;
     INetEventer* mEventer;
@@ -204,71 +206,13 @@ protected:
     CNetAddress mAddressLocal;
 
 private:
+#if defined(APP_DEBUG)
+    static s32 G_ENQUEUE_COUNT;
+    static s32 G_DEQUEUE_COUNT;
+#endif
+
     CNetSession(const CNetSession& it) = delete;
     CNetSession& operator=(const CNetSession& it) = delete;
-};
-
-
-
-class CNetSessionPool {
-public:
-
-    CNetSessionPool();
-
-    ~CNetSessionPool();
-
-    CNetSession* getIdleSession(u64 now_ms, u32 timeinterval_ms);
-
-    void addIdleSession(CNetSession* it);
-
-    void addBusySession(CNetSession* it);
-
-    void addIdleSession(u32 idx) {
-        addIdleSession(mAllContext[idx]);
-    }
-
-    CNetSession& operator[](u32 idx)const {
-        return *(mAllContext[idx]);
-    }
-
-    CNetSession* getSession(u32 idx)const {
-        return mAllContext[idx];
-    }
-
-    CNetSession* getSession(u64 idx)const {
-        return mAllContext[idx];
-    }
-
-    void create(u32 max);
-
-    u32 getMaxContext()const {
-        return mMax;
-    }
-
-    u32 getIdleCount()const {
-        return mIdle;
-    }
-    u32 getActiveCount()const {
-        return mMax - mIdle;
-    }
-
-    bool waitClose();
-
-private:
-    CNetSessionPool(const CNetSessionPool& it) = delete;
-    CNetSessionPool& operator=(const CNetSessionPool& it) = delete;
-
-    void clearAll();
-    CNetSession* createSession();
-
-    volatile bool mClosed;
-    u32 mMax;
-    u32 mIdle;
-    CNetSession* mAllContext[ENET_SESSION_MASK];
-
-    //idle list
-    CNetSession* mHead;
-    CNetSession* mTail;
 };
 
 

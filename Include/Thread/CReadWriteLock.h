@@ -65,6 +65,9 @@ public:
     /// Release the write lock.
     void unlockWrite();
 
+    void* getHandle() {
+        return &mLocker;
+    }
 
 private:
     CReadWriteLock(const CReadWriteLock&);
@@ -77,6 +80,60 @@ private:
 #endif //APP_PLATFORM_WINDOWS
 };
 
+
+class CAutoLockWrite {
+public:
+    CAutoLockWrite(CReadWriteLock& pLock) : mLock(pLock) {
+        mLock.lockWrite();
+    }
+    ~CAutoLockWrite() {
+        mLock.unlockWrite();
+    }
+private:
+    CReadWriteLock& mLock;
+};
+
+class CAutoLockTryWrite {
+public:
+    CAutoLockTryWrite(CReadWriteLock& pLock) : mLock(pLock) {
+        mSuccess = mLock.tryLockWrite();
+    }
+    ~CAutoLockTryWrite() {
+        if(mSuccess) {
+            mLock.unlockWrite();
+        }
+    }
+private:
+    CReadWriteLock& mLock;
+    bool mSuccess;
+};
+
+class CAutoLockRead {
+public:
+    CAutoLockRead(CReadWriteLock& pLock) : mLock(pLock) {
+        mLock.lockRead();
+    }
+    ~CAutoLockRead() {
+        mLock.unlockRead();
+    }
+private:
+    CReadWriteLock& mLock;
+};
+
+class CAutoLockTryRead {
+public:
+    CAutoLockTryRead(CReadWriteLock& pLock) : mLock(pLock) {
+        mSuccess = mLock.tryLockRead();
+    }
+    ~CAutoLockTryRead() {
+        if(mSuccess) {
+            mLock.unlockRead();
+        }
+    }
+private:
+    CReadWriteLock& mLock;
+    bool mSuccess;
+};
 
 } // namespace irr
 

@@ -3,22 +3,18 @@
 *Defined CNetServiceTCP, SContextIO, SClientContext
 */
 
-#ifndef APP_CNETSERVICETCP_H
-#define APP_CNETSERVICETCP_H
+#ifndef APP_CNETSERVICE_H
+#define APP_CNETSERVICE_H
 
 
 #include "irrString.h"
 #include "irrArray.h"
 #include "irrList.h"
-#include "IRunnable.h"
-#include "CSemaphore.h"
-#include "CThread.h"
 #include "CThreadPool.h"
 #include "CEventPoller.h"
 #include "CNetSocket.h"
 #include "CTimerWheel.h"
-#include "CNetSession.h"
-#include "CBufferQueue.h"
+#include "CNetSessionPool.h"
 
 namespace irr {
 namespace net {
@@ -120,6 +116,9 @@ private:
     CMemoryHub* mMemHub;
     CNetConfig* mConfig;
 
+    CNetServiceTCP(const CNetServiceTCP& it) = delete;
+    CNetServiceTCP& operator=(const CNetServiceTCP& it) = delete;
+
 #if defined(APP_PLATFORM_WINDOWS)
 
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
@@ -131,4 +130,4 @@ private:
 }// end namespace net
 }// end namespace irr
 
-#endif //APP_CNETSERVICETCP_H
+#endif //APP_CNETSERVICE_H

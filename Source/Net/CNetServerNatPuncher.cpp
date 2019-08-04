@@ -5,6 +5,8 @@
 #include "IAppTimer.h"
 #include "IAppLogger.h"
 
+//TODO>> fix
+
 #define APP_SERVER_OVERTIME  15*1000
 #define APP_SERVER_PORT  9981
 
@@ -168,7 +170,7 @@ void CNetServerNatPuncher::run() {
 
             pack.setUsed(ret);
             switch(pack.readU8()) {
-            case ENM_HELLO:
+            case ENET_TIMEOUT:
             {
                 if(!client) {
                     client = new SClientNode();
@@ -181,12 +183,12 @@ void CNetServerNatPuncher::run() {
                 }
                 client->mTime = mCurrentTime + mOverTimeInterval;
                 pack.setUsed(0);
-                pack.add(u8(ENM_HELLO));
+                pack.add(u8(ENET_TIMEOUT));
                 pack.add(cid);
                 mConnector.sendto(pack.getPointer(), pack.getSize(), mAddressRemote);
                 break;
             }
-            case ENM_NAT_PUNCH:
+            case ENET_SEND:
             {
                 CNetAddress::ID peerid = pack.readU64();
                 const core::map<CNetAddress::ID, SClientNode*>::Node* peer = 0;
@@ -197,7 +199,7 @@ void CNetServerNatPuncher::run() {
                 }
                 if(peer) {
                     pack.setUsed(0);
-                    pack.add(u8(ENM_NAT_PUNCH));
+                    pack.add(u8(ENET_SEND));
                     const CNetAddress::ID& pid = peer->getKey();
                     pack.add(pid);
                     IAppLogger::log(ELOG_INFO, "CNetServerNatPuncher::run",
@@ -206,7 +208,7 @@ void CNetServerNatPuncher::run() {
 
                     u32 psize = pack.getSize();
 
-                    pack.add(u8(ENM_NAT_PUNCH));
+                    pack.add(u8(ENET_SEND));
                     const CNetAddress& pb = peer->getValue()->mAddress;
                     pack.add(pb.getID());
 
@@ -221,7 +223,7 @@ void CNetServerNatPuncher::run() {
                 }
                 break;
             }
-            case ENM_BYE:
+            case ENET_DISCONNECT:
             {
                 if(client) {
                     delete client;
@@ -242,7 +244,6 @@ void CNetServerNatPuncher::run() {
             checkTimeout();
             last_tick += mOverTimeInterval;
         }
-
         CThread::sleep(20);
     }//for
 

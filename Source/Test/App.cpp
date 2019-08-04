@@ -1,13 +1,14 @@
 #include <stdio.h>
 #include "CNetAddress.h"
-#include "INetManager.h"
+#include "CNetManager.h"
 #include "IAppLogger.h"
 #include "CNetServerAcceptor.h"
-#include "CNetServiceTCP.h"
-#include "CNetEchoServer.h"
-#include "CNetEchoClient.h"
+#include "CNetService.h"
 #include "CNetPing.h"
 #include "CNetSynPing.h"
+#include "CNetEchoServer.h"
+#include "CNetEchoClient.h"
+#include "CTimeoutManager.h"
 
 
 #ifdef   APP_PLATFORM_WINDOWS
@@ -31,7 +32,7 @@ void AppQuit() {
     //system("PAUSE");
     irr::c8 key = '\0';
     while('*' != key) {
-        printf("@Please input [*] to quit\n");
+        printf("@Please input [*] to quit");
         scanf("%c", &key);
     }
 }
@@ -44,7 +45,7 @@ void AppRunEchoServer() {
     config->mMaxContext = 200;
     config->mPollTimeout = 5;
     config->mSessionTimeout = 30000;
-    config->mMaxWorkThread = 10;
+    config->mMaxWorkThread = 5;
     config->check();
     config->print();
 
@@ -59,30 +60,37 @@ void AppRunEchoServer() {
     //AppQuit();
     irr::c8 key = '\0';
     while('*' != key) {
-        printf("@Please input [*] to quit\n");
+        printf("@Please input [*] to quit");
         scanf("%c", &key);
         IAppLogger::log(ELOG_INFO, "AppRunEchoServer",
-            "link=%u/%u,send=%u+%u,recv=%u",
+            "link=%u/%u, send = %uKb, sent=%uKb+%uKb, recv=%uKb",
             evt.getDislinkCount(),
             evt.getLinkCount(),
-            evt.getSentSuccessSize(),
-            evt.getSentFailSize(),
-            evt.getRecvSize());
+            evt.getSendSize() >> 10,
+            evt.getSentSuccessSize() >> 10,
+            evt.getSentFailSize() >> 10,
+            evt.getRecvSize() >> 10);
     }
     accpetor.stop();
 }
 
 void AppRunEchoClient() {
     net::CNetConfig* config = new net::CNetConfig();
-    config->mMaxWorkThread = 10;
+    config->mMaxWorkThread = 5;
     config->mMaxFetchEvents = 128;
     config->mMaxContext = 16;
     config->mPollTimeout = 5;
-    config->mSessionTimeout = 30000;
+    config->mSessionTimeout = 20000;
     config->check();
     config->print();
 
-
+    c8 sip[32] = {0};
+    printf("@Please input server's IP = ");
+    scanf("%s", sip);
+    if(strlen(sip) < 4) {
+        memcpy(sip, "127.0.0.1", sizeof("127.0.0.1"));
+    }
+    printf("@Will connect to server = %s:9981\n", sip);
     printf("@How many Mb do you want to send = ");
     s32 mMbyte = 1024 * 1024 * 1024;
     scanf("%d", &mMbyte);
@@ -97,11 +105,11 @@ void AppRunEchoClient() {
     config->drop();
 
     chub.start();
-    net::CNetAddress addr("127.0.0.1", 9981);
+    net::CNetAddress addr(sip, 9981);
     s32 i;
     for(i = 0; i < max; ++i) {
         evt[i].setHub(&chub);
-        evt[i].setAutoConnect(false);
+        evt[i].setAutoConnect(true);
         if(0 == chub.connect(addr, &evt[i])) {
             break;
         }
@@ -111,11 +119,12 @@ void AppRunEchoClient() {
     //AppQuit();
     irr::c8 key = '\0';
     while('*' != key) {
-        printf("@Please input [*] to quit\n");
+        printf("@Please input [*] to quit");
         scanf("%c", &key);
         IAppLogger::log(ELOG_INFO, "AppRunEchoClient",
-            "request=%u/%u,send=%u+%u(%uKb+%uKb), receive=%u/%u=%uKb",
+            "request=%u+%u/%u,send=%u+%u(%uKb+%uKb), receive=%u+%u=%uKb, tick=%u-%u=%u",
             net::CNetEchoClient::mSendRequest,
+            net::CNetEchoClient::mSendRequestFail,
             net::CNetEchoClient::mMaxSendPackets,
             net::CNetEchoClient::mSendSuccess,
             net::CNetEchoClient::mSendFail,
@@ -123,7 +132,11 @@ void AppRunEchoClient() {
             net::CNetEchoClient::mSendFailBytes >> 10,
             net::CNetEchoClient::mRecvCount,
             net::CNetEchoClient::mRecvBadCount,
-            net::CNetEchoClient::mRecvBytes >> 10);
+            net::CNetEchoClient::mRecvBytes >> 10,
+            net::CNetEchoClient::mTickRequest,
+            net::CNetEchoClient::mTickRequestFail,
+            net::CNetEchoClient::mTickRecv
+            );
     }
 
     for(i = 0; i < max; ++i) {
@@ -135,7 +148,7 @@ void AppRunEchoClient() {
 
 void AppStartPing() {
     irr::net::CNetPing rpin;
-    bool got = rpin.ping("61.135.169.121", 2, 1000);
+    bool got = rpin.ping("61.135.169.121", 5, 1000);
     printf("ping 61.135.169.121 = %s\n", got ? "yes" : "no");
     printf("-------------------------------------\n");
 }
@@ -166,10 +179,11 @@ int main(int argc, char** argv) {
     irr::u32 key = 1;
     while(key) {
         printf("@0 = Exit\n");
-        printf("@1 = Net Echo Server\n");
-        printf("@2 = Net Echo Client\n");
-        printf("@3 = Net Ping\n");
-        printf("@4 = Net Syn Ping\n");
+        printf("@1 = Net Server\n");
+        printf("@2 = Net Client\n");
+        printf("@3 = Time Wheel\n");
+        printf("@4 = Net Ping\n");
+        printf("@5 = Net Syn Ping\n");
         printf("@Input menu id = ");
         scanf("%u", &key);
         switch(key) {
@@ -180,9 +194,11 @@ int main(int argc, char** argv) {
             irr::AppRunEchoClient();
             break;
         case 3:
-            irr::AppStartPing();
             break;
         case 4:
+            irr::AppStartPing();
+            break;
+        case 5:
             irr::AppStartSynPing();
             break;
         default:break;

@@ -3,16 +3,22 @@
 #include "CThread.h"
 #include "IAppLogger.h"
 
+//TODO>> fix
 
 #define APP_PER_CACHE_SIZE	(1024)
 
+///The tick time, we need keep the net link alive.
+#define APP_NET_TICK_TIME  (30*1000)
+
+///We will relink the socket if tick count >= APP_NET_TICK_MAX_COUNT
+#define APP_NET_TICK_MAX_COUNT  (4)
 
 namespace irr {
 namespace net {
 
 CNetClientUDP::CNetClientUDP() :
     mAddressLocal(APP_NET_ANY_IP, APP_NET_ANY_PORT),
-    mStatus(ENM_RESET),
+    mStatus(ENET_INVALID),
     mPacket(APP_PER_CACHE_SIZE),
     mUpdateTime(0),
     mReceiver(0),
@@ -46,16 +52,13 @@ s32 CNetClientUDP::sendBuffer(void* iUserPointer, const c8* iData, s32 iLength) 
 }
 
 
-s32 CNetClientUDP::sendData(const c8* iData, s32 iLength) {
+s32 CNetClientUDP::send(const void* iData, s32 iLength) {
     switch(mStatus) {
-    case ENM_HELLO:
-        return 0;
     default:
-        if(ENM_WAIT != mStatus) {
-            return -1;
-        }
+    case ENET_INVALID:
+        return 0;
     }
-    return mProtocal.sendData(iData, iLength);
+    return mProtocal.sendData((const c8*)iData, iLength);
 }
 
 
@@ -64,7 +67,7 @@ bool CNetClientUDP::clearError() {
 
     switch(ecode) {
 #if defined(APP_PLATFORM_WINDOWS)
-    case 0:
+    case WSAETIMEDOUT:
     case WSAEWOULDBLOCK: //none data
         return true;
     case WSAECONNRESET: //reset
@@ -86,31 +89,34 @@ bool CNetClientUDP::clearError() {
 }
 
 
-bool CNetClientUDP::update(u64 iTime) {
+bool CNetClientUDP::update(s64 iTime) {
     u64 steptime = iTime - mUpdateTime;
     mUpdateTime = iTime;
 
     switch(mStatus) {
-    case ENM_WAIT:
+    case ENET_RECEIVE:
         step(steptime);
         break;
 
-    case ENM_HELLO:
+    case ENET_TIMEOUT:
         sendTick();
         break;
 
-    case ENM_RESET:
+    case ENET_INVALID:
         resetSocket();
         break;
 
-    case ENM_BYE:
+    case ENET_DISCONNECT:
         sendBye();
         mProtocal.flush();
         mRunning = false;
         mConnector.close();
         return false;
 
+    case ENET_ERROR:
     default:
+        mStatus = ENET_DISCONNECT;
+        CThread::sleep(1000);
         IAppLogger::log(ELOG_ERROR, "CNetClientUDP::run", "Default? How can you come here?");
         break;
 
@@ -120,7 +126,7 @@ bool CNetClientUDP::update(u64 iTime) {
 }
 
 
-bool CNetClientUDP::start() {
+bool CNetClientUDP::start(bool useThread) {
     if(mRunning) {
         IAppLogger::log(ELOG_INFO, "CNetClientUDP::start", "client is running currently.");
         return false;
@@ -140,7 +146,8 @@ bool CNetClientUDP::stop() {
         return false;
     }
 
-    mStatus = ENM_BYE; //mRunning = false
+    mStatus = ENET_INVALID;
+    mRunning = false;
     return true;
 }
 
@@ -157,7 +164,7 @@ void CNetClientUDP::resetSocket() {
     mConnector.close();
     if(mConnector.openUDP()) {
         bindLocal();
-        mStatus = ENM_HELLO;
+        mStatus = ENET_RECEIVE;
         mProtocal.flush();
         IAppLogger::log(ELOG_CRITICAL, "CNetClientUDP::resetSocket", "reused previous socket");
     }
@@ -168,7 +175,7 @@ void CNetClientUDP::sendTick() {
     s32 ret = mProtocal.sendData("hi", 3);
     if(0 == ret) {
         mTickTime = 0;
-        mStatus = ENM_WAIT;
+        mStatus = ENET_RECEIVE;
         IAppLogger::log(ELOG_INFO, "CNetClientUDP::run", "tick %u", mTickCount);
     }
 }
@@ -195,12 +202,12 @@ void CNetClientUDP::step(u64 iTime) {
         onPacket(mPacket);
     } else {
         if(mTickTime >= APP_NET_TICK_TIME) {
-            mStatus = ENM_HELLO;
+            mStatus = ENET_RECEIVE;
             ++mTickCount;
             if(mTickCount >= APP_NET_TICK_MAX_COUNT) { //relink
                 mTickCount = 0;
                 mTickTime = 0;
-                mStatus = ENM_RESET;
+                mStatus = ENET_INVALID;
                 IAppLogger::log(ELOG_CRITICAL, "CNetClientUDP::step", "over tick count[%s:%d]",
                     mAddressRemote.getIPString(), mAddressRemote.getPort());
             }
@@ -218,16 +225,16 @@ void CNetClientUDP::step(u64 iTime) {
             APP_ASSERT(0 && "check protocal");
             IAppLogger::log(ELOG_ERROR, "CNetClientUDP::step", "protocal import error: [%d]", inret);
         }
-    } else if(ret < 0) {
-        if(!clearError()) {
-            mStatus = ENM_RESET;
-            IAppLogger::log(ELOG_CRITICAL, "CNetClientUDP::step", "server maybe quit[%s:%d]",
-                mAddressRemote.getIPString(), mAddressRemote.getPort());
-        }
     } else if(0 == ret) {
-        mStatus = ENM_RESET;
+        mStatus = ENET_DISCONNECT;
         IAppLogger::log(ELOG_CRITICAL, "CNetClientUDP::step", "server quit[%s:%d]",
             mAddressRemote.getIPString(), mAddressRemote.getPort());
+    } else if(ret < 0) {
+        if(clearError()) {
+            mStatus = ENET_TIMEOUT;
+        } else {
+            mStatus = ENET_ERROR;
+        }
     }
 }
 

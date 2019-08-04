@@ -5,7 +5,7 @@
 #include "CNetPacket.h"
 #include "IRunnable.h"
 #include "CNetSocket.h"
-#include "CStreamFile.h"
+#include "CNetAddress.h"
 
 namespace irr {
 class CThread;
@@ -43,7 +43,7 @@ public:
         return mAddressLocal;
     }
 
-    virtual s32 sendData(const c8* iData, s32 iLength);
+    virtual s32 send(const c8* iData, s32 iLength);
 
 
     virtual void setMaxClients(u32 max) override {
@@ -56,17 +56,19 @@ public:
 
 
 private:
-    bool mRunning;
-    u8 mStatus;
     u8 mClientCount;
+    volatile s32 mRunning;
+    u32 mStatus;
     INetEventer* mReceiver;
+    INetEventer* mReceiver2;
     CThread* mThread;
-    io::CStreamFile mStream;
     CNetPacket mPacket;
     CNetSocket mSocket;
     CNetSocket mSocketSub;
     CNetAddress mAddressRemote;
     CNetAddress mAddressLocal;
+
+    bool clearError();
 };
 
 }// end namespace net

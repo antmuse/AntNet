@@ -110,8 +110,8 @@ public:
     struct SEvent {
         union UData {
             u32 mData32;
-            void* mPointer;
             u64 mData64;
+            void* mPointer;
         };
         u32 mEvent;
         UData mData;

@@ -33,7 +33,7 @@ void CNetHttpRequest::getBuffer(CNetPacket& out)const {
     out.addBuffer(" HTTP/", 6);
     out.addBuffer(mHttpVersion.c_str(), mHttpVersion.size());
     out.addBuffer("\r\n", 2);
-    out.addBuffer(AppHttpHeadIDName[EHHID_HOST], AppHttpHeadIDNameSize[EHHID_HOST]);
+    out.addBuffer(AppHttpHeads[EHHID_HOST].mKey, AppHttpHeads[EHHID_HOST].mLen);
     out.addBuffer(": ", 2);
     out.addBuffer(getHost().c_str(), getHost().size());
     out.addBuffer("\r\n", 2);

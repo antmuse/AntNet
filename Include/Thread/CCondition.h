@@ -22,6 +22,7 @@
 
 namespace irr {
 class CMutex;
+class CReadWriteLock;
 
 /**
 *@class CCondition
@@ -65,6 +66,10 @@ public:
     */
     bool wait(CMutex& mutex);
 
+    bool waitWrite(CReadWriteLock& mutex);
+
+    bool waitRead(CReadWriteLock& mutex);
+
     /**
     *@brief Wait for this condition for some milliseconds.
     *@param mutex Mutex used by condition.
@@ -73,6 +78,10 @@ public:
     *@return true if success, else false.
     */
     bool wait(CMutex& mutex, u32 milliseconds);
+
+    bool waitWrite(CReadWriteLock& mutex, u32 milliseconds);
+
+    bool waitRead(CReadWriteLock& mutex, u32 milliseconds);
 
 private:
 #if defined(APP_PLATFORM_WINDOWS)

@@ -21,6 +21,9 @@ public:
         return this;
     }
 
+    virtual s32 onTimeout(u32 sessionID,
+        const CNetAddress& local, const CNetAddress& remote)override;
+
     virtual s32 onConnect(u32 sessionID,
         const CNetAddress& local, const CNetAddress& remote)override;
 

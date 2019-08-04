@@ -3,20 +3,21 @@
 
 #include "INetClient.h"
 #include "irrString.h"
-#include "CStreamFile.h"
 #include "CNetSocket.h"
 #include "CNetPacket.h"
-
+#include "CThread.h"
 
 namespace irr {
 namespace net {
 
 
-class CNetClientTCP : public INetClient {
+class CNetClientTCP : public INetClient, public IRunnable {
 public:
     CNetClientTCP();
 
     virtual ~CNetClientTCP();
+
+    virtual void run() override;
 
     virtual ENetNodeType getType() const override {
         return ENET_TCP_CLIENT;
@@ -26,9 +27,9 @@ public:
         mReceiver = it;
     }
 
-    virtual bool update(u64 iTime)override;
+    virtual bool update(s64 iTime)override;
 
-    virtual bool start()override;
+    virtual bool start(bool useThread)override;
 
     virtual bool stop()override;
 
@@ -48,36 +49,27 @@ public:
         return mAddressLocal;
     }
 
-    virtual s32 sendData(const c8* iData, s32 iLength)override;
+    virtual s32 send(const void* iData, s32 iLength)override;
+
+    const CNetSocket& getSocket()const {
+        return mConnector;
+    }
 
 private:
     void resetSocket();
-    void connect();
-    void sendTick();
+    bool connect();
 
     /**
     *@return True if not really error, else false.
     */
     bool clearError();
 
-    /**
-    *@return True if a package had been sent completely, else false.
-    *@note Can't write other data into socket cache if return false.
-    */
-    bool flushDatalist();
-
-    void setNetPackage(ENetMessage it, net::CNetPacket& out);
-
-
-    bool mRunning;
-    u8 mStatus;
-    u32 mTickCount;         ///<Heartbeat count
-    u32 mPacketSize;
-    u64 mTickTime;          ///<Heartbeat time
-    u64 mLastUpdateTime;    ///<last absolute time of update
+    volatile s32 mRunning;
+    u32 mStatus;
+    s64 mLastUpdateTime;    ///<last absolute time of update
     INetEventer* mReceiver;
+    CThread* mThread;       //receive thread
     CNetPacket mPacket;
-    io::CStreamFile mStream;
     CNetAddress mAddressRemote;
     CNetAddress mAddressLocal;
     CNetSocket mConnector;

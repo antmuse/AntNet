@@ -249,7 +249,7 @@ s32 CNetProtocal::receiveData(c8* iBuffer, s32 len) {
         if(seg->mSN == mReceiveNext && mReceiveQueueCount < mMaxReceiveWindowSize) {
             node->delink();
             mReceiveBufferCount--;
-            mQueueReceive.pushBack(node);
+            mQueueReceive.pushBack(*node);
             mReceiveQueueCount++;
             mReceiveNext++;
         } else {
@@ -325,7 +325,7 @@ s32 CNetProtocal::sendData(const c8* iBuffer, s32 len) {
                 if(seg == NULL) {
                     return -2;
                 }
-                mQueueSend.pushBack(newnode);
+                mQueueSend.pushBack(*newnode);
                 memcpy(seg->mData, old->mData, old->mLength);
                 if(iBuffer) {
                     memcpy(seg->mData + old->mLength, iBuffer, extend);
@@ -367,7 +367,7 @@ s32 CNetProtocal::sendData(const c8* iBuffer, s32 len) {
         }
         seg->mLength = size;
         seg->mFrag = (mStreamMode ? 0 : (count - i - 1));
-        mQueueSend.pushBack(newnode);
+        mQueueSend.pushBack(*newnode);
         mSendQueueCount++;
         if(iBuffer) {
             iBuffer += size;
@@ -544,7 +544,7 @@ void CNetProtocal::parseSegment(CQueueNode* node) {
     }//for
 
     if(repeat == 0) {
-        p->pushFront(node);
+        p->pushFront(*node);
         mReceiveBufferCount++;
     } else {
         node->delink();
@@ -563,7 +563,7 @@ void CNetProtocal::parseSegment(CQueueNode* node) {
         if(seg->mSN == mReceiveNext && mReceiveQueueCount < mMaxReceiveWindowSize) {
             node->delink();
             mReceiveBufferCount--;
-            mQueueReceive.pushBack(node);
+            mQueueReceive.pushBack(*node);
             mReceiveQueueCount++;
             mReceiveNext++;
         } else {
@@ -839,7 +839,7 @@ void CNetProtocal::flush() {
         node = mQueueSend.getNext();
         newseg = (SKCPSegment*) (node->getValue());
         node->delink();
-        mQueueSendBuffer.pushBack(node);
+        mQueueSendBuffer.pushBack(*node);
         mSendQueueCount--;
         mSendBufferCount++;
 

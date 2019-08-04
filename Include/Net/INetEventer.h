@@ -2,6 +2,7 @@
 #define APP_INETEVENTER_H
 
 
+#include "HNetConfig.h"
 #include "CNetPacket.h"
 
 namespace irr {
@@ -84,6 +85,9 @@ public:
         const CNetAddress& local, const CNetAddress& remote) = 0;
 
     virtual s32 onDisconnect(u32 sessionID,
+        const CNetAddress& local, const CNetAddress& remote) = 0;
+
+    virtual s32 onTimeout(u32 sessionID,
         const CNetAddress& local, const CNetAddress& remote) = 0;
 
     virtual s32 onSend(u32 sessionID, void* buffer, s32 size, s32 result) = 0;

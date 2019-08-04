@@ -61,34 +61,6 @@ struct SContextIO {
     }
 };
 
-
-///Socket contex of each client
-struct SClientContext {
-    bool mPackComplete;								///<Pack
-    bool mSendPosted;
-    bool mReceivePosted;
-    u64 mOverTime;                                  ///<OverTime
-    u32 mPacketSize;                                ///<Current packet is not full
-    CNetSocket mSocket;						///<Socket of client
-    CNetAddress mAddressRemote;                     ///<remote address
-    CNetAddress mAddressLocal;                      ///<local address
-    SQueueRingFreelock* mReadHandle;				///<Send cache read handle
-    SQueueRingFreelock* mWriteHandle;				///<Send cache write handle
-    SQueueRingFreelock* mInnerData;					///<Inner data list for send
-    CNetPacket  mNetPack;							///<The receive cache.
-    SContextIO mSender;								///<IO handles
-    SContextIO mReceiver;							///<IO handles
-    core::array<SContextIO> mAllContextIO;			///<All IO handles of others, eg: Accpet IO
-
-    SClientContext();
-
-    ~SClientContext();
-
-    void setCache(s32 iCount, s32 perSize = 1024 - sizeof(SQueueRingFreelock));
-    SQueueRingFreelock* createNetpack(s32 iSize);
-    void releaseNetpack(SQueueRingFreelock* pack);
-};
-
 }// end namespace net
 }// end namespace irr
 
@@ -98,12 +70,10 @@ struct SClientContext {
 namespace irr {
 namespace net {
 
-struct SClientContext;
-
 ///Socket IO contex
 struct SContextIO {
     u32 mID;
-    EOperationType mOperationType;      				///<Current operation type.
+    EOperationType mOperationType;  ///<Current operation type.
     SContextIO() : mOperationType(EOP_INVALID) {
     }
 
@@ -111,26 +81,8 @@ struct SContextIO {
     }
 };
 
-
-///Socket contex of each client
-struct SClientContext {
-    CNetSocket mSocket;												///<Socket of client
-    CNetAddress mAddressRemote;                           	///<Client address
-    SContextIO mSendIO;
-    SContextIO mReceiveIO;
-    //core::array<SContextIO*> mAllIOContext;
-    CNetPacket mSendPack;
-    CNetPacket mReceivePack;
-    SClientContext() {
-        mSendIO.mOperationType = EOP_SEND;
-        mReceiveIO.mOperationType = EOP_RECEIVE;
-    }
-};
-
-
 }// end namespace net
 }// end namespace irr
 #endif
-
 
 #endif //APP_SCLIENTCONTEXT_H

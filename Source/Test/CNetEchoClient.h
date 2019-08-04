@@ -44,11 +44,17 @@ public:
     virtual s32 onLink(u32 sessionID,
         const CNetAddress& local, const CNetAddress& remote)override;
 
+    virtual s32 onTimeout(u32 sessionID,
+        const CNetAddress& local, const CNetAddress& remote)override;
+
     static s32 mSendRequest;
     static s32 mSendRequestFail;
     static s32 mSendSuccess;
     static s32 mSendFail;
     static s32 mRecvCount;
+    static s32 mTickRequest;
+    static s32 mTickRequestFail;
+    static s32 mTickRecv;
     static s32 mSendSuccessBytes;
     static s32 mSendFailBytes;
     static s32 mRecvBytes;
@@ -66,6 +72,7 @@ private:
     CNetPacket mPacket;
 
     void send();
+    void sendTick();
 };
 
 }//namespace net

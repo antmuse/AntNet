@@ -44,7 +44,7 @@ CNetPing::~CNetPing() {
 
 
 bool CNetPing::ping(const c8* remoteIP, u32 max, s32 timeout) {
-    if(!mSocket.open(AF_INET, SOCK_RAW, IPPROTO_ICMP)) {
+    if(!mSocket.openRaw(IPPROTO_ICMP)) {
         return false;
     }
 

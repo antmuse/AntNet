@@ -29,6 +29,17 @@ CNetCheckIP::CNetCheckIP() : m_size(0) {
 CNetCheckIP::~CNetCheckIP() {
 }
 
+CNetCheckIP::CNetCheckIP(const CNetCheckIP& it) : m_size(it.m_size) {
+    ::memcpy(m_data, it.m_data, m_size * sizeof(SNetIPNode));
+}
+
+CNetCheckIP& CNetCheckIP::operator=(const CNetCheckIP& it) {
+    if(this != &it) {
+        m_size = it.m_size;
+        ::memcpy(m_data, it.m_data, m_size * sizeof(SNetIPNode));
+    }
+    return *this;
+}
 
 bool CNetCheckIP::isValidLittleEndianIP(u32 ip)const {
     if(0 == m_size) {

@@ -1,5 +1,6 @@
 ﻿#include "CCondition.h"
 #include "CMutex.h"
+#include "CReadWriteLock.h"
 
 namespace irr {
 
@@ -35,8 +36,31 @@ bool CCondition::wait(CMutex& mutex, u32 milliseconds) {
     return (TRUE == ::SleepConditionVariableCS(&mCondition, (CRITICAL_SECTION*) mutex.getHandle(), milliseconds));
 }
 
+bool CCondition::waitWrite(CReadWriteLock& mutex) {
+    return (TRUE == ::SleepConditionVariableSRW(&mCondition,
+        (SRWLOCK*) mutex.getHandle(), INFINITE, 0));
+}
+
+bool CCondition::waitRead(CReadWriteLock& mutex) {
+    return (TRUE == ::SleepConditionVariableSRW(&mCondition,
+        (SRWLOCK*) mutex.getHandle(), INFINITE,
+        CONDITION_VARIABLE_LOCKMODE_SHARED));
+}
+
+bool CCondition::waitWrite(CReadWriteLock& mutex, u32 milliseconds) {
+    return (TRUE == ::SleepConditionVariableSRW(&mCondition,
+        (SRWLOCK*) mutex.getHandle(), milliseconds, 0));
+}
+
+bool CCondition::waitRead(CReadWriteLock& mutex, u32 milliseconds) {
+    return (TRUE == ::SleepConditionVariableSRW(&mCondition,
+        (SRWLOCK*) mutex.getHandle(), milliseconds,
+        CONDITION_VARIABLE_LOCKMODE_SHARED));
+}
+
 
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
+
 CCondition::CCondition() {
     init();
 }

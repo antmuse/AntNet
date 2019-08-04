@@ -1,7 +1,6 @@
 #ifndef APP_INETCLIENT_H
 #define APP_INETCLIENT_H
 
-#include "HNetConfig.h"
 #include "INetEventer.h"
 
 namespace irr {
@@ -21,13 +20,13 @@ public:
     *@param iTime absolute time in millisecond.
     *@return false if connection dead, else true.
     */
-    virtual bool update(u64 iTime) = 0;
+    virtual bool update(s64 iTime) = 0;
 
     virtual ENetNodeType getType() const = 0;
 
     virtual void setNetEventer(INetEventer* it) = 0;
 
-    virtual bool start() = 0;
+    virtual bool start(bool useThread) = 0;
 
     virtual bool stop() = 0;
 
@@ -39,7 +38,7 @@ public:
 
     virtual const CNetAddress& getLocalAddress() const = 0;
 
-    virtual s32 sendData(const c8* iData, s32 iLength) = 0;
+    virtual s32 send(const void* iData, s32 iLength) = 0;
 
 };
 

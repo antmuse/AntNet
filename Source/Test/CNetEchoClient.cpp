@@ -1,5 +1,5 @@
 #include "CNetEchoClient.h"
-#include "CNetServiceTCP.h"
+#include "CNetService.h"
 #include "CThread.h"
 #include "IAppLogger.h"
 #include "CNetPacket.h"
@@ -19,7 +19,12 @@ s32 CNetEchoClient::mRecvCount = 0;
 s32 CNetEchoClient::mRecvBadCount = 0;
 s32 CNetEchoClient::mSendSuccessBytes = 0;
 s32 CNetEchoClient::mRecvBytes = 0;
+s32 CNetEchoClient::mTickRequest = 0;
+s32 CNetEchoClient::mTickRequestFail = 0;
+s32 CNetEchoClient::mTickRecv = 0;
 c8 CNetEchoClient::mTestData[4 * 1024];
+
+const u32 APP_TICK_SIZE = 10;
 
 void CNetEchoClient::initData(const c8* msg, s32 mb) {
     AppAtomicFetchSet((sizeof(mTestData) - 1 + 1024 * 1024 * mb) / sizeof(mTestData),
@@ -45,7 +50,7 @@ void CNetEchoClient::initData(const c8* msg, s32 mb) {
 
 CNetEchoClient::CNetEchoClient() :
     mPacket(1024 * 16),
-    mAutoConnect(false),
+    mAutoConnect(true),
     mHub(0),
     mSession(0) {
 }
@@ -84,6 +89,20 @@ s32 CNetEchoClient::onConnect(u32 sessionID,
     mSession = sessionID;
     send();
     return ret;
+}
+
+
+void CNetEchoClient::sendTick() {
+    s32 cnt = AppAtomicIncrementFetch(&mTickRequest);
+    c8 buf[APP_TICK_SIZE];
+    *(u32*)buf = APP_TICK_SIZE;
+    buf[sizeof(u32)] = 0xAB;
+    memcpy(buf + 5, "tick", 5);
+    s32 ret = mHub->send(mSession, buf, sizeof(buf));
+    if(sizeof(buf) != ret) {
+        AppAtomicIncrementFetch(&mTickRequestFail);
+    }
+    IAppLogger::log(ELOG_INFO, "CNetEchoClient::sendTick", "tick=%u", cnt);
 }
 
 void CNetEchoClient::send() {
@@ -148,21 +167,45 @@ s32 CNetEchoClient::onReceive(u32 sessionID, void* buffer, s32 size) {
 
     s32 ret = 0;
     mPacket.addBuffer(buffer, size);
-    for(; mPacket.getReadSize() >= sizeof(mTestData);) {
-        ret += sizeof(mTestData);
-        if(sizeof(mTestData) == (*(u32*) mPacket.getReadPointer())) {
-            /*IAppLogger::log(ELOG_INFO, "CNetEchoClient::onReceive", "[%u,%d,%s]",
-            sessionID, size, mPacket.getReadPointer() + ret);*/
-            AppAtomicIncrementFetch(&mRecvCount);
+    for(; mPacket.getReadSize() >= sizeof(u32);) {
+        const u32 pksz = (*(u32*) mPacket.getReadPointer());
+        if(mPacket.getReadSize() >= pksz) {
+            if(sizeof(mTestData) == pksz) {
+                ret += pksz;
+                AppAtomicIncrementFetch(&mRecvCount);
+                mPacket.seek(pksz, false);
+            } else if(APP_TICK_SIZE == pksz) {
+                AppAtomicIncrementFetch(&mTickRecv);
+                ret += pksz;
+                IAppLogger::log(ELOG_INFO, "CNetEchoClient::onReceive", "[%u,%d,%s]",
+                    sessionID, size, mPacket.getReadPointer() + 5);
+                mPacket.seek(pksz, false);
+            } else {
+                AppAtomicIncrementFetch(&mRecvBadCount);
+                //APP_ASSERT(0);
+                break;
+            }
         } else {
-            AppAtomicIncrementFetch(&mRecvBadCount);
+            break;
         }
-        mPacket.seek(sizeof(mTestData), false);
     }
     mPacket.clear(ret);
     return ret;
 }
 
+s32 CNetEchoClient::onTimeout(u32 sessionID,
+    const CNetAddress& local, const CNetAddress& remote) {
+    s32 ret = 0;
+    IAppLogger::log(ELOG_INFO, "CNetEchoClient::onTimeout", "[%u,%s:%u->%s:%u]",
+        sessionID,
+        local.getIPString(),
+        local.getPort(),
+        remote.getIPString(),
+        remote.getPort()
+    );
+    sendTick();
+    return 2;
+}
 
 }//namespace net
 }//namespace irr

@@ -13,7 +13,7 @@
 #include "CThread.h"
 #include "CEventPoller.h"
 #include "CNetSocket.h"
-#include "CNetServiceTCP.h"
+#include "CNetService.h"
 
 #if defined(APP_PLATFORM_WINDOWS)
 namespace irr {
@@ -144,6 +144,8 @@ public:
     bool start();
 
     bool stop();
+
+    s32 send(u32 id, const void* buffer, s32 size);
 
     void setLocalAddress(const CNetAddress& it) {
         mAddressLocal = it;

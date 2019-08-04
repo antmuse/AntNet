@@ -1,35 +1,37 @@
 #ifndef APP_CNETMANAGER_H
 #define APP_CNETMANAGER_H
 
-#include "INetManager.h"
 #include "IRunnable.h"
 #include "irrArray.h"
 #include "CMutex.h"
+#include "INetClient.h"
+#include "INetServer.h"
 
 namespace irr {
 class CThread;
 
 namespace net {
 
-class CNetManager : public IRunnable, public INetManager {
+class CNetManager : public IRunnable {
 public:
-    static INetManager* getInstance();
-
-    virtual INetServer* createServer(ENetNodeType type)override;
-
-    virtual INetClient* createClient(ENetNodeType type)override;
-
-    virtual INetClient* addClient(ENetNodeType type)override;
-
-    virtual INetClient* getClientTCP(u32 index)override;
-
-    virtual INetClient* getClientUDP(u32 index)override;
+    static CNetManager& getInstance();
 
     virtual void run() override;
 
-    virtual bool start()override;
+    bool start();
 
-    virtual bool stop()override;
+    bool stop();
+
+    INetServer* createServer(ENetNodeType type, INetEventer* iEvt);
+
+    INetClient* createClient(ENetNodeType type, INetEventer* iEvt);
+
+    INetClient* addClient(ENetNodeType type, INetEventer* iEvt);
+
+    INetClient* getClientTCP(u32 index);
+
+    INetClient* getClientUDP(u32 index);
+
 
 protected:
     void stopAll();
@@ -45,6 +47,9 @@ protected:
 private:
     CNetManager();
     virtual ~CNetManager();
+
+    CNetManager(const CNetManager& it) = delete;
+    CNetManager& operator=(const CNetManager& it) = delete;
 };
 
 }// end namespace net

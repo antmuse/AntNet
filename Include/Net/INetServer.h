@@ -1,10 +1,7 @@
 #ifndef APP_INETSERVER_H
 #define APP_INETSERVER_H
 
-#include "HNetConfig.h"
 #include "INetEventer.h"
-#include "IPairOrderID.h"
-//#include "CNetAddress.h"
 
 namespace irr {
 namespace net {

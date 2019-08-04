@@ -21,7 +21,7 @@ void CNetHttpHead::getBuffer(CNetPacket& out) const {
         nd = it.getNode();
         key = nd->getKey();
         core::stringc& value = nd->getValue();
-        out.addBuffer(AppHttpHeadIDName[key], AppHttpHeadIDNameSize[key]);
+        out.addBuffer(AppHttpHeads[key].mKey, AppHttpHeads[key].mLen);
         out.addBuffer(": ", 2);
         out.addBuffer(value.c_str(), value.size());
         out.addBuffer("\r\n", 2);

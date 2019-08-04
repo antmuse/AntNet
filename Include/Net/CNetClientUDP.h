@@ -30,13 +30,13 @@ public:
         mReceiver = it;
     }
 
-    bool update(u64 iTime)override;
+    bool update(s64 iTime)override;
 
-    virtual bool start()override;
+    virtual bool start(bool useThread)override;
 
     virtual bool stop()override;
 
-    virtual s32 sendData(const c8* iData, s32 iLength) override;
+    virtual s32 send(const void* iData, s32 iLength) override;
 
     virtual void setLocalAddress(const CNetAddress& it)override {
         mAddressLocal = it;
@@ -82,7 +82,7 @@ private:
     bool bindLocal();
 
     bool mRunning;
-    u8 mStatus;
+    u32 mStatus;
     u32 mTickCount;
     u64 mUpdateTime;
     u64 mTickTime;

@@ -64,7 +64,7 @@ bool CNetSynPing::init() {
     IAppLogger::log(ELOG_INFO, "CNetSynPing::init", "sizeof SHeadOptionTCP=%u", sizeof(SHeadOptionTCP));
     //截获ip数据包：   socket(AF_INET, SOCK_RAW, IPPROTO_TCP|IPPROTO_UDP|IPPROTO_ICMP)
     //截获以太网数据帧：socket(PF_PACKET, SOCK_RAW, htons(ETH_P_IP | ETH_P_ARP | ETH_P_ALL))
-    if(!mScoketRaw.open(AF_INET, SOCK_RAW, IPPROTO_RAW)) {
+    if(!mScoketRaw.openRaw(IPPROTO_RAW)) {
         IAppLogger::log(ELOG_ERROR, "CNetSynPing::init", "mScoketRaw.open,%u", CNetSocket::getError());
         return false;
     }
@@ -77,14 +77,14 @@ bool CNetSynPing::init() {
     //what a fuck diffence here.
 #if defined(APP_PLATFORM_WINDOWS)
     //On windows, can't open raw socket with IPPROTO_TCP.
-    if(!mScoketListener.open(AF_INET, SOCK_RAW, IPPROTO_IP)) {
+    if(!mScoketListener.openRaw(IPPROTO_IP)) {
         IAppLogger::log(ELOG_ERROR, "CNetSynPing::init", "mScoketListener.open,%u", CNetSocket::getError());
         closeAll();
         return false;
     }
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
     //On linux, can't open raw socket with IPPROTO_IP.
-    if(!mScoketListener.open(AF_INET, SOCK_RAW, IPPROTO_TCP)) {
+    if(!mScoketListener.openRaw(IPPROTO_TCP)) {
         IAppLogger::log(ELOG_ERROR, "CNetSynPing::init", "mScoketListener.open,%u", CNetSocket::getError());
         closeAll();
         return false;

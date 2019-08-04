@@ -269,7 +269,22 @@
     <ClCompile Include="..\..\..\Source\Net\CNetCheckIP.cpp">
       <Filter>Source\Net</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\Net\CNetServiceTCP.cpp">
+    <ClCompile Include="..\..\..\Source\Net\CNetService.cpp">
+      <Filter>Source\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\CNetServiceLinux.cpp">
+      <Filter>Source\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\CNetServiceWindows.cpp">
+      <Filter>Source\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\CNetSessionLinux.cpp">
+      <Filter>Source\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\CNetSessionPool.cpp">
+      <Filter>Source\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\CNetSessionWindows.cpp">
       <Filter>Source\Net</Filter>
     </ClCompile>
   </ItemGroup>

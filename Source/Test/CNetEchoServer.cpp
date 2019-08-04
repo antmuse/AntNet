@@ -1,5 +1,5 @@
 #include "CNetEchoServer.h"
-#include "CNetServiceTCP.h"
+#include "CNetService.h"
 #include "IAppLogger.h"
 #include "CNetServerAcceptor.h"
 
@@ -27,6 +27,18 @@ void CNetEchoServer::setServer(CNetServerAcceptor* hub) {
     }
 }
 
+s32 CNetEchoServer::onTimeout(u32 sessionID,
+    const CNetAddress& local, const CNetAddress& remote) {
+    s32 ret = 0;
+    IAppLogger::log(ELOG_INFO, "CNetEchoServer::onTimeout", "[%u,%s:%u->%s:%u]",
+        sessionID,
+        local.getIPString(),
+        local.getPort(),
+        remote.getIPString(),
+        remote.getPort()
+    );
+    return 0;
+}
 
 s32 CNetEchoServer::onLink(u32 sessionID,
     const CNetAddress& local, const CNetAddress& remote) {

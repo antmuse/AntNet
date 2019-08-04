@@ -241,8 +241,13 @@
     <ClCompile Include="..\..\..\Source\Net\CNetServerNatPuncher.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetServerSeniorUDP.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetServerTCP.cpp" />
-    <ClCompile Include="..\..\..\Source\Net\CNetServiceTCP.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\CNetService.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\CNetServiceLinux.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\CNetServiceWindows.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetSession.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\CNetSessionLinux.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\CNetSessionPool.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\CNetSessionWindows.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetSocket.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetUtility.cpp" />
     <ClCompile Include="..\..\..\Source\Net\HNetConfig.cpp" />
