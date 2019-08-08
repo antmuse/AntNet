@@ -28,7 +28,7 @@ CTimerWheel::STimeNode::~STimeNode() {
 
 
 //---------------------------------------------------------------------
-CTimerWheel::CTimerWheel(u64 millisec, u64 interval) :
+CTimerWheel::CTimerWheel(s64 millisec, s32 interval) :
     mCurrentStep(0),
     mCurrent(millisec),
     mInterval((interval > 0) ? interval : 1) {
@@ -95,18 +95,18 @@ void CTimerWheel::clearSlot(CQueueNode all[], u32 size) {
 }
 
 
-void CTimerWheel::add(STimeNode& node, u64 period, s32 repeat) {
+void CTimerWheel::add(STimeNode& node, u32 period, s32 repeat) {
     mSpinlock.lock();
 
     if(!node.mLinker.isEmpty()) {
         node.mLinker.delink();
     }
-    u64 steps = (period + mInterval - 1) / mInterval;
-    if(steps >= 0x7000000000000000ULL) {
-        steps = 0x7000000000000000ULL;
+    u32 steps = (period + mInterval - 1) / mInterval;
+    if(steps >= 0x70000000U) {//21 days max if mInterval=1 millisecond
+        steps = 0x70000000U;
     }
-    node.mTimeoutStep = mCurrentStep + steps;
-    node.mCycleStep = (u32)steps;
+    node.mCycleStep = static_cast<s32>(steps);
+    node.mTimeoutStep = mCurrentStep + node.mCycleStep;
     node.mMaxRepeat = repeat;
     innerAdd(node);
 
@@ -141,8 +141,8 @@ bool CTimerWheel::remove(STimeNode& node) {
 
 
 void CTimerWheel::innerAdd(STimeNode& node) {
-    u64 expires = node.mTimeoutStep;
-    u64 idx = expires - mCurrentStep;
+    s32 expires = node.mTimeoutStep;
+    u32 idx = expires - mCurrentStep;
     if(idx < ESLOT0_MAX) {
         mSlot_0[expires & APP_TIME_ROOT_SLOT_MASK].pushBack(node.mLinker);
     } else if(idx < ESLOT1_MAX) {
@@ -151,17 +151,11 @@ void CTimerWheel::innerAdd(STimeNode& node) {
         mSlot_2[getIndex(expires, 1)].pushBack(node.mLinker);
     } else if(idx < ESLOT3_MAX) {
         mSlot_3[getIndex(expires, 2)].pushBack(node.mLinker);
-    } else if((s64) idx < 0) {
+    } else if(static_cast<s32>(idx) < 0) {
         mSlot_0[mCurrentStep & APP_TIME_ROOT_SLOT_MASK].pushBack(node.mLinker);
     } else {
         mSlot_4[getIndex(expires, 3)].pushBack(node.mLinker);
     }
-}
-
-
-
-inline u64 CTimerWheel::getIndex(u64 jiffies, u64 level)const {
-    return (jiffies >> (APP_TIME_ROOT_SLOT_BITS + level * APP_TIME_SLOT_BITS)) & APP_TIME_SLOT_MASK;
 }
 
 
@@ -179,9 +173,9 @@ void CTimerWheel::innerCascade(CQueueNode& head) {
 
 
 void CTimerWheel::innerUpdate() {
-    u64 index = mCurrentStep & APP_TIME_ROOT_SLOT_MASK;
+    s32 index = mCurrentStep & APP_TIME_ROOT_SLOT_MASK;
     if(index == 0) {
-        u64 i = getIndex(mCurrentStep, 0);
+        s32 i = getIndex(mCurrentStep, 0);
         innerCascade(mSlot_1[i]);
         if(i == 0) {
             i = getIndex(mCurrentStep, 1);
@@ -229,15 +223,15 @@ void CTimerWheel::innerUpdate() {
 
 
 // run timer events
-void CTimerWheel::update(u64 millisec) {
-    s64 limit = (s64) mInterval * 64;
-    s64 diff = (s64) (millisec - mCurrent);
+void CTimerWheel::update(s64 millisec) {
+    s64 limit = mInterval * 64LL;
+    s64 diff = millisec - mCurrent;
     if(diff > APP_TIMER_MANAGER_LIMIT + limit) {
         mCurrent = millisec;
     } else if(diff < -APP_TIMER_MANAGER_LIMIT - limit) {
         mCurrent = millisec;
     }
-    while((s64) (millisec - mCurrent) > 0) {
+    while(isTimeAfter64(millisec, mCurrent)) {
         mSpinlock.lock();
         innerUpdate();
         mCurrent += mInterval;

@@ -174,10 +174,12 @@
     <ClCompile Include="..\..\..\Source\Test\App.cpp" />
     <ClCompile Include="..\..\..\Source\Test\CNetEchoClient.cpp" />
     <ClCompile Include="..\..\..\Source\Test\CNetEchoServer.cpp" />
+    <ClCompile Include="..\..\..\Source\Test\CTimeoutManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\Test\CNetEchoClient.h" />
     <ClInclude Include="..\..\..\Source\Test\CNetEchoServer.h" />
+    <ClInclude Include="..\..\..\Source\Test\CTimeoutManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

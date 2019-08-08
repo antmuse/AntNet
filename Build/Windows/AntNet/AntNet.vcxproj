@@ -219,7 +219,6 @@
     <ClCompile Include="..\..\..\Source\Core\CMemoryHub.cpp" />
     <ClCompile Include="..\..\..\Source\Core\CQueueNode.cpp" />
     <ClCompile Include="..\..\..\Source\Core\CStreamFile.cpp" />
-    <ClCompile Include="..\..\..\Source\Core\CTimeoutManager.cpp" />
     <ClCompile Include="..\..\..\Source\Core\CTimerWheel.cpp" />
     <ClCompile Include="..\..\..\Source\Core\IAppLogger.cpp" />
     <ClCompile Include="..\..\..\Source\Core\IAppTimer.cpp" />
@@ -234,7 +233,6 @@
     <ClCompile Include="..\..\..\Source\Net\CNetClientNatPuncher.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetClientTCP.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetClientUDP.cpp" />
-    <ClCompile Include="..\..\..\Source\Net\CNetManager.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetPacket.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetProtocal.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetServerAcceptor.cpp" />

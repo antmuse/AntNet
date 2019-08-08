@@ -24,7 +24,6 @@ CNetSession::CNetSession() :
     mTime(-1),
     mID(getMask(0, 1)),
     mCount(1),
-    mMaxTick(2),
     mStatus(0),
     mEventer(0) {
     clear();
@@ -51,8 +50,7 @@ void CNetSession::setSocket(const CNetSocket& it) {
 
 
 void CNetSession::clear() {
-    mCount = 1;
-    mMaxTick = 2;
+    mCount = 1; //1 for timeout
     mStatus = 0;
     mEventer = 0;
     mInGlobalQueue = 0;

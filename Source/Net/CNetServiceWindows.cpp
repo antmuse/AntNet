@@ -90,7 +90,7 @@ void CNetServiceTCP::run() {
 
                 if(ret > 0) {
                     mWheel.add(iContext->getTimeNode(),
-                        ret > 0 ? mConfig->mSessionTimeout : 1000, 1);
+                        ret > 1 ? mConfig->mSessionTimeout : 1000, 1);
                 } else if(0 == ret) {
                     iContext->stepClose();             //step 1
                     remove(iContext);                  //step 2

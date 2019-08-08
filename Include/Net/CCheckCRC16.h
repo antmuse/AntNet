@@ -20,6 +20,10 @@ public:
         mSum = 0;
     }
 
+    u16 getResult()const {
+        return mSum;
+    }
+
 private:
     u16 mSum;
 };

@@ -143,19 +143,21 @@ s32 CNetEchoClient::onDisconnect(u32 sessionID,
 
 s32 CNetEchoClient::onSend(u32 sessionID, void* buffer, s32 size, s32 result) {
     s32 ret = 0;
-    if(0 == result) {
-        AppAtomicFetchAdd(size, &mSendSuccessBytes);
-        AppAtomicIncrementFetch(&mSendSuccess);
-        send();
-    } else {
-        AppAtomicFetchAdd(size, &mSendFailBytes);
-        AppAtomicIncrementFetch(&mSendFail);
-        IAppLogger::log(ELOG_ERROR, "CNetEchoClient::onSend", "Failed[%u,%d,%d,%s]",
-            sessionID,
-            result,
-            size,
-            reinterpret_cast<c8*>(buffer)
-        );
+    if(APP_TICK_SIZE != size) {
+        if(0 == result) {
+            AppAtomicFetchAdd(size, &mSendSuccessBytes);
+            AppAtomicIncrementFetch(&mSendSuccess);
+            send();
+        } else {
+            AppAtomicFetchAdd(size, &mSendFailBytes);
+            AppAtomicIncrementFetch(&mSendFail);
+            IAppLogger::log(ELOG_ERROR, "CNetEchoClient::onSend", "Failed[%u,%d,%d,%s]",
+                sessionID,
+                result,
+                size,
+                reinterpret_cast<c8*>(buffer)
+            );
+        }
     }
     return ret;
 }

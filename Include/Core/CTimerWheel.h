@@ -22,8 +22,8 @@ public:
         CQueueNode mLinker;
         AppTimeoutCallback mCallback;
         void* mCallbackData;
-        u64 mTimeoutStep;           //Absolute timeout step
-        u32 mCycleStep;             //cycle step,relatively
+        s32 mTimeoutStep;           //Absolute timeout step
+        s32 mCycleStep;             //cycle step,relatively
         s32 mMaxRepeat;
         STimeNode();
         ~STimeNode();
@@ -35,50 +35,61 @@ public:
     *@param interval Internal working time interval(in millisecond),
     *@note Time wheel's time range is [0, (2^32 * interval)].
     */
-    CTimerWheel(u64 time, u64 interval);
+    CTimerWheel(s64 time, s32 interval);
 
     ~CTimerWheel();
 
-    /**
-    *@param time Current time, in millisecond.
-    *@note It's ok for 64bit timestamp. just call update(u32(time64bit));
-    */
-    void update(u64 time);
+    void update(s64 currentTime);
 
     /**
-    *@param period The timeout stamp, relative with current time, in millisecond.
+    *@param period The timeout stamp, relative with current time.
     *@param repeat repeat times.-1=ever
     */
-    void add(STimeNode& node, u64 period, s32 repeat);
+    void add(STimeNode& node, u32 period, s32 repeat);
 
     void add(STimeNode& node);
 
     bool remove(STimeNode& node);
 
-    u64 getCurrentStep()const {
+    s32 getCurrentStep()const {
         return mCurrentStep;
     }
 
-    u64 getInterval()const {
+    void setCurrentStep(s32 step) {
+        mCurrentStep = step;
+    }
+
+    /**
+    * @param interval time interval of timewheel.
+    */
+    void setInterval(s32 interval) {
+        mInterval = (interval > 0 ? interval : 1);
+    }
+
+    s32 getInterval()const {
         return mInterval;
     }
 
-    u64 getCurrent()const {
+    s64 getCurrent()const {
         return mCurrent;
     }
 
-    void setCurrent(u64 time) {
+    void setCurrent(s64 time) {
         mCurrent = time;
-    }
-
-    void setInterval(u64 step) {
-        mInterval = step;
     }
 
     /**
     * @brief Clear all tasks, every task will be called back.
     */
     void clear();
+
+    APP_INLINE static bool isTimeAfter32(s32 now, s32 timeout) {
+        return (timeout - now < 0);
+    }
+
+    APP_INLINE static bool isTimeAfter64(s64 now, s64 timeout) {
+        return (timeout - now < 0);
+    }
 
 private:
     void init();
@@ -95,15 +106,17 @@ private:
 
     void innerUpdate();
 
-    inline u64 getIndex(u64 jiffies, u64 level)const;
+    inline s32 getIndex(s32 jiffies, s32 level)const {
+        return (jiffies >> (APP_TIME_ROOT_SLOT_BITS + level * APP_TIME_SLOT_BITS)) & APP_TIME_SLOT_MASK;
+    }
 
     void innerAdd(STimeNode& node);
 
     void innerCascade(CQueueNode& head);
 
-    u64 mInterval;
-    u64 mCurrent;
-    u64 mCurrentStep;
+    s32 mInterval;
+    s32 mCurrentStep;
+    s64 mCurrent;
     CSpinlock mSpinlock;
     CQueueNode mSlot_0[APP_TIME_ROOT_SLOT_SIZE];
     CQueueNode mSlot_1[APP_TIME_SLOT_SIZE];

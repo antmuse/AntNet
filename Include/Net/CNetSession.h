@@ -192,7 +192,6 @@ protected:
     u32 mID;    //12bits is level, 20bit is index
     u32 mStatus;
     s32 mCount;
-    s32 mMaxTick; //heart beat
     u64 mTime;
     CNetSocket mSocket;
     INetEventer* mEventer;

@@ -124,6 +124,12 @@ s32 CNetSession::stepReceive(SContextIO& act) {
     CEventQueue::SNode* nd = getEventNode(&act);
     if(0 == act.mBytes) {
         //CEventPoller::cancelIO(mSocket, 0);
+        APP_LOG(ELOG_INFO, "CNetSession::stepReceive",
+            "ID=%u,mCount=%u,remote[%s:%u]",
+            mID,
+            mCount,
+            mAddressRemote.getIPString(),
+            mAddressRemote.getPort());
         nd->drop();
         return mCount;
     }
@@ -242,7 +248,7 @@ s32 CNetSession::stepTimeout() {
         mAddressRemote.getIPString(),
         mAddressRemote.getPort());
 
-    if(1 == mCount) {
+    if(mCount > 1) {
         CEventQueue que;
         mQueueInput.lock();
         mQueueInput.swap(que);
@@ -262,36 +268,27 @@ s32 CNetSession::stepTimeout() {
 #if defined(APP_DEBUG)
             AppAtomicIncrementFetch(&G_ENQUEUE_COUNT);
 #endif
-        }
-        APP_LOG(ELOG_INFO, "CNetSession::stepTimeout",
-            "enqueue=%u, dequeue=%u",
-            G_ENQUEUE_COUNT, G_DEQUEUE_COUNT);
-        if(notept) {
-            return mCount;
         } else {
-            if(mMaxTick > 0) {
-                --mMaxTick;
-                CEventQueue::SNode* nd = mQueueEvent.create(0);
-                nd->mEventer = mEventer;
-                nd->mEvent.mType = ENET_TIMEOUT;
-                nd->mEvent.mSessionID = getID();
-                nd->mEvent.mInfo.mSession.mAddressLocal = &mAddressLocal;
-                nd->mEvent.mInfo.mSession.mAddressRemote = &mAddressRemote;
+            CEventQueue::SNode* nd = mQueueEvent.create(0);
+            nd->mEventer = mEventer;
+            nd->mEvent.mType = ENET_TIMEOUT;
+            nd->mEvent.mSessionID = getID();
+            nd->mEvent.mInfo.mSession.mAddressLocal = &mAddressLocal;
+            nd->mEvent.mInfo.mSession.mAddressRemote = &mAddressRemote;
 
-                mQueueEvent.lock();
-                mQueueEvent.push(nd);
-                bool evt = setInGlobalQueue(1);
-                mQueueEvent.unlock();
-                if(evt) {
-                    mService->addNetEvent(*this);
+            mQueueEvent.lock();
+            mQueueEvent.push(nd);
+            bool evt = setInGlobalQueue(1);
+            mQueueEvent.unlock();
+            if(evt) {
+                mService->addNetEvent(*this);
 #if defined(APP_DEBUG)
-                    AppAtomicIncrementFetch(&G_ENQUEUE_COUNT);
+                AppAtomicIncrementFetch(&G_ENQUEUE_COUNT);
 #endif
-                }
-                return 2;
-            }//if
+            }
+            return mCount;
         }
-    }
+    }//if
 
     return --mCount;
 }
@@ -350,12 +347,9 @@ void CNetSession::dispatchEvents() {
             }
             case ENET_TIMEOUT:
             {
-                s32 tik = nd->mEventer->onTimeout(nd->mEvent.mSessionID,
+                nd->mEventer->onTimeout(nd->mEvent.mSessionID,
                     *nd->mEvent.mInfo.mSession.mAddressLocal,
                     *nd->mEvent.mInfo.mSession.mAddressRemote);
-                if(tik > 0) {
-                    mMaxTick = tik;
-                }
                 break;
             }
             default:

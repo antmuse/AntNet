@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include "CNetAddress.h"
-#include "CNetManager.h"
 #include "IAppLogger.h"
 #include "CNetServerAcceptor.h"
 #include "CNetService.h"
@@ -171,6 +170,116 @@ void AppStartSynPing() {
     printf("-------------------------------------\n");
 }
 
+void AppRunTimerWheel() {
+    class CTimeAdder : public IRunnable {
+    public:
+        CTimeAdder(CTimerWheel& it, u32 maxStep, s32 repeat) :
+            mIndex(0),
+            mMaxRepeat(repeat),
+            mMaxStep(maxStep < 5 ? 5 : maxStep),
+            mRunning(false),
+            mTimer(it) {
+            mTimer.setCurrentStep(0x7FFFFFFF - 40);
+            //mTimer.setCurrentStep(0x80000000 - 40);
+            //mTimer.setCurrentStep(-1);
+            mTimer.setInterval(100);
+        }
+        static void timeout(void* nd) {
+            SNode* node = (SNode*) nd;
+            s32 idx = AppAtomicDecrementFetch(node->mAdder->getCount());
+            if(node->mDeleteFlag) {
+                printf("CTimeAdder::timeout>> delete[Adder=%p],[id = %d],[time = %d/%d],[idx = %d]\n",
+                    node->mAdder, node->mID, node->mTimeNode.mTimeoutStep,
+                    node->mAdder->getTimeWheelStep(), idx);
+                delete node;
+            } else {
+                printf("CTimeAdder::timeout>> repeat[Adder=%p],[id = %d],[time = %d/%d],[idx = %d]\n",
+                    node->mAdder, node->mID, node->mTimeNode.mTimeoutStep,
+                    node->mAdder->getTimeWheelStep(), idx);
+            }
+        }
+        s32 getTimeWheelStep()const {
+            return mTimer.getCurrentStep();
+        }
+        virtual void run() {
+            for(; mRunning;) {
+                if(0 == mIndex) {
+                    add();
+                }
+                CThread::sleep(mMaxStep);
+            }
+        }
+        s32* getCount() {
+            return &mIndex;
+        }
+        void start() {
+            if(!mRunning) {
+                mRunning = true;
+                if(mMaxRepeat == 0) {
+                    mThread.start(*this);
+                } else {
+                    mRepeatNode.mDeleteFlag = false;
+                    mRepeatNode.mID = -1;
+                    mRepeatNode.mAdder = this;
+                    mRepeatNode.mTimeNode.mCallback = CTimeAdder::timeout;
+                    mRepeatNode.mTimeNode.mCallbackData = &mRepeatNode;
+                    mTimer.add(mRepeatNode.mTimeNode, 1 * 1000, mMaxRepeat);
+                }
+            }
+        }
+        void stop() {
+            if(mRunning) {
+                mRunning = false;
+                if(mMaxRepeat == 0) {
+                    mThread.join();
+                } else {
+                    mTimer.remove(mRepeatNode.mTimeNode);
+                }
+            }
+        }
+    private:
+        void add() {
+            static s32 id = 0;
+            SNode* node = new SNode();
+            node->mDeleteFlag = true;
+            node->mID = id++;
+            node->mAdder = this;
+            node->mTimeNode.mCallback = CTimeAdder::timeout;
+            node->mTimeNode.mCallbackData = node;
+            AppAtomicIncrementFetch(&mIndex);
+            mTimer.add(node->mTimeNode, 1 * 1000, mMaxRepeat);
+        }
+        struct SNode {
+            bool mDeleteFlag;
+            s32 mID;
+            CTimeAdder* mAdder;
+            CTimerWheel::STimeNode mTimeNode;
+        };
+        bool mRunning;
+        u32 mMaxStep;
+        s32 mIndex;
+        s32 mMaxRepeat;
+        SNode mRepeatNode;
+        CTimerWheel& mTimer;
+        CThread mThread;
+    };//CTimeAdder
+
+    CTimeoutManager tmanager(5);
+    printf("@Input repeat times = ");
+    u32 repeat = 0;
+    scanf("%u", &repeat);
+    CTimeAdder tadder1(tmanager.getTimeWheel(), 50, repeat);
+    tmanager.start();
+    tadder1.start();
+
+    AppQuit();
+    tadder1.stop();
+    tmanager.stop();
+    printf("--------------clear time wheel--------------\n");
+    printf("finished tadder1 = %p, leftover = %d\n", &tadder1, *tadder1.getCount());
+    printf("--------------------------------------------\n");
+}
+
 }//namespace irr
 
 
@@ -194,6 +303,7 @@ int main(int argc, char** argv) {
             irr::AppRunEchoClient();
             break;
         case 3:
+            irr::AppRunTimerWheel();
             break;
         case 4:
             irr::AppStartPing();

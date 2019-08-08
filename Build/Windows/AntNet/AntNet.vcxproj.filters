@@ -155,9 +155,6 @@
     <ClCompile Include="..\..\..\Source\Net\SClientContext.cpp">
       <Filter>Source\Net</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\Net\CNetManager.cpp">
-      <Filter>Source\Net</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\Source\Net\CNetClientTCP.cpp">
       <Filter>Source\Net</Filter>
     </ClCompile>
@@ -243,9 +240,6 @@
       <Filter>Source\Core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Source\Core\CStreamFile.cpp">
-      <Filter>Source\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Source\Core\CTimeoutManager.cpp">
       <Filter>Source\Core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Source\Core\CTimerWheel.cpp">
