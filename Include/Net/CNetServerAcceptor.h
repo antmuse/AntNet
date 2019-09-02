@@ -24,13 +24,13 @@ namespace net {
 */
 class CNetServerAcceptor : public IRunnable {
 public:
-    CNetServerAcceptor(CNetConfig* cfg);
+    CNetServerAcceptor();
 
     virtual ~CNetServerAcceptor();
 
     virtual void run()override;
 
-    bool start();
+    bool start(CNetConfig* cfg);
 
     bool stop();
 
@@ -135,13 +135,13 @@ namespace net {
 */
 class CNetServerAcceptor : public IRunnable {
 public:
-    CNetServerAcceptor(CNetConfig* cfg);
+    CNetServerAcceptor();
 
     virtual ~CNetServerAcceptor();
 
     virtual void run()override;
 
-    bool start();
+    bool start(CNetConfig* cfg);
 
     bool stop();
 

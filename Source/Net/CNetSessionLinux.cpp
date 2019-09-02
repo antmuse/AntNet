@@ -175,6 +175,77 @@ s32 CNetSession::stepSend(SContextIO& act) {
 }
 
 
+s32 CNetSession::stepClose() {
+    APP_ASSERT(0 == mCount);
+    APP_LOG(ELOG_INFO, "CNetSession::stepClose",
+        "%u/%u,remote[%s:%u]",
+        mCount,
+        mID,
+        mAddressRemote.getIPString(),
+        mAddressRemote.getPort());
+    if(0 == mCount) {
+        postEvent(ENET_DISCONNECT);
+        mSocket.close();
+    }
+    return mCount;
+}
+
+
+s32 CNetSession::stepTimeout() {
+    APP_ASSERT(mCount >= 0);
+    APP_LOG(ELOG_INFO, "CNetSession::stepTimeout",
+        "%u/%u,remote[%s:%u]",
+        mCount,
+        mID,
+        mAddressRemote.getIPString(),
+        mAddressRemote.getPort());
+
+    if(mCount > 1) {
+        CEventQueue que;
+        mQueueInput.lock();
+        mQueueInput.swap(que);
+        mQueueInput.unlock();
+
+        bool notept = !que.isEmpty();
+        mQueueEvent.lock();
+        if(notept) {
+            mQueueEvent.push(que);
+        } else {
+            notept = !mQueueEvent.isEmpty();
+        }
+        bool evt = (notept && setInGlobalQueue(1));
+        mQueueEvent.unlock();
+        if(evt) {
+            mService->addNetEvent(*this);
+#if defined(APP_DEBUG)
+            AppAtomicIncrementFetch(&G_ENQUEUE_COUNT);
+#endif
+        } else {
+            CEventQueue::SNode* nd = mQueueEvent.create(0);
+            nd->mEventer = mEventer;
+            nd->mEvent.mType = ENET_TIMEOUT;
+            nd->mEvent.mSessionID = getID();
+            nd->mEvent.mInfo.mSession.mAddressLocal = &mAddressLocal;
+            nd->mEvent.mInfo.mSession.mAddressRemote = &mAddressRemote;
+
+            mQueueEvent.lock();
+            mQueueEvent.push(nd);
+            bool evt = setInGlobalQueue(1);
+            mQueueEvent.unlock();
+            if(evt) {
+                mService->addNetEvent(*this);
+#if defined(APP_DEBUG)
+                AppAtomicIncrementFetch(&G_ENQUEUE_COUNT);
+#endif
+            }
+            return mCount;
+        }
+    }//if
+
+    return --mCount;
+}
+
+
 void CNetSession::dispatchEvents() {
 #if defined(APP_DEBUG)
     AppAtomicIncrementFetch(&G_DEQUEUE_COUNT);

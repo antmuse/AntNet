@@ -11,8 +11,9 @@
 namespace irr {
 namespace net {
 
-CNetServiceTCP::CNetServiceTCP(CNetConfig* cfg) :
+CNetServiceTCP::CNetServiceTCP() :
     mID(0),
+    mConfig(nullptr),
     mThread(0),
     mThreadPool(0),
     mMemHub(0),
@@ -24,11 +25,8 @@ CNetServiceTCP::CNetServiceTCP(CNetConfig* cfg) :
     mReceiver(0),
     mStartTime(0),
     mCurrentTime(0),
-    mTimeInterval(cfg->mPollTimeout) {
+    mTimeInterval(1000) {
     CNetUtility::loadSocketLib();
-    APP_ASSERT(cfg);
-    cfg->grab();
-    mConfig = cfg;
 }
 
 
@@ -41,9 +39,26 @@ CNetServiceTCP::~CNetServiceTCP() {
     }
 }
 
-bool CNetServiceTCP::start() {
+CNetConfig* CNetServiceTCP::setConfig(CNetConfig* cfg) {
+    if(cfg) {
+        if(mConfig) {
+            mConfig->drop();
+        }
+        cfg->grab();
+        mConfig = cfg;
+        mTimeInterval = cfg->mPollTimeout;
+    }
+    return mConfig;
+}
+
+bool CNetServiceTCP::start(CNetConfig* cfg) {
+    APP_ASSERT(cfg);
+
     if(mRunning) {
         return true;
+    }
+    if(nullptr == setConfig(cfg)) {
+        return false;
     }
 #if defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
     CNetSocket& sock = mPoller.getSocketPair().getSocketA();

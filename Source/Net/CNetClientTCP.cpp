@@ -40,10 +40,9 @@ bool CNetClientTCP::update(s64 iTime) {
         s32 ret = mConnector.receive(mPacket.getWritePointer(), mPacket.getWriteSize());
         if(ret > 0) {
             if(mReceiver) {
+                mPacket.setUsed(mPacket.getSize() + ret);
                 ret = mReceiver->onReceive(0, mPacket.getReadPointer(), mPacket.getReadSize());
                 mPacket.clear(ret);
-            } else {
-                mPacket.setUsed(0);
             }
         } else if(0 == ret) {
             mStatus = ENET_DISCONNECT;

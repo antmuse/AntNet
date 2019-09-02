@@ -50,12 +50,11 @@ void AppRunEchoServer() {
 
     net::CNetAddress addr(9981);
     net::CNetEchoServer evt;
-    net::CNetServerAcceptor accpetor(config);
-    config->drop();
+    net::CNetServerAcceptor accpetor;
     evt.setServer(&accpetor);//accpetor.setEventer(&evt);
     accpetor.setLocalAddress(addr);
-
-    accpetor.start();
+    accpetor.start(config);
+    config->drop();
     //AppQuit();
     irr::c8 key = '\0';
     while('*' != key) {
@@ -100,10 +99,10 @@ void AppRunEchoClient() {
 
     net::CNetEchoClient::initData("I am client for echo server test.", mMbyte);
     net::CNetEchoClient* evt = new net::CNetEchoClient[max];
-    net::CNetServiceTCP chub(config);
+    net::CNetServiceTCP chub;
+    chub.start(config);
     config->drop();
 
-    chub.start();
     net::CNetAddress addr(sip, 9981);
     s32 i;
     for(i = 0; i < max; ++i) {

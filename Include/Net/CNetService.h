@@ -26,7 +26,7 @@ struct SContextIO;
 */
 class CNetServiceTCP : public IRunnable {
 public:
-    CNetServiceTCP(CNetConfig* cfg);
+    CNetServiceTCP();
 
     virtual ~CNetServiceTCP();
 
@@ -34,7 +34,7 @@ public:
 
     static void threadPoolCall(void* it);
 
-    bool start();
+    bool start(CNetConfig* cfg);
 
     bool stop();
 
@@ -44,6 +44,8 @@ public:
     void setID(u32 id) {
         mID = id & (((u32) ENET_SERVER_MASK) >> ENET_SESSION_BITS);
     }
+
+    CNetConfig* setConfig(CNetConfig* cfg);
 
     void setEventer(u32 id, INetEventer* evt);
 

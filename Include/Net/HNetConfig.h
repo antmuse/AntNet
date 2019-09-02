@@ -84,9 +84,15 @@ public:
     u32 mSessionTimeout; ///<in ms
 
     CNetConfig();
+
     void print()const;
+
+    // thread safe
     void grab();
+
+    // thread safe
     void drop();
+
     bool check();
 
 private:

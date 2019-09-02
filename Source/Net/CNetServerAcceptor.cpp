@@ -37,17 +37,15 @@ bool CNetServerAcceptor::SContextWaiter::reset() {
 
 
 /////////////////////////////////////////////////////////////////////////////////////
-CNetServerAcceptor::CNetServerAcceptor(CNetConfig* cfg) :
+CNetServerAcceptor::CNetServerAcceptor() :
     mReceiver(0),
     mCurrent(0),
     mAcceptCount(0),
     mThread(0),
-    mAllWaiter(cfg->mMaxPostAccept),
+    mConfig(nullptr),
+    mAllWaiter(8),
     mAddressLocal(APP_NET_DEFAULT_PORT),
     mRunning(false) {
-    APP_ASSERT(cfg);
-    cfg->grab();
-    mConfig = cfg;
     CNetUtility::loadSocketLib();
 }
 
@@ -131,11 +129,16 @@ bool CNetServerAcceptor::clearError() {
 }
 
 
-bool CNetServerAcceptor::start() {
-    if(mRunning) {
-        IAppLogger::log(ELOG_INFO, "CNetServerAcceptor::start", "server is running already");
+bool CNetServerAcceptor::start(CNetConfig* cfg) {
+    if(mRunning || nullptr == cfg) {
+        IAppLogger::log(ELOG_INFO, "CNetServerAcceptor::start",
+            "server is running already, config=%p", cfg);
         return true;
     }
+    APP_ASSERT(cfg);
+    cfg->grab();
+    mConfig = cfg;
+    mAllWaiter.reallocate(cfg->mMaxPostAccept);
 
     if(!initialize()) {
         removeAll();
@@ -302,9 +305,9 @@ bool CNetServerAcceptor::stepAccpet(SContextWaiter* iContext) {
 
 
 CNetServiceTCP* CNetServerAcceptor::createServer() {
-    CNetServiceTCP* server = new CNetServiceTCP(mConfig);
+    CNetServiceTCP* server = new CNetServiceTCP();
     server->setID(mAllService.size()); //@note: step 1
-    if(server->start()) { //@note: step 2
+    if(server->start(mConfig)) { //@note: step 2
         addServer(server);
         return server;
     }
@@ -375,16 +378,14 @@ void CNetServerAcceptor::setEventer(u32 id, INetEventer* evt) {
 namespace irr {
 namespace net {
 
-CNetServerAcceptor::CNetServerAcceptor(CNetConfig* cfg) :
+CNetServerAcceptor::CNetServerAcceptor() :
     mReceiver(0),
     mCurrent(0),
     mAcceptCount(0),
     mThread(0),
+    mConfig(nullptr),
     mAddressLocal(APP_NET_DEFAULT_PORT),
     mRunning(false) {
-    APP_ASSERT(cfg);
-    cfg->grab();
-    mConfig = cfg;
     CNetUtility::loadSocketLib();
 }
 
@@ -393,7 +394,7 @@ CNetServerAcceptor::~CNetServerAcceptor() {
     stop();
     if(mConfig) {
         mConfig->drop();
-        mConfig = 0;
+        mConfig = nullptr;
     }
     CNetUtility::unloadSocketLib();
 }
@@ -448,11 +449,15 @@ bool CNetServerAcceptor::clearError() {
 }
 
 
-bool CNetServerAcceptor::start() {
-    if(mRunning) {
-        IAppLogger::log(ELOG_INFO, "CNetServerAcceptor::start", "server is running already");
+bool CNetServerAcceptor::start(CNetConfig* cfg) {
+    if(mRunning || nullptr == cfg) {
+        IAppLogger::log(ELOG_INFO, "CNetServerAcceptor::start",
+            "server is running already, config=%p", cfg);
         return true;
     }
+    APP_ASSERT(cfg);
+    cfg->grab();
+    mConfig = cfg;
 
     if(!initialize()) {
         removeAll();
@@ -573,8 +578,8 @@ bool CNetServerAcceptor::stepAccpet(CNetSocket& sock) {
 
 
 CNetServiceTCP* CNetServerAcceptor::createServer() {
-    CNetServiceTCP* server = new CNetServiceTCP(mConfig);
-    if(server->start()) {
+    CNetServiceTCP* server = new CNetServiceTCP();
+    if(server->start(mConfig)) {
         addServer(server);
         return server;
     }
