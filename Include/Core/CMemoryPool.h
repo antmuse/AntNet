@@ -293,6 +293,7 @@ typedef CMemoryPool<u8[1024]> CMemoryPool1024;
 typedef CMemoryPool<u8[2048]> CMemoryPool2048;
 typedef CMemoryPool<u8[4096]> CMemoryPool4096;
 typedef CMemoryPool<u8[8192]> CMemoryPool8192;
+typedef CMemoryPool<u8[10240]> CMemoryPool10K;
 }//namespace irr
 
 
