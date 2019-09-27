@@ -16,10 +16,15 @@ public:
 
     ~CMemoryHub();
 
-    // Should be at least 8 times bigger than 8192
-    void setPageSize(s32 size);
+    void setPageCount(s32 count);
 
-    c8* allocate(u32 bytesWanted, u32 align = sizeof(void*));
+    c8* allocate(u64 bytesWanted, u64 align = sizeof(void*));
+
+    c8* allocateAndClear(u64 bytesWanted, u64 align = sizeof(void*)) {
+        c8* ret = allocate(bytesWanted, align);
+        memset(ret, 0, bytesWanted);
+        return ret;
+    }
 
     void release(void* data);
 
@@ -38,6 +43,7 @@ protected:
         EMT_2048,
         EMT_4096,
         EMT_8192,
+        EMT_10K,
         EMT_DEFAULT
     };
     struct SMemHead {
@@ -48,11 +54,13 @@ protected:
     CMemoryPool512 mPool512;
     CMemoryPool2048 mPool2048;
     CMemoryPool8192 mPool8192;
+    CMemoryPool10K mPool10K;
 #ifdef APP_THREADSAFE_MEMORY_POOL
     CMutex mMutex128;
     CMutex mMutex512;
     CMutex mMutex2048;
     CMutex mMutex8192;
+    CMutex mMutex10K;
 #endif
 
 private:
@@ -61,7 +69,7 @@ private:
     CMemoryHub(const CMemoryHub& it) = delete;
     CMemoryHub& operator=(const CMemoryHub& it) = delete;
 
-    APP_FORCE_INLINE c8* getUserPointer(const c8* real, const u32 align, const EMemType tp)const {
+    APP_FORCE_INLINE c8* getUserPointer(const c8* real, const u64 align, const EMemType tp)const {
         c8* user = APP_ALIGN_POINTER(real, align);
         user = user >= real + sizeof(SMemHead) ? user : user + align;
         SMemHead& hd = *reinterpret_cast<SMemHead*>(user - sizeof(SMemHead));

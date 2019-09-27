@@ -204,13 +204,13 @@ s32 CNetSocket::keepAlive(bool on, s32 idleTime, s32 timeInterval, s32 maxTick) 
     ret = ::setsockopt(mSocket, SOL_SOCKET, SO_KEEPALIVE, (c8*) &opt, sizeof(opt));
     if(!on || ret) return ret;
 
-    ret = ::setsockopt(mSocket, SOL_SOCKET, TCP_KEEPIDLE, &idleTime, sizeof(idleTime));
+    ret = ::setsockopt(mSocket, IPPROTO_TCP, TCP_KEEPIDLE, &idleTime, sizeof(idleTime));
     if(ret) return ret;
 
-    ret = ::setsockopt(mSocket, SOL_SOCKET, TCP_KEEPINTVL, &timeInterval, sizeof(timeInterval));
+    ret = ::setsockopt(mSocket, IPPROTO_TCP, TCP_KEEPINTVL, &timeInterval, sizeof(timeInterval));
     if(ret) return ret;
 
-    ret = ::setsockopt(mSocket, SOL_SOCKET, TCP_KEEPCNT, &maxTick, sizeof(maxTick));
+    ret = ::setsockopt(mSocket, IPPROTO_TCP, TCP_KEEPCNT, &maxTick, sizeof(maxTick));
 
     return ret;
 #endif
@@ -240,7 +240,7 @@ s32 CNetSocket::setBlock(bool it) {
     if(opts < 0) {
         return -1;
     }
-    opts = it ? (opts & (~O_NONBLOCK)) : opts | O_NONBLOCK;
+    opts = it ? (opts & (~O_NONBLOCK)) : (opts | O_NONBLOCK);
     opts = ::fcntl(mSocket, F_SETFL, opts);
     return -1 == opts ? opts : 0;
 #endif

@@ -52,8 +52,6 @@ CNetConfig* CNetServiceTCP::setConfig(CNetConfig* cfg) {
 }
 
 bool CNetServiceTCP::start(CNetConfig* cfg) {
-    APP_ASSERT(cfg);
-
     if(mRunning) {
         return true;
     }

@@ -1,5 +1,6 @@
 #include "CNetAddress.h"
 #include "fast_atof.h"
+//#include "IUtility.h"
 
 #if defined(APP_PLATFORM_WINDOWS)
 #include <winsock2.h>
@@ -240,6 +241,23 @@ void CNetAddress::set(const c8* ip, u16 port) {
     setPort(port);
 }
 
+//TODO>>IPV6 decode
+void CNetAddress::setIPort(const c8* ipAndPort) {
+    if(ipAndPort == nullptr) {
+        return;
+    }
+    IP it;
+    convertStringToIP(ipAndPort, it);
+    setIP(it);
+    //if(*ipAndPort == '[') {//IPV6
+    //}
+    while(*ipAndPort != ':' && *ipAndPort != '\0') {
+        ++ipAndPort;
+    }
+    if(*ipAndPort == ':') {
+        setPort((u16) core::strtoul10(++ipAndPort));
+    }
+}
 
 void CNetAddress::setDomain(const c8* iDNS) {
     if(!iDNS) {

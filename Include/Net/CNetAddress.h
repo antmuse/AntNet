@@ -141,6 +141,12 @@ public:
     void set(const c8* ip, u16 port);
 
     /**
+    *@brief Set IP and Port
+    *@param ipAndPort format is "127.0.0.1:8080"
+    */
+    void setIPort(const c8* ipAndPort);
+
+    /**
     *@brief Set IP:Port, the real address will auto inited.
     *@param ip User defined ip.
     *@param port User defined port, in OS-endian.

@@ -5,10 +5,7 @@ namespace irr {
 
 CMemoryHub::CMemoryHub() :
     mReferenceCount(1) {
-    mPool128.setPageSize(1024 * 16);
-    mPool512.setPageSize(2048 * 16);
-    mPool2048.setPageSize(4096 * 16);
-    mPool8192.setPageSize(8192 * 16);
+    setPageCount(16);
 }
 
 
@@ -16,10 +13,12 @@ CMemoryHub::~CMemoryHub() {
     APP_ASSERT(0 == mReferenceCount);
 }
 
+
 void CMemoryHub::grab() {
     APP_ASSERT(mReferenceCount > 0);
     AppAtomicIncrementFetch(&mReferenceCount);
 }
+
 
 void CMemoryHub::drop() {
     s32 ret = AppAtomicDecrementFetch(&mReferenceCount);
@@ -30,20 +29,21 @@ void CMemoryHub::drop() {
 }
 
 
-void CMemoryHub::setPageSize(s32 size) {
-    mPool128.setPageSize(size);
-    mPool512.setPageSize(size);
-    mPool2048.setPageSize(size);
-    mPool8192.setPageSize(size);
+void CMemoryHub::setPageCount(s32 cnt) {
+    mPool128.setPageSize(128 * cnt);
+    mPool512.setPageSize(512 * cnt);
+    mPool2048.setPageSize(2048 * cnt);
+    mPool8192.setPageSize(8192 * cnt);
+    mPool10K.setPageSize(10240 * cnt);
 }
 
 
-c8 *CMemoryHub::allocate(u32 bytesWanted, u32 align/* = sizeof(void*)*/) {
+c8 *CMemoryHub::allocate(u64 bytesWanted, u64 align/* = sizeof(void*)*/) {
 #if defined(APP_DEBUG)
     grab();
 #endif
 
-    align = align < (u32)sizeof(SMemHead) ? (u32)sizeof(SMemHead) : align;
+    align = align < sizeof(SMemHead) ? sizeof(SMemHead) : align;
     bytesWanted += align;
     bytesWanted = APP_ALIGN_DATA(bytesWanted, align);
 #ifdef APP_DISABLE_BYTE_POOL
@@ -90,7 +90,16 @@ c8 *CMemoryHub::allocate(u32 bytesWanted, u32 align/* = sizeof(void*)*/) {
 #endif
         return getUserPointer(out, align, EMT_8192);
     }
-
+    if(bytesWanted <= 10240) {
+#ifdef APP_THREADSAFE_MEMORY_POOL
+        mMutex10K.lock();
+#endif
+        out = (c8*) mPool10K.allocate();
+#ifdef APP_THREADSAFE_MEMORY_POOL
+        mMutex10K.unlock();
+#endif
+        return getUserPointer(out, align, EMT_10K);
+    }
     out = (c8*) ::malloc(bytesWanted + 1);
     return getUserPointer(out, align, EMT_DEFAULT);
 }
@@ -145,6 +154,15 @@ void CMemoryHub::release(void* data) {
         mMutex8192.unlock();
 #endif
         break;
+    case EMT_10K:
+#ifdef APP_THREADSAFE_MEMORY_POOL
+        mMutex10K.lock();
+#endif
+        mPool10K.release((u8(*)[10240]) realData);
+#ifdef APP_THREADSAFE_MEMORY_POOL
+        mMutex10K.unlock();
+#endif
+        break;
     case EMT_DEFAULT:
         ::free(realData);
         break;
@@ -161,6 +179,7 @@ void CMemoryHub::clear() {
     mPool512.clear();
     mPool2048.clear();
     mPool8192.clear();
+    mPool10K.clear();
 #endif //APP_THREADSAFE_MEMORY_POOL
 }
 
