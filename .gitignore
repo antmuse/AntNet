@@ -1,8 +1,3 @@
-# Paths
-./Build/Windows/.vs/
-./Build/Windows/Temp/
-./Build/Windows/ipch/
-
 # Web files
 *.html
 *.htm

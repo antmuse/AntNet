@@ -20,11 +20,7 @@ public:
 
     c8* allocate(u64 bytesWanted, u64 align = sizeof(void*));
 
-    c8* allocateAndClear(u64 bytesWanted, u64 align = sizeof(void*)) {
-        c8* ret = allocate(bytesWanted, align);
-        memset(ret, 0, bytesWanted);
-        return ret;
-    }
+    c8* allocateAndClear(u64 bytesWanted, u64 align = sizeof(void*));
 
     void release(void* data);
 

@@ -48,10 +48,16 @@
 
 
 
-#if defined(_DEBUG)  || defined(DEBUG)
+#if defined(_DEBUG) || defined(DEBUG)
 #define APP_DEBUG
+
+//! define a break macro for debugging.
+#include "assert.h"
+#define APP_ASSERT( _CONDITION_ ) assert(_CONDITION_);
+
 #else
 #define APP_RELEASE
+#define APP_ASSERT(_CND_)
 #endif
 
 
@@ -119,11 +125,6 @@
 #endif // STDCALL_SUPPORTED
 
 #endif //APP_PLATFORM_LINUX
-
-
-//! define a break macro for debugging.
-#include "assert.h"
-#define APP_ASSERT( _CONDITION_ ) assert(_CONDITION_);
 
 
 #if defined(UNICODE)

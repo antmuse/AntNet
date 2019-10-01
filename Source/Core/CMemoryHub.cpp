@@ -1,4 +1,5 @@
 #include "CMemoryHub.h"
+#include <memory.h>
 #include "HAtomicOperator.h"
 
 namespace irr {
@@ -37,8 +38,13 @@ void CMemoryHub::setPageCount(s32 cnt) {
     mPool10K.setPageSize(10240 * cnt);
 }
 
+c8* CMemoryHub::allocateAndClear(u64 bytesWanted, u64 align/* = sizeof(void*)*/) {
+    c8* ret = allocate(bytesWanted, align);
+    memset(ret, 0, bytesWanted);
+    return ret;
+}
 
-c8 *CMemoryHub::allocate(u64 bytesWanted, u64 align/* = sizeof(void*)*/) {
+c8* CMemoryHub::allocate(u64 bytesWanted, u64 align/* = sizeof(void*)*/) {
 #if defined(APP_DEBUG)
     grab();
 #endif

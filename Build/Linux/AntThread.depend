@@ -148,3 +148,156 @@
 1535777695 /media/sf_Share/AntNet/Include/Public/HEngineLog.h
 	"irrTypes.h"
 
+1567870735 source:/home/antmuse/all/code/github/AntNet/Source/Thread/CAtomicValue32.cpp
+	"CAtomicValue32.h"
+	"HAtomicOperator.h"
+
+1567870735 /home/antmuse/all/code/github/AntNet/Include/Thread/CAtomicValue32.h
+	"HConfig.h"
+	"irrTypes.h"
+
+1569894833 /home/antmuse/all/code/github/AntNet/Include/HConfig.h
+	"assert.h"
+
+1567870735 /home/antmuse/all/code/github/AntNet/Include/irrTypes.h
+	"HConfig.h"
+	<wchar.h>
+	<crtdbg.h>
+	"assert.h"
+	<stdlib.h>
+	<crtdbg.h>
+
+1567870735 /home/antmuse/all/code/github/AntNet/Include/Thread/HAtomicOperator.h
+	"HConfig.h"
+	"irrTypes.h"
+
+1567870735 source:/home/antmuse/all/code/github/AntNet/Source/Thread/CCondition.cpp
+	"CMutex.h"
+	"CReadWriteLock.h"
+
+1567870735 /home/antmuse/all/code/github/AntNet/Include/Thread/CMutex.h
+	"HConfig.h"
+	"HMutexType.h"
+	<winsock2.h>
+	<Windows.h>
+	<errno.h>
+	<pthread.h>
+	<sys/select.h>
+
+1567870735 /home/antmuse/all/code/github/AntNet/Include/Thread/HMutexType.h
+
+1567870735 /home/antmuse/all/code/github/AntNet/Include/Thread/CReadWriteLock.h
+	"HConfig.h"
+	"irrTypes.h"
+	<winsock2.h>
+	<Windows.h>
+	<pthread.h>
+	<errno.h>
+
+1567870735 source:/home/antmuse/all/code/github/AntNet/Source/Thread/CMutex.cpp
+	"irrTypes.h"
+	<sys/time.h>
+
+1567870735 source:/home/antmuse/all/code/github/AntNet/Source/Thread/CNamedMutex.cpp
+	<Windows.h>
+	<pthread.h>
+	<sys/time.h>
+
+1567870735 source:/home/antmuse/all/code/github/AntNet/Source/Thread/CPipe.cpp
+	"CPipe.h"
+	<Windows.h>
+	<sys/types.h>
+	<unistd.h>
+	<errno.h>
+
+1567870735 /home/antmuse/all/code/github/AntNet/Include/Thread/CPipe.h
+	"HConfig.h"
+	"IReferenceCounted.h"
+
+1567870735 /home/antmuse/all/code/github/AntNet/Include/Core/IReferenceCounted.h
+	"irrTypes.h"
+
+1567870735 source:/home/antmuse/all/code/github/AntNet/Source/Thread/CProcessHandle.cpp
+	<Windows.h>
+	<errno.h>
+	<signal.h>
+	<stdlib.h>
+	<sys/time.h>
+	<sys/types.h>
+	<sys/resource.h>
+	<sys/wait.h>
+
+1567870735 source:/home/antmuse/all/code/github/AntNet/Source/Thread/CProcessManager.cpp
+	"CPipe.h"
+	"CThreadEvent.h"
+	<windows.h>
+	<errno.h>
+	<signal.h>
+	<stdlib.h>
+	<sys/time.h>
+	<sys/types.h>
+	<sys/resource.h>
+	<sys/wait.h>
+	<unistd.h>
+
+1567870735 /home/antmuse/all/code/github/AntNet/Include/Thread/CThreadEvent.h
+	"HConfig.h"
+	"irrTypes.h"
+	<pthread.h>
+	<errno.h>
+
+1567870735 source:/home/antmuse/all/code/github/AntNet/Source/Thread/CReadWriteLock.cpp
+
+1567870735 source:/home/antmuse/all/code/github/AntNet/Source/Thread/CSemaphore.cpp
+	<Windows.h>
+	<time.h>
+	<sys/time.h>
+
+1567870735 source:/home/antmuse/all/code/github/AntNet/Source/Thread/CSpinlock.cpp
+	"CSpinlock.h"
+	"HAtomicOperator.h"
+
+1567870735 /home/antmuse/all/code/github/AntNet/Include/Thread/CSpinlock.h
+	"irrTypes.h"
+
+1567870735 source:/home/antmuse/all/code/github/AntNet/Source/Thread/CThread.cpp
+	<time.h>
+
+1567870735 source:/home/antmuse/all/code/github/AntNet/Source/Thread/CThreadEvent.cpp
+	<windows.h>
+
+1567870735 source:/home/antmuse/all/code/github/AntNet/Source/Thread/CThreadPool.cpp
+	"IAppLogger.h"
+	"HAtomicOperator.h"
+
+1567870735 /home/antmuse/all/code/github/AntNet/Include/Core/IAppLogger.h
+	"HConfig.h"
+	<stdarg.h>
+	"irrList.h"
+	"HEngineLog.h"
+
+1567870735 /home/antmuse/all/code/github/AntNet/Include/Core/irrList.h
+	"HConfig.h"
+	"irrAllocator.h"
+	"irrMath.h"
+
+1567870735 /home/antmuse/all/code/github/AntNet/Include/Core/irrAllocator.h
+	"HConfig.h"
+	<new>
+	<memory.h>
+
+1567870735 /home/antmuse/all/code/github/AntNet/Include/Core/irrMath.h
+	"irrTypes.h"
+	<math.h>
+	<float.h>
+	<stdlib.h>
+	<limits.h>
+
+1567870735 /home/antmuse/all/code/github/AntNet/Include/Core/HEngineLog.h
+	"irrTypes.h"
+
+1567870735 source:/home/antmuse/all/code/github/AntNet/Source/Thread/HAtomicOperator.cpp
+	"HAtomicOperator.h"
+	<Windows.h>
+	<intrin.h>
+

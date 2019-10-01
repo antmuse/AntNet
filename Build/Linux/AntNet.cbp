@@ -7,31 +7,27 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="../../Lib/Bit32/Linux/AntNet-32D" prefix_auto="1" extension_auto="1" />
+				<Option output="../../Lib/Bit64/Linux/AntNet-64D" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="" />
 				<Option object_output="Temp/Debug/" />
 				<Option type="2" />
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-std=c++11" />
+					<Add option="-m64" />
 					<Add option="-g" />
-					<Add directory="../../Include/" />
-					<Add directory="../../Include/Public" />
+					<Add option="-DDEBUG" />
 					<Add directory="../../Include/Thread" />
-					<Add directory="../../Include/Net" />
-					<Add directory="../../Source/Test" />
-					<Add directory="../../Include/Net/Mail" />
-					<Add directory="../../Include/Net/HTTP" />
-					<Add directory="../../Include/Net/RawSocket" />
 				</Compiler>
 				<Linker>
+					<Add option="-m64" />
 					<Add option="-lpthread" />
-					<Add library="AntThread-32D" />
+					<Add library="AntThread-64D" />
 					<Add directory="../../Lib/Bit32/Linux" />
 				</Linker>
 			</Target>
 			<Target title="Release">
-				<Option output="../../Lib/Bit32/Linux/AntNet-32" prefix_auto="1" extension_auto="1" />
+				<Option output="../../Lib/Bit64/Linux/AntNet-64" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="" />
 				<Option object_output="Temp/Release/" />
 				<Option type="2" />
@@ -39,91 +35,33 @@
 				<Compiler>
 					<Add option="-O2" />
 					<Add option="-std=c++11" />
-					<Add directory="../../Include/" />
-					<Add directory="../../Include/Public" />
+					<Add option="-m64" />
 					<Add directory="../../Include/Thread" />
-					<Add directory="../../Include/Net" />
-					<Add directory="../../Source/Test" />
-					<Add directory="../../Include/Net/Mail" />
-					<Add directory="../../Include/Net/HTTP" />
-					<Add directory="../../Include/Net/RawSocket" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add option="-m64" />
 					<Add option="-lpthread" />
-					<Add library="AntThread-32" />
+					<Add library="AntThread-64" />
 					<Add directory="../../Lib/Bit32/Linux" />
 				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
+			<Add option="-m64" />
 			<Add option="-fexceptions" />
+			<Add directory="../../Include" />
+			<Add directory="../../Include/Core" />
+			<Add directory="../../Include/Net" />
+			<Add directory="../../Include/Net/RawSocket" />
+			<Add directory="../../Include/Net/HTTP" />
+			<Add directory="../../Include/Net/Mail" />
 		</Compiler>
+		<Linker>
+			<Add option="-m64" />
+		</Linker>
 		<Unit filename="../../Include/HConfig.h" />
-		<Unit filename="../../Include/Net/CBase64Coder.h" />
-		<Unit filename="../../Include/Net/CCheckCRC16.h" />
-		<Unit filename="../../Include/Net/CCheckCRC32.h" />
-		<Unit filename="../../Include/Net/CCheckSum.h" />
-		<Unit filename="../../Include/Net/CEventPoller.h" />
-		<Unit filename="../../Include/Net/CNetClientNatPuncher.h" />
-		<Unit filename="../../Include/Net/CNetClientSeniorTCP.h" />
-		<Unit filename="../../Include/Net/CNetClientTCP.h" />
-		<Unit filename="../../Include/Net/CNetClientUDP.h" />
-		<Unit filename="../../Include/Net/CNetManager.h" />
-		<Unit filename="../../Include/Net/CNetPacket.h" />
-		<Unit filename="../../Include/Net/CNetProtocal.h" />
-		<Unit filename="../../Include/Net/CNetServerAcceptor.h" />
-		<Unit filename="../../Include/Net/CNetServerNatPuncher.h" />
-		<Unit filename="../../Include/Net/CNetServerSeniorTCP.h" />
-		<Unit filename="../../Include/Net/CNetServerSeniorUDP.h" />
-		<Unit filename="../../Include/Net/CNetServerTCP.h" />
-		<Unit filename="../../Include/Net/CNetSession.h" />
-		<Unit filename="../../Include/Net/CNetSocket.h" />
-		<Unit filename="../../Include/Net/CNetUtility.h" />
-		<Unit filename="../../Include/Net/CTimerWheel.h" />
-		<Unit filename="../../Include/Net/HNetConfig.h" />
-		<Unit filename="../../Include/Net/HNetHeader.h" />
-		<Unit filename="../../Include/Net/HNetOperationType.h" />
-		<Unit filename="../../Include/Net/HTTP/CNetClientHttp.h" />
-		<Unit filename="../../Include/Net/HTTP/CNetHttpHead.h" />
-		<Unit filename="../../Include/Net/HTTP/CNetHttpRequest.h" />
-		<Unit filename="../../Include/Net/HTTP/CNetHttpResponse.h" />
-		<Unit filename="../../Include/Net/HTTP/CNetHttpURL.h" />
-		<Unit filename="../../Include/Net/HTTP/HNetHttpStatus.h" />
-		<Unit filename="../../Include/Net/HTTP/INetEventerHttp.h" />
-		<Unit filename="../../Include/Net/INetClient.h" />
-		<Unit filename="../../Include/Net/INetClientSeniorTCP.h" />
-		<Unit filename="../../Include/Net/INetEventer.h" />
-		<Unit filename="../../Include/Net/INetManager.h" />
-		<Unit filename="../../Include/Net/INetServer.h" />
-		<Unit filename="../../Include/Net/INetSession.h" />
-		<Unit filename="../../Include/Net/Mail/CNetMailClient.h" />
-		<Unit filename="../../Include/Net/Mail/CNetMailMessage.h" />
-		<Unit filename="../../Include/Net/RawSocket/CNetPing.h" />
-		<Unit filename="../../Include/Net/RawSocket/CNetSynPing.h" />
-		<Unit filename="../../Include/Net/SClientContext.h" />
-		<Unit filename="../../Include/Net/SNetAddress.h" />
-		<Unit filename="../../Include/Public/CLogParserUtility.h" />
-		<Unit filename="../../Include/Public/CQueueRing.h" />
-		<Unit filename="../../Include/Public/CStreamFile.h" />
-		<Unit filename="../../Include/Public/IAppLogger.h" />
-		<Unit filename="../../Include/Public/IAppTimer.h" />
-		<Unit filename="../../Include/Public/INoCopy.h" />
-		<Unit filename="../../Include/Public/IPairOrderID.h" />
-		<Unit filename="../../Include/Public/IReferenceCounted.h" />
-		<Unit filename="../../Include/Public/ITimer.h" />
-		<Unit filename="../../Include/Public/IUtility.h" />
-		<Unit filename="../../Include/Public/coreutil.h" />
-		<Unit filename="../../Include/Public/fast_atof.h" />
-		<Unit filename="../../Include/Public/heapsort.h" />
-		<Unit filename="../../Include/Public/irrAllocator.h" />
-		<Unit filename="../../Include/Public/irrArray.h" />
-		<Unit filename="../../Include/Public/irrList.h" />
-		<Unit filename="../../Include/Public/irrMap.h" />
-		<Unit filename="../../Include/Public/irrMath.h" />
-		<Unit filename="../../Include/Public/irrString.h" />
-		<Unit filename="../../Include/Public/path.h" />
 		<Unit filename="../../Include/Thread/CMutex.h" />
 		<Unit filename="../../Include/Thread/CNamedMutex.h" />
 		<Unit filename="../../Include/Thread/CPipe.h" />
@@ -137,28 +75,41 @@
 		<Unit filename="../../Include/Thread/HMutexType.h" />
 		<Unit filename="../../Include/Thread/IRunnable.h" />
 		<Unit filename="../../Include/irrTypes.h" />
+		<Unit filename="../../Source/Core/CConsoleLogReceiver.cpp" />
+		<Unit filename="../../Source/Core/CFileLogReceiver.cpp" />
+		<Unit filename="../../Source/Core/CMemoryHub.cpp" />
+		<Unit filename="../../Source/Core/CQueueNode.cpp" />
+		<Unit filename="../../Source/Core/CStreamFile.cpp" />
+		<Unit filename="../../Source/Core/CTimerWheel.cpp" />
+		<Unit filename="../../Source/Core/IAppLogger.cpp" />
+		<Unit filename="../../Source/Core/IAppTimer.cpp" />
+		<Unit filename="../../Source/Core/IUtility.cpp" />
 		<Unit filename="../../Source/Net/CBase64Coder.cpp" />
+		<Unit filename="../../Source/Net/CBufferQueue.cpp" />
 		<Unit filename="../../Source/Net/CCheckCRC16.cpp" />
 		<Unit filename="../../Source/Net/CCheckCRC32.cpp" />
 		<Unit filename="../../Source/Net/CCheckSum.cpp" />
 		<Unit filename="../../Source/Net/CEventPoller.cpp" />
 		<Unit filename="../../Source/Net/CNetAddress.cpp" />
+		<Unit filename="../../Source/Net/CNetCheckIP.cpp" />
 		<Unit filename="../../Source/Net/CNetClientNatPuncher.cpp" />
-		<Unit filename="../../Source/Net/CNetClientSeniorTCP.cpp" />
 		<Unit filename="../../Source/Net/CNetClientTCP.cpp" />
 		<Unit filename="../../Source/Net/CNetClientUDP.cpp" />
-		<Unit filename="../../Source/Net/CNetManager.cpp" />
 		<Unit filename="../../Source/Net/CNetPacket.cpp" />
 		<Unit filename="../../Source/Net/CNetProtocal.cpp" />
 		<Unit filename="../../Source/Net/CNetServerAcceptor.cpp" />
 		<Unit filename="../../Source/Net/CNetServerNatPuncher.cpp" />
-		<Unit filename="../../Source/Net/CNetServerSeniorTCP.cpp" />
 		<Unit filename="../../Source/Net/CNetServerSeniorUDP.cpp" />
 		<Unit filename="../../Source/Net/CNetServerTCP.cpp" />
+		<Unit filename="../../Source/Net/CNetService.cpp" />
+		<Unit filename="../../Source/Net/CNetServiceLinux.cpp" />
+		<Unit filename="../../Source/Net/CNetServiceWindows.cpp" />
 		<Unit filename="../../Source/Net/CNetSession.cpp" />
+		<Unit filename="../../Source/Net/CNetSessionLinux.cpp" />
+		<Unit filename="../../Source/Net/CNetSessionPool.cpp" />
+		<Unit filename="../../Source/Net/CNetSessionWindows.cpp" />
 		<Unit filename="../../Source/Net/CNetSocket.cpp" />
 		<Unit filename="../../Source/Net/CNetUtility.cpp" />
-		<Unit filename="../../Source/Net/CTimerWheel.cpp" />
 		<Unit filename="../../Source/Net/HNetConfig.cpp" />
 		<Unit filename="../../Source/Net/HTTP/CNetClientHttp.cpp" />
 		<Unit filename="../../Source/Net/HTTP/CNetHttpHead.cpp" />
@@ -167,18 +118,9 @@
 		<Unit filename="../../Source/Net/HTTP/CNetHttpURL.cpp" />
 		<Unit filename="../../Source/Net/Mail/CNetMailClient.cpp" />
 		<Unit filename="../../Source/Net/Mail/CNetMailMessage.cpp" />
-		<Unit filename="../../Source/Net/NetServer/CDefaultNetEventer.h" />
 		<Unit filename="../../Source/Net/RawSocket/CNetPing.cpp" />
 		<Unit filename="../../Source/Net/RawSocket/CNetSynPing.cpp" />
 		<Unit filename="../../Source/Net/SClientContext.cpp" />
-		<Unit filename="../../Source/Public/CConsoleLogReceiver.cpp" />
-		<Unit filename="../../Source/Public/CQueueNode.cpp" />
-		<Unit filename="../../Source/Public/CStreamFile.cpp" />
-		<Unit filename="../../Source/Public/CTimeoutManager.cpp" />
-		<Unit filename="../../Source/Public/CTimerWheel.cpp" />
-		<Unit filename="../../Source/Public/IAppLogger.cpp" />
-		<Unit filename="../../Source/Public/IAppTimer.cpp" />
-		<Unit filename="../../Source/Public/IUtility.cpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />

@@ -7,35 +7,42 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="../../Lib/Bit32/Linux/AntThread-32D" prefix_auto="1" extension_auto="1" />
+				<Option output="../../Lib/Bit64/Linux/AntThread-64D" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="" />
 				<Option object_output="Temp/Debug/" />
 				<Option type="2" />
 				<Option compiler="gcc" />
 				<Compiler>
+					<Add option="-m64" />
 					<Add option="-g" />
+					<Add option="-DDEBUG" />
 					<Add directory="../../Include/Thread" />
 					<Add directory="../../Include/Public" />
 					<Add directory="../../Include" />
+					<Add directory="../../Include/Core" />
 				</Compiler>
 				<Linker>
+					<Add option="-m64" />
 					<Add option="-lpthread" />
 				</Linker>
 			</Target>
 			<Target title="Release">
-				<Option output="../../Lib/Bit32/Linux/AntThread-32" prefix_auto="1" extension_auto="1" />
+				<Option output="../../Lib/Bit64/Linux/AntThread-64" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="" />
 				<Option object_output="Temp/Release/" />
 				<Option type="2" />
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add option="-m64" />
 					<Add directory="../../Include/Thread" />
 					<Add directory="../../Include/Public" />
 					<Add directory="../../Include" />
+					<Add directory="../../Include/Core" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add option="-m64" />
 					<Add option="-lpthread" />
 				</Linker>
 			</Target>
