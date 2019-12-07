@@ -41,7 +41,7 @@ bool CNetClientTCP::update(s64 iTime) {
         if(ret > 0) {
             if(mReceiver) {
                 mPacket.setUsed(mPacket.getSize() + ret);
-                ret = mReceiver->onReceive(0, mPacket.getReadPointer(), mPacket.getReadSize());
+                ret = mReceiver->onReceive(mAddressRemote, 0, mPacket.getReadPointer(), mPacket.getReadSize());
                 mPacket.clear(ret);
             }
         } else if(0 == ret) {

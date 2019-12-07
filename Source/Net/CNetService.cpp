@@ -236,11 +236,15 @@ u32 CNetServiceTCP::receive(CNetSocket& sock, const CNetAddress& remote,
     session->setEventer(evter);
     session->postEvent(ENET_LINKED);
 
+#if defined(APP_PLATFORM_WINDOWS)
     if(!activePoller(ENET_CMD_RECEIVE, session->getID())) {
         session->getSocket().close();
         mSessionPool.addIdleSession(session);
         return 0;
     }
+#elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
+    session->postReceive();
+#endif
     return session->getID();
 }
 
@@ -328,11 +332,16 @@ u32 CNetServiceTCP::connect(const CNetAddress& remote, INetEventer* it) {
     sock.getLocalAddress(local);
     session->setLocalAddress(local);
     session->setRemoteAddress(remote);
+
+#if defined(APP_PLATFORM_WINDOWS)
     if(!activePoller(ENET_CMD_CONNECT, session->getID())) {
         session->getSocket().close();
         mSessionPool.addIdleSession(session);
         return 0;
     }
+#elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
+    session->postConnect();
+#endif
     return session->getID();
 }
 

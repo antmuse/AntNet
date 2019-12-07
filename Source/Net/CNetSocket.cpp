@@ -426,7 +426,7 @@ CNetSocket CNetSocket::accept() {
 
 CNetSocket CNetSocket::accept(CNetAddress& it) {
 #if defined(APP_PLATFORM_WINDOWS) || defined(APP_PLATFORM_ANDROID)
-    s32 size = sizeof(*it.getAddress());
+    socklen_t size = sizeof(*it.getAddress());
 #elif defined(APP_PLATFORM_LINUX)
     u32 size = sizeof(*it.getAddress());
 #endif

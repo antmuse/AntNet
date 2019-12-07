@@ -308,7 +308,7 @@ void CNetSession::dispatchEvents() {
             switch(nd->mEvent.mType) {
             case ENET_RECEIVE:
             {
-                nd->mEventer->onReceive(nd->mEvent.mSessionID,
+                nd->mEventer->onReceive(mAddressRemote, nd->mEvent.mSessionID,
                     reinterpret_cast<c8*>(nd + 1) + sizeof(SContextIO),
                     nd->mEvent.mInfo.mDataReceive.mSize);
                 break;

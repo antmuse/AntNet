@@ -62,7 +62,7 @@ void CNetServerTCP::run() {
             s32 ret = mSocketSub.receive(mPacket.getWritePointer(), mPacket.getWriteSize());
             if(ret > 0) {
                 if(mReceiver2) {
-                    ret = mReceiver2->onReceive(0, mPacket.getReadPointer(), mPacket.getReadSize());
+                    ret = mReceiver2->onReceive(mAddressRemote, 0, mPacket.getReadPointer(), mPacket.getReadSize());
                     mPacket.clear(ret);
                 } else {
                     mPacket.setUsed(0);
@@ -91,7 +91,7 @@ void CNetServerTCP::run() {
                 mStatus = ENET_RECEIVE;
                 mPacket.setUsed(0);
                 if(mReceiver) {
-                    mReceiver2 = mReceiver->onAccept();
+                    mReceiver2 = mReceiver->onAccept(mAddressLocal);
                     if(mReceiver2) {
                         mReceiver2->onLink(0, mAddressLocal, mAddressLocal);
                     }

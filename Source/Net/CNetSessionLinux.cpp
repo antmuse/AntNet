@@ -45,31 +45,31 @@ s32 CNetSession::postSend(CEventQueue::SNode* iNode) {
 
 s32 CNetSession::postReceive() {
     APP_LOG(ELOG_ERROR, "CNetSession::postReceive", "ecode=%u", CNetSocket::getError());
-    CEventQueue::SNode* nd = mQueueInput.create(0);
-    nd->mEvent.mType = ENET_RECEIVE;
+    const u32 bufsz = 1024 * 8;
+    CEventQueue::SNode* nd = mQueueInput.create(sizeof(SContextIO) + bufsz);
     nd->mEvent.mSessionID = getID();
     nd->mEventer = mEventer;
-    nd->mEvent.mInfo.mDataSend.mSize = 0;
-    nd->mEvent.mInfo.mDataSend.mBuffer = nullptr;
-    mQueueInput.push(nd);
+    nd->mEvent.mType = ENET_RECEIVE;
+    nd->mEvent.mInfo.mDataReceive.mSize = 0;
+    nd->mEvent.mInfo.mDataReceive.mAllocatedSize = bufsz;
+    nd->mEvent.mInfo.mDataReceive.mBuffer
+        = reinterpret_cast<c8*>(nd + 1) + sizeof(SContextIO);
 
-    /*if(ENET_CMD_SEND & mStatus) {
-    return 0;
-    }
-    mStatus |= ENET_CMD_SEND;*/
     pushGlobalQueue(nd);
     return mCount;
 }
 
 
 s32 CNetSession::postConnect() {
-    CEventQueue::SNode* nd = mQueueInput.create(0);
+    const u32 bufsz = 1024 * 8;
+    CEventQueue::SNode* nd = mQueueInput.create(sizeof(SContextIO) + bufsz);
     nd->mEvent.mType = ENET_CONNECT;
-    nd->mEvent.mSessionID = getID();
     nd->mEventer = mEventer;
-    nd->mEvent.mInfo.mDataSend.mSize = 0;
-    nd->mEvent.mInfo.mDataSend.mBuffer = nullptr;
-    mQueueInput.push(nd);
+    nd->mEvent.mSessionID = getID();
+    nd->mEvent.mInfo.mDataReceive.mSize = 0;
+    nd->mEvent.mInfo.mDataReceive.mAllocatedSize = bufsz;
+    nd->mEvent.mInfo.mDataReceive.mBuffer = reinterpret_cast<c8*>(nd + 1) + sizeof(SContextIO);
+
     pushGlobalQueue(nd);
     return mCount;
 }
@@ -118,11 +118,12 @@ CEventQueue::SNode* AppCreateBuffer(CEventQueue& hub, u32 id, INetEventer* iEven
     return nd;
 }
 
+
 s32 CNetSession::stepReceive(SContextIO& act) {
-    //CEventQueue::SNode* nd = getEventNode(&act);
+    CEventQueue::SNode* nd = getEventNode(&act);
+    nd->mEvent.mType = ENET_RECEIVE;
     s32 ecode = 0;
     while(0 == ecode) {
-        CEventQueue::SNode* nd = AppCreateBuffer(mQueueInput, getID(), mEventer);
         const s32 max = nd->mEvent.mInfo.mDataReceive.mAllocatedSize;
         c8* buf = reinterpret_cast<c8*>(nd->mEvent.mInfo.mDataReceive.mBuffer);
         s32 recved = 0;
@@ -138,7 +139,7 @@ s32 CNetSession::stepReceive(SContextIO& act) {
         }
         if(recved > 0) {
             nd->mEvent.mInfo.mDataReceive.mSize = recved;
-            nd->mEventer->onReceive(nd->mEvent.mSessionID,
+            nd->mEventer->onReceive(mAddressRemote, nd->mEvent.mSessionID,
                 reinterpret_cast<c8*>(nd + 1) + sizeof(SContextIO),
                 nd->mEvent.mInfo.mDataReceive.mSize);
         }
@@ -265,7 +266,7 @@ void CNetSession::dispatchEvents() {
             }
             case ENET_SEND:
             {
-                stepReceive(*getAction(nd));
+                stepSend(*getAction(nd));
                 break;
             }
             case ENET_LINKED:
@@ -273,13 +274,19 @@ void CNetSession::dispatchEvents() {
                 nd->mEventer->onLink(nd->mEvent.mSessionID,
                     *nd->mEvent.mInfo.mSession.mAddressLocal,
                     *nd->mEvent.mInfo.mSession.mAddressRemote);
+                postReceive();
                 break;
             }
             case ENET_CONNECT:
             {
-                nd->mEventer->onConnect(nd->mEvent.mSessionID,
-                    *nd->mEvent.mInfo.mSession.mAddressLocal,
-                    *nd->mEvent.mInfo.mSession.mAddressRemote);
+                if(stepConnect(*getAction(nd)) > 1) {
+                    nd->mEventer->onConnect(nd->mEvent.mSessionID,
+                        *nd->mEvent.mInfo.mSession.mAddressLocal,
+                        *nd->mEvent.mInfo.mSession.mAddressRemote);
+                    stepReceive(*getAction(nd));
+                } else {
+                    stepClose();
+                }
                 break;
             }
             case ENET_DISCONNECT:

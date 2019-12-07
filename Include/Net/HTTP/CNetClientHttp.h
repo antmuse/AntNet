@@ -53,7 +53,7 @@ public:
     virtual s32 onDisconnect(u32 sessionID,
         const CNetAddress& local, const CNetAddress& remote)override;
     virtual s32 onSend(u32 sessionID, void* buffer, s32 size, s32 result)override;
-    virtual s32 onReceive(u32 sessionID, void* buffer, s32 size)override;
+    virtual s32 onReceive(const CNetAddress& remote, u32 sessionID, void* buffer, s32 size)override;
 
 private:
     void clear();

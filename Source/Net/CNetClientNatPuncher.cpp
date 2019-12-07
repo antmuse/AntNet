@@ -326,7 +326,7 @@ bool CNetClientNatPuncher::bindLocal() {
 
 APP_INLINE void CNetClientNatPuncher::onPacket(CNetPacket& it) {
     if(mReceiver) {
-        mReceiver->onReceive(0, it.getReadPointer(), it.getReadSize());
+        mReceiver->onReceive(this->mAddressRemote, 0, it.getReadPointer(), it.getReadSize());
     }
 }
 

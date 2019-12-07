@@ -272,7 +272,7 @@ bool CNetServerAcceptor::postAccept(SContextWaiter* iContext) {
 
 bool CNetServerAcceptor::stepAccpet(SContextWaiter* iContext) {
     --mAcceptCount;
-    INetEventer* evt = mReceiver->onAccept();
+    INetEventer* evt = mReceiver->onAccept(mAddressLocal);
     if(evt) {
         mListener.getAddress(iContext->mCache, mAddressLocal, mAddressRemote, mFunctionAcceptSockAddress);
         const u32 sz = mAllService.size();
@@ -549,6 +549,7 @@ bool CNetServerAcceptor::initialize() {
 
 
 bool CNetServerAcceptor::stepAccpet(CNetSocket& sock) {
+    INetEventer* evt = mReceiver->onAccept(mAddressLocal);
     --mAcceptCount;
     CNetServiceTCP* server = 0;
     u32 sz = mAllService.size();

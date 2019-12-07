@@ -71,7 +71,7 @@ public:
     virtual ~INetEventer() {
     }
 
-    virtual INetEventer* onAccept() = 0;
+    virtual INetEventer* onAccept(const CNetAddress& local) = 0;
 
     /**
     *@brief Called when connected.
@@ -92,7 +92,7 @@ public:
 
     virtual s32 onSend(u32 sessionID, void* buffer, s32 size, s32 result) = 0;
 
-    virtual s32 onReceive(u32 sessionID, void* buffer, s32 size) = 0;
+    virtual s32 onReceive(const CNetAddress& remote, u32 sessionID, void* buffer, s32 size) = 0;
 };
 
 

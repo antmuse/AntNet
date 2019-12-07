@@ -257,7 +257,7 @@ bool CNetClientUDP::bindLocal() {
 
 APP_INLINE void CNetClientUDP::onPacket(CNetPacket& it) {
     if(mReceiver) {
-        mReceiver->onReceive(0, it.getReadPointer(), it.getReadSize());
+        mReceiver->onReceive(mAddressRemote, 0, it.getReadPointer(), it.getReadSize());
     }
 }
 

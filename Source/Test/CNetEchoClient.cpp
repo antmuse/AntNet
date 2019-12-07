@@ -163,7 +163,7 @@ s32 CNetEchoClient::onSend(u32 sessionID, void* buffer, s32 size, s32 result) {
 }
 
 
-s32 CNetEchoClient::onReceive(u32 sessionID, void* buffer, s32 size) {
+s32 CNetEchoClient::onReceive(const CNetAddress& remote, u32 sessionID, void* buffer, s32 size) {
     APP_ASSERT(mSession == sessionID);
     AppAtomicFetchAdd(size, &mRecvBytes);
 

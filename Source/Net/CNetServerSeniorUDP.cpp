@@ -297,7 +297,7 @@ s32 CNetServerSeniorUDP::sendBuffer(void* iUserPointer, const c8* iData, s32 iLe
 
 APP_INLINE void CNetServerSeniorUDP::onPacket(CNetPacket& it) {
     if(mReceiver) {
-        mReceiver->onReceive(0, it.getReadPointer(), it.getReadSize());
+        mReceiver->onReceive(mAddressRemote, 0, it.getReadPointer(), it.getReadSize());
     }
 }
 

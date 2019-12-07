@@ -48,7 +48,7 @@ public:
 
     void setMaxAccept(u32 max) {
         mAcceptCount = max;
-    };
+    }
 
     void setEventer(u32 id, INetEventer* evt);
 

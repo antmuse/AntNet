@@ -99,7 +99,7 @@ s32 CNetClientHttp::onSend(u32 sessionID, void* buffer, s32 size, s32 result) {
     return ret;
 }
 
-s32 CNetClientHttp::onReceive(u32 sessionID, void* buffer, s32 size) {
+s32 CNetClientHttp::onReceive(const CNetAddress& remote, u32 sessionID, void* buffer, s32 size) {
     s32 ret = 0;
     const c8* pos = mResponse.import((c8*) buffer, size);
     if(!pos) return ret;

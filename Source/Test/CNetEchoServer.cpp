@@ -97,7 +97,7 @@ s32 CNetEchoServer::onSend(u32 sessionID, void* buffer, s32 size, s32 result) {
 }
 
 
-s32 CNetEchoServer::onReceive(u32 sessionID, void* buffer, s32 size) {
+s32 CNetEchoServer::onReceive(const CNetAddress& remote, u32 sessionID, void* buffer, s32 size) {
     /*IAppLogger::log(ELOG_ERROR, "CNetEchoServer::onReceive", "[%u,%d]",
         sessionID, size);*/
     APP_ASSERT(size > 0);
