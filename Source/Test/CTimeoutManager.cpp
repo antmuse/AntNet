@@ -7,7 +7,7 @@ namespace irr {
 CTimeoutManager::CTimeoutManager(u32 step) :
     mStep(0 == step ? 1 : (step > 5000 ? 5000 : step)),
     mRunning(false),
-    mTimer(0, 1) {
+    mTimer(0LL, 100) {
 }
 
 
@@ -16,8 +16,8 @@ CTimeoutManager::~CTimeoutManager() {
 
 
 void CTimeoutManager::run() {
-    u64 last = IAppTimer::getTime();
-    u64 curr = last;
+    s64 last = IAppTimer::getTime();
+    s64 curr = last;
     for(; mRunning;) {
         mTimer.update(IAppTimer::getTime());
         curr = IAppTimer::getTime();

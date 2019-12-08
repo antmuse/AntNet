@@ -42,7 +42,7 @@ public:
 
 private:
     bool mRunning;
-    u32 mStep;
+    s64 mStep;
     CTimerWheel mTimer;
     CThread mThread;
 };

@@ -48,17 +48,17 @@ public:
         bool mIsDST;
     };
 
-    static SDate getDate(u64 time);
+    static SDate getDate(s64 time);
 
     static SDate getDate();
 
     static void getDate(SDate& date);
 
-    static void getDate(u64 time, SDate& date);
+    static void getDate(s64 time, SDate& date);
 
     static bool isLeapYear(u32 iYear);
 
-    static u64 getTime();
+    static s64 getTime();
 
     static u32 getMonthMaxDay(u32 iYear, u32 iMonth);
 

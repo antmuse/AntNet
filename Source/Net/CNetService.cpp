@@ -20,7 +20,7 @@ CNetServiceTCP::CNetServiceTCP() :
     mCreatedSocket(0),
     mClosedSocket(0),
     mTotalReceived(0),
-    mWheel(0, 200),//APP_NET_SESSION_TIMEOUT/5
+    mWheel(0LL, 200),//APP_NET_SESSION_TIMEOUT/5
     mRunning(false),
     mReceiver(0),
     mStartTime(0),

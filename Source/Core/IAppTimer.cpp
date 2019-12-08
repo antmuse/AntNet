@@ -32,7 +32,7 @@ void IAppTimer::getDate(IAppTimer::SDate& date) {
 }
 
 
-void IAppTimer::getDate(u64 userTime, IAppTimer::SDate& date) {
+void IAppTimer::getDate(s64 userTime, IAppTimer::SDate& date) {
     time_t t = userTime;
     struct tm* timeinfo = ::gmtime(&t);
     AppDateConvert(timeinfo, date);
@@ -46,14 +46,14 @@ IAppTimer::SDate IAppTimer::getDate() {
 }
 
 
-IAppTimer::SDate IAppTimer::getDate(u64 time) {
+IAppTimer::SDate IAppTimer::getDate(s64 time) {
     IAppTimer::SDate date = {0};
     getDate(time, date);
     return date;
 }
 
 
-u64 IAppTimer::getTime() {
+s64 IAppTimer::getTime() {
 #if defined(APP_PLATFORM_WINDOWS)
     /*
     static LARGE_INTEGER HighPerformanceFreq;
@@ -87,7 +87,7 @@ u64 IAppTimer::getTime() {
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
     timeval tv;
     ::gettimeofday(&tv, 0);
-    return (u64) ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
+    return (s64) ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
 #endif
 }
 
@@ -225,15 +225,6 @@ u32 IAppTimer::getMonthMaxDay(u32 iYear, u32 iMonth) {
         return 30;
     default:
         break;
-        //case 1:
-        //case 3:
-        //case 5:
-        //case 7:
-        //case 8:
-        //case 10:
-        //case 12:
-        //    return 31;
-        //    break;
     }
     return 31;
 }
