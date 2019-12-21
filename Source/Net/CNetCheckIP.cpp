@@ -72,7 +72,7 @@ bool CNetCheckIP::addNode(const c8* iStart, const c8* iEnd) {
     }
 
     SNetIPNode node;
-    const c8* curr = utility::AppGoNextFlag(iStart, iEnd, '/');
+    const c8* curr = core::AppGoNextFlag(iStart, iEnd, '/');
     if(curr > iStart && curr < iEnd) {//found eg: "192.168.1.1/24"
         const u32 bitcount = ::atoi(curr + sizeof(char));
         node.m_min = convertToIP(iStart);
@@ -92,7 +92,7 @@ bool CNetCheckIP::addNode(const c8* iStart, const c8* iEnd) {
         insert(node);
         return true;
     }
-    curr = utility::AppGoNextFlag(iStart, iEnd, '-');
+    curr = core::AppGoNextFlag(iStart, iEnd, '-');
     if(curr > iStart && curr < iEnd) {//found eg: "192.168.1.1-192.168.1.123"
         node.m_min = convertToIP(iStart);
         node.m_max = convertToIP(curr + sizeof(char));
@@ -115,17 +115,17 @@ u32 CNetCheckIP::convertToIP(const c8* str) {
     if(str) {
         const c8* iEnd = str + ::strlen(str);
         ret = (::atoi(str) & 0x000000FF) << 24;
-        str = utility::AppStringGoNextFlag(str, iEnd, '.');
+        str = core::AppStringGoNextFlag(str, iEnd, '.');
         if(str >= iEnd) {
             return ret;
         }
         ret |= (::atoi(++str) & 0x000000FF) << 16;
-        str = utility::AppStringGoNextFlag(str, iEnd, '.');
+        str = core::AppStringGoNextFlag(str, iEnd, '.');
         if(str >= iEnd) {
             return ret;
         }
         ret |= (::atoi(++str) & 0x000000FF) << 8;
-        str = utility::AppStringGoNextFlag(str, iEnd, '.');
+        str = core::AppStringGoNextFlag(str, iEnd, '.');
         if(str >= iEnd) {
             return ret;
         }
@@ -235,13 +235,13 @@ u32 CNetCheckIP::parseConfig(const c8* cfg, u32 cfgsize/*=0*/) {
     }
     const c8* iStart = cfg;
     const c8* iEnd = iStart + cfgsize;
-    const c8* curr = utility::AppGoNextFlag(iStart, iEnd, APP_IP_SPLIT_FLAG);
+    const c8* curr = core::AppGoNextFlag(iStart, iEnd, APP_IP_SPLIT_FLAG);
     bool added = true;
     while(added && curr > iStart && iStart < iEnd) {
         added = addNode(iStart, curr);
         iStart = curr + sizeof(char);
-        iStart = utility::AppGoFirstWord(iStart, iEnd, false);
-        curr = utility::AppGoNextFlag(iStart, iEnd, ',');
+        iStart = core::AppGoFirstWord(iStart, iEnd, false);
+        curr = core::AppGoNextFlag(iStart, iEnd, ',');
     }
     return m_size;
 }

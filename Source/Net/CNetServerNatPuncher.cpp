@@ -156,10 +156,10 @@ void CNetServerNatPuncher::run() {
     IAppLogger::log(ELOG_INFO, "CNetServerNatPuncher::run", "worker theread start, ID: %d", CThread::getCurrentNativeID());
     CNetPacket pack(1024);
     s32 ret = 0;
-    u64 last_tick = IAppTimer::getTime();
+    u64 last_tick = IAppTimer::getRelativeTime();
 
     for(; mRunning;) {
-        mCurrentTime = IAppTimer::getTime();
+        mCurrentTime = IAppTimer::getRelativeTime();
         //pack.setUsed(0);
         ret = mConnector.receiveFrom(pack.getPointer(), pack.getAllocatedSize(), mAddressRemote);
         if(ret > 0) {

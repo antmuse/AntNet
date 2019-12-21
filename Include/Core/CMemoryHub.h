@@ -1,5 +1,5 @@
-#ifndef ANTMUSE_CMEMORYHUB_H
-#define ANTMUSE_CMEMORYHUB_H
+#ifndef ANT_CMEMORYHUB_H
+#define ANT_CMEMORYHUB_H
 
 #include "CMemoryPool.h"
 #include "CMutex.h"

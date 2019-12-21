@@ -42,7 +42,7 @@
 #endif
 
 namespace irr {
-namespace utility {
+namespace core {
 
 u32 AppConvertToHexString(const u8* iData, u32 iDataSize, c8* iResult, u32 iSize) {
     if(iSize < iDataSize * 2 + 1) {
@@ -71,7 +71,7 @@ u32 AppConvertToU8(const c8* iData, u32 iDataSize, u8* iResult, u32 iSize) {
 
 
 void AppPrintToHexString(const void* iData, u32 iSize) {
-    const u8* buffer = (const u8*) iData;
+    const u8* buffer = ( const u8*) iData;
     for(u32 i = 0; i < iSize; ++i) {
         printf("%02X", buffer[i]);
     }
@@ -81,7 +81,7 @@ void AppPrintToHexString(const void* iData, u32 iSize) {
 void AppPrintToHexText(const void* buffer, u32 len) {
     printf("////////////////////////////////////////////////////////////////////////////////////\n");
     const u32 max = 88;
-    const c8* const buf = (const c8*) buffer;
+    const c8* const buf = ( const c8*) buffer;
     u32 i, j, k;
     c8 binstr[max];
     for(i = 0; i < len; i++) {
@@ -240,7 +240,7 @@ bool AppCreatePath(const io::path& iPath) {
     }
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
     //CEngine::getInstance().get->add(iPath.c_str());
-    DIR* pDirect = opendir(iPath.c_str());
+    DIR * pDirect = opendir(iPath.c_str());
     if(0 == pDirect) {
         if(0 == ::mkdir(iPath.c_str(), 0777)) {
             //IAppLogger::logCritical("IUtility::createPath", "new path=%s", iPath.c_str());
@@ -296,5 +296,5 @@ bool AppCreatePath(const io::path& iPath) {
 //};
 
 
-} //namespace utility
+} //namespace core
 } //namespace irr

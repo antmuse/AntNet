@@ -281,5 +281,11 @@
     <ClCompile Include="..\..\..\Source\Net\CNetSessionWindows.cpp">
       <Filter>Source\Net</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Source\Core\CQueue1Way.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Core\CQueue2Way.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

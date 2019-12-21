@@ -15,7 +15,7 @@
 #include "coreutil.h"
 
 namespace irr {
-namespace utility {
+namespace core {
 
 extern core::stringw APP_LOCALE_DECIMAL_POINTS;
 
@@ -427,6 +427,6 @@ static s32 AppCopyCharN(const c8* pSrc, c8* pDest, s32 maxLen) {
 }
 
 
-} //namespace utility
+} //namespace core
 } //namespace irr
 #endif	/* APP_IUTILITY_H */

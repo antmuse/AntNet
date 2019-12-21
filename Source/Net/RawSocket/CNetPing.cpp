@@ -71,7 +71,7 @@ bool CNetPing::ping(const c8* remoteIP, u32 max, s32 timeout) {
     for(u32 nCount = 0; nCount < max; ++nCount) {
         cksum.clear();
         ((SHeadICMP*) mICMP_Data)->mChecksum = 0;
-        ((SHeadICMP*) mICMP_Data)->mTimestamp = IAppTimer::getTime();;
+        ((SHeadICMP*) mICMP_Data)->mTimestamp = IAppTimer::getRelativeTime();;
         ((SHeadICMP*) mICMP_Data)->mSN = mSendSN++;
         cksum.add(mICMP_Data, mDataSize);
         ((SHeadICMP*) mICMP_Data)->mChecksum = cksum.get();

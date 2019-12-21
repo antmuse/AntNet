@@ -103,10 +103,10 @@ bool CNetHttpURL::set(const core::stringc& it) {
 
     bool full_url = false;
     if(':' == url[4] && '/' == url[5] && '/' == url[6]) {//http://
-        utility::AppToLower(&url[0], 4);
+        core::AppToLower(&url[0], 4);
         full_url = true;
     } else if(':' == url[5] && '/' == url[6] && '/' == url[7]) {//https://
-        utility::AppToLower(&url[0], 5);
+        core::AppToLower(&url[0], 5);
         full_url = true;
     }
 

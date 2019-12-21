@@ -217,6 +217,8 @@
     <ClCompile Include="..\..\..\Source\Core\CConsoleLogReceiver.cpp" />
     <ClCompile Include="..\..\..\Source\Core\CFileLogReceiver.cpp" />
     <ClCompile Include="..\..\..\Source\Core\CMemoryHub.cpp" />
+    <ClCompile Include="..\..\..\Source\Core\CQueue1Way.cpp" />
+    <ClCompile Include="..\..\..\Source\Core\CQueue2Way.cpp" />
     <ClCompile Include="..\..\..\Source\Core\CQueueNode.cpp" />
     <ClCompile Include="..\..\..\Source\Core\CStreamFile.cpp" />
     <ClCompile Include="..\..\..\Source\Core\CTimerWheel.cpp" />

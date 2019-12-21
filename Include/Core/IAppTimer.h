@@ -19,14 +19,6 @@ public:
         EWD_SATURDAY
     };
 
-    enum ETimeStringType {
-        ETST_GMT = 0,         ///<format: Sat, 11 Mar 2017 21:49:51 GMT
-        ETST_YMD,             ///<format: year_month_day, eg: 2017_07_09
-        ETST_YMD_2,           ///<format: year_month_day, eg: 2017-07-09
-        ETST_HMS,             ///<format: Hour_mintue_second, eg: 09:30:22
-        ETST_YMDHMS           ///<format: year_month_day_Hour_mintue_second, eg: 2017-07-09 09:30:22
-    };
-
     struct SDate {
         // Hour of the day, from 0 to 23
         u32 mHour;
@@ -58,30 +50,51 @@ public:
 
     static bool isLeapYear(u32 iYear);
 
+    /**
+    * @return time in seconds
+    */
+    static s64 cutDays(s64 timestamp);
+
+    /**
+    * @return time zone in seconds
+    */
+    static s64 getTimeZone();
+
+    /**
+    * @return time in seconds
+    */
+    static s64 getTimestamp();
+
+    /**
+    * @return time in milliseconds
+    */
     static s64 getTime();
+
+    /**
+    * @return time in microseconds
+    */
+    static s64 getRealTime();
+
+    /**
+    * @return time in milliseconds
+    */
+    static s64 getRelativeTime();
 
     static u32 getMonthMaxDay(u32 iYear, u32 iMonth);
 
     /**
     *@brief Get current time as string.
-    *@param type time format.
+    *@param iTime timestamp in seconds.
+    *@param format format str, eg:
+    *   "%a, %d %b %Y %H:%M:%S GMT", //Sat, 11 Mar 2017 21:49:51 GMT
+    *   "%Y-%m-%d %H:%M:%S"          //2017-07-09 21:49:51
+
     *@param cache The cache to write into.
     *@param cacheSize The max cache size, should not be less than 20.
     */
-    static void getTimeAsString(u32 type, c8* cache, u32 cacheSize);
+    static void getTimeAsString(s64 iTime, c8* cache, u32 cacheSize, c8* format = "%Y-%m-%d %H:%M:%S");
 
-    /**
-    *@brief Get user defined time as string.
-    *@param data User defined date.
-    *@param type time format.
-    *@param cache The cache to write into.
-    *@param cacheSize The max cache size, should not be less than 20.
-    */
-    static void getTimeAsString(const SDate& date, u32 type, c8* cache, u32 cacheSize);
-
-    static s32 addYearMonthDay(const SDate& date, u32 max, c8* cache);
-
-    static s32 addHourMinSecond(const SDate& date, u32 max, c8* cache);
+    static void getTimeAsString(c8* cache, u32 cacheSize, c8* format = "%Y-%m-%d %H:%M:%S");
 };
 
 } // end namespace irr

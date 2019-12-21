@@ -24,7 +24,7 @@ void CNetServiceTCP::run() {
     for(; mRunning; ) {
         gotsz = mPoller.getEvents(iEvent, maxe, mTimeInterval);
         if(gotsz > 0) {
-            mCurrentTime = IAppTimer::getTime();
+            mCurrentTime = IAppTimer::getRelativeTime();
             for(u32 i = 0; i < gotsz; ++i) {
                 ret = 2;
                 if(iEvent[i].mKey < ENET_SESSION_MASK && iEvent[i].mPointer) {
@@ -105,7 +105,7 @@ void CNetServiceTCP::run() {
             bool bigerror = false;
             switch(pcode) {
             case WAIT_TIMEOUT:
-                mCurrentTime = IAppTimer::getTime();
+                mCurrentTime = IAppTimer::getRelativeTime();
                 mWheel.update(mCurrentTime);
                 last = mCurrentTime;
                 if(mCurrentTime - lastshow >= 1000) {

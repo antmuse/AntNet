@@ -106,7 +106,7 @@ enum EPollerEvent {
 class CEventPoller {
 public:
     ///SEvent layout must same as epoll_event's layout
-#pragma pack(1)
+    //#pragma pack(1)
     struct SEvent {
         union UData {
             u32 mData32;
@@ -119,7 +119,7 @@ public:
             mEvent = msg;
         }
     };
-#pragma pack()
+    //#pragma pack()
 
     CEventPoller();
 

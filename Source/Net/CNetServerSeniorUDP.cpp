@@ -32,10 +32,10 @@ void CNetServerSeniorUDP::run() {
     IAppLogger::log(ELOG_INFO, "CNetServerSeniorUDP::run", "worker theread start, ID: %d", CThread::getCurrentNativeID());
     c8* buffer = new c8[APP_NET_MAX_BUFFER_LEN]; //buffer for each thread
     s32 ret = 0;
-    u64 last_tick = IAppTimer::getTime();
+    u64 last_tick = IAppTimer::getRelativeTime();
 
     for(; mRunning;) {
-        mCurrentTime = IAppTimer::getTime();
+        mCurrentTime = IAppTimer::getRelativeTime();
         ret = mConnector.receiveFrom(buffer, APP_NET_MAX_BUFFER_LEN, mAddressRemote);
         if(APP_SOCKET_ERROR == ret) {
             if(!clearError()) {

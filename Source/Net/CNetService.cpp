@@ -82,7 +82,7 @@ bool CNetServiceTCP::start(CNetConfig* cfg) {
     mThreadPool->start();
     mTotalReceived = 0;
     mClosedSocket = 0;
-    mCurrentTime = IAppTimer::getTime();
+    mCurrentTime = IAppTimer::getRelativeTime();
     mStartTime = mCurrentTime;
     mSessionPool.create(mConfig->mMaxContext);
     mThread = new CThread();
@@ -103,7 +103,7 @@ bool CNetServiceTCP::stop() {
     }
     IAppLogger::log(ELOG_INFO, "CNetServiceTCP::stop", "all session exited");
     mRunning = false;
-    mCurrentTime = IAppTimer::getTime();
+    mCurrentTime = IAppTimer::getRelativeTime();
     if(activePoller(ENET_SESSION_MASK)) {
         mThread->join();
         delete mThread;

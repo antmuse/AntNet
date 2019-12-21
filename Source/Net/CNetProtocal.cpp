@@ -178,7 +178,7 @@ CNetProtocal::~CNetProtocal() {
 
 u32 CNetProtocal::getID(const c8* iBuffer) const {
     u32 conv;
-    utility::AppDecodeU32(iBuffer, &conv);
+    core::AppDecodeU32(iBuffer, &conv);
     return conv;
 }
 
@@ -606,17 +606,17 @@ s32 CNetProtocal::import(const c8* data, long size) {
 
         if(size < (s32) APP_NET_ENDIANOVERHEAD) break;
 
-        data = utility::AppDecodeU32(data, &conv);
+        data = core::AppDecodeU32(data, &conv);
         if(conv != mConnectionID) {
             return -1;
         }
-        data = utility::AppDecodeU8(data, &cmd);
-        data = utility::AppDecodeU8(data, &frg);
-        data = utility::AppDecodeU16(data, &wnd);
-        data = utility::AppDecodeU32(data, &ts);
-        data = utility::AppDecodeU32(data, &sn);
-        data = utility::AppDecodeU32(data, &una);
-        data = utility::AppDecodeU32(data, &len);
+        data = core::AppDecodeU8(data, &cmd);
+        data = core::AppDecodeU8(data, &frg);
+        data = core::AppDecodeU16(data, &wnd);
+        data = core::AppDecodeU32(data, &ts);
+        data = core::AppDecodeU32(data, &sn);
+        data = core::AppDecodeU32(data, &una);
+        data = core::AppDecodeU32(data, &len);
 
         size -= APP_NET_ENDIANOVERHEAD;
 
@@ -719,14 +719,14 @@ s32 CNetProtocal::import(const c8* data, long size) {
 
 
 c8* CNetProtocal::encodeSegment(c8 *ptr, const SKCPSegment *seg) {
-    ptr = utility::AppEncodeU32(seg->mConnectionID, ptr);
-    ptr = utility::AppEncodeU8((u8) seg->mCMD, ptr);
-    ptr = utility::AppEncodeU8((u8) seg->mFrag, ptr);
-    ptr = utility::AppEncodeU16((u16) seg->mWindow, ptr);
-    ptr = utility::AppEncodeU32(seg->mTime, ptr);
-    ptr = utility::AppEncodeU32(seg->mSN, ptr);
-    ptr = utility::AppEncodeU32(seg->mUNA, ptr);
-    ptr = utility::AppEncodeU32(seg->mLength, ptr);
+    ptr = core::AppEncodeU32(seg->mConnectionID, ptr);
+    ptr = core::AppEncodeU8((u8) seg->mCMD, ptr);
+    ptr = core::AppEncodeU8((u8) seg->mFrag, ptr);
+    ptr = core::AppEncodeU16((u16) seg->mWindow, ptr);
+    ptr = core::AppEncodeU32(seg->mTime, ptr);
+    ptr = core::AppEncodeU32(seg->mSN, ptr);
+    ptr = core::AppEncodeU32(seg->mUNA, ptr);
+    ptr = core::AppEncodeU32(seg->mLength, ptr);
     return ptr;
 }
 

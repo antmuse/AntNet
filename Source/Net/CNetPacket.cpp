@@ -105,7 +105,7 @@ CNetPacket& CNetPacket::operator= (const CNetPacket& other) {
 
 
 void CNetPacket::setU32(u32 pos, u32 value) {
-    utility::AppEncodeU32(value, mData + pos);
+    core::AppEncodeU32(value, mData + pos);
 }
 
 

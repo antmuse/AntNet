@@ -191,13 +191,13 @@ bool CNetSynPing::send() {
 
     printf("\n----------------------------------------------------------------\n");
     printf("IP = ");
-    utility::AppPrintToHexString(&ipHead, sizeof(ipHead));
+    core::AppPrintToHexString(&ipHead, sizeof(ipHead));
     printf("\n");
     printf("TCP = ");
-    utility::AppPrintToHexString(&tcpHead, sizeof(tcpHead));
+    core::AppPrintToHexString(&tcpHead, sizeof(tcpHead));
     printf("\n");
     printf("TCP option = ");
-    utility::AppPrintToHexString(&optionTCP, sizeof(optionTCP));
+    core::AppPrintToHexString(&optionTCP, sizeof(optionTCP));
     printf("\n----------------------------------------------------------------\n");
 
     //send out
@@ -262,12 +262,12 @@ bool CNetSynPing::sendReset() {
     ipHead.mChecksum = sumchecker.get();
 
     printf("IP = ");
-    utility::AppPrintToHexString(&ipHead, sizeof(ipHead));
+    core::AppPrintToHexString(&ipHead, sizeof(ipHead));
     printf("\n--------------------------------------\n");
     printf("TCP = ");
-    utility::AppPrintToHexString(&tcpHead, sizeof(tcpHead));
+    core::AppPrintToHexString(&tcpHead, sizeof(tcpHead));
     printf("\n--------------------------------------\n");
-    //utility::AppPrintToHexText(&ipHead, sizeof(tcpHead)+ sizeof(tcpHead));
+    //core::AppPrintToHexText(&ipHead, sizeof(tcpHead)+ sizeof(tcpHead));
 
     //send out
     s32 datasize = sizeof(SHeadIP) + sizeof(SHeadTCP);
@@ -296,11 +296,11 @@ s32 CNetSynPing::ping(const c8* remoteIP, u16 remotePort) {
     c8 recvCache[65535] = {0};
     s32 ecode;
     u32 timeout = 20000;
-    u64 start = IAppTimer::getTime();
+    u64 start = IAppTimer::getRelativeTime();
     core::stringc localips, remoteips;
 
     while(true) {
-        if((IAppTimer::getTime() - start) >= timeout) {
+        if((IAppTimer::getRelativeTime() - start) >= timeout) {
             IAppLogger::log(ELOG_ERROR, "CNetSynPing::ping", "receive timeOut, %u", CNetSocket::getError());
             //if(!send()) break;
             break;
@@ -359,7 +359,7 @@ s32 CNetSynPing::ping(const c8* remoteIP, u16 remotePort) {
         u16 tcpsz = recvHeadTCP.getSize();
         u16 datasz = totalSize - recvIPsize - tcpsz;
         IAppLogger::log(ELOG_INFO, "CNetSynPing::ping", "TCP data size = [%u]", datasz);
-        utility::AppPrintToHexText((((c8*) &recvHeadTCP) + tcpsz), datasz);
+        core::AppPrintToHexText((((c8*) &recvHeadTCP) + tcpsz), datasz);
 
         if(recvHeadIP.mLocalIP != mAddressRemote.getIP()) {
             continue;
