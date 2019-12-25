@@ -92,7 +92,7 @@ void CNetServerAcceptor::run() {
                 break;
 
             default:
-                IAppLogger::log(ELOG_WARNING, "CNetServerAcceptor::run",
+                IAppLogger::log(ELOG_WARN, "CNetServerAcceptor::run",
                     "invalid overlap, ecode: [%lu]", pcode);
                 APP_ASSERT(0);
                 break;
@@ -111,13 +111,13 @@ bool CNetServerAcceptor::clearError() {
     switch(ecode) {
     case WSA_IO_PENDING:
         return true;
-    case ERROR_SEM_TIMEOUT: //hack? Ã¿ÃëÊÕµ½5000¸öÒÔÉÏµÄAcceptÊ±³öÏÖ
+    case ERROR_SEM_TIMEOUT: //hack? æ¯ç§’æ”¶åˆ°5000ä¸ªä»¥ä¸Šçš„Acceptæ—¶å‡ºçŽ°
         return true;
     case WAIT_TIMEOUT: //same as WSA_WAIT_TIMEOUT
         IAppLogger::log(ELOG_INFO, "CNetServerAcceptor::clearError", "socket timeout, retry...");
         return true;
-    case ERROR_CONNECTION_ABORTED: //·þÎñÆ÷Ö÷¶¯¹Ø±Õ
-    case ERROR_NETNAME_DELETED: //¿Í»§¶ËÖ÷¶¯¹Ø±ÕÁ¬½Ó
+    case ERROR_CONNECTION_ABORTED: //æœåŠ¡å™¨ä¸»åŠ¨å…³é—­
+    case ERROR_NETNAME_DELETED: //å®¢æˆ·ç«¯ä¸»åŠ¨å…³é—­è¿žæŽ¥
         return true;
     default:
     {
@@ -404,20 +404,23 @@ void CNetServerAcceptor::run() {
     const u32 maxe = mConfig->mMaxFetchEvents;
     CEventPoller::SEvent* iEvent = new CEventPoller::SEvent[maxe];
     u32 gotsz = 0;
-
+    CNetSocket sock(mPoller.getSocketPair().getSocketA());
     for(; mRunning; ) {
         gotsz = mPoller.getEvents(iEvent, maxe, APP_THREAD_MAX_SLEEP_TIME);
         if(gotsz > 0) {
-            bool ret = true;
+            //bool ret = true;
             for(u32 i = 0; i < gotsz; ++i) {
-                if(APP_SERVER_EXIT_CODE == iEvent[i].mData.mData32) {
-                    mRunning = false;
-                    continue;
-                }
-                ret = true;
                 if(EPOLLIN & iEvent[i].mEvent) {
-                    CNetSocket sock(mListener.accept());
-                    ret = stepAccpet(sock);
+                    if(mListener.getValue() == iEvent[i].mData.mData32){
+                        CNetSocket sock(mListener.accept());
+                        stepAccpet(sock);
+                    }else{
+                        u32 mask;
+                        s32 ret = sock.receiveAll(&mask, sizeof(mask));
+                        if(ENET_SESSION_MASK == mask) {
+                            mRunning = false;
+                        }
+                    }
                 } else {
                     IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::run", "unknown operation type");
                     continue;
@@ -425,7 +428,7 @@ void CNetServerAcceptor::run() {
             }//for
         } else {
             s32 pcode = mPoller.getError();
-            IAppLogger::log(ELOG_WARNING, "CNetServerAcceptor::run",
+            IAppLogger::log(ELOG_WARN, "CNetServerAcceptor::run",
                 "invalid overlap, ecode: [%lu]", pcode);
             continue;
         }//else if
@@ -541,9 +544,20 @@ bool CNetServerAcceptor::initialize() {
         return false;
     }
 
-    CEventPoller::SEvent evt = {0};
+    CNetSocket& sock = mPoller.getSocketPair().getSocketA();
+    if(!sock.isOpen()) {
+        //printf("error %d on socketpair\n", errno);
+        return false;
+    }
+    CEventPoller::SEvent evt;
+    evt.mData.mData32 = ENET_SESSION_MASK;
+    evt.mEvent = EPOLLIN | EPOLLERR;
+    if(!mPoller.add(sock, evt)) {
+        return false;
+    }
+
+    //CEventPoller::SEvent evt = {0};
     evt.mData.mData32 = mListener.getValue();
-    evt.mEvent = EPOLLIN;
     return mPoller.add(mListener, evt);
 }
 

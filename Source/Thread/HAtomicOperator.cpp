@@ -81,6 +81,9 @@ s32 AppAtomicFetchSet(s32 value, s32* iTarget) {
     return ::InterlockedExchange((LONG*) iTarget, value);
 }
 
+s64 AppAtomicFetchSet(s64 value, s64* iTarget) {
+    return ::InterlockedExchange64(iTarget, value);
+}
 
 s32 AppAtomicFetchCompareSet(s32 newValue, s32 comparand, s32* iTarget) {
     return ::InterlockedCompareExchange((LONG*) iTarget, newValue, comparand);
@@ -112,7 +115,9 @@ s16 AppAtomicDecrementFetch(s16* it) {
 s32 AppAtomicFetch(s32* iTarget) {
     return ::InterlockedExchangeAdd((LONG*) iTarget, 0);
 }
-
+s64 AppAtomicFetch(s64* iTarget) {
+    return ::InterlockedExchangeAdd64(iTarget, 0);
+}
 
 } //end namespace irr
 
@@ -140,7 +145,7 @@ s32 AppAtomicFetchAdd(s32 addValue, s32* iTarget) {
 
 
 void* AppAtomicFetchSet(void* iValue, void** iTarget) {
-    //return ::__sync_lock_release(iTarget, iValue);
+    return ::__atomic_exchange_n(iTarget, iValue, __ATOMIC_SEQ_CST);
 }
 
 
@@ -158,14 +163,24 @@ s32 AppAtomicFetchSet(s32 value, s32* iTarget) {
     return ::__atomic_exchange_n(iTarget, value, __ATOMIC_SEQ_CST);
 }
 
+s64 AppAtomicFetchSet(s64 value, s64* iTarget) {
+    return ::__atomic_exchange_n(iTarget, value, __ATOMIC_SEQ_CST);
+}
 
 s32 AppAtomicFetchCompareSet(s32 newValue, s32 comparand, s32* iTarget) {
     ::__atomic_compare_exchange_n(iTarget, &comparand, newValue, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
     return comparand;
 }
 
+s64 AppAtomicFetchCompareSet(s64 newValue, s64 comparand, s64* iTarget) {
+    ::__atomic_compare_exchange_n(iTarget, &comparand, newValue, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
+    return comparand;
+}
 
 s32 AppAtomicFetch(s32* iTarget) {
+    return ::__atomic_load_n(iTarget, __ATOMIC_SEQ_CST);
+}
+s64 AppAtomicFetch(s64* iTarget) {
     return ::__atomic_load_n(iTarget, __ATOMIC_SEQ_CST);
 }
 

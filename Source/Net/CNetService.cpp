@@ -4,8 +4,7 @@
 #include "CMemoryHub.h"
 #include "CNetUtility.h"
 
-#define APP_NET_SESSION_TIMEOUT     5000
-#define APP_NET_SESSION_LINGER      8000
+#define APP_NET_SESSION_LINGER 8000
 
 
 namespace irr {
@@ -20,7 +19,7 @@ CNetServiceTCP::CNetServiceTCP() :
     mCreatedSocket(0),
     mClosedSocket(0),
     mTotalReceived(0),
-    mWheel(0LL, 200),//APP_NET_SESSION_TIMEOUT/5
+    mWheel(0LL, 200),
     mRunning(false),
     mReceiver(0),
     mStartTime(0),
@@ -59,7 +58,7 @@ bool CNetServiceTCP::start(CNetConfig* cfg) {
         return false;
     }
 #if defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
-    CNetSocket& sock = mPoller.getSocketPair().getSocketA();
+    CNetSocket & sock = mPoller.getSocketPair().getSocketA();
     if(!sock.isOpen()) {
         //printf("error %d on socketpair\n", errno);
         return false;
@@ -172,27 +171,18 @@ u32 CNetServiceTCP::receive(CNetSocket& sock, const CNetAddress& remote,
     }
 
     bool success = sock.isOpen();
+#if defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
     if(success && sock.setBlock(false)) {
         success = false;
     }
-    if(success && sock.setLinger(true, APP_NET_SESSION_LINGER / 1000)) {
+#endif
+    if(success && sock.setLinger(true, mConfig->mLinger)) {
         success = false;
     }
-    /*if(success && sock.setReuseIP(true)) {
+    if(success && sock.keepAlive(0 != mConfig->mKeepAliveIdle, mConfig->mKeepAliveIdle,
+        mConfig->mKeepAliveInterval, mConfig->mKeepAliveMaxTick)) {
         success = false;
     }
-    if(success && sock.setReusePort(true)) {
-        success = false;
-    }*/
-    if(success && sock.setSendOvertime(APP_NET_SESSION_TIMEOUT)) {
-        success = false;
-    }
-    if(success && sock.setReceiveOvertime(APP_NET_SESSION_TIMEOUT)) {
-        success = false;
-    }
-    //if(success && sock.bind()) {
-    //    success = false;
-    //}
     if(!success) {
         sock.close();
         mSessionPool.addIdleSession(session);
@@ -266,23 +256,15 @@ u32 CNetServiceTCP::connect(const CNetAddress& remote, INetEventer* it) {
         bool success = sock.openSeniorTCP();
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
         bool success = sock.openTCP();
-#endif
         if(success && sock.setBlock(false)) {
             success = false;
         }
-        if(success && sock.setLinger(true, APP_NET_SESSION_LINGER / 1000)) {
+#endif
+        if(success && sock.setLinger(true, mConfig->mLinger)) {
             success = false;
         }
-        if(success && sock.setReuseIP(false)) {
-            success = false;
-        }
-        if(success && sock.setReusePort(false)) {
-            success = false;
-        }
-        if(success && sock.setSendOvertime(APP_NET_SESSION_TIMEOUT)) {
-            success = false;
-        }
-        if(success && sock.setReceiveOvertime(APP_NET_SESSION_TIMEOUT)) {
+        if(success && sock.keepAlive(0 != mConfig->mKeepAliveIdle, mConfig->mKeepAliveIdle,
+            mConfig->mKeepAliveInterval, mConfig->mKeepAliveMaxTick)) {
             success = false;
         }
         if(success && sock.bind()) {
@@ -362,10 +344,10 @@ bool CNetServiceTCP::activePoller(u32 cmd, u32 id/* = 0*/) {
     CEventPoller::SEvent evt;
 #if defined(APP_PLATFORM_WINDOWS)
     evt.mPointer = 0;
-    evt.mKey = ((ENET_CMD_MASK&cmd) | (ENET_SESSION_MASK&id));
+    evt.mKey = ((ENET_CMD_MASK & cmd) | (ENET_SESSION_MASK & id));
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
     evt.mData.mData64 = 0;
-    evt.mEvent = ((ENET_CMD_MASK&cmd) | (ENET_SESSION_MASK&id));
+    evt.mEvent = ((ENET_CMD_MASK & cmd) | (ENET_SESSION_MASK & id));
 #endif
     return mPoller.postEvent(evt);
 }
@@ -385,14 +367,14 @@ s32 CNetServiceTCP::send(const u32* uid, u16 maxUID, const void* buffer, s32 siz
 
 bool CNetServiceTCP::disconnect(u32 id) {
     APP_ASSERT(id > 0);
-    CNetSession& nd = mSessionPool[id&ENET_SESSION_MASK];
+    CNetSession& nd = mSessionPool[id & ENET_SESSION_MASK];
     return nd.isValid(id) && activePoller(ENET_CMD_DISCONNECT, nd.getID());
 }
 
 
 void CNetServiceTCP::setEventer(u32 id, INetEventer* evt) {
     APP_ASSERT(id > 0);
-    mSessionPool[id&ENET_SESSION_MASK].setEventer(evt);
+    mSessionPool[id & ENET_SESSION_MASK].setEventer(evt);
 }
 
 
@@ -466,7 +448,7 @@ void CNetServiceTCP::dispatchBuffers() {
     }//for
 
 #if defined(APP_DEBUG)
-    if(cntf>0 && cnt != bk) {
+    if(cntf > 0 && cnt != bk) {
         APP_LOG(ELOG_INFO, "CNetServiceTCP::dispatchBuffers", "count=%u/%u", cntf, ++cnt);
     }
 #endif

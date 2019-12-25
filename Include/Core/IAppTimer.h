@@ -91,10 +91,13 @@ public:
 
     *@param cache The cache to write into.
     *@param cacheSize The max cache size, should not be less than 20.
+    *@return len of output str.
     */
-    static void getTimeAsString(s64 iTime, c8* cache, u32 cacheSize, c8* format = "%Y-%m-%d %H:%M:%S");
+    static u64 getTimeAsString(s64 iTime, c8* cache, u32 cacheSize, c8* format = "%Y-%m-%d %H:%M:%S");
+    static u64 getTimeAsString(s64 iTime, wchar_t* cache, u32 cacheSize, wchar_t* format = L"%Y-%m-%d %H:%M:%S");
 
-    static void getTimeAsString(c8* cache, u32 cacheSize, c8* format = "%Y-%m-%d %H:%M:%S");
+    static u64 getTimeAsString(c8* cache, u32 cacheSize, c8* format = "%Y-%m-%d %H:%M:%S");
+    static u64 getTimeAsString(wchar_t* cache, u32 cacheSize, wchar_t* format = L"%Y-%m-%d %H:%M:%S");
 };
 
 } // end namespace irr

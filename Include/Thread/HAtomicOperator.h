@@ -90,6 +90,7 @@ s32 AppAtomicFetchAdd(s32 addValue, s32* iTarget);
 */
 s32 AppAtomicFetchSet(s32 newValue, s32* iTarget);
 void* AppAtomicFetchSet(void* value, void** iTarget);
+s64 AppAtomicFetchSet(s64 value, s64* iTarget);
 
 
 /**
@@ -100,11 +101,11 @@ void* AppAtomicFetchSet(void* value, void** iTarget);
 *@return The prior value of the iTarget parameter.
 */
 s32 AppAtomicFetchCompareSet(s32 newValue, s32 comparand, s32* iTarget);
-
+s64 AppAtomicFetchCompareSet(s64 newValue, s64 comparand, s64* iTarget);
 
 
 s32 AppAtomicFetch(s32* iTarget);
-
+s64 AppAtomicFetch(s64* iTarget);
 } //end namespace irr
 
 #endif	// APP_HATOMICOPERATOR_H

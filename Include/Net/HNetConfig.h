@@ -53,7 +53,6 @@ class CNetConfig {
 public:
     //socket
     bool mReuse;     ///<reuse IP and port
-    bool mOnDelay;
 
     //max worker's threads, range[1-255]
     u8 mMaxWorkThread;
@@ -61,8 +60,6 @@ public:
     u8 mMaxPostAccept;
     //range[32,512]
     u16 mMaxFetchEvents;
-    //range[32,512]
-    u32 mMaxSendMsg;
 
     u32 mLinger;
     u32 mKeepAliveIdle;
@@ -74,11 +71,9 @@ public:
     u32 mRecieveCacheSize;
 
     //server
-    u32 mMaxContext; ///<max session on each epoll thread
-    u32 mMaxOnFly;   ///<max fly packets on each TCP
-    u32 mMaxPackets; ///<max packets hold by a server
-    u32 mMaxMessageSize;
-    //range[1000,60000]
+    u32 mMaxContext;        ///<max session on each epoll thread
+    u32 mMaxSpeed;          ///<max speed of server, bytes/second
+    //range[10,60000]
     u32 mPollTimeout; ///<in ms
     //range[1000,60000]
     u32 mSessionTimeout; ///<in ms

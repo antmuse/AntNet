@@ -106,7 +106,9 @@ enum EPollerEvent {
 class CEventPoller {
 public:
     ///SEvent layout must same as epoll_event's layout
-    //#pragma pack(1)
+#if defined(APP_PLATFORM_LINUX)
+#pragma pack(4)
+#endif
     struct SEvent {
         union UData {
             u32 mData32;
@@ -119,7 +121,9 @@ public:
             mEvent = msg;
         }
     };
-    //#pragma pack()
+#if defined(APP_PLATFORM_LINUX)
+#pragma pack()
+#endif
 
     CEventPoller();
 
@@ -127,9 +131,9 @@ public:
 
     static s32 getError();
 
-    s32 getEvent(SEvent& iEvent, u32 iTime);
+    u32 getEvent(SEvent& iEvent, u32 iTime);
 
-    s32 getEvents(SEvent* iEvent, u32 iSize, u32 iTime);
+    u32 getEvents(SEvent* iEvent, u32 iSize, u32 iTime);
 
     //EPOLL_CTL_ADD
     bool add(s32 fd, SEvent& iEvent);

@@ -9,7 +9,7 @@ namespace irr {
 enum ELogLevel {
     ELOG_DEBUG,
     ELOG_INFO,
-    ELOG_WARNING,
+    ELOG_WARN,
     ELOG_ERROR,
     ELOG_CRITICAL,
     ELOG_COUNT
@@ -18,8 +18,8 @@ enum ELogLevel {
 /// Contains strings for each log level to make them easier to print to a stream.
 const c8* const AppLogLevelNames[] = {
     "Debug",
-    "Information",
-    "Warning",
+    "Info",
+    "Warn",
     "Error",
     "Critical",
     0
@@ -27,12 +27,13 @@ const c8* const AppLogLevelNames[] = {
 
 const wchar_t* const AppWLogLevelNames[] = {
     L"Debug",
-    L"Information",
-    L"Warning",
+    L"Info",
+    L"Warn",
     L"Error",
     L"Critical",
     0
 };
+
 
 } //namespace irr
 

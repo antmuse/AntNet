@@ -216,10 +216,13 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\Core\CConsoleLogReceiver.cpp" />
     <ClCompile Include="..\..\..\Source\Core\CFileLogReceiver.cpp" />
+    <ClCompile Include="..\..\..\Source\Core\CFileWriter.cpp" />
+    <ClCompile Include="..\..\..\Source\Core\CHtmlLogReceiver.cpp" />
     <ClCompile Include="..\..\..\Source\Core\CMemoryHub.cpp" />
     <ClCompile Include="..\..\..\Source\Core\CQueue1Way.cpp" />
     <ClCompile Include="..\..\..\Source\Core\CQueue2Way.cpp" />
     <ClCompile Include="..\..\..\Source\Core\CQueueNode.cpp" />
+    <ClCompile Include="..\..\..\Source\Core\CSpeedLimiter.cpp" />
     <ClCompile Include="..\..\..\Source\Core\CStreamFile.cpp" />
     <ClCompile Include="..\..\..\Source\Core\CTimerWheel.cpp" />
     <ClCompile Include="..\..\..\Source\Core\IAppLogger.cpp" />

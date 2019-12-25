@@ -14,8 +14,9 @@
 
 #include "HConfig.h"
 #include <stdarg.h>
-#include "irrList.h"
+#include "irrArray.h"
 #include "HEngineLog.h"
+#include "CMutex.h"
 
 
 
@@ -127,12 +128,14 @@ protected:
     static c8 mTextBuffer[MAX_TEXT_BUFFER_SIZE];
     static wchar_t mTextBufferW[MAX_TEXT_BUFFER_SIZE];
     static ELogLevel mMinLogLevel;
-    static core::list<IAntLogReceiver*> mAllReceiver;
-    typedef core::list<IAntLogReceiver*>::Iterator CLogIterator;
+    static CMutex mMutex;
+    static core::array<IAntLogReceiver*> mAllReceiver;
 
 private:
     //ILogger* pIrrLogger;
     IAppLogger();
+    IAppLogger(IAppLogger& it) = delete;
+    IAppLogger& operator=(IAppLogger& it) = delete;
     virtual ~IAppLogger();
 };
 

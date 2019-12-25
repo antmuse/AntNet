@@ -19,8 +19,8 @@ class CConsoleLogReceiver : public IAntLogReceiver {
 public:
     CConsoleLogReceiver();
     ~CConsoleLogReceiver();
-    virtual bool log(ELogLevel iLevel, const c8* iSender, const c8* iMessage)override;
-    virtual bool log(ELogLevel iLevel, const wchar_t* iSender, const wchar_t* iMessage)override;
+    virtual bool log(ELogLevel iLevel, const c8* timestr, const c8* iSender, const c8* iMessage)override;
+    virtual bool log(ELogLevel iLevel, const wchar_t* timestr, const wchar_t* iSender, const wchar_t* iMessage)override;
 };
 
 

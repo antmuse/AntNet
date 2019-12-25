@@ -189,7 +189,7 @@ s64 IAppTimer::getRealTime() {
 #endif
 }
 
-void IAppTimer::getTimeAsString(s64 iTime, c8* cache, u32 max, c8* format) {
+u64 IAppTimer::getTimeAsString(s64 iTime, c8* cache, u32 max, c8* format) {
     struct tm timeinfo;
 #if defined(APP_PLATFORM_WINDOWS)
     localtime_s(&timeinfo, &iTime);
@@ -197,10 +197,10 @@ void IAppTimer::getTimeAsString(s64 iTime, c8* cache, u32 max, c8* format) {
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
     localtime_r(( time_t*) & iTime, &timeinfo);
 #endif
-    ::strftime(cache, max, format, &timeinfo);
+    return strftime(cache, max, format, &timeinfo);
 }
 
-void IAppTimer::getTimeAsString(c8* cache, u32 max, c8* format) {
+u64 IAppTimer::getTimeAsString(c8* cache, u32 max, c8* format) {
     s64 iTime = ::time(nullptr);
     struct tm timeinfo;
 #if defined(APP_PLATFORM_WINDOWS)
@@ -209,8 +209,33 @@ void IAppTimer::getTimeAsString(c8* cache, u32 max, c8* format) {
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
     localtime_r(( time_t*) & iTime, &timeinfo);
 #endif
-    ::strftime(cache, max, format, &timeinfo);
+    return strftime(cache, max, format, &timeinfo);
 }
+
+
+u64 IAppTimer::getTimeAsString(s64 iTime, wchar_t* cache, u32 max, wchar_t* format) {
+    struct tm timeinfo;
+#if defined(APP_PLATFORM_WINDOWS)
+    localtime_s(&timeinfo, &iTime);
+    //gmtime_s(&timeinfo, &rawtime);
+#elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
+    localtime_r(( time_t*) & iTime, &timeinfo);
+#endif
+    return wcsftime(cache, max, format, &timeinfo);
+}
+
+u64 IAppTimer::getTimeAsString(wchar_t* cache, u32 max, wchar_t* format) {
+    s64 iTime = ::time(nullptr);
+    struct tm timeinfo;
+#if defined(APP_PLATFORM_WINDOWS)
+    localtime_s(&timeinfo, &iTime);
+    //gmtime_s(&timeinfo, &rawtime);
+#elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
+    localtime_r(( time_t*) & iTime, &timeinfo);
+#endif
+    return wcsftime(cache, max, format, &timeinfo);
+}
+
 
 bool IAppTimer::isLeapYear(u32 iYear) {
     return ((0 == iYear % 4 && 0 != iYear % 100) || 0 == iYear % 400);

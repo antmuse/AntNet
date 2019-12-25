@@ -9,10 +9,26 @@ namespace irr {
 namespace net {
 
 
-CNetConfig::CNetConfig() {
-    ::memset(this, 0, sizeof(CNetConfig));
-    mReference = 1;
-    check();
+CNetConfig::CNetConfig() :
+    mReuse(false),
+    mReference(1),
+    mLinger(10),
+    mMaxPostAccept(10),
+    mMaxFetchEvents(128),
+    mKeepAliveIdle(30),
+    mKeepAliveInterval(5),
+    mKeepAliveMaxTick(3),
+    mSendTimeout(0),
+    mReceiveTimeout(0),
+    mSendCacheSize(0),
+    mRecieveCacheSize(0),
+    mMaxContext(1000),
+    mMaxSpeed(2 * 1024 * 1024),
+    mPollTimeout(10),
+    mSessionTimeout(20000),
+    mMaxWorkThread(3) {
+    //::memset(this, 0, sizeof(CNetConfig));
+    //check();
 }
 
 void CNetConfig::grab() {

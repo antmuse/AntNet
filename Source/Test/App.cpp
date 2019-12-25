@@ -283,7 +283,8 @@ void AppRunTimerWheel() {
 
 
 int main(int argc, char** argv) {
-    irr::IAppLogger::getInstance().addReceiver(irr::IAppLogger::ELRT_CONSOLE);
+    irr::IAppLogger::getInstance().addReceiver(
+        irr::IAppLogger::ELRT_CONSOLE | irr::IAppLogger::ELRT_FILE_TEXT);
     irr::u32 key = 1;
     while(key) {
         printf("@0 = Exit\n");

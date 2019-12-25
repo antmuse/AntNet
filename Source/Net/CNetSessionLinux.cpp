@@ -44,7 +44,7 @@ s32 CNetSession::postSend(CEventQueue::SNode* iNode) {
 
 
 s32 CNetSession::postReceive() {
-    APP_LOG(ELOG_ERROR, "CNetSession::postReceive", "ecode=%u", CNetSocket::getError());
+    //APP_LOG(ELOG_ERROR, "CNetSession::postReceive", "ecode=%u", CNetSocket::getError());
     const u32 bufsz = 1024 * 8;
     CEventQueue::SNode* nd = mQueueInput.create((u32)sizeof(SContextIO) + bufsz);
     nd->mEvent.mSessionID = getID();
@@ -52,8 +52,7 @@ s32 CNetSession::postReceive() {
     nd->mEvent.mType = ENET_RECEIVE;
     nd->mEvent.mInfo.mDataReceive.mSize = 0;
     nd->mEvent.mInfo.mDataReceive.mAllocatedSize = bufsz;
-    nd->mEvent.mInfo.mDataReceive.mBuffer
-        = reinterpret_cast<c8*>(nd + 1) + sizeof(SContextIO);
+    nd->mEvent.mInfo.mDataReceive.mBuffer = reinterpret_cast<c8*>(nd + 1) + sizeof(SContextIO);
 
     pushGlobalQueue(nd);
     return mCount;
@@ -133,7 +132,7 @@ s32 CNetSession::stepReceive(SContextIO& act) {
                 recved += step;
             } else {
                 ecode = mSocket.getError();
-                //TODO>>
+                //mSocket.close();
                 break;
             }
         }

@@ -73,7 +73,7 @@ s32 CNetSession::stepSend(SContextIO& act) {
     CEventQueue::SNode* nd = getEventNode(&act);
     if(0 == act.mBytes) {
         //CEventPoller::cancelIO(mSocket, 0);
-        APP_LOG(ELOG_WARNING, "CNetSession::stepSend",
+        IAppLogger::log(ELOG_ERROR, "CNetSession::stepSend",
             "quit on send: [%u] [ecode=%u]",
             mSocket.getValue(),
             CNetSocket::getError());
@@ -112,7 +112,7 @@ s32 CNetSession::postReceive() {
     if(mSocket.receive(act)) {
         return ++mCount;
     }
-    APP_LOG(ELOG_ERROR, "CNetSession::postReceive", "ecode=%u", CNetSocket::getError());
+    IAppLogger::log(ELOG_ERROR, "CNetSession::postReceive", "ecode=%u", CNetSocket::getError());
     nd->drop();
     return mCount;
 }
@@ -124,12 +124,12 @@ s32 CNetSession::stepReceive(SContextIO& act) {
     CEventQueue::SNode* nd = getEventNode(&act);
     if(0 == act.mBytes) {
         //CEventPoller::cancelIO(mSocket, 0);
-        APP_LOG(ELOG_INFO, "CNetSession::stepReceive",
-            "ID=%u,mCount=%u,remote[%s:%u]",
+        IAppLogger::log(ELOG_ERROR, "CNetSession::stepReceive",
+            "ID=%u,mCount=%u,remote[%s:%u],ecode=%d",
             mID,
             mCount,
             mAddressRemote.getIPString(),
-            mAddressRemote.getPort());
+            mAddressRemote.getPort(), CNetSocket::getError());
         nd->drop();
         return mCount;
     }
