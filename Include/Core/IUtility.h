@@ -30,7 +30,7 @@ too many digits to encode in an u32 then INT_MAX will be returned.
 inline u32 strtoul10(const wchar_t* in, const wchar_t** out = 0) {
     if(!in) {
         if(out)
-            *out = in;
+            * out = in;
         return 0;
     }
 
@@ -39,7 +39,7 @@ inline u32 strtoul10(const wchar_t* in, const wchar_t** out = 0) {
     while((*in >= L'0') && (*in <= L'9')) {
         const u32 tmp = (unsignedValue * 10) + (*in - L'0');
         if(tmp < unsignedValue) {
-            unsignedValue = (u32) 0xffffffff;
+            unsignedValue = (u32)0xffffffff;
             overflow = true;
         }
         if(!overflow)
@@ -48,7 +48,7 @@ inline u32 strtoul10(const wchar_t* in, const wchar_t** out = 0) {
     }
 
     if(out)
-        *out = in;
+        * out = in;
 
     return unsignedValue;
 }
@@ -67,7 +67,7 @@ returned.
 inline s32 strtol10(const wchar_t* in, const wchar_t** out = 0) {
     if(!in) {
         if(out)
-            *out = in;
+            * out = in;
         return 0;
     }
 
@@ -76,16 +76,16 @@ inline s32 strtol10(const wchar_t* in, const wchar_t** out = 0) {
         ++in;
 
     const u32 unsignedValue = strtoul10(in, out);
-    if(unsignedValue > (u32) INT_MAX) {
+    if(unsignedValue > (u32)INT_MAX) {
         if(negative)
-            return (s32) INT_MIN;
+            return (s32)INT_MIN;
         else
-            return (s32) INT_MAX;
+            return (s32)INT_MAX;
     } else {
         if(negative)
-            return -((s32) unsignedValue);
+            return -((s32)unsignedValue);
         else
-            return (s32) unsignedValue;
+            return (s32)unsignedValue;
     }
 }
 
@@ -103,7 +103,7 @@ sequence.
 inline f32 strtof10(const wchar_t* in, const wchar_t** out = 0) {
     if(!in) {
         if(out)
-            *out = in;
+            * out = in;
         return 0.f;
     }
 
@@ -122,19 +122,19 @@ inline f32 strtof10(const wchar_t* in, const wchar_t** out = 0) {
         ++in;
     }
 
-    f32 floatValue = (f32) intValue;
+    f32 floatValue = (f32)intValue;
 
     // If there are any digits left to parse, then we need to use
     // floating point arithmetic from here.
     while((*in >= L'0') && (*in <= L'9')) {
-        floatValue = (floatValue * 10.f) + (f32) (*in - L'0');
+        floatValue = (floatValue * 10.f) + (f32)(*in - L'0');
         ++in;
         if(floatValue > FLT_MAX) // Just give up.
             break;
     }
 
     if(out)
-        *out = in;
+        * out = in;
 
     return floatValue;
 }
@@ -151,7 +151,7 @@ character.
 inline const f32 AppStringToF32(const wchar_t* in, const wchar_t** out = 0) {
     if(!in) {
         if(out)
-            *out = in;
+            * out = in;
         return 0.f;
     }
     // Please run the regression test when making any modifications to this function.
@@ -173,11 +173,11 @@ inline const f32 AppStringToF32(const wchar_t* in, const wchar_t** out = 0) {
         // Assume that the exponent is a whole number.
         // strtol10() will deal with both + and - signs,
         // but calculate as f32 to prevent overflow at FLT_MAX
-        value *= powf(10.f, (f32) strtol10(in, &in));
+        value *= powf(10.f, (f32)strtol10(in, &in));
     }
 
     if(out)
-        *out = in;
+        * out = in;
 
     return negative ? -value : value;
 }
@@ -190,7 +190,7 @@ inline const f32 AppStringToF32(const wchar_t* in, const wchar_t** out = 0) {
  * @param div The divide char for break.
  * @return Number of copied.
  */
-static s32 AppCopyString(const wchar_t* pSrc, wchar_t* pDest, s32 maxLen, wchar_t div = 0) {
+static s32 AppCopyString(const wchar_t* pSrc, wchar_t* pDest, s32 maxLen, wchar_t div = L'\0') {
     --maxLen;//leave space for string_end '\0'
     if(pSrc == 0 || pDest == 0) {
         return 0;
@@ -200,9 +200,22 @@ static s32 AppCopyString(const wchar_t* pSrc, wchar_t* pDest, s32 maxLen, wchar_
         *pDest++ = *pSrc++;
         ++indx;
     }
-    *pDest = 0;
+    *pDest = L'\0';
     return indx;
 }
+static s32 AppCopyString(const c8* in, s32 inmax, wchar_t* out, s32 outmax) {
+    if(in == 0 || out == 0) {
+        return 0;
+    }
+    --outmax;//leave space for string_end '\0'
+    s32 inp = 0, outp = 0;
+    for(; inp < inmax && outp < outmax && '\0' != *in; ++outp, ++inp) {
+        *out++ = *in++;
+    }
+    *out = L'\0';
+    return outp;
+}
+
 
 static void AppStringSwapEndian(wchar_t* str, s32 len) {
     APP_ASSERT(str);
@@ -213,31 +226,31 @@ static void AppStringSwapEndian(wchar_t* str, s32 len) {
 
 
 APP_FORCE_INLINE static bool AppisSmallEndian() {
-    u16 it = 0xFF00;
-    u8* c = (u8*) (&it);
-    return ((c[0] == 0x00) && (c[1] == 0xFF));
+    const u16 it = 0xFF00;
+    //return ((c[0] == 0x00) && (c[1] == 0xFF));
+    return (0x00 == (*(u8*)(&it)));
 }
 
 
 /* encode 8 bits unsigned int */
 APP_FORCE_INLINE static c8* AppEncodeU8(const u8 c, c8* p) {
-    *(u8*) p++ = c;
+    *(u8*)p++ = c;
     return p;
 }
 
 /* decode 8 bits unsigned int */
-APP_FORCE_INLINE static const c8* AppDecodeU8(const c8* p, u8 *c) {
-    *c = *(u8*) p++;
+APP_FORCE_INLINE static const c8* AppDecodeU8(const c8* p, u8* c) {
+    *c = *(u8*)p++;
     return p;
 }
 
 /* encode 16 bits unsigned int (lsb) */
 APP_FORCE_INLINE static c8* AppEncodeU16(const u16 w, c8* p) {
 #ifdef APP_ENDIAN_BIG
-    *(u8*) (p + 0) = (w & 255);
-    *(u8*) (p + 1) = (w >> 8);
+    * (u8*)(p + 0) = (w & 255);
+    *(u8*)(p + 1) = (w >> 8);
 #else
-    *(u16*) (p) = w;
+    * (u16*)(p) = w;
 #endif
     p += 2;
     return p;
@@ -246,10 +259,10 @@ APP_FORCE_INLINE static c8* AppEncodeU16(const u16 w, c8* p) {
 /* decode 16 bits unsigned int (lsb) */
 APP_FORCE_INLINE static const c8* AppDecodeU16(const c8* p, u16* w) {
 #ifdef APP_ENDIAN_BIG
-    *w = *(const u8*) (p + 1);
-    *w = *(const u8*) (p + 0) + (*w << 8);
+    * w = *(const u8*)(p + 1);
+    *w = *(const u8*)(p + 0) + (*w << 8);
 #else
-    *w = *(const u16*) p;
+    * w = *(const u16*)p;
 #endif
     p += 2;
     return p;
@@ -258,12 +271,12 @@ APP_FORCE_INLINE static const c8* AppDecodeU16(const c8* p, u16* w) {
 /* encode 32 bits unsigned int (lsb) */
 APP_FORCE_INLINE static c8* AppEncodeU32(const u32 l, c8* p) {
 #ifdef APP_ENDIAN_BIG
-    *(u8*) (p + 0) = (u8) ((l >> 0) & 0xff);
-    *(u8*) (p + 1) = (u8) ((l >> 8) & 0xff);
-    *(u8*) (p + 2) = (u8) ((l >> 16) & 0xff);
-    *(u8*) (p + 3) = (u8) ((l >> 24) & 0xff);
+    * (u8*)(p + 0) = (u8)((l >> 0) & 0xff);
+    *(u8*)(p + 1) = (u8)((l >> 8) & 0xff);
+    *(u8*)(p + 2) = (u8)((l >> 16) & 0xff);
+    *(u8*)(p + 3) = (u8)((l >> 24) & 0xff);
 #else
-    *(u32*) p = l;
+    * (u32*)p = l;
 #endif
     p += 4;
     return p;
@@ -272,12 +285,12 @@ APP_FORCE_INLINE static c8* AppEncodeU32(const u32 l, c8* p) {
 /* decode 32 bits unsigned int (lsb) */
 APP_FORCE_INLINE static const c8* AppDecodeU32(const c8* p, u32* l) {
 #ifdef APP_ENDIAN_BIG
-    *l = *(const u8*) (p + 3);
-    *l = *(const u8*) (p + 2) + (*l << 8);
-    *l = *(const u8*) (p + 1) + (*l << 8);
-    *l = *(const u8*) (p + 0) + (*l << 8);
+    * l = *(const u8*)(p + 3);
+    *l = *(const u8*)(p + 2) + (*l << 8);
+    *l = *(const u8*)(p + 1) + (*l << 8);
+    *l = *(const u8*)(p + 0) + (*l << 8);
 #else 
-    *l = *(const u32*) p;
+    * l = *(const u32*)p;
 #endif
     p += 4;
     return p;
@@ -302,13 +315,14 @@ void AppPrintToHexText(const void* iData, u32 iSize);
 
 /**
 *@brief Convert a buffer to a 16 hexadecimal string.
-*@note iSize >= iDataSize*2+1
-*@param iData The buffer to read from.
-*@param iDataSize  The length of read buffer.
-*@param iResult The cache to write in, cache length must >= (read buffer length * 2 + 1).
-*@param iSize  The length of write cache.
+*@note outLen >= inSize*2+1
+*@param in The buffer to read from.
+*@param inSize  The length of read buffer.
+*@param out The cache to write in, cache length must >= (read buffer length * 2 + 1).
+*@param outLen  The length of write cache.
 */
-u32 AppConvertToHexString(const u8* iData, u32 iDataSize, c8* iResult, u32 iSize);
+u32 AppConvertToHexString(const void* in, u32 inSize, c8* out, u32 outLen);
+u32 AppConvertToHexString(const void* in, u32 inSize, wchar_t* out, u32 outLen);
 
 /**
 *@brief Convert a 16 hexadecimal string to a buffer.
@@ -342,7 +356,7 @@ APP_FORCE_INLINE static u8 AppConvertToU8(c8 ch) {
 const c8* AppGoNextLine(const c8* iStart, const c8* const iEnd);
 
 // combination of goNextWord followed by copyWord
-const c8* AppGoAndCopyNextWord(c8* pOutBuf, const c8* iStart, u32 outBufLength, const c8 * const iEnd, bool acrossNewlines = false);
+const c8* AppGoAndCopyNextWord(c8* pOutBuf, const c8* iStart, u32 outBufLength, const c8* const iEnd, bool acrossNewlines = false);
 
 // returns a pointer to the first printable character after the first non-printable
 const c8* AppGoNextWord(const c8* iStart, const c8* const iEnd, bool acrossNewlines = true);
@@ -373,7 +387,18 @@ APP_INLINE static bool AppCharEquals(const c8 in, const c8 smallChar) {
     return ((in == smallChar) || (in == (smallChar - 32)));
 }
 
+static APP_FORCE_INLINE s32 AppToUpper(s32 ch) {
+    return (ch >= 'a' && ch <= 'z') ? (ch - ('a' - 'A')) : ch;
+}
 
+static void AppToUpper(c8* iSrc, u64 size) {
+    for(u64 i = 0; i < size; ++i) {
+        if(*(iSrc) >= 'a' && *(iSrc) <= 'z') {
+            *(iSrc) -= 32;
+        }
+        ++iSrc;
+    }
+}
 static void AppToUpper(c8* iSrc) {
     while(*iSrc) {
         if(*iSrc >= 'a' && *iSrc <= 'z') {
@@ -381,6 +406,12 @@ static void AppToUpper(c8* iSrc) {
         }
         ++iSrc;
     }
+}
+
+/* Fast tolower() alike function that does not care about locale
+ * but just returns a-z insetad of A-Z. */
+static APP_FORCE_INLINE s32 AppToLower(s32 ch) {
+    return (ch >= 'A' && ch <= 'Z') ? (ch + ('a' - 'A')) : ch;
 }
 
 
@@ -394,8 +425,8 @@ static void AppToLower(c8* iSrc) {
 }
 
 
-static void AppToLower(c8* iSrc, u32 size) {
-    for(u32 i = 0; i < size; ++i) {
+static void AppToLower(c8* iSrc, u64 size) {
+    for(u64 i = 0; i < size; ++i) {
         if(*(iSrc) >= 'A' && *(iSrc) <= 'Z') {
             *(iSrc) += 32;
         }
@@ -425,6 +456,51 @@ static s32 AppCopyCharN(const c8* pSrc, c8* pDest, s32 maxLen) {
     *pDest = 0;
     return indx;
 }
+
+//#define APP_USE_ICONV
+#if defined(APP_USE_ICONV)
+/**
+ *@brief The tool class for engine.
+ *@class IUtility
+ */
+class IUtility {
+public:
+    static IUtility& getInstance();
+
+    /**
+    * @brief Convert a default string to wstring.
+    * @in String encoded with the default encoding of the operating system.
+    * @inbytesleft length of the cache \p in.
+    * @out The cache to store the result wchar_t string.
+    * @outbytesleft length of the cache \p out.
+    * @return wstring length if success, else <=0;
+    */
+    static s32 convert2Wchar(const c8* in, size_t inbytesleft, wchar_t* out, size_t outbytesleft);
+
+    /**
+    * @brief convert default str to utf8.
+    * @in String encoded with the default encoding of the operating system.
+    */
+    static s32 convert2UTF8(const c8* in, size_t inbytesleft, c8* out, size_t outbytesleft);
+
+    static s32 convertWchar2UTF8(const wchar_t* in, size_t inbytesleft, c8* out, size_t outbytesleft);
+
+    static s32 convertGBK2UTF8(const c8* in, size_t inbytesleft, c8* out, size_t outbytesleft);
+    static s32 convertGBK2Wchar(const c8* in, size_t inbytesleft, wchar_t* out, size_t outbytesleft);
+
+private:
+    static void* m2UTF8;        //default to utf8
+    static void* m2Wchar;       //default to wchar
+    static void* mGBK2Wchar;    //gbk to utf16
+    static void* mGBK2UTF8;     //gbk to utf8
+    static void* mWchar2UTF8;   //wchar to utf8
+    static void* mUTF8ToWchar;  //utf8 to wchar
+    IUtility();
+    ~IUtility();
+    IUtility(const IUtility& it) = delete;
+    IUtility& operator=(const IUtility& it) = delete;
+};
+#endif //APP_USE_ICONV
 
 
 } //namespace core

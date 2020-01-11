@@ -15,6 +15,8 @@ public:
 
     ~CFileWriter();
 
+    void close();
+
     //! returns if file is open
     inline bool isOpen() const {
         return mFile != 0;
@@ -40,7 +42,7 @@ public:
     s64 getPos() const;
 
 
-    void openFile(const io::path& fileName, bool append);
+    bool openFile(const io::path& fileName, bool append);
 
 
     const io::path& getFileName() const {
@@ -55,6 +57,10 @@ protected:
     io::path mFilename;
     FILE* mFile;
     s64 mFileSize;
+
+private:
+    CFileWriter(const CFileWriter&) = delete;
+    CFileWriter& operator=(const CFileWriter&) = delete;
 };
 
 

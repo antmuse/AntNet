@@ -14,6 +14,13 @@
 namespace irr {
 
 CEventPoller::CEventPoller() {
+    APP_ASSERT(sizeof(SEvent::mKey) == sizeof(ULONG_PTR));
+    APP_ASSERT(sizeof(OVERLAPPED_ENTRY) == sizeof(SEvent));
+    APP_ASSERT(APP_OFFSET(SEvent, mBytes) == APP_OFFSET(OVERLAPPED_ENTRY, dwNumberOfBytesTransferred));
+    APP_ASSERT(APP_OFFSET(SEvent, mInternal) == APP_OFFSET(OVERLAPPED_ENTRY, Internal));
+    APP_ASSERT(APP_OFFSET(SEvent, mKey) == APP_OFFSET(OVERLAPPED_ENTRY, lpCompletionKey));
+    APP_ASSERT(APP_OFFSET(SEvent, mPointer) == APP_OFFSET(OVERLAPPED_ENTRY, lpOverlapped));
+
     mHandle = ::CreateIoCompletionPort(INVALID_HANDLE_VALUE, 0, 0, 0);
 }
 
@@ -34,57 +41,48 @@ s32 CEventPoller::getError() {
 }
 
 
-bool CEventPoller::getEvent(SEvent& iEvent, u32 iTime) {
-    APP_ASSERT(sizeof(u32) == sizeof(DWORD));
-    APP_ASSERT(sizeof(iEvent.mKey) == sizeof(ULONG_PTR));
-
+s32 CEventPoller::getEvent(SEvent& iEvent, u32 iTime) {
     if(TRUE == ::GetQueuedCompletionStatus(
         mHandle,
-        ( DWORD*) (&iEvent.mBytes),
-        ( PULONG_PTR) (&iEvent.mKey),
-        ( LPOVERLAPPED*) (&iEvent.mPointer),
+        (DWORD*)(&iEvent.mBytes),
+        (PULONG_PTR)(&iEvent.mKey),
+        (LPOVERLAPPED*)(&iEvent.mPointer),
         iTime
         )) {
-        return true;
+        return 1;
     }
 
-    return false;
+    return -1;
 }
 
 
-u32 CEventPoller::getEvents(SEvent* iEvent, u32 iSize, u32 iTime) {
-    APP_ASSERT(sizeof(u32) == sizeof(ULONG));
-    APP_ASSERT(sizeof(OVERLAPPED_ENTRY) == sizeof(SEvent));
-    APP_ASSERT(APP_GET_OFFSET(iEvent, mBytes) == APP_OFFSET(OVERLAPPED_ENTRY, dwNumberOfBytesTransferred));
-    APP_ASSERT(APP_GET_OFFSET(iEvent, mInternal) == APP_OFFSET(OVERLAPPED_ENTRY, Internal));
-    APP_ASSERT(APP_GET_OFFSET(iEvent, mKey) == APP_OFFSET(OVERLAPPED_ENTRY, lpCompletionKey));
-    APP_ASSERT(APP_GET_OFFSET(iEvent, mPointer) == APP_OFFSET(OVERLAPPED_ENTRY, lpOverlapped));
+s32 CEventPoller::getEvents(SEvent* iEvent, s32 iSize, u32 iTime) {
+    //APP_ASSERT(APP_GET_OFFSET(iEvent, mBytes) == APP_OFFSET(OVERLAPPED_ENTRY, dwNumberOfBytesTransferred));
+    //APP_ASSERT(APP_GET_OFFSET(iEvent, mInternal) == APP_OFFSET(OVERLAPPED_ENTRY, Internal));
+    //APP_ASSERT(APP_GET_OFFSET(iEvent, mKey) == APP_OFFSET(OVERLAPPED_ENTRY, lpCompletionKey));
+    //APP_ASSERT(APP_GET_OFFSET(iEvent, mPointer) == APP_OFFSET(OVERLAPPED_ENTRY, lpOverlapped));
 
     u32 retSize = 0;
     if(TRUE == ::GetQueuedCompletionStatusEx(
         mHandle,
-        ( OVERLAPPED_ENTRY*) iEvent,
+        (OVERLAPPED_ENTRY*)iEvent,
         iSize,
-        ( DWORD*) & retSize,
+        (DWORD*)& retSize,
         iTime,
         FALSE)) {
         return retSize;
     }
 
-    return 0;
+    return -1;
 }
 
 bool CEventPoller::add(const net::CNetSocket& iSock, void* iKey) {
-    return add(( void*) iSock.getValue(), iKey);
+    return add((void*)iSock.getValue(), iKey);
 }
 
 
 bool CEventPoller::add(void* fd, void* key) {
-    return (0 != ::CreateIoCompletionPort(fd,
-        mHandle,
-        ( ULONG_PTR) key,
-        0
-        ));
+    return (0 != ::CreateIoCompletionPort(fd, mHandle, (ULONG_PTR)key, 0));
 }
 
 bool CEventPoller::cancelIO(void* handle) {
@@ -125,7 +123,7 @@ bool CEventPoller::postEvent(SEvent& iEvent) {
     return (TRUE == ::PostQueuedCompletionStatus(
         mHandle,
         iEvent.mBytes,
-        ( ULONG_PTR) iEvent.mKey,
+        (ULONG_PTR)iEvent.mKey,
         LPOVERLAPPED(iEvent.mPointer)
         ));
 }
@@ -140,6 +138,10 @@ bool CEventPoller::postEvent(SEvent& iEvent) {
 namespace irr {
 
 CEventPoller::CEventPoller() {
+    APP_ASSERT(sizeof(SEvent) == sizeof(epoll_event));
+    APP_ASSERT(APP_OFFSET(SEvent, mEvent) == APP_OFFSET(epoll_event, events));
+    APP_ASSERT(APP_OFFSET(SEvent, mData) == APP_OFFSET(epoll_event, data));
+
     mEpollFD = ::epoll_create(0x7ffffff);
     bool ret = mSocketPair.open();
     APP_ASSERT(ret);
@@ -155,16 +157,13 @@ s32 CEventPoller::getError() {
     return errno;
 }
 
-u32 CEventPoller::getEvent(SEvent& iEvent, u32 iTime) {
-    return ::epoll_wait(mEpollFD, ( epoll_event*) (&iEvent), 1, iTime);
+s32 CEventPoller::getEvent(SEvent& iEvent, u32 iTime) {
+    return ::epoll_wait(mEpollFD, (epoll_event*)(&iEvent), 1, iTime);
 }
 
 
-u32 CEventPoller::getEvents(SEvent* iEvent, u32 iSize, u32 iTime) {
-    APP_ASSERT(sizeof(*iEvent) == sizeof(epoll_event));
-    APP_ASSERT(APP_GET_OFFSET(iEvent, mEvent) == APP_OFFSET(epoll_event, events));
-    APP_ASSERT(APP_GET_OFFSET(iEvent, mData) == APP_OFFSET(epoll_event, data));
-    s32 ret = ::epoll_wait(mEpollFD, ( epoll_event*) iEvent, iSize, iTime);
+s32 CEventPoller::getEvents(SEvent* iEvent, s32 iSize, u32 iTime) {
+    s32 ret = ::epoll_wait(mEpollFD, (epoll_event*)iEvent, iSize, iTime);
     return (ret > 0 ? ret : 0);
 }
 
@@ -176,11 +175,7 @@ bool CEventPoller::add(s32 fd, SEvent& iEvent) {
     /*epoll_event ev;
     ev.events = 0;
     ev.data.ptr = iEvent.mData.mPointer;*/
-    APP_ASSERT(sizeof(iEvent) == sizeof(epoll_event));
-    //APP_ASSERT(APP_GET_OFFSET(&iEvent, mEvent) == APP_OFFSET(epoll_event, events));
-    //APP_ASSERT(APP_GET_OFFSET(&iEvent, mData) == APP_OFFSET(epoll_event, data));
-
-    return 0 == ::epoll_ctl(mEpollFD, EPOLL_CTL_ADD, fd, ( epoll_event*) (&iEvent));
+    return 0 == ::epoll_ctl(mEpollFD, EPOLL_CTL_ADD, fd, (epoll_event*)(&iEvent));
 }
 
 bool CEventPoller::remove(const net::CNetSocket& iSock) {
@@ -201,7 +196,7 @@ bool CEventPoller::modify(const net::CNetSocket& iSock, SEvent& iEvent) {
 }
 
 bool CEventPoller::modify(s32 fd, SEvent& iEvent) {
-    return 0 == ::epoll_ctl(mEpollFD, EPOLL_CTL_MOD, fd, ( epoll_event*) (&iEvent));
+    return 0 == ::epoll_ctl(mEpollFD, EPOLL_CTL_MOD, fd, (epoll_event*)(&iEvent));
 }
 
 

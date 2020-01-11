@@ -52,6 +52,13 @@ void CBufferQueue::clear() {
     mTail = 0;
 }
 
+CBufferQueue::SBuffer* CBufferQueue::lockPick() {
+    CAutoSpinlock ak(mLock);
+    CBufferQueue::SBuffer* ret = mHead;
+    return ret;
+}
+
+
 CBufferQueue::SBuffer* CBufferQueue::pop() {
     CBufferQueue::SBuffer* ret = mHead;
     if(ret) {

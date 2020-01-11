@@ -37,9 +37,15 @@ public:
 
     void close();
 
-    bool getEvent(SEvent& iEvent, u32 time);
+    /**
+    * @return 1 if success or timeout, else -1
+    */
+    s32 getEvent(SEvent& iEvent, u32 time);
 
-    u32 getEvents(SEvent* iEvent, u32 iSize, u32 iTime);
+    /**
+    * @return count of launched events if success, else -1
+    */
+    s32 getEvents(SEvent* iEvent, s32 iSize, u32 iTime);
 
     bool add(void* fd, void* key);
 
@@ -131,9 +137,15 @@ public:
 
     static s32 getError();
 
-    u32 getEvent(SEvent& iEvent, u32 iTime);
+    /**
+    * @return count of launched events if success, or 0 if timeout, else -1
+    */
+    s32 getEvent(SEvent& iEvent, u32 iTime);
 
-    u32 getEvents(SEvent* iEvent, u32 iSize, u32 iTime);
+    /**
+    * @return count of launched events if success, or 0 if timeout, else -1
+    */
+    s32 getEvents(SEvent* iEvent, s32 iSize, u32 iTime);
 
     //EPOLL_CTL_ADD
     bool add(s32 fd, SEvent& iEvent);

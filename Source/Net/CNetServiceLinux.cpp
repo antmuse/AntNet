@@ -13,11 +13,11 @@ void CNetServiceTCP::run() {
     const u64 tmgap = mWheel.getInterval();
     u64 lastshow = mCurrentTime;
     CNetSocket sock(mPoller.getSocketPair().getSocketA());
-    const u32 maxe = mConfig->mMaxFetchEvents;
+    const s32 maxe = mConfig->mMaxFetchEvents;
     CEventPoller::SEvent* iEvent = new CEventPoller::SEvent[maxe];
     CNetSession* iContext;
     u64 last = mCurrentTime;
-    u32 gotsz = 0;
+    s32 gotsz = 0;
     mWheel.setCurrent(mCurrentTime);
     u32 action;
     for(; mRunning; ) {
@@ -28,13 +28,14 @@ void CNetServiceTCP::run() {
                 s32 ret = 1;
                 if(iEvent[i].mData.mData32 < ENET_SESSION_MASK) {
                     iContext = mSessionPool.getSession(iEvent[i].mData.mData32);
-                    //mTotalReceived += iEvent[i].mBytes;
-                    if((EPOLLIN | EPOLLERR) & iEvent[i].mEvent) {
+                    if(EPOLLIN & iEvent[i].mEvent) {
                         ret = iContext->postReceive();
-                    } else if((EPOLLOUT) & iEvent[i].mEvent) {
-                        ret = iContext->postSend(nullptr);
-                    } else {
-
+                    }
+                    if(EPOLLOUT & iEvent[i].mEvent) {
+                        ret = iContext->postSend();
+                    }
+                    if(EPOLLERR & iEvent[i].mEvent) {
+                        ret = iContext->postDisconnect();
                     }
                 } else {
                     u32 mask;
@@ -81,14 +82,7 @@ void CNetServiceTCP::run() {
                 last = mCurrentTime;
                 mWheel.update(mCurrentTime);
             }
-        } else {//poller error
-            const s32 pcode = mPoller.getError();
-            switch(pcode) {
-            case EINTR://epoll被信号中断
-                break;
-            default:
-                break;
-            }
+        } else if(0 == gotsz) {
             mCurrentTime = IAppTimer::getTime();
             mWheel.update(mCurrentTime);
             last = mCurrentTime;
@@ -98,6 +92,16 @@ void CNetServiceTCP::run() {
                     mSessionPool.getActiveCount(), mSessionPool.getMaxContext(),
                     mClosedSocket, mCreatedSocket);
                 lastshow = mCurrentTime;
+            }
+            APP_LOG(ELOG_DEBUG, "CNetServiceTCP::run", "epoll wait timeout");
+        } else {
+            const s32 pcode = mPoller.getError();
+            IAppLogger::log(ELOG_ERROR, "CNetServiceTCP::run", "epoll wait ecode=[%d]", pcode);
+            switch(pcode) {
+            case EINTR://epoll被信号中断
+                break;
+            default:
+                break;
             }
             //clearError(iContext, iAction);
             continue;

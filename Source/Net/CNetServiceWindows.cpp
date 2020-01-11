@@ -10,14 +10,14 @@ namespace irr {
 namespace net {
 
 void CNetServiceTCP::run() {
-    const u32 maxe = mConfig->mMaxFetchEvents;
+    const s32 maxe = mConfig->mMaxFetchEvents;
     CEventPoller::SEvent* iEvent = new CEventPoller::SEvent[maxe];
     CNetSession* iContext;
     SContextIO* iAction = 0;
     const u64 tmgap = mWheel.getInterval();
     u64 lastshow = mCurrentTime;
     u64 last = mCurrentTime;
-    u32 gotsz = 0;
+    s32 gotsz = 0;
     mWheel.setCurrent(mCurrentTime);
     u32 action;
     s32 ret;

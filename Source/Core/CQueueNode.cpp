@@ -2,28 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "HMemoryLeakCheck.h"
-
-
 namespace irr {
-
-CQueueSingleNode* CQueueSingleNode::createNode(u32 iSize, AppMallocFunction iMalloc) {
-    iSize += sizeof(CQueueSingleNode);
-    CQueueSingleNode* node = (CQueueSingleNode*) (iMalloc ? iMalloc(iSize) : malloc(iSize));
-    node->mNext = 0;
-    return node;
-}
-
-void CQueueSingleNode::deleteNode(CQueueSingleNode* iNode, AppFreeFunction iFree) {
-    APP_ASSERT(iNode);
-    iFree ? iFree((void*) iNode) : free((void*) iNode);
-}
-
-
-
-
-
-
 /////////////////////SQueueRingFreelock/////////////////////
 void SQueueRingFreelock::init(s32 size) {
     //APP_ASSERT(size>sizeof(SQueueRingFreelock));
@@ -34,78 +13,24 @@ void SQueueRingFreelock::init(s32 size) {
 }
 
 
-SQueueRingFreelock* SQueueRingFreelock::getNext() const {
-    return (SQueueRingFreelock*) mQueueNode.getNext();
-}
-
-
-SQueueRingFreelock* SQueueRingFreelock::getPrevious() const {
-    return (SQueueRingFreelock*) mQueueNode.getPrevious();
-}
-
-
-void SQueueRingFreelock::delink() {
-    mQueueNode.delink();
-}
-
-
-void SQueueRingFreelock::pushBack(SQueueRingFreelock* it) {
-    mQueueNode.pushBack(&it->mQueueNode);
-}
-
-
-void SQueueRingFreelock::pushFront(SQueueRingFreelock* it) {
-    mQueueNode.pushFront(&it->mQueueNode);
-}
-
-
-
-bool SQueueRingFreelock::isEmpty() const {
-    return mQueueNode.isEmpty();
-}
-
-
-
-
-
-
-
 /////////////////////CQueueNode/////////////////////
-CQueueNode::CQueueNode() : mNext(this), mPrevious(this) {
+CQueueNode* CQueueNode::getNode(const void* value) {
+    return  (CQueueNode*) (((s8*) value) - sizeof(CQueueNode));
 }
 
-
-CQueueNode::~CQueueNode() {
+CQueueNode* CQueueNode::createNode(u32 iSize/* = 0*/, AppMallocFunction iMalloc/* = 0*/) {
+    iSize += sizeof(CQueueNode);
+    CQueueNode* node = (CQueueNode*) (iMalloc ? iMalloc(iSize) : malloc(iSize));
+    node->init();
+    return node;
 }
 
-
-CQueueNode* CQueueNode::getNext() const {
-    return mNext;
+void CQueueNode::deleteNode(CQueueNode* iNode, AppFreeFunction iFree/* = 0*/) {
+    APP_ASSERT(iNode);
+    iFree ? iFree((void*) iNode) : free((void*) iNode);
 }
 
-
-CQueueNode* CQueueNode::getPrevious() const {
-    return mPrevious;
-}
-
-
-c8* CQueueNode::getValue() const {
-    return  ((c8*) this) + sizeof(CQueueNode);
-}
-
-
-void CQueueNode::init() {
-    mNext = this;
-    mPrevious = this;
-}
-
-
-bool CQueueNode::isEmpty() const {
-    return mNext == this;
-}
-
-
-void CQueueNode::clear(AppFreeFunction iFree /*= 0*/) {
+void CQueueNode::clear(AppFreeFunction iFree/* = nullptr*/) {
     CQueueNode* node;
     while(!isEmpty()) {
         node = mNext;
@@ -113,7 +38,6 @@ void CQueueNode::clear(AppFreeFunction iFree /*= 0*/) {
         deleteNode(node, iFree);
     }
 }
-
 
 void CQueueNode::delink() {
     if(mNext) {
@@ -139,14 +63,12 @@ void CQueueNode::splitAndJoin(CQueueNode& newHead) {
     init();
 }
 
-
 void CQueueNode::pushBack(CQueueNode& it) {
     it.mPrevious = mPrevious;
     it.mNext = this;
     mPrevious->mNext = &it;
     mPrevious = &it;
 }
-
 
 void CQueueNode::pushFront(CQueueNode& it) {
     it.mPrevious = this;
@@ -155,25 +77,31 @@ void CQueueNode::pushFront(CQueueNode& it) {
     mNext = &it;
 }
 
-/*
-void CQueueNode::setAllocator(AppMallocFunction iMalloc, AppFreeFunction iFree){
-mMallocHook = iMalloc;
-mFreeHook = iFree;
-}
-*/
-
-
-CQueueNode* CQueueNode::createNode(u32 iSize/* = 0*/, AppMallocFunction iMalloc/* = 0*/) {
-    iSize += sizeof(CQueueNode);
-    CQueueNode* node = (CQueueNode*) (iMalloc ? iMalloc(iSize) : malloc(iSize));
-    node->init();
-    return node;
+CQueueNode::CQueueNode() : mNext(this), mPrevious(this) {
 }
 
+CQueueNode::~CQueueNode() {
+}
 
-void CQueueNode::deleteNode(CQueueNode* iNode, AppFreeFunction iFree/* = 0*/) {
-    APP_ASSERT(iNode);
-    iFree ? iFree((void*) iNode) : free((void*) iNode);
+CQueueNode* CQueueNode::getNext() const {
+    return mNext;
+}
+
+CQueueNode* CQueueNode::getPrevious() const {
+    return mPrevious;
+}
+
+c8* CQueueNode::getValue() const {
+    return  ((c8*) this) + sizeof(CQueueNode);
+}
+
+void CQueueNode::init() {
+    mNext = this;
+    mPrevious = this;
+}
+
+bool CQueueNode::isEmpty() const {
+    return mNext == this;
 }
 
 } //namespace irr 

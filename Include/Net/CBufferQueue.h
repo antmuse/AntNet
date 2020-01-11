@@ -145,6 +145,12 @@ public:
         return pop();
     }
 
+    SNode* lockPick() {
+        CAutoSpinlock ak(mLock);
+        CQueueSingleNode* ret = mHead;
+        return reinterpret_cast<SNode*>(ret);
+    }
+
     SNode* create(u32 size) {
         CMemoryHub* hub = mMemHub;
         SNode* ret = reinterpret_cast<SNode*>(hub->allocate(sizeof(SNode) + size, sizeof(void*)));
@@ -206,7 +212,9 @@ public:
     SBuffer* lockPop() {
         CAutoSpinlock ak(mLock);
         return pop();
-    }
+    };
+
+    SBuffer* lockPick();
 
     SBuffer* createBuffer(u32 size, u16 sessionMax);
 

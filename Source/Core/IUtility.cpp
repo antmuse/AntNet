@@ -1,6 +1,9 @@
 #include "IUtility.h"
 #include <stdio.h>
-//#include "irrMath.h"
+
+#if defined(APP_USE_ICONV)
+#include "iconv.h"
+#endif
 
 /*
 #if defined(APP_PLATFORM_WINDOWS) && defined(_MSC_VER) && (_MSC_VER > 1298)
@@ -44,16 +47,139 @@
 namespace irr {
 namespace core {
 
-u32 AppConvertToHexString(const u8* iData, u32 iDataSize, c8* iResult, u32 iSize) {
-    if(iSize < iDataSize * 2 + 1) {
-        return 0;
+core::stringw APP_LOCALE_DECIMAL_POINTS(L".");
+
+
+#if defined(APP_USE_ICONV)
+
+void* IUtility::m2Wchar = ((iconv_t)-1);
+void* IUtility::m2UTF8 = ((iconv_t)-1);
+void* IUtility::mWchar2UTF8 = ((iconv_t)-1);
+void* IUtility::mUTF8ToWchar = ((iconv_t)-1);
+void* IUtility::mGBK2UTF8 = ((iconv_t)-1);
+void* IUtility::mGBK2Wchar = ((iconv_t)-1);
+
+
+IUtility& IUtility::getInstance() {
+    static IUtility it;
+    return it;
+}
+
+
+IUtility::IUtility() {
+#if defined(APP_PLATFORM_ANDROID)|| defined(APP_PLATFORM_LINUX)
+    IUtility::m2Wchar = iconv_open("UCS-4-INTERNAL//IGNORE", "");
+    IUtility::mGBK2Wchar = iconv_open("UCS-4-INTERNAL", "GB18030");
+    IUtility::mWchar2UTF8 = iconv_open("utf-8", "UCS-4-INTERNAL");
+    IUtility::mUTF8ToWchar = iconv_open("UCS-4-INTERNAL", "utf-8");
+#elif defined(APP_PLATFORM_WINDOWS)
+    IUtility::m2Wchar = iconv_open("UCS-2-INTERNAL", "");
+    IUtility::mWchar2UTF8 = iconv_open("utf-8", "UCS-2-INTERNAL");
+    IUtility::mUTF8ToWchar = iconv_open("UCS-2-INTERNAL", "utf-8");
+    IUtility::mGBK2Wchar = iconv_open("UCS-2-INTERNAL", "GB18030");
+#endif
+    IUtility::m2UTF8 = iconv_open("utf-8", "");
+    IUtility::mGBK2UTF8 = iconv_open("utf-8", "GB18030");
+    APP_ASSERT(m2Wchar != ((libiconv_t)-1));
+    APP_ASSERT(m2UTF8 != ((libiconv_t)-1));
+    APP_ASSERT(mWchar2UTF8 != ((libiconv_t)-1));
+    APP_ASSERT(mUTF8ToWchar != ((libiconv_t)-1));
+    APP_ASSERT(mGBK2UTF8 != ((libiconv_t)-1));
+    APP_ASSERT(mGBK2Wchar != ((libiconv_t)-1));
+}
+
+
+IUtility::~IUtility() {
+    iconv_close(m2Wchar);
+    iconv_close(m2UTF8);
+    iconv_close(mUTF8ToWchar);
+    iconv_close(mWchar2UTF8);
+    iconv_close(mGBK2UTF8);
+    iconv_close(mGBK2Wchar);
+}
+
+
+s32 IUtility::convert2Wchar(const c8* in, size_t inbytesleft, wchar_t* out, size_t outbytesleft) {
+    APP_ASSERT(in && out);
+    s32 ret = 0;
+    c8* p_out = (c8*)out;
+    outbytesleft = (outbytesleft - 1) << 1;//sizeof(wchar_t)=2 and reserve 1 for L'\0'
+    ret = (s32)iconv(m2Wchar, &in, &inbytesleft, &p_out, &outbytesleft);
+    *((wchar_t*)p_out) = L'\0';
+    APP_ASSERT(0 == inbytesleft);
+    return (s32)(0 == ret ? ((p_out - ((c8*)out)) >> 1) : 0);
+}
+
+s32 IUtility::convert2UTF8(const c8* in, size_t inbytesleft, c8* out, size_t outbytesleft) {
+    APP_ASSERT(in && out);
+    c8* p_out = out;
+    outbytesleft = (outbytesleft - 1);//reserve 1 for '\0'
+    s32 ret = (s32)iconv(m2UTF8, &in, &inbytesleft, &p_out, &outbytesleft);
+    *p_out = '\0';
+    APP_ASSERT(0 == inbytesleft);
+    return (s32)(0 == ret ? (p_out - out) : 0);
+}
+
+s32 IUtility::convertGBK2UTF8(const c8* in, size_t inbytesleft, c8* out, size_t outbytesleft) {
+    APP_ASSERT(in && out);
+    c8* p_out = out;
+    outbytesleft = (outbytesleft - 1);//reserve 1 for '\0'
+    s32 ret = (s32)iconv(mGBK2UTF8, &in, &inbytesleft, &p_out, &outbytesleft);
+    *p_out = '\0';
+    APP_ASSERT(0 == inbytesleft);
+    return (s32)(0 == ret ? (p_out - out) : 0);
+}
+
+s32 IUtility::convertGBK2Wchar(const c8* pChars, size_t inbytesleft, wchar_t* out, size_t outbytesleft) {
+    outbytesleft = (outbytesleft - 1) << 1;//sizeof(wchar_t)=2 and reserve 1 for L'\0'
+    c8* p_out = (c8*)out;
+    size_t ret = iconv(mGBK2Wchar, &pChars, &inbytesleft, &p_out, &outbytesleft);
+    *((wchar_t*)p_out) = L'\0';
+    APP_ASSERT(0 == inbytesleft);
+    return (s32)(0 == ret ? ((p_out - ((c8*)out)) >> 1) : 0);
+}
+
+
+s32 IUtility::convertWchar2UTF8(const wchar_t* in, size_t inbytesleft, c8* out, size_t outbytesleft) {
+    APP_ASSERT(in && out);
+    c8* p_out = out;
+    outbytesleft = (outbytesleft - 1);//reserve 1 for '\0'
+    s32 ret = (s32)iconv(mWchar2UTF8, (const c8 * *)& in, &inbytesleft, &p_out, &outbytesleft);
+    *p_out = '\0';
+    APP_ASSERT(0 == inbytesleft);
+    return (s32)(0 == ret ? (p_out - out) : 0);
+}
+#endif //APP_USE_ICONV
+
+
+u32 AppConvertToHexString(const void* in, u32 inSize, c8* out, u32 outLen) {
+    u32 ret = 0;
+    if(in && out && outLen > 0) {
+        ret = core::min_<u32>((outLen - 1) >> 1, inSize);
+        const u8* iData = (const u8*)in;
+        for(u32 i = 0; i < ret; ++i) {
+            snprintf(out, 3, "%02X", *iData++);
+            out += 2;
+        }
+        ret <<= 1;
+        *out = '\0';
     }
-    for(u32 i = 0; i < iDataSize; ++i) {
-        snprintf(iResult, iSize, "%02X", *iData++);
-        iResult += 2;
-        iSize -= 2;
+    return ret;
+}
+
+u32 AppConvertToHexString(const void* in, u32 inSize, wchar_t* out, u32 outLen) {
+    u32 ret = 0;
+    if(in && out && outLen > 0) {
+        ret = core::min_<u32>((outLen - 1) >> 1, inSize);
+        const u8* iData = (const u8*)in;
+        for(u32 i = 0; i < ret; ++i) {
+            swprintf(out, 4, L"%02X", *iData++);
+            out += 2;
+        }
+        ret <<= 1;
+        out[ret] = L'\0';
     }
-    return iDataSize * 2;
+    return ret;
 }
 
 
@@ -71,7 +197,7 @@ u32 AppConvertToU8(const c8* iData, u32 iDataSize, u8* iResult, u32 iSize) {
 
 
 void AppPrintToHexString(const void* iData, u32 iSize) {
-    const u8* buffer = ( const u8*) iData;
+    const u8* buffer = (const u8*)iData;
     for(u32 i = 0; i < iSize; ++i) {
         printf("%02X", buffer[i]);
     }
@@ -81,7 +207,7 @@ void AppPrintToHexString(const void* iData, u32 iSize) {
 void AppPrintToHexText(const void* buffer, u32 len) {
     printf("////////////////////////////////////////////////////////////////////////////////////\n");
     const u32 max = 88;
-    const c8* const buf = ( const c8*) buffer;
+    const c8* const buf = (const c8*)buffer;
     u32 i, j, k;
     c8 binstr[max];
     for(i = 0; i < len; i++) {

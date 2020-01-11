@@ -13,9 +13,9 @@ class CNetServiceTCP;
 enum ENetUserCommand {
     ENET_CMD_CONNECT = 0x00100000U,
     ENET_CMD_DISCONNECT = 0x00200000U,
-    ENET_CMD_SEND = 0x00300000U,
-    ENET_CMD_RECEIVE = 0x00400000U,
-    ENET_CMD_TIMEOUT = 0x00500000U,
+    ENET_CMD_SEND = 0x00400000U,
+    ENET_CMD_RECEIVE = 0x00800000U,
+    ENET_CMD_TIMEOUT = 0x01000000U,
     ENET_CMD_MASK = 0xFFF00000U,
 
     ENET_SESSION_BITS = 20,
@@ -116,7 +116,16 @@ public:
     s32 stepDisonnect(SContextIO& act);
 
     s32 postConnect();
+
+#if defined(APP_PLATFORM_WINDOWS)
     s32 stepConnect(SContextIO& act);
+    s32 postSend(CEventQueue::SNode* it);
+    s32 stepSend(SContextIO& act);
+#else
+    s32 stepConnect();
+    s32 postSend();
+    s32 stepSend();
+#endif
 
     /**called by IO thread
     * @param id sessionID that hold by user.
@@ -125,9 +134,6 @@ public:
     */
     s32 postSend(u32 id, CBufferQueue::SBuffer* buf);
 
-    //called by IO thread
-    s32 postSend(CEventQueue::SNode* it);
-    s32 stepSend(SContextIO& act);
 
     s32 postReceive();
     s32 stepReceive(SContextIO& act);

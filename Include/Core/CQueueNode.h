@@ -4,8 +4,6 @@
 
 #include "HConfig.h"
 #include "irrTypes.h"
-//#include "HAtomicOperator.h"
-
 
 namespace irr {
 
@@ -15,34 +13,18 @@ typedef  void(*AppFreeFunction)(void*);
 
 class CQueueSingleNode {
 public:
-    APP_FORCE_INLINE static CQueueSingleNode* getNode(const void* value) {
-        return  (CQueueSingleNode*) (((s8*) value) - sizeof(CQueueSingleNode));
+    CQueueSingleNode() : mNext(nullptr) {
     }
 
-    static CQueueSingleNode* createNode(u32 iSize = 0, AppMallocFunction iMalloc = 0);
-
-    static void deleteNode(CQueueSingleNode* iNode, AppFreeFunction iFree = 0);
-
-
-    CQueueSingleNode() : mNext(0) {
-    }
-
-    ~CQueueSingleNode() {
-    }
-
-    APP_FORCE_INLINE CQueueSingleNode* getNext() const {
+    CQueueSingleNode* getNext() const {
         return mNext;
     }
 
-    APP_FORCE_INLINE void pushBack(CQueueSingleNode& it) {
+    void pushBack(CQueueSingleNode& it) {
         mNext = &it;
     }
 
-    //APP_FORCE_INLINE void atomicPushBack(CQueueSingleNode* it) {
-    //    mNext = &it;
-    //}
-
-    APP_FORCE_INLINE void pushBack(CQueueSingleNode* it) {
+    void pushBack(CQueueSingleNode* it) {
         mNext = it;
     }
 
@@ -54,19 +36,18 @@ protected:
 
 class CQueueNode {
 public:
-    APP_FORCE_INLINE static CQueueNode* getNode(const void* value) {
-        return  (CQueueNode*) (((s8*) value) - sizeof(CQueueNode));
-    }
+    static CQueueNode* getNode(const void* value);
 
     static CQueueNode* createNode(u32 iSize = 0, AppMallocFunction iMalloc = 0);
 
     static void deleteNode(CQueueNode* iNode, AppFreeFunction iFree = 0);
 
-
     CQueueNode();
+
     ~CQueueNode();
 
     CQueueNode* getNext() const;
+
     CQueueNode* getPrevious() const;
 
     c8* getValue() const;
@@ -75,26 +56,13 @@ public:
 
     bool isEmpty() const;
 
-    void clear(AppFreeFunction iFree = 0);
+    void clear(AppFreeFunction iFree = nullptr);
 
     void delink();
 
     void pushBack(CQueueNode& it);
 
-    void pushBack(CQueueNode* it) {
-        pushBack(*it);
-    }
-
     void pushFront(CQueueNode& it);
-
-    void pushFront(CQueueNode* it) {
-        pushFront(*it);
-    }
-
-    //void delinkBetween(CQueueNode* from, CQueueNode* to) {
-    //    to->mPrevious = from;
-    //    from->mNext = to;
-    //}
 
     /**
     *@brief Split all nodes from this queue and join to the new queue.
@@ -116,48 +84,60 @@ protected:
 */
 struct SQueueRingFreelock {
     enum EFreeLockStatus {
-        EFLS_WRITABLE = 0,                           ///<must be zero, see: SQueueRingFreelock::init();
+        EFLS_WRITABLE = 0,                          ///<must be zero, see: SQueueRingFreelock::init();
         EFLS_READABLE = 1
     };
     CQueueNode mQueueNode;
-    u32 mCurrentPosition;								///<reading position of this node
-    u32 mUserDataSize;									///<user's data size
-    u32 mSize;													///<node size
-    volatile u8 mFlag;													    ///<User defined flags
-    volatile u8 mStatus;													///<node status, see: EFreeLockStatus
-    c8 mData[1];												///<node memory
+    u32 mCurrentPosition;							///<reading position of this node
+    u32 mUserDataSize;								///<user's data size
+    u32 mSize;										///<node size
+    volatile u8 mFlag;								///<User defined flags
+    volatile u8 mStatus;							///<node status, see: EFreeLockStatus
+    c8 mData[1];									///<node memory
 
-    APP_FORCE_INLINE bool isReadable() {
+    bool isReadable()const {
         return EFLS_READABLE == mStatus;
     }
 
-    APP_FORCE_INLINE bool isWritable() {
+    bool isWritable()const {
         return EFLS_WRITABLE == mStatus;
     }
 
-    APP_FORCE_INLINE void setReadable() {
+    void setReadable() {
         mStatus = EFLS_READABLE;
     }
 
-    APP_FORCE_INLINE void setWritable() {
-        mStatus = EFLS_WRITABLE;
+    void setWritable() {
         mUserDataSize = 0;
         mCurrentPosition = 0;
+        mStatus = EFLS_WRITABLE;
     }
 
     void init(s32 size);
 
-    bool isEmpty() const;
+    bool isEmpty() const {
+        return mQueueNode.isEmpty();
+    }
 
-    void delink();
+    SQueueRingFreelock* getNext() const {
+        return (SQueueRingFreelock*) mQueueNode.getNext();
+    }
 
-    SQueueRingFreelock* getNext() const;
+    SQueueRingFreelock* getPrevious() const {
+        return (SQueueRingFreelock*) mQueueNode.getPrevious();
+    }
 
-    SQueueRingFreelock* getPrevious() const;
+    void delink() {
+        mQueueNode.delink();
+    }
 
-    void pushFront(SQueueRingFreelock* it);
+    void pushBack(SQueueRingFreelock* it) {
+        mQueueNode.pushBack(it->mQueueNode);
+    }
 
-    void pushBack(SQueueRingFreelock* it);
+    void pushFront(SQueueRingFreelock* it) {
+        mQueueNode.pushFront(it->mQueueNode);
+    }
 };
 
 

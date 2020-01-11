@@ -11,6 +11,10 @@ CFileWriter::CFileWriter() :
 }
 
 CFileWriter::~CFileWriter() {
+    close();
+}
+
+void CFileWriter::close() {
     if(mFile) {
         fclose(mFile);
         mFile = nullptr;
@@ -96,11 +100,12 @@ s64 CFileWriter::getPos() const {
 #endif
 }
 
-void CFileWriter::openFile(const io::path& fileName, bool append) {
-    if(fileName.size() == 0) {
-        mFile = nullptr;
-        return;
+bool CFileWriter::openFile(const io::path& fileName, bool append) {
+    if(fileName.empty()) {
+        return false;
     }
+    close();
+
     mFilename = fileName;
 #if defined(_IRR_WCHAR_FILESYSTEM)
     mFile = _wfopen(mFilename.c_str(), append ? L"ab" : L"wb");
@@ -120,6 +125,7 @@ void CFileWriter::openFile(const io::path& fileName, bool append) {
 #endif
 
     }
+    return nullptr != mFile;
 }
 
 

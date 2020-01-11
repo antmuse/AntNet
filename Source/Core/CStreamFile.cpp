@@ -2,7 +2,6 @@
 #include <string.h>
 #include "CStreamFile.h"
 
-#include "HMemoryLeakCheck.h"
 
 #define APP_DEFAULT_MAX_BLOCKS      (8)
 #define APP_DEFAULT_BLOCK_SIZE      (4096 - sizeof(SQueueRingFreelock))
@@ -10,22 +9,24 @@
 namespace irr {
 namespace io {
 
-CStreamFile::CStreamFile() : mOnlyHoldOriginal(true),
-//mBlockSize(1024),
-mBlockCreated(0),
-mBlockDeleted(0),
-mReadHandle(0),
-mWriteHandle(0) {
+CStreamFile::CStreamFile() :
+    mOnlyHoldOriginal(true),
+    mBlockSize(APP_DEFAULT_BLOCK_SIZE),
+    mBlockCreated(0),
+    mBlockDeleted(0),
+    mReadHandle(0),
+    mWriteHandle(0) {
     init(APP_DEFAULT_MAX_BLOCKS, APP_DEFAULT_BLOCK_SIZE);
 }
 
 
-CStreamFile::CStreamFile(s32 iBlockCount, s32 iBlockSize) : mOnlyHoldOriginal(true),
-//mBlockSize(iBlockSize),
-mBlockCreated(0),
-mBlockDeleted(0),
-mReadHandle(0),
-mWriteHandle(0) {
+CStreamFile::CStreamFile(s32 iBlockCount, s32 iBlockSize) :
+    mOnlyHoldOriginal(true),
+    mBlockSize(iBlockSize),
+    mBlockCreated(0),
+    mBlockDeleted(0),
+    mReadHandle(0),
+    mWriteHandle(0) {
     init(iBlockCount, iBlockSize);
 }
 
@@ -109,13 +110,12 @@ void CStreamFile::closeRead(s32 size) {
 }
 
 
-APP_INLINE bool CStreamFile::isReadable() const {
+bool CStreamFile::isReadable() const {
     APP_ASSERT(mReadHandle);
     return mReadHandle->isReadable();
 }
 
-
-APP_INLINE bool CStreamFile::isWritable() const {
+bool CStreamFile::isWritable() const {
     APP_ASSERT(mWriteHandle);
     return mWriteHandle->isWritable();
 }
@@ -325,15 +325,16 @@ bool CStreamFile::init(s32 iCache, s32 iCacheSize) {
 
 
 void CStreamFile::releaseAll() {
-    if(!mReadHandle) return;
-
+    if(!mReadHandle) {
+        return;
+    }
     SQueueRingFreelock* next;
     for(SQueueRingFreelock* it = mReadHandle->getNext(); it != mReadHandle; it = next) {
         next = it->getNext();
         it->delink();
-        free((void*) it);
+        free(it);
     }
-    free((void*) mReadHandle);
+    free(mReadHandle);
     mReadHandle = 0;
     mWriteHandle = 0;
     mBlockCreated = 0;

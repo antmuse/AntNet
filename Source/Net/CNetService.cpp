@@ -290,10 +290,10 @@ u32 CNetServiceTCP::connect(const CNetAddress& remote, INetEventer* it) {
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
         CEventPoller::SEvent addevt;
         addevt.mData.mData32 = session->getIndex();
-        addevt.mEvent = EPOLLIN | EPOLLOUT | EPOLLET;
+        addevt.mEvent = EPOLLERR | EPOLLIN | EPOLLOUT | EPOLLET;
         if(!mPoller.add(sock, addevt)) {
             APP_ASSERT(0);
-            IAppLogger::log(ELOG_ERROR, "CNetClientSeniorTCP::getSession",
+            IAppLogger::log(ELOG_ERROR, "CNetServiceTCP::connect",
                 "can't add in epoll, socket: [%ld]",
                 sock.getValue());
 
@@ -322,7 +322,15 @@ u32 CNetServiceTCP::connect(const CNetAddress& remote, INetEventer* it) {
         return 0;
     }
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
-    session->postConnect();
+    if(session->postConnect() <= 0) {
+        if(!mPoller.remove(sock)) {
+            IAppLogger::log(ELOG_ERROR, "CNetServiceTCP::connect",
+                "can't remove from epoll, socket: [%ld]", sock.getValue());
+        }
+        session->getSocket().close();
+        mSessionPool.addIdleSession(session);
+        return 0;
+    }
 #endif
     return session->getID();
 }

@@ -31,63 +31,25 @@
     <Filter Include="Source\Core">
       <UniqueIdentifier>{da405b80-8dbd-4805-9989-b71bc3fb324f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Include\Core">
+      <UniqueIdentifier>{2891dd55-cd94-458d-a0ac-0061865d1913}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
+    <None Include="..\..\..\README.md" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\Include\Net\HNetConfig.h">
-      <Filter>Include\Net</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Net\INetClient.h">
-      <Filter>Include\Net</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Net\INetServer.h">
-      <Filter>Include\Net</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Include\HConfig.h">
       <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Net\CNetClientUDP.h">
-      <Filter>Include\Net</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Net\CNetServerSeniorUDP.h">
-      <Filter>Include\Net</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Net\CNetUtility.h">
-      <Filter>Include\Net</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Net\CNetManager.h">
-      <Filter>Include\Net</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Net\INetManager.h">
-      <Filter>Include\Net</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Net\INetEventer.h">
-      <Filter>Include\Net</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Net\CNetClientTCP.h">
-      <Filter>Include\Net</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Net\CNetServerNormalTCP.h">
-      <Filter>Include\Net</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Net\CNetProtocal.h">
-      <Filter>Include\Net</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\irrTypes.h">
-      <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Net\CNetPacket.h">
-      <Filter>Include\Net</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Include\Net\CBase64Coder.h">
       <Filter>Include\Net</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Include\Net\CCheckCRC16.h">
+    <ClInclude Include="..\..\..\Include\Net\CBufferQueue.h">
       <Filter>Include\Net</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Include\Net\CCheckCRC32.h">
+    <ClInclude Include="..\..\..\Include\Net\CCheckCRC.h">
       <Filter>Include\Net</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Include\Net\CCheckSum.h">
@@ -96,7 +58,25 @@
     <ClInclude Include="..\..\..\Include\Net\CEventPoller.h">
       <Filter>Include\Net</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\CNetAddress.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\CNetCheckIP.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\Include\Net\CNetClientNatPuncher.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\CNetClientTCP.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\CNetClientUDP.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\CNetPacket.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\CNetProtocal.h">
       <Filter>Include\Net</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Include\Net\CNetServerAcceptor.h">
@@ -105,13 +85,28 @@
     <ClInclude Include="..\..\..\Include\Net\CNetServerNatPuncher.h">
       <Filter>Include\Net</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\CNetServerSeniorUDP.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\Include\Net\CNetServerTCP.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\CNetService.h">
       <Filter>Include\Net</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Include\Net\CNetSession.h">
       <Filter>Include\Net</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\CNetSessionPool.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\Include\Net\CNetSocket.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\CNetUtility.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\HNetConfig.h">
       <Filter>Include\Net</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Include\Net\HNetHeader.h">
@@ -120,26 +115,131 @@
     <ClInclude Include="..\..\..\Include\Net\HNetOperationType.h">
       <Filter>Include\Net</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Include\Net\INetClientSeniorTCP.h">
+    <ClInclude Include="..\..\..\Include\Net\INetClient.h">
       <Filter>Include\Net</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Include\Net\INetSession.h">
+    <ClInclude Include="..\..\..\Include\Net\INetEventer.h">
+      <Filter>Include\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\INetServer.h">
       <Filter>Include\Net</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Include\Net\SClientContext.h">
       <Filter>Include\Net</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Include\Net\CNetAddress.h">
-      <Filter>Include\Net</Filter>
+    <ClInclude Include="..\..\..\Include\Core\CConsoleLogReceiver.h">
+      <Filter>Include\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Include\Net\CBufferQueue.h">
-      <Filter>Include\Net</Filter>
+    <ClInclude Include="..\..\..\Include\Core\CDict.h">
+      <Filter>Include\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Include\Net\CNetCheckIP.h">
-      <Filter>Include\Net</Filter>
+    <ClInclude Include="..\..\..\Include\Core\CEncoderMD5.h">
+      <Filter>Include\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Include\Net\CNetServiceTCP.h">
-      <Filter>Include\Net</Filter>
+    <ClInclude Include="..\..\..\Include\Core\CFileLogReceiver.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\CFileManager.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\CFileReader.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\CFileWriter.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\CHtmlLogReceiver.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\CMemoryHub.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\CMemoryPool.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\coreutil.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\CQueue1Way.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\CQueue2Way.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\CQueueNode.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\CSpeedLimiter.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\CStreamFile.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\CTimerWheel.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\fast_atof.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\heapsort.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\HEngineLog.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\HHashFunctions.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\IAntLogReceiver.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\IAppEventReceiver.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\IAppLogger.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\IAppTimer.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\IBigInteger.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\INoCopy.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\IPairOrderID.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\IReferenceCounted.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\irrAllocator.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\irrArray.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\irrList.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\irrMap.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\irrMath.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\irrString.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\irrTypes.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\IUtility.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\path.h">
+      <Filter>Include\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -218,12 +318,6 @@
     <ClCompile Include="..\..\..\Source\Net\RawSocket\CNetSynPing.cpp">
       <Filter>Source\Net\RawSocket</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\Net\CCheckCRC16.cpp">
-      <Filter>Source\Net</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Source\Net\CCheckCRC32.cpp">
-      <Filter>Source\Net</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\Source\Net\CNetAddress.cpp">
       <Filter>Source\Net</Filter>
     </ClCompile>
@@ -296,5 +390,32 @@
     <ClCompile Include="..\..\..\Source\Core\CSpeedLimiter.cpp">
       <Filter>Source\Core</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Source\Core\CDict.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Core\CEncoderMD5.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Core\CFileManager.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Core\CFileReader.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Core\HashMurmur.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Core\HashSIP.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Core\HHashFunctions.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\CCheckCRC.cpp">
+      <Filter>Source\Net</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\..\LICENSE.txt" />
   </ItemGroup>
 </Project>

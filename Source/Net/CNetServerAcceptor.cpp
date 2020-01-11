@@ -62,9 +62,9 @@ CNetServerAcceptor::~CNetServerAcceptor() {
 
 void CNetServerAcceptor::run() {
     SContextIO* iAction = 0;
-    const u32 maxe = mConfig->mMaxFetchEvents;
+    const s32 maxe = mConfig->mMaxFetchEvents;
     CEventPoller::SEvent* iEvent = new CEventPoller::SEvent[maxe];
-    u32 gotsz = 0;
+    s32 gotsz = 0;
 
     for(; mRunning; ) {
         gotsz = mPoller.getEvents(iEvent, maxe, APP_THREAD_MAX_SLEEP_TIME);
@@ -233,7 +233,7 @@ bool CNetServerAcceptor::initialize() {
         return false;
     }
 
-    if(!mPoller.add(mListener, (void*) &mListener)) {
+    if(!mPoller.add(mListener, (void*)& mListener)) {
         return false;
     }
 
@@ -401,9 +401,9 @@ CNetServerAcceptor::~CNetServerAcceptor() {
 
 
 void CNetServerAcceptor::run() {
-    const u32 maxe = mConfig->mMaxFetchEvents;
+    const s32 maxe = mConfig->mMaxFetchEvents;
     CEventPoller::SEvent* iEvent = new CEventPoller::SEvent[maxe];
-    u32 gotsz = 0;
+    s32 gotsz = 0;
     CNetSocket sock(mPoller.getSocketPair().getSocketA());
     for(; mRunning; ) {
         gotsz = mPoller.getEvents(iEvent, maxe, APP_THREAD_MAX_SLEEP_TIME);
@@ -411,10 +411,10 @@ void CNetServerAcceptor::run() {
             //bool ret = true;
             for(u32 i = 0; i < gotsz; ++i) {
                 if(EPOLLIN & iEvent[i].mEvent) {
-                    if(mListener.getValue() == iEvent[i].mData.mData32){
+                    if(mListener.getValue() == iEvent[i].mData.mData32) {
                         CNetSocket sock(mListener.accept());
                         stepAccpet(sock);
-                    }else{
+                    } else {
                         u32 mask;
                         s32 ret = sock.receiveAll(&mask, sizeof(mask));
                         if(ENET_SESSION_MASK == mask) {
@@ -426,12 +426,13 @@ void CNetServerAcceptor::run() {
                     continue;
                 }
             }//for
+        } else if(0 == gotsz) {
+            APP_LOG(ELOG_DEBUG, "CNetServerAcceptor::run", "epoll wait timeout");
         } else {
             s32 pcode = mPoller.getError();
-            IAppLogger::log(ELOG_WARN, "CNetServerAcceptor::run",
-                "invalid overlap, ecode: [%lu]", pcode);
+            IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::run", "epoll wait ecode=[%d]", pcode);
             continue;
-        }//else if
+        }
     }//for
 
     delete[] iEvent;

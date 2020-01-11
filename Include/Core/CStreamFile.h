@@ -38,12 +38,12 @@ public:
     /**
     *@return true if not empty now, else false.
     */
-    APP_INLINE bool isReadable() const;
+    bool isReadable() const;
 
     /**
     *@return true if not full now, else false.
     */
-    APP_INLINE bool isWritable() const;
+    bool isWritable() const;
 
     /**
     *@brief Read buffer
@@ -67,7 +67,7 @@ public:
     *@param sizeToWrite User's data size.
     *@param force Force to write in.
     *@param close Close cache block after writen.
-    *@return The size was writed.
+    *@return The size was wrote.
     */
     s32 write(const c8* buffer, s32 sizeToWrite, bool force = false, bool close = true);
 
@@ -149,12 +149,12 @@ public:
     }
 
     ///Get current block size.
-    APP_INLINE u32 getBlockSize() const {
+    u32 getBlockSize() const {
         return mBlockSize;
     }
 
     ///Get current block count.
-    APP_INLINE s32 getBlockCount() const {
+    s32 getBlockCount() const {
         return mBlockCreated - mBlockDeleted;
     }
 

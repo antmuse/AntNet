@@ -4,20 +4,15 @@
 namespace irr {
 
 class INoCopy {
-public:
+protected:
     INoCopy() {
+    }
+    ~INoCopy() {
     }
 
 private:
-    //INoCopy(const INoCopy& other) = delete;
-    //INoCopy& operator = (const INoCopy& other) = delete;
-
-    INoCopy(const INoCopy& other) {
-    };
-
-    INoCopy& operator= (const INoCopy& other) {
-    return *this;
-    };
+    INoCopy(const INoCopy& other) = delete;
+    INoCopy& operator = (const INoCopy& other) = delete;
 };
 
 } //namespace irr
