@@ -1,47 +1,11 @@
-# Web files
-*.html
-*.htm
-*.css
-*.js
-
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.out
-*.app
-
-# Others
-*.iobj
-*.ipdb
-*.pdb
-*.ilk
+# paths
+Build/Windows/.vs/
+Build/Windows/Temp/
+Lib/
+Bin/
 
 
-# cmake
-CMakeCache.txt
-CMakeFiles
-Makefile
-cmake_install.cmake
-install_manifest.txt
+# files
+Build/Windows/*.db
+Build/Windows/*.opendb
+
