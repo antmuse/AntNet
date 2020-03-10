@@ -28,39 +28,32 @@
 namespace irr {
 namespace io {
 
-u32 CPathList::addNode(const io::path& fullname, const io::path& fname, bool isDir) {
-    SPathNode nd = {
-        mNodes.size(),
-        fullname,
-        fname,
-        isDir
-    };
-    mNodes.push_back(nd);
-    return mNodes.size();
+u32 CPathList::addNode(const fschar_t* fname, bool isDir) {
+    SPathNode nd(fname);
+    if (isDir) {
+        nd.mID = mPaths.size();
+        mPaths.push_back(nd);
+        return mPaths.size();
+    }
+    nd.mID = mFiles.size();
+    mFiles.push_back(nd);
+    return mFiles.size();
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////
-io::path CFileManager::GStartWorkPath = "";
+CFileManager::CFileManager() :mWorkPath(getStartWorkPath()) {
+}
 
-CFileManager::CFileManager() {
-    //fschar_t dest[260];
-    //if (GetModuleFileName(0, dest, 260) > 0) {
-    //}
-    //setWorkPath(GStartWorkPath);
+CFileManager::CFileManager(const io::path& iVal) : mWorkPath(iVal) {
 }
 
 CFileManager::~CFileManager() {
 }
 
-void CFileManager::setStartWorkPath(const fschar_t* onpath) {
-    if(onpath) {
-        GStartWorkPath = onpath;
-        GStartWorkPath.replace('\\', '/');
-        //if (GStartWorkPath.lastChar() != '/') {
-        //    GStartWorkPath.append('/');
-        //}
-    }
+const io::path& CFileManager::getStartWorkPath() {
+    static io::path startWorkPath = getWorkPath();
+    return startWorkPath;
 }
 
 bool CFileManager::createPath(const io::path& iPath) {
@@ -72,24 +65,24 @@ bool CFileManager::createPath(const io::path& iPath) {
     realpath.replace(_IRR_TEXT('\\'), _IRR_TEXT('/'));
     s32 start = 0;
     s32 end = realpath.size();
-    while(start < end) {
+    while (start < end) {
         s32 pos = realpath.findNext(_IRR_TEXT('/'), start);
         pos = (pos > 0 ? pos : end - 1);
         directory += realpath.subString(start, pos - start);
         directory.append(_IRR_TEXT('\\'));
         start = pos + 1;
-        if(::PathFileExists(directory.c_str())) {
+        if (::PathFileExists(directory.c_str())) {
             continue;
         }
-        if(FALSE == ::CreateDirectory(directory.c_str(), 0)) {
+        if (FALSE == ::CreateDirectory(directory.c_str(), 0)) {
             ret = false;
             break;
         }
     }
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
     DIR * pDirect = opendir(iPath.c_str());
-    if(0 == pDirect) {
-        if(0 == ::mkdir(iPath.c_str(), 0777)) {
+    if (0 == pDirect) {
+        if (0 == ::mkdir(iPath.c_str(), 0777)) {
             //IAppLogger::logCritical("IUtility::createPath", "new path=%s", iPath.c_str());
             //CEngine::mPrinter->addW(L"created new path");
         } else {
@@ -102,56 +95,88 @@ bool CFileManager::createPath(const io::path& iPath) {
     return ret;
 }
 
-
-CPathList* CFileManager::createFileList() {
-    CPathList* r = 0;
-    io::path Path = getWorkPath();
-    Path.replace('\\', '/');
-    if(Path.lastChar() != '/') {
-        Path.append('/');
+#ifdef APP_PLATFORM_WINDOWS
+bool AppLoadWindowsDrives(CPathList* iRet) {
+    const u32 len = GetLogicalDriveStrings(0, nullptr);
+    fschar_t buf[512];
+    const bool created = len > 512;
+    fschar_t* drives = created ? new fschar_t[len] : buf;
+    if (!GetLogicalDriveStrings(len, drives)) {
+        if (created) {
+            delete[] drives;
+        }
+        return false;
     }
+    fschar_t* temp = drives;
+    for (fschar_t* drv = nullptr; *temp != 0; temp++) {
+        drv = temp;
+        while (*(++temp)) {
+            if ('\\' == temp[0]) {
+                temp[0] = 0;
+            }
+        };
+        u32 typ = GetDriveType(drv);
+        if (DRIVE_REMOVABLE == typ) {
+            iRet->addNode(drv, true);
+        } else if (DRIVE_FIXED == typ) {
+            iRet->addNode(drv, true);
+        }
+    }
+    if (created) {
+        delete[] drives;
+    }
+    return true;
+}
+#endif //APP_PLATFORM_WINDOWS
+
+CPathList* CFileManager::createFileList(bool readHide) {
+    CPathList* ret = new CPathList(getCurrentPath());
 
 #ifdef APP_PLATFORM_WINDOWS
-    r = new CPathList(Path);
+    if (1 == getCurrentPath().size() && '/' == getCurrentPath()[0]) {
+        AppLoadWindowsDrives(ret);
+        return ret;
+    }
     intptr_t hFile;
     struct _tfinddata_t c_file;
-    if((hFile = _tfindfirst(_T("*"), &c_file)) != -1L) {
+    if ((hFile = _tfindfirst(_T("*"), &c_file)) != -1L) {
         do {
-            r->addNode(Path + c_file.name, c_file.name, (_A_SUBDIR & c_file.attrib) != 0);
-        } while(_tfindnext(hFile, &c_file) == 0);
+            if (((_A_SYSTEM | _A_HIDDEN) & c_file.attrib) != 0 && !readHide) {
+                continue;
+            }
+            ret->addNode(c_file.name, (_A_SUBDIR & c_file.attrib) != 0);
+        } while (_tfindnext(hFile, &c_file) == 0);
 
         _findclose(hFile);
     }
 
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
-    r = new CPathList(Path);
-
     //! We use the POSIX compliant methods instead of scandir
-    DIR* dirHandle = opendir(Path.c_str());
-    if(dirHandle) {
+    DIR* dirHandle = opendir(getCurrentPath().c_str());
+    if (dirHandle) {
         struct dirent* dirEntry;
-        while((dirEntry = readdir(dirHandle))) {
+        while ((dirEntry = readdir(dirHandle))) {
             u32 size = 0;
             bool isDirectory = false;
-            if((strcmp(dirEntry->d_name, ".") == 0) ||
+            if ((strcmp(dirEntry->d_name, ".") == 0) ||
                 (strcmp(dirEntry->d_name, "..") == 0)) {
                 continue;
             }
             struct stat buf;
-            if(stat(dirEntry->d_name, &buf) == 0) {
+            if (stat(dirEntry->d_name, &buf) == 0) {
                 size = buf.st_size;
                 isDirectory = S_ISDIR(buf.st_mode);
             } else {
                 isDirectory = dirEntry->d_type == DT_DIR;
             }
-            r->addNode(Path + dirEntry->d_name, dirEntry->d_name, isDirectory);
+            r->addNode(dirEntry->d_name, isDirectory);
         }
         closedir(dirHandle);
     }
 #endif
 
-    r->sort();
-    return r;
+    ret->sort();
+    return ret;
 }
 
 
@@ -181,7 +206,7 @@ io::path CFileManager::getFilePath(const io::path& filename) const {
     const s32 lastBackSlash = filename.findLast('\\');
     lastSlash = lastSlash > lastBackSlash ? lastSlash : lastBackSlash;
 
-    if((u32)lastSlash < filename.size()) {
+    if ((u32)lastSlash < filename.size()) {
         return filename.subString(0, lastSlash);
     } else {
         return _IRR_TEXT(".");
@@ -197,19 +222,19 @@ io::path CFileManager::getFileBasename(const io::path& filename, bool keepExtens
 
     // get number of chars after last dot
     s32 end = 0;
-    if(!keepExtension) {
+    if (!keepExtension) {
         // take care to search only after last slash to check only for
         // dots in the filename
         end = filename.findLast('.');
-        if(end == -1 || end < lastSlash)
+        if (end == -1 || end < lastSlash)
             end = 0;
         else
             end = filename.size() - end;
     }
 
-    if((u32)lastSlash < filename.size())
+    if ((u32)lastSlash < filename.size())
         return filename.subString(lastSlash + 1, filename.size() - lastSlash - 1 - end);
-    else if(end != 0)
+    else if (end != 0)
         return filename.subString(0, filename.size() - end);
     else
         return filename;
@@ -218,7 +243,7 @@ io::path CFileManager::getFileBasename(const io::path& filename, bool keepExtens
 
 io::path& CFileManager::flattenFilename(io::path& directory, const io::path& root) const {
     directory.replace('\\', '/');
-    if(directory.lastChar() != '/') {
+    if (directory.lastChar() != '/') {
         directory.append('/');
     }
     io::path dir;
@@ -228,20 +253,20 @@ io::path& CFileManager::flattenFilename(io::path& directory, const io::path& roo
     s32 pos = 0;
     bool lastWasRealDir = false;
 
-    while((pos = directory.findNext('/', lastpos)) >= 0) {
+    while ((pos = directory.findNext('/', lastpos)) >= 0) {
         subdir = directory.subString(lastpos, pos - lastpos + 1);
 
-        if(subdir == _IRR_TEXT("../")) {
-            if(lastWasRealDir) {
+        if (subdir == _IRR_TEXT("../")) {
+            if (lastWasRealDir) {
                 deletePathFromPath(dir, 2);
                 lastWasRealDir = (dir.size() != 0);
             } else {
                 dir.append(subdir);
                 lastWasRealDir = false;
             }
-        } else if(subdir == _IRR_TEXT("/")) {
+        } else if (subdir == _IRR_TEXT("/")) {
             dir = root;
-        } else if(subdir != _IRR_TEXT("./")) {
+        } else if (subdir != _IRR_TEXT("./")) {
             dir.append(subdir);
             lastWasRealDir = true;
         }
@@ -254,7 +279,7 @@ io::path& CFileManager::flattenFilename(io::path& directory, const io::path& roo
 
 
 path CFileManager::getRelativeFilename(const path& filename, const path& directory) const {
-    if(filename.empty() || directory.empty()) {
+    if (filename.empty() || directory.empty()) {
         return filename;
     }
     io::path path1, file, ext;
@@ -271,23 +296,23 @@ path CFileManager::getRelativeFilename(const path& filename, const path& directo
 #if defined (APP_PLATFORM_WINDOWS)
     fschar_t partition1 = 0, partition2 = 0;
     io::path prefix1, prefix2;
-    if(it1 != list1.end())
+    if (it1 != list1.end())
         prefix1 = *it1;
-    if(it2 != list2.end())
+    if (it2 != list2.end())
         prefix2 = *it2;
-    if(prefix1.size() > 1 && prefix1[1] == _IRR_TEXT(':'))
+    if (prefix1.size() > 1 && prefix1[1] == _IRR_TEXT(':'))
         partition1 = core::locale_lower(prefix1[0]);
-    if(prefix2.size() > 1 && prefix2[1] == _IRR_TEXT(':'))
+    if (prefix2.size() > 1 && prefix2[1] == _IRR_TEXT(':'))
         partition2 = core::locale_lower(prefix2[0]);
 
     // must have the same prefix or we can't resolve it to a relative filename
-    if(partition1 != partition2) {
+    if (partition1 != partition2) {
         return filename;
     }
 #endif
 
 
-    for(; i < list1.size() && i < list2.size()
+    for (; i < list1.size() && i < list2.size()
 #if defined (APP_PLATFORM_WINDOWS)
         && (io::path(*it1).make_lower() == io::path(*it2).make_lower())
 #else
@@ -298,15 +323,15 @@ path CFileManager::getRelativeFilename(const path& filename, const path& directo
         ++it2;
     }
     path1 = _IRR_TEXT("");
-    for(; i < list2.size(); ++i) {
+    for (; i < list2.size(); ++i) {
         path1 += _IRR_TEXT("../");
     }
-    while(it1 != list1.end()) {
+    while (it1 != list1.end()) {
         path1 += *it1++;
         path1 += _IRR_TEXT('/');
     }
     path1 += file;
-    if(ext.size()) {
+    if (ext.size()) {
         path1 += _IRR_TEXT('.');
         path1 += ext;
     }
@@ -314,71 +339,73 @@ path CFileManager::getRelativeFilename(const path& filename, const path& directo
 }
 
 
-const io::path& CFileManager::getWorkPath() {
+io::path CFileManager::getWorkPath() {
+    io::path wkpath;
+
 #if defined(APP_PLATFORM_WINDOWS)
     fschar_t tmp[_MAX_PATH];
 #if defined(_IRR_WCHAR_FILESYSTEM )
     _wgetcwd(tmp, _MAX_PATH);
-    mWorkPath = tmp;
-    mWorkPath.replace(L'\\', L'/');
 #else
     _getcwd(tmp, _MAX_PATH);
-    mWorkPath = tmp;
-    mWorkPath.replace('\\', '/');
 #endif
+    wkpath = tmp;
+    wkpath.append(_IRR_TEXT('/'));
+    wkpath.replace(_IRR_TEXT('\\'), _IRR_TEXT('/'));
 
 #elif (defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID))
 #if defined(_IRR_WCHAR_FILESYSTEM )
     u32 pathSize = 256;
     wchar_t* tmpPath = new wchar_t[pathSize];
-    while((pathSize < (1 << 16)) && !(wgetcwd(tmpPath, pathSize))) {
+    while ((pathSize < (1 << 16)) && !(wgetcwd(tmpPath, pathSize))) {
         delete[] tmpPath;
         pathSize *= 2;
         tmpPath = new char[pathSize];
     }
-    if(tmpPath) {
-        mWorkPath = tmpPath;
+    if (tmpPath) {
+        wkpath = tmpPath;
         delete[] tmpPath;
     }
 #else
     u32 pathSize = 256;
     char* tmpPath = new char[pathSize];
-    while((pathSize < (1 << 16)) && !(getcwd(tmpPath, pathSize))) {
+    while ((pathSize < (1 << 16)) && !(getcwd(tmpPath, pathSize))) {
         delete[] tmpPath;
         pathSize *= 2;
         tmpPath = new char[pathSize];
     }
-    if(tmpPath) {
-        mWorkPath = tmpPath;
+    if (tmpPath) {
+        wkpath = tmpPath;
         delete[] tmpPath;
     }
 #endif
 #endif
 
-    mWorkPath.validate();
-    return mWorkPath;
+    wkpath.validate();
+    return wkpath;
 }
 
 
 bool CFileManager::setWorkPath(const io::path& newDirectory) {
     bool success = false;
+    const fschar_t* wpth = newDirectory.c_str();
 
 #if defined(_MSC_VER)
-#if defined(_IRR_WCHAR_FILESYSTEM)
-    success = (_wchdir(newDirectory.c_str()) == 0);
-#else
-    success = (_chdir(newDirectory.c_str()) == 0);
-#endif
-#else
-#if defined(_IRR_WCHAR_FILESYSTEM)
-    success = (_wchdir(newDirectory.c_str()) == 0);
-#else
-    success = (chdir(newDirectory.c_str()) == 0);
-#endif
-#endif
-    if(success) {
-        mWorkPath = newDirectory;
+    if (newDirectory.size() > 1 && '/' == newDirectory[0]) {
+        ++wpth;
     }
+#if defined(_IRR_WCHAR_FILESYSTEM)
+    success = (_wchdir(wpth) == 0);
+#else
+    success = (_chdir(wpth) == 0);
+#endif
+#else
+#if defined(_IRR_WCHAR_FILESYSTEM)
+    success = (_wchdir(wpth) == 0);
+#else
+    success = (chdir(wpth) == 0);
+#endif
+#endif
     return success;
 }
 
@@ -402,9 +429,9 @@ io::path CFileManager::getAbsolutePath(const io::path& filename) const {
     c8 fpath[4096];
     fpath[0] = 0;
     p = realpath(filename.c_str(), fpath);
-    if(!p) {
+    if (!p) {
         // content in fpath is unclear at this point
-        if(!fpath[0]) // seems like fpath wasn't altered, use our best guess
+        if (!fpath[0]) // seems like fpath wasn't altered, use our best guess
         {
             io::path tmp(filename);
             io::path rot("");
@@ -412,7 +439,7 @@ io::path CFileManager::getAbsolutePath(const io::path& filename) const {
         } else
             return io::path(fpath);
     }
-    if(filename[filename.size() - 1] == '/')
+    if (filename[filename.size() - 1] == '/')
         return io::path(p) + _IRR_TEXT("/");
     else
         return io::path(p);

@@ -484,6 +484,7 @@ public:
     static s32 convert2UTF8(const c8* in, size_t inbytesleft, c8* out, size_t outbytesleft);
 
     static s32 convertWchar2UTF8(const wchar_t* in, size_t inbytesleft, c8* out, size_t outbytesleft);
+    static s32 convertUTF82Wchar(const c8* pChars, size_t inbytesleft, wchar_t* out, size_t outbytesleft);
 
     static s32 convertGBK2UTF8(const c8* in, size_t inbytesleft, c8* out, size_t outbytesleft);
     static s32 convertGBK2Wchar(const c8* in, size_t inbytesleft, wchar_t* out, size_t outbytesleft);

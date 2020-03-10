@@ -69,17 +69,17 @@ IUtility& IUtility::getInstance() {
 IUtility::IUtility() {
 #if defined(APP_PLATFORM_ANDROID)|| defined(APP_PLATFORM_LINUX)
     IUtility::m2Wchar = iconv_open("UCS-4-INTERNAL//IGNORE", "");
-    IUtility::mGBK2Wchar = iconv_open("UCS-4-INTERNAL", "GB18030");
-    IUtility::mWchar2UTF8 = iconv_open("utf-8", "UCS-4-INTERNAL");
+    IUtility::mGBK2Wchar = iconv_open("UCS-4-INTERNAL//IGNORE", "GB18030");
+    IUtility::mWchar2UTF8 = iconv_open("utf-8//IGNORE", "UCS-4-INTERNAL");
     IUtility::mUTF8ToWchar = iconv_open("UCS-4-INTERNAL", "utf-8");
 #elif defined(APP_PLATFORM_WINDOWS)
     IUtility::m2Wchar = iconv_open("UCS-2-INTERNAL", "");
-    IUtility::mWchar2UTF8 = iconv_open("utf-8", "UCS-2-INTERNAL");
-    IUtility::mUTF8ToWchar = iconv_open("UCS-2-INTERNAL", "utf-8");
-    IUtility::mGBK2Wchar = iconv_open("UCS-2-INTERNAL", "GB18030");
+    IUtility::mWchar2UTF8 = iconv_open("utf-8//IGNORE", "UCS-2-INTERNAL");
+    IUtility::mUTF8ToWchar = iconv_open("UCS-2-INTERNAL//IGNORE", "utf-8");
+    IUtility::mGBK2Wchar = iconv_open("UCS-2-INTERNAL//IGNORE", "GB18030");
 #endif
-    IUtility::m2UTF8 = iconv_open("utf-8", "");
-    IUtility::mGBK2UTF8 = iconv_open("utf-8", "GB18030");
+    IUtility::m2UTF8 = iconv_open("utf-8//IGNORE", "");
+    IUtility::mGBK2UTF8 = iconv_open("utf-8//IGNORE", "GB18030");
     APP_ASSERT(m2Wchar != ((libiconv_t)-1));
     APP_ASSERT(m2UTF8 != ((libiconv_t)-1));
     APP_ASSERT(mWchar2UTF8 != ((libiconv_t)-1));
@@ -139,6 +139,14 @@ s32 IUtility::convertGBK2Wchar(const c8* pChars, size_t inbytesleft, wchar_t* ou
     return (s32)(0 == ret ? ((p_out - ((c8*)out)) >> 1) : 0);
 }
 
+s32 IUtility::convertUTF82Wchar(const c8* pChars, size_t inbytesleft, wchar_t* out, size_t outbytesleft) {
+    outbytesleft = (outbytesleft - 1) << 1;//sizeof(wchar_t)=2 and reserve 1 for L'\0'
+    c8* p_out = (c8*)out;
+    size_t ret = iconv(mUTF8ToWchar, &pChars, &inbytesleft, &p_out, &outbytesleft);
+    *((wchar_t*)p_out) = L'\0';
+    APP_ASSERT(0 == inbytesleft);
+    return (s32)(0 == ret ? ((p_out - ((c8*)out)) >> 1) : 0);
+}
 
 s32 IUtility::convertWchar2UTF8(const wchar_t* in, size_t inbytesleft, c8* out, size_t outbytesleft) {
     APP_ASSERT(in && out);

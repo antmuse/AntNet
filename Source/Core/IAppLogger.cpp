@@ -1,6 +1,7 @@
 ﻿#include "IUtility.h"
 #include "IAppLogger.h"
 #include "IAppTimer.h"
+#include "CFileManager.h"
 #include "CConsoleLogReceiver.h"
 #include "CFileLogReceiver.h"
 #include "CHtmlLogReceiver.h"
@@ -21,7 +22,8 @@ ELogLevel IAppLogger::mMinLogLevel = ELOG_INFO;
 
 
 IAppLogger::IAppLogger() {
-    //IAppLogger::mMinLogLevel = ELOG_DEBUG;
+    core::IUtility::getInstance();
+    io::CFileManager::getStartWorkPath();
 }
 
 
