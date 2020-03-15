@@ -1,6 +1,8 @@
 # paths
+Build/Windows/ipch/
 Build/Windows/.vs/
 Build/Windows/Temp/
+Build/Linux/Temp/
 Lib/
 Bin/
 
