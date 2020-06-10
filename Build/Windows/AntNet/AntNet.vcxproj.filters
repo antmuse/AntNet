@@ -414,6 +414,9 @@
     <ClCompile Include="..\..\..\Source\Net\CCheckCRC.cpp">
       <Filter>Source\Net</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\HTTP\http_parser.cpp">
+      <Filter>Source\Net\HTTP</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\..\LICENSE.txt" />

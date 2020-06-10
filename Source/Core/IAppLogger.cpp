@@ -22,7 +22,9 @@ ELogLevel IAppLogger::mMinLogLevel = ELOG_INFO;
 
 
 IAppLogger::IAppLogger() {
+#if defined(APP_USE_ICONV)
     core::IUtility::getInstance();
+#endif
     io::CFileManager::getStartWorkPath();
 }
 

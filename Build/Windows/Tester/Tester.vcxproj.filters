@@ -30,6 +30,21 @@
     <ClCompile Include="..\..\..\Source\Test\CTimeoutManager.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Source\Test\CNetCert.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Test\CNetHttpClient.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Test\CNetHttpsClient.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Test\CNetHttpsServer.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Test\CNetProxy.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\Test\CNetEchoClient.h">
@@ -39,6 +54,21 @@
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Source\Test\CTimeoutManager.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\Test\CNetCert.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\Test\CNetHttpClient.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\Test\CNetHttpsClient.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\Test\CNetHttpsServer.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\Test\CNetProxy.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>

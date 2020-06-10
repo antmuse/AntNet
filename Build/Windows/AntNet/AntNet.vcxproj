@@ -298,6 +298,7 @@
     <ClCompile Include="..\..\..\Source\Net\HTTP\CNetHttpRequest.cpp" />
     <ClCompile Include="..\..\..\Source\Net\HTTP\CNetHttpResponse.cpp" />
     <ClCompile Include="..\..\..\Source\Net\HTTP\CNetHttpURL.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\HTTP\http_parser.cpp" />
     <ClCompile Include="..\..\..\Source\Net\Mail\CNetMailClient.cpp" />
     <ClCompile Include="..\..\..\Source\Net\Mail\CNetMailMessage.cpp" />
     <ClCompile Include="..\..\..\Source\Net\RawSocket\CNetPing.cpp" />

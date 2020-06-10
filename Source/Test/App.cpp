@@ -299,7 +299,7 @@ void AppRunHttpsClient() {
     printf("@Please input server's Site = ");
     scanf("%s", sip);
     if (strlen(sip) < 4) {
-        memcpy(sip, "127.0.0.1", sizeof("127.0.0.1"));
+        memcpy(sip, "lxuet.ljbao.net", sizeof("lxuet.ljbao.net"));
         //memcpy(sip, "www.baidu.com", sizeof("www.baidu.com"));
     }
     printf("@Will connect to server = %s:443\n", sip);

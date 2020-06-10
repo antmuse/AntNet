@@ -5,14 +5,27 @@
 #include "CNetPacket.h"
 #include "CNetServerAcceptor.h"
 #include "CNetEchoServer.h"
+#include "HAtomicOperator.h"
 
 
 namespace irr {
 namespace net {
 
 //#define SERVER_NAME "www.baidu.com"
-#define SERVER_NAME "127.0.0.1"
-#define GET_REQUEST "GET / HTTP/1.0\r\n\r\n"
+#define SERVER_NAME "lxuet.ljbao.net"
+//模拟普通请求
+//#define GET_REQUEST "GET / HTTP/1.0\r\n\r\n"
+//模拟微信请求
+c8* GET_REQUEST =
+"GET /party/qGERf/activityDetail?r=it HTTP/1.1\r\n"
+"Host: lxuet.ljbao.net\r\n"
+"Connection: keep-alive\r\n"
+"Upgrade-Insecure-Requests: 1\r\n"
+"User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36 QBCore/4.0.1295.400 QQBrowser/9.0.2524.400 Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2875.116 Safari/537.36 NetType/WIFI MicroMessenger/7.0.5 WindowsWechat\r\n"
+"Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\r\n"
+"Accept-Encoding: gzip, deflate\r\n"
+"Accept-Language: zh-CN,zh;q=0.8,en-US;q=0.6,en;q=0.5;q=0.4\r\n"
+"\r\n";
 
 
 static s32 AppTlsSend(void* ctx, const u8* buf, u64 len) {
@@ -24,21 +37,21 @@ static s32 AppTlsRecieve(void* ctx, u8* buf, u64 len) {
     CNetHttpsClient* nd = reinterpret_cast<CNetHttpsClient*>(ctx);
     CNetPacket& pk = nd->getReadCache();
     u32 red = pk.getSize();
-    if (red == 0) {
+    if(red == 0) {
         //printf("getStateOfTLS()=%d\n", nd->getStateOfTLS());
         //Sleep(1000);
         return 0;
     }
-    if (red > len) { red = static_cast<u32>(len); }
+    if(red > len) { red = static_cast<u32>(len); }
     memcpy(buf, pk.getConstPointer(), red);
     pk.clear(red);
     return red;
 }
 
 
-static void AppTlsDebug(void *ctx, int level,
-    const char *file, int line,
-    const char *str) {
+static void AppTlsDebug(void* ctx, int level,
+    const char* file, int line,
+    const char* str) {
     ((void)level);
 
     printf("%s:%04d: %s", file, line, str);
@@ -59,21 +72,22 @@ CNetHttpsClient::CNetHttpsClient() :
     mbedtls_ctr_drbg_init(&ctr_drbg);
     mbedtls_entropy_init(&entropy);
 
-    const char *pers = "ssl_client1";
+    const char* pers = "ssl_client1";
     s32 ret = 0;
-    if ((ret = mbedtls_ctr_drbg_seed(&ctr_drbg, mbedtls_entropy_func, &entropy,
+    if((ret = mbedtls_ctr_drbg_seed(&ctr_drbg, mbedtls_entropy_func, &entropy,
         (const u8*)pers,
         strlen(pers))) != 0) {
         printf(" failed\n  ! mbedtls_ctr_drbg_seed returned %d\n", ret);
         APP_ASSERT(0);
     }
 
-    if (!mCertCA.loadFromFile("D:/App/SSH/client.cer")) {
+    //if(!mCertCA.loadFromFile("D:/App/SSH/client.cer"))
+    if(!mCertCA.loadFromBuf(nullptr, 0)) {
         printf(" failed\n  !  mbedtls_x509_crt_parse returned -0x%x\n\n", -ret);
         APP_ASSERT(0);
     }
 
-    if ((ret = mbedtls_ssl_config_defaults(&conf,
+    if((ret = mbedtls_ssl_config_defaults(&conf,
         MBEDTLS_SSL_IS_CLIENT,
         MBEDTLS_SSL_TRANSPORT_STREAM,
         MBEDTLS_SSL_PRESET_DEFAULT)) != 0) {
@@ -88,11 +102,11 @@ CNetHttpsClient::CNetHttpsClient() :
     mbedtls_ssl_conf_rng(&conf, mbedtls_ctr_drbg_random, &ctr_drbg);
     mbedtls_ssl_conf_dbg(&conf, AppTlsDebug, stdout);
 
-    if ((ret = mbedtls_ssl_setup(&ssl, &conf)) != 0) {
+    if((ret = mbedtls_ssl_setup(&ssl, &conf)) != 0) {
         printf(" failed\n  ! mbedtls_ssl_setup returned %d\n\n", ret);
         APP_ASSERT(0);
     }
-    if ((ret = mbedtls_ssl_set_hostname(&ssl, SERVER_NAME)) != 0) {
+    if((ret = mbedtls_ssl_set_hostname(&ssl, SERVER_NAME)) != 0) {
         printf(" failed\n  ! mbedtls_ssl_set_hostname returned %d\n\n", ret);
         APP_ASSERT(0);
     }
@@ -129,11 +143,11 @@ s32 CNetHttpsClient::onLink(u32 sessionID,
 s32 CNetHttpsClient::handshake(bool currSend) {
     s32 ret;
 
-    while (true) {
+    while(true) {
         ret = mbedtls_ssl_handshake_step(&ssl);
-        switch (ret) {
+        switch(ret) {
         case 0: //success
-            if (MBEDTLS_SSL_HANDSHAKE_OVER != ssl.state) {
+            if(MBEDTLS_SSL_HANDSHAKE_OVER != ssl.state) {
                 continue;
             }
             return 0;
@@ -188,10 +202,10 @@ s32 CNetHttpsClient::onConnect(u32 sessionID,
 
 s32 CNetHttpsClient::sendBuffer(const void* buf, s32 len) {
     s32 ret = 0;
-    if (mSession > 0) {
+    if(mSession > 0) {
         ret = mHub->send(mSession, buf, len);
     }
-    if (len != ret) {
+    if(len != ret) {
         IAppLogger::log(ELOG_INFO, "CNetHttpsClient::send", "fail");
     }
     return ret;
@@ -211,9 +225,9 @@ s32 CNetHttpsClient::onDisconnect(u32 sessionID,
         remote.getPort()
     );
     mSession = 0;
-    if (mAutoConnect) {
+    if(mAutoConnect) {
         mSession = mHub->connect(remote, this);
-        if (0 == mSession) {
+        if(0 == mSession) {
             APP_ASSERT(0);
             IAppLogger::log(ELOG_ERROR, "CNetHttpsClient::onDisconnect", "[can't got session now-----]");
         }
@@ -232,22 +246,22 @@ s32 CNetHttpsClient::onSend(u32 sessionID, void* buffer, s32 size, s32 result) {
 
 s32 CNetHttpsClient::onReceive(const CNetAddress& remote, u32 sessionID, void* buffer, s32 size) {
     APP_ASSERT(mSession == sessionID);
-    IAppLogger::log(ELOG_INFO, "CNetHttpsClient::onReceive", "[%u],size=%d", sessionID, size);
+    //IAppLogger::log(ELOG_INFO, "CNetHttpsClient::onReceive", "[%u],size=%d", sessionID, size);
     s32 ret;
     mPacket.addBuffer(buffer, size);
-    if (mHandshake) {
+    if(mHandshake) {
         do {
             ret = handshake(false);
-        } while (0 != ret && 1 != ret);
-        if (0 != ret) {
+        } while(0 != ret && 1 != ret);
+        if(0 != ret) {
             return ret;
             APP_ASSERT(0);
         }
-        if (0 == ret) {//done
+        if(0 == ret) {//done
             mHandshake = false;
             u32 flags;
             // In real life, we probably want to bail out when ret != 0
-            if ((flags = mbedtls_ssl_get_verify_result(&ssl)) != 0) {
+            if((flags = mbedtls_ssl_get_verify_result(&ssl)) != 0) {
                 char vrfy_buf[512];
                 printf(" failed\n");
                 mbedtls_x509_crt_verify_info(vrfy_buf, sizeof(vrfy_buf), "  ! ", flags);
@@ -259,8 +273,8 @@ s32 CNetHttpsClient::onReceive(const CNetAddress& remote, u32 sessionID, void* b
 
             //request
             u64 len = strlen(GET_REQUEST);
-            while ((ret = mbedtls_ssl_write(&ssl, (const u8*)GET_REQUEST, len)) <= 0) {
-                if (ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE) {
+            while((ret = mbedtls_ssl_write(&ssl, (const u8*)GET_REQUEST, len)) <= 0) {
+                if(ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE) {
                     printf(" failed\n  ! mbedtls_ssl_write returned %d\n\n", ret);
                     APP_ASSERT(0);
                 }
@@ -274,19 +288,19 @@ s32 CNetHttpsClient::onReceive(const CNetAddress& remote, u32 sessionID, void* b
     //response
     do {
         ret = mbedtls_ssl_read(&ssl, (u8*)buf, sizeof(buf) - 1);
-        if (ret > 0) {
+        if(ret > 0) {
             buf[ret] = 0;
-            printf("%s", buf);
-        } else if (ret < 0) {
+            printf("%.*s", ret, buf);
+        } else if(ret < 0) {
             //printf("mbedtls_ssl_read returned %d\n\n", ret);
-            if (ret == MBEDTLS_ERR_SSL_WANT_READ || ret == MBEDTLS_ERR_SSL_WANT_WRITE) {
+            if(ret == MBEDTLS_ERR_SSL_WANT_READ || ret == MBEDTLS_ERR_SSL_WANT_WRITE) {
                 continue;
             }
-            if (ret == MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY) {
+            if(ret == MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY) {
                 break;
             }
         }
-    } while (mPacket.getSize() > 0);
+    } while(mPacket.getSize() > 0);
 
     return ret;
 }
