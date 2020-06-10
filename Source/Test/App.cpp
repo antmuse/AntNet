@@ -7,7 +7,12 @@
 #include "CNetSynPing.h"
 #include "CNetEchoServer.h"
 #include "CNetEchoClient.h"
+#include "CNetHttpClient.h"
+#include "CNetHttpsClient.h"
 #include "CTimeoutManager.h"
+#include "HTTP/CNetHttpURL.h"
+#include "CNetProxy.h"
+#include "CNetHttpsServer.h"
 
 
 #ifdef   APP_PLATFORM_WINDOWS
@@ -30,7 +35,7 @@ namespace irr {
 void AppQuit() {
     //system("PAUSE");
     irr::c8 key = '\0';
-    while('*' != key) {
+    while ('*' != key) {
         printf("@Please input [*] to quit");
         scanf("%c", &key);
     }
@@ -57,7 +62,7 @@ void AppRunEchoServer() {
     config->drop();
     //AppQuit();
     irr::c8 key = '\0';
-    while('*' != key) {
+    while ('*' != key) {
         printf("@Please input [*] to quit");
         scanf("%c", &key);
         IAppLogger::log(ELOG_INFO, "AppRunEchoServer",
@@ -82,10 +87,10 @@ void AppRunEchoClient() {
     config->check();
     config->print();
 
-    c8 sip[32] = {0};
+    c8 sip[32] = { 0 };
     printf("@Please input server's IP = ");
     scanf("%s", sip);
-    if(strlen(sip) < 4) {
+    if (strlen(sip) < 4) {
         memcpy(sip, "127.0.0.1", sizeof("127.0.0.1"));
     }
     printf("@Will connect to server = %s:9981\n", sip);
@@ -105,10 +110,10 @@ void AppRunEchoClient() {
 
     net::CNetAddress addr(sip, 9981);
     s32 i;
-    for(i = 0; i < max; ++i) {
+    for (i = 0; i < max; ++i) {
         evt[i].setHub(&chub);
         evt[i].setAutoConnect(true);
-        if(0 == chub.connect(addr, &evt[i])) {
+        if (0 == chub.connect(addr, &evt[i])) {
             break;
         }
         //CThread::sleep(100);
@@ -116,7 +121,7 @@ void AppRunEchoClient() {
 
     //AppQuit();
     irr::c8 key = '\0';
-    while('*' != key) {
+    while ('*' != key) {
         printf("@Please input [*] to quit");
         scanf("%c", &key);
         IAppLogger::log(ELOG_INFO, "AppRunEchoClient",
@@ -134,10 +139,10 @@ void AppRunEchoClient() {
             net::CNetEchoClient::mTickRequest,
             net::CNetEchoClient::mTickRequestFail,
             net::CNetEchoClient::mTickRecv
-            );
+        );
     }
 
-    for(i = 0; i < max; ++i) {
+    for (i = 0; i < max; ++i) {
         evt[i].setAutoConnect(false);
     }
     chub.stop();
@@ -154,7 +159,7 @@ void AppStartPing() {
 void AppStartSynPing() {
     irr::net::CNetSynPing synping;
     s32 ret;
-    if(synping.init()) {
+    if (synping.init()) {
         //ret = synping.ping("61.135.169.121", 80);
         ret = synping.ping("221.204.177.67", 80);
         //ret = synping.ping("192.168.1.200", 3306);
@@ -184,9 +189,9 @@ void AppRunTimerWheel() {
             mTimer.setInterval(100);
         }
         static void timeout(void* nd) {
-            SNode* node = (SNode*) nd;
+            SNode* node = (SNode*)nd;
             s32 idx = AppAtomicDecrementFetch(node->mAdder->getCount());
-            if(node->mDeleteFlag) {
+            if (node->mDeleteFlag) {
                 printf("CTimeAdder::timeout>> delete[Adder=%p],[id = %d],[time = %d/%d],[idx = %d]\n",
                     node->mAdder, node->mID, node->mTimeNode.mTimeoutStep,
                     node->mAdder->getTimeWheelStep(), idx);
@@ -201,8 +206,8 @@ void AppRunTimerWheel() {
             return mTimer.getCurrentStep();
         }
         virtual void run() {
-            for(; mRunning;) {
-                if(0 == mIndex) {
+            for (; mRunning;) {
+                if (0 == mIndex) {
                     add();
                 }
                 CThread::sleep(mMaxStep);
@@ -212,9 +217,9 @@ void AppRunTimerWheel() {
             return &mIndex;
         }
         void start() {
-            if(!mRunning) {
+            if (!mRunning) {
                 mRunning = true;
-                if(mMaxRepeat == 0) {
+                if (mMaxRepeat == 0) {
                     mThread.start(*this);
                 } else {
                     mRepeatNode.mDeleteFlag = false;
@@ -227,9 +232,9 @@ void AppRunTimerWheel() {
             }
         }
         void stop() {
-            if(mRunning) {
+            if (mRunning) {
                 mRunning = false;
-                if(mMaxRepeat == 0) {
+                if (mMaxRepeat == 0) {
                     mThread.join();
                 } else {
                     mTimer.remove(mRepeatNode.mTimeNode);
@@ -279,6 +284,122 @@ void AppRunTimerWheel() {
     printf("--------------------------------------------\n");
 }
 
+
+void AppRunHttpsClient() {
+    net::CNetConfig* config = new net::CNetConfig();
+    config->mMaxWorkThread = 5;
+    config->mMaxFetchEvents = 128;
+    config->mMaxContext = 16;
+    config->mPollTimeout = 5;
+    config->mSessionTimeout = 20000;
+    config->check();
+    config->print();
+
+    c8 sip[32] = { 0 };
+    printf("@Please input server's Site = ");
+    scanf("%s", sip);
+    if (strlen(sip) < 4) {
+        memcpy(sip, "127.0.0.1", sizeof("127.0.0.1"));
+        //memcpy(sip, "www.baidu.com", sizeof("www.baidu.com"));
+    }
+    printf("@Will connect to server = %s:443\n", sip);
+    printf("@How many tcp do you want = ");
+    s32 max = 1;
+    scanf("%d", &max);
+
+    net::CNetHttpsClient* evt = new net::CNetHttpsClient[max];
+    net::CNetServiceTCP chub;
+    chub.start(config);
+    config->drop();
+
+    net::CNetAddress addr(443);
+    addr.setDomain(sip);
+    s32 i;
+    for (i = 0; i < max; ++i) {
+        evt[i].setHub(&chub);
+        evt[i].setAutoConnect(false);
+        if (0 == chub.connect(addr, &evt[i])) {
+            break;
+        }
+        //CThread::sleep(100);
+    }
+
+    //AppQuit();
+    irr::c8 key = '\0';
+    while ('*' != key) {
+        printf("@Please input [*] to quit");
+        scanf("%c", &key);
+        IAppLogger::log(ELOG_INFO, "AppRunHttpsClient", "request=u");
+    }
+
+    chub.stop();
+    delete[] evt;
+}
+
+
+void AppRunHttpClient() {
+    net::CNetConfig* config = new net::CNetConfig();
+    config->mMaxWorkThread = 2;
+    config->mMaxFetchEvents = 128;
+    config->mMaxContext = 16;
+    config->mPollTimeout = 5;
+    config->mSessionTimeout = 20000;
+    config->check();
+    config->print();
+
+    c8 sbuf[256] = { 0 };
+    printf("@Please input URL[256] = ");
+    scanf("%s", sbuf);
+    if (strlen(sbuf) < 16) {
+        memcpy(sbuf, "http://redisdoc.com/hash/hkeys.html", sizeof("http://redisdoc.com/hash/hkeys.html"));
+    }
+    printf("@URL = %s\n", sbuf);
+    printf("@How many tcp do you want = ");
+    s32 max = 1;
+    scanf("%d", &max);
+
+    net::CNetHttpClient* evt = new net::CNetHttpClient[max];
+    net::CNetServiceTCP chub;
+    chub.start(config);
+    config->drop();
+
+    s32 i;
+    for (i = 0; i < max; ++i) {
+        evt[i].setHub(&chub);
+        evt[i].request(sbuf);
+        //CThread::sleep(100);
+    }
+
+    //AppQuit();
+    irr::c8 key = '\0';
+    while ('*' != key) {
+        printf("@Please input [*] to quit");
+        scanf("%c", &key);
+        IAppLogger::log(ELOG_INFO, "AppRunHttpClient", "request=u");
+    }
+
+    chub.stop();
+    delete[] evt;
+}
+
+
+void AppRunProxy() {
+    net::CNetProxy sev;
+    //sev.setProxyHost("10.1.120.82:60001");
+    sev.setProxyHost("127.0.0.1:60000");
+    sev.start(60001);
+    sev.show();
+    sev.stop();
+}
+
+void AppRunHttpsServer() {
+    net::CNetHttpsServer sev;
+    sev.start(443);
+    sev.show();
+    sev.stop();
+}
+
+
 }//namespace irr
 
 
@@ -286,16 +407,20 @@ int main(int argc, char** argv) {
     irr::IAppLogger::getInstance().addReceiver(
         irr::IAppLogger::ELRT_CONSOLE | irr::IAppLogger::ELRT_FILE_TEXT);
     irr::u32 key = 1;
-    while(key) {
+    while (key) {
         printf("@0 = Exit\n");
         printf("@1 = Net Server\n");
         printf("@2 = Net Client\n");
         printf("@3 = Time Wheel\n");
         printf("@4 = Net Ping\n");
         printf("@5 = Net Syn Ping\n");
+        printf("@6 = Net Https\n");
+        printf("@7 = Net Http\n");
+        printf("@8 = Net Proxy\n");
+        printf("@9 = Net Https Server\n");
         printf("@Input menu id = ");
         scanf("%u", &key);
-        switch(key) {
+        switch (key) {
         case 1:
             irr::AppRunEchoServer();
             break;
@@ -311,7 +436,37 @@ int main(int argc, char** argv) {
         case 5:
             irr::AppStartSynPing();
             break;
-        default:break;
+        case 6:
+            irr::AppRunHttpsClient();
+            break;
+        case 7:
+            irr::AppRunHttpClient();
+            break;
+        case 8:
+            irr::AppRunProxy();
+            break;
+        case 9:
+            irr::AppRunHttpsServer();
+            break;
+        case 91:
+        {
+            //irr::net::CNetHttpURL url("http://nginx.org/docs/guide.html?pa=1&pb=2#proxy");
+            irr::net::CNetHttpURL url("http://usr:passd@nginx.org:89/docs/guide.html?pa=1&pb=2#proxy");
+            printf("-------------------------------------\n");
+            url.show();
+            url.set("httP://redisdoc.com/hash/hkeys.html");
+            printf("-------------------------------------\n");
+            url.show();
+            url.isHTTP();
+            url.isHTTPS();
+            url.set("hTTp://www.baidu.com");
+            url.isHTTP();
+            url.isHTTPS();
+            printf("-------------------------------------\n");
+            url.show();
+            break;
+        }
+        default: break;
         }
         printf("@Task finished\n\n");
     }//while
