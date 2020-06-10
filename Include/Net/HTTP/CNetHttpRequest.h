@@ -30,12 +30,12 @@ public:
 
 
     const core::stringc& getHost()const {
-        return mURL.getHost();
+        return "";//        return mURL.getHost();
     }
 
 
     const core::stringc& getPath()const {
-        return mURL.getPath();
+        return "";//        return mURL.getPath();
     }
 
 

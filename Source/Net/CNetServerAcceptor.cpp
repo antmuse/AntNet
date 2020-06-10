@@ -39,9 +39,10 @@ bool CNetServerAcceptor::SContextWaiter::reset() {
 /////////////////////////////////////////////////////////////////////////////////////
 CNetServerAcceptor::CNetServerAcceptor() :
     mReceiver(0),
-    mCurrent(0),
     mAcceptCount(0),
     mThread(0),
+    mCreated(false),
+    mService(nullptr),
     mConfig(nullptr),
     mAllWaiter(8),
     mAddressLocal(APP_NET_DEFAULT_PORT),
@@ -53,7 +54,7 @@ CNetServerAcceptor::CNetServerAcceptor() :
 CNetServerAcceptor::~CNetServerAcceptor() {
     stop();
     CNetUtility::unloadSocketLib();
-    if(mConfig) {
+    if (mConfig) {
         mConfig->drop();
         mConfig = 0;
     }
@@ -66,12 +67,12 @@ void CNetServerAcceptor::run() {
     CEventPoller::SEvent* iEvent = new CEventPoller::SEvent[maxe];
     s32 gotsz = 0;
 
-    for(; mRunning; ) {
+    for (; mRunning; ) {
         gotsz = mPoller.getEvents(iEvent, maxe, APP_THREAD_MAX_SLEEP_TIME);
-        if(gotsz > 0) {
+        if (gotsz > 0) {
             bool stop = false;
-            for(u32 i = 0; i < gotsz; ++i) {
-                if(APP_SERVER_EXIT_CODE == iEvent[i].mKey) {
+            for (u32 i = 0; i < gotsz; ++i) {
+                if (APP_SERVER_EXIT_CODE == iEvent[i].mKey) {
                     stop = true;
                     continue;
                 }
@@ -83,7 +84,7 @@ void CNetServerAcceptor::run() {
             mRunning = !stop;
         } else {
             s32 pcode = mPoller.getError();
-            switch(pcode) {
+            switch (pcode) {
             case WAIT_TIMEOUT:
                 break;
 
@@ -108,7 +109,7 @@ void CNetServerAcceptor::run() {
 
 bool CNetServerAcceptor::clearError() {
     s32 ecode = CNetSocket::getError();
-    switch(ecode) {
+    switch (ecode) {
     case WSA_IO_PENDING:
         return true;
     case ERROR_SEM_TIMEOUT: //hack? 每秒收到5000个以上的Accept时出现
@@ -130,7 +131,7 @@ bool CNetServerAcceptor::clearError() {
 
 
 bool CNetServerAcceptor::start(CNetConfig* cfg) {
-    if(mRunning || nullptr == cfg) {
+    if (mRunning || nullptr == cfg) {
         IAppLogger::log(ELOG_INFO, "CNetServerAcceptor::start",
             "server is running already, config=%p", cfg);
         return true;
@@ -140,7 +141,7 @@ bool CNetServerAcceptor::start(CNetConfig* cfg) {
     mConfig = cfg;
     mAllWaiter.reallocate(cfg->mMaxPostAccept);
 
-    if(!initialize()) {
+    if (!initialize()) {
         removeAll();
         IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::start", "init server fail");
         return false;
@@ -149,7 +150,7 @@ bool CNetServerAcceptor::start(CNetConfig* cfg) {
     mRunning = true;
     createServer();
 
-    if(0 == mThread) {
+    if (0 == mThread) {
         mThread = new CThread();
     }
     mThread->start(*this);
@@ -161,13 +162,13 @@ bool CNetServerAcceptor::start(CNetConfig* cfg) {
 
 
 bool CNetServerAcceptor::stop() {
-    if(!mRunning) {
+    if (!mRunning) {
         IAppLogger::log(ELOG_INFO, "CNetServerAcceptor::stop", "server had stoped.");
         return true;
     }
-    CEventPoller::SEvent evt = {0};
+    CEventPoller::SEvent evt = { 0 };
     evt.mKey = APP_SERVER_EXIT_CODE;
-    if(mPoller.postEvent(evt)) {
+    if (mPoller.postEvent(evt)) {
         /*while(mRunning) {
             CThread::sleep(500);
         }*/
@@ -176,7 +177,7 @@ bool CNetServerAcceptor::stop() {
         mThread = 0;
 
         removeAll();
-        removeAllServer();
+        deleteServer();
         APP_LOG(ELOG_INFO, "CNetServerAcceptor::stop", "server stoped success");
         return true;
     }
@@ -188,7 +189,7 @@ void CNetServerAcceptor::removeAll() {
     mListener.close();
 
     //waiter
-    for(u32 i = 0; i < mAllWaiter.size(); ++i) {
+    for (u32 i = 0; i < mAllWaiter.size(); ++i) {
         delete mAllWaiter[i];
     }
     mAllWaiter.set_used(0);
@@ -197,27 +198,27 @@ void CNetServerAcceptor::removeAll() {
 
 
 bool CNetServerAcceptor::initialize() {
-    if(!mListener.openSeniorTCP()) {
+    if (!mListener.openSeniorTCP()) {
         IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "create listen socket fail: %d", CNetSocket::getError());
         return false;
     }
 
-    if(mConfig->mReuse && mListener.setReuseIP(true)) {
+    if (mConfig->mReuse && mListener.setReuseIP(true)) {
         IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "set reuse IP fail: [%d]", CNetSocket::getError());
         return false;
     }
 
-    if(mConfig->mReuse && mListener.setReusePort(true)) {
+    if (mConfig->mReuse && mListener.setReusePort(true)) {
         IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "set reuse port fail: [%d]", CNetSocket::getError());
         return false;
     }
 
-    if(mListener.bind(mAddressLocal)) {
+    if (mListener.bind(mAddressLocal)) {
         IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "bind socket error: [%d]", CNetSocket::getError());
         return false;
     }
 
-    if(mListener.listen(SOMAXCONN)) {
+    if (mListener.listen(SOMAXCONN)) {
         IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "listen socket error: [%d]", CNetSocket::getError());
         return false;
     }
@@ -225,15 +226,15 @@ bool CNetServerAcceptor::initialize() {
         mAddressLocal.getIPString(), mAddressLocal.getPort());
 
     mFunctionAccept = mListener.getFunctionAccpet();
-    if(!mFunctionAccept) {
+    if (!mFunctionAccept) {
         return false;
     }
     mFunctionAcceptSockAddress = mListener.getFunctionAcceptSockAddress();
-    if(!mFunctionAcceptSockAddress) {
+    if (!mFunctionAcceptSockAddress) {
         return false;
     }
 
-    if(!mPoller.add(mListener, (void*)& mListener)) {
+    if (!mPoller.add(mListener, (void*)& mListener)) {
         return false;
     }
 
@@ -242,11 +243,11 @@ bool CNetServerAcceptor::initialize() {
 
 
 bool CNetServerAcceptor::postAccept() {
-    for(u32 id = mAcceptCount; id < mConfig->mMaxPostAccept; ++id) {
+    for (u32 id = mAcceptCount; id < mConfig->mMaxPostAccept; ++id) {
         SContextWaiter* waiter = new SContextWaiter();
         waiter->mContextIO->mID = id;
         waiter->mContextIO->mOperationType = EOP_ACCPET;
-        if(!postAccept(waiter)) {
+        if (!postAccept(waiter)) {
             delete waiter;
             IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::postAccept", "post accpet fail, id: [%d]", id);
             return false;
@@ -258,11 +259,11 @@ bool CNetServerAcceptor::postAccept() {
 
 
 bool CNetServerAcceptor::postAccept(SContextWaiter* iContext) {
-    if(!iContext->reset()) {
+    if (!iContext->reset()) {
         return false;
     }
     bool ret = mListener.accept(iContext->mSocket, iContext->mContextIO, iContext->mCache, mFunctionAccept);
-    if(!ret) {
+    if (!ret) {
         return false;
     }
     ++mAcceptCount;
@@ -272,31 +273,30 @@ bool CNetServerAcceptor::postAccept(SContextWaiter* iContext) {
 
 bool CNetServerAcceptor::stepAccpet(SContextWaiter* iContext) {
     --mAcceptCount;
-    INetEventer* evt = mReceiver->onAccept(mAddressLocal);
-    if(evt) {
-        mListener.getAddress(iContext->mCache, mAddressLocal, mAddressRemote, mFunctionAcceptSockAddress);
-        const u32 sz = mAllService.size();
-        u32 nid = 0;
-        for(u32 i = 0; 0 == nid && i < sz; ++i) {
-            nid = mAllService[mCurrent % sz]->receive(iContext->mSocket, mAddressRemote, mAddressLocal, evt);
-            ++mCurrent;
-        }
-        if(0 == nid && sz < 0xFFU) {
-            if(createServer()) {
-                nid = mAllService.getLast()->receive(iContext->mSocket, mAddressRemote, mAddressLocal, evt);
+    if (mReceiver && mService) {
+        INetEventer* evt = mReceiver->onAccept(mAddressLocal);
+        if (evt) {
+            mListener.getAddress(iContext->mCache, mAddressLocal, mAddressRemote, mFunctionAcceptSockAddress);
+            u32 nid = mService->receive(iContext->mSocket, mAddressRemote, mAddressLocal, evt);
+            if (0 == nid) {
+                IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::stepAccpet",
+                    "[can't add in service, socket:%s:%u->%s:%u]",
+                    mAddressRemote.getIPString(), mAddressRemote.getPort(),
+                    mAddressLocal.getIPString(), mAddressLocal.getPort());
+                iContext->mSocket.close();
             }
-        }
-        if(0 == nid) {
-            iContext->mSocket.close();
+        } else {
             IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::stepAccpet",
-                "[server:%u][socket:%s:%u->%s:%u]",
-                sz,
-                mAddressRemote.getIPString(),
-                mAddressRemote.getPort(),
-                mAddressLocal.getIPString(),
-                mAddressLocal.getPort());
+                "[INetEventer::onAccept fail, socket:%s:%u->%s:%u]",
+                mAddressRemote.getIPString(), mAddressRemote.getPort(),
+                mAddressLocal.getIPString(), mAddressLocal.getPort());
+            iContext->mSocket.close();
         }
     } else {
+        IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::stepAccpet",
+            "[none INetEventer/Service, socket:%s:%u->%s:%u]",
+            mAddressRemote.getIPString(), mAddressRemote.getPort(),
+            mAddressLocal.getIPString(), mAddressLocal.getPort());
         iContext->mSocket.close();
     }//if
 
@@ -305,70 +305,45 @@ bool CNetServerAcceptor::stepAccpet(SContextWaiter* iContext) {
 
 
 CNetServiceTCP* CNetServerAcceptor::createServer() {
+    if (mService) {
+        return mService;
+    }
+
     CNetServiceTCP* server = new CNetServiceTCP();
-    server->setID(mAllService.size()); //@note: step 1
-    if(server->start(mConfig)) { //@note: step 2
-        addServer(server);
+    server->setID(0); //@note: step 1
+    if (server->start(mConfig)) { //@note: step 2
+        mService = server;
+        mCreated = true;
         return server;
     }
     delete server;
-    return 0;
+    return mService;
 }
 
 
-void CNetServerAcceptor::removeAllServer() {
-    u32 sz = mAllService.size();
-    for(u32 i = 0; i < sz; ) {
-        if(!mAllService[i]->stop()) {
-            CThread::sleep(1000);
-        } else {
-            ++i;
-        }
+void CNetServerAcceptor::deleteServer() {
+    if (mService && mCreated) {
+        mService->stop();
+        delete mService;
     }
-}
-
-
-void CNetServerAcceptor::addServer(CNetServiceTCP* it) {
-    mAllService.push_back(it);
-}
-
-
-bool CNetServerAcceptor::removeServer(CNetServiceTCP* it) {
-    u32 sz = mAllService.size();
-    for(u32 i = 0; i < sz; ++i) {
-        if(it == mAllService[i]) {
-            mAllService[i] = mAllService[sz - 1];
-            mAllService.set_used(sz - 1);
-            return true;
-        }
-    }
-    return false;
+    mService = nullptr;
 }
 
 
 s32 CNetServerAcceptor::send(u32 id, const void* buffer, s32 size) {
-    u32 sid = ((id & ENET_SERVER_MASK) >> ENET_SESSION_BITS);
-    if(sid < mAllService.size()) {
-        return mAllService[sid]->send(id, buffer, size);
-    }
-    return -1;
+    return mService->send(id, buffer, size);
 }
 
 
-CNetServiceTCP* CNetServerAcceptor::getServer(u32 id) const {
-    u32 sid = ((id & ENET_SERVER_MASK) >> ENET_SESSION_BITS);
-    if(sid < mAllService.size()) {
-        return mAllService[sid];
-    }
-    return 0;
+CNetServiceTCP* CNetServerAcceptor::getServer() const {
+    return mService;
 }
 
-void CNetServerAcceptor::setEventer(u32 id, INetEventer* evt) {
-    u32 sid = ((id & ENET_SERVER_MASK) >> ENET_SESSION_BITS);
-    if(sid < mAllService.size()) {
-        mAllService[sid]->setEventer(id, evt);
-    }
+
+void CNetServerAcceptor::setServer(CNetServiceTCP* it) {
+    mService = it;
 }
+
 
 
 }//namespace net
@@ -392,7 +367,7 @@ CNetServerAcceptor::CNetServerAcceptor() :
 
 CNetServerAcceptor::~CNetServerAcceptor() {
     stop();
-    if(mConfig) {
+    if (mConfig) {
         mConfig->drop();
         mConfig = nullptr;
     }
@@ -405,19 +380,19 @@ void CNetServerAcceptor::run() {
     CEventPoller::SEvent* iEvent = new CEventPoller::SEvent[maxe];
     s32 gotsz = 0;
     CNetSocket sock(mPoller.getSocketPair().getSocketA());
-    for(; mRunning; ) {
+    for (; mRunning; ) {
         gotsz = mPoller.getEvents(iEvent, maxe, APP_THREAD_MAX_SLEEP_TIME);
-        if(gotsz > 0) {
+        if (gotsz > 0) {
             //bool ret = true;
-            for(u32 i = 0; i < gotsz; ++i) {
-                if(EPOLLIN & iEvent[i].mEvent) {
-                    if(mListener.getValue() == iEvent[i].mData.mData32) {
+            for (u32 i = 0; i < gotsz; ++i) {
+                if (EPOLLIN & iEvent[i].mEvent) {
+                    if (mListener.getValue() == iEvent[i].mData.mData32) {
                         CNetSocket sock(mListener.accept());
                         stepAccpet(sock);
                     } else {
                         u32 mask;
                         s32 ret = sock.receiveAll(&mask, sizeof(mask));
-                        if(ENET_SESSION_MASK == mask) {
+                        if (ENET_SESSION_MASK == mask) {
                             mRunning = false;
                         }
                     }
@@ -426,7 +401,7 @@ void CNetServerAcceptor::run() {
                     continue;
                 }
             }//for
-        } else if(0 == gotsz) {
+        } else if (0 == gotsz) {
             APP_LOG(ELOG_DEBUG, "CNetServerAcceptor::run", "epoll wait timeout");
         } else {
             s32 pcode = mPoller.getError();
@@ -442,7 +417,7 @@ void CNetServerAcceptor::run() {
 
 bool CNetServerAcceptor::clearError() {
     s32 ecode = CNetSocket::getError();
-    switch(ecode) {
+    switch (ecode) {
     default:
     {
         IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::clearError",
@@ -454,7 +429,7 @@ bool CNetServerAcceptor::clearError() {
 
 
 bool CNetServerAcceptor::start(CNetConfig* cfg) {
-    if(mRunning || nullptr == cfg) {
+    if (mRunning || nullptr == cfg) {
         IAppLogger::log(ELOG_INFO, "CNetServerAcceptor::start",
             "server is running already, config=%p", cfg);
         return true;
@@ -463,7 +438,7 @@ bool CNetServerAcceptor::start(CNetConfig* cfg) {
     cfg->grab();
     mConfig = cfg;
 
-    if(!initialize()) {
+    if (!initialize()) {
         removeAll();
         IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::start", "init server fail");
         return false;
@@ -472,7 +447,7 @@ bool CNetServerAcceptor::start(CNetConfig* cfg) {
     mRunning = true;
     createServer();
 
-    if(0 == mThread) {
+    if (0 == mThread) {
         mThread = new CThread();
     }
     mThread->start(*this);
@@ -484,14 +459,14 @@ bool CNetServerAcceptor::start(CNetConfig* cfg) {
 
 
 bool CNetServerAcceptor::stop() {
-    if(!mRunning) {
+    if (!mRunning) {
         //IAppLogger::log(ELOG_INFO, "CNetServerAcceptor::stop", "server had stoped.");
         return true;
     }
     mRunning = false;
     CEventPoller::SEvent evt;
     evt.setMessage(APP_SERVER_EXIT_CODE);
-    if(mPoller.postEvent(evt)) {
+    if (mPoller.postEvent(evt)) {
         mThread->join();
         delete mThread;
         mThread = 0;
@@ -507,8 +482,8 @@ bool CNetServerAcceptor::stop() {
 
 s32 CNetServerAcceptor::send(u32 id, const void* buffer, s32 size) {
     u32 sid = ((id & ENET_SERVER_MASK) >> ENET_SESSION_BITS);
-    if(sid < mAllService.size()) {
-        return mAllService[sid]->send(id, buffer, size);
+    if (sid < mService.size()) {
+        return mService[sid]->send(id, buffer, size);
     }
     return -1;
 }
@@ -520,40 +495,40 @@ void CNetServerAcceptor::removeAll() {
 
 
 bool CNetServerAcceptor::initialize() {
-    if(!mListener.openTCP()) {
+    if (!mListener.openTCP()) {
         IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "create listen socket fail: %d", CNetSocket::getError());
         return false;
     }
 
-    if(mConfig->mReuse && mListener.setReuseIP(true)) {
+    if (mConfig->mReuse && mListener.setReuseIP(true)) {
         IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "set reuse IP fail: [%d]", CNetSocket::getError());
         return false;
     }
 
-    if(mConfig->mReuse && mListener.setReusePort(true)) {
+    if (mConfig->mReuse && mListener.setReusePort(true)) {
         IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "set reuse port fail: [%d]", CNetSocket::getError());
         return false;
     }
 
-    if(mListener.bind(mAddressLocal)) {
+    if (mListener.bind(mAddressLocal)) {
         IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "bind socket error: [%d]", CNetSocket::getError());
         return false;
     }
 
-    if(mListener.listen(SOMAXCONN)) {
+    if (mListener.listen(SOMAXCONN)) {
         IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "listen socket error: [%d]", CNetSocket::getError());
         return false;
     }
 
     CNetSocket& sock = mPoller.getSocketPair().getSocketA();
-    if(!sock.isOpen()) {
+    if (!sock.isOpen()) {
         //printf("error %d on socketpair\n", errno);
         return false;
     }
     CEventPoller::SEvent evt;
     evt.mData.mData32 = ENET_SESSION_MASK;
     evt.mEvent = EPOLLIN | EPOLLERR;
-    if(!mPoller.add(sock, evt)) {
+    if (!mPoller.add(sock, evt)) {
         return false;
     }
 
@@ -567,23 +542,23 @@ bool CNetServerAcceptor::stepAccpet(CNetSocket& sock) {
     INetEventer* evt = mReceiver->onAccept(mAddressLocal);
     --mAcceptCount;
     CNetServiceTCP* server = 0;
-    u32 sz = mAllService.size();
-    if(0 == sz) {
+    u32 sz = mService.size();
+    if (0 == sz) {
         createServer();
-        sz = mAllService.size();
+        sz = mService.size();
         APP_ASSERT(sz > 0);
     }
     sock.getLocalAddress(mAddressLocal);
     sock.getRemoteAddress(mAddressRemote);
-    if(mCurrent >= sz) {
+    if (mCurrent >= sz) {
         mCurrent = 0;
     }
     do {
-        server = mAllService[mCurrent++];
+        server = mService[mCurrent++];
         server->receive(sock, mAddressRemote, mAddressLocal, mReceiver);
-    } while(!server && mCurrent < sz);
+    } while (!server && mCurrent < sz);
 
-    if(!server) {
+    if (!server) {
         server = createServer();
         APP_ASSERT(server);
         server->receive(sock, mAddressRemote, mAddressLocal, mReceiver);
@@ -595,7 +570,7 @@ bool CNetServerAcceptor::stepAccpet(CNetSocket& sock) {
 
 CNetServiceTCP* CNetServerAcceptor::createServer() {
     CNetServiceTCP* server = new CNetServiceTCP();
-    if(server->start(mConfig)) {
+    if (server->start(mConfig)) {
         addServer(server);
         return server;
     }
@@ -605,9 +580,9 @@ CNetServiceTCP* CNetServerAcceptor::createServer() {
 
 
 void CNetServerAcceptor::removeAllServer() {
-    u32 sz = mAllService.size();
-    for(u32 i = 0; i < sz; ) {
-        if(!mAllService[i]->stop()) {
+    u32 sz = mService.size();
+    for (u32 i = 0; i < sz; ) {
+        if (!mService[i]->stop()) {
             CThread::sleep(100);
         } else {
             ++i;
@@ -617,16 +592,16 @@ void CNetServerAcceptor::removeAllServer() {
 
 
 void CNetServerAcceptor::addServer(CNetServiceTCP* it) {
-    mAllService.push_back(it);
+    mService.push_back(it);
 }
 
 
 bool CNetServerAcceptor::removeServer(CNetServiceTCP* it) {
-    u32 sz = mAllService.size();
-    for(u32 i = 0; i < sz; ++i) {
-        if(it == mAllService[i]) {
-            mAllService[i] = mAllService[sz - 1];
-            mAllService.set_used(sz - 1);
+    u32 sz = mService.size();
+    for (u32 i = 0; i < sz; ++i) {
+        if (it == mService[i]) {
+            mService[i] = mService[sz - 1];
+            mService.set_used(sz - 1);
             return true;
         }
     }

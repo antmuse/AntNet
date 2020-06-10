@@ -1,23 +1,37 @@
 #include "CNetHttpURL.h"
-#include "IUtility.h"
-#include "fast_atof.h"
-
+//#include "IUtility.h"
+//#include "fast_atof.h"
 
 namespace irr {
 namespace net {
+/*
+static c8 lowcase[] =
+"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+"\0\0\0\0\0\0\0\0\0\0\0\0\0-\0\0" "0123456789\0\0\0\0\0\0"
+"\0abcdefghijklmnopqrstuvwxyz\0\0\0\0\0"
+"\0abcdefghijklmnopqrstuvwxyz\0\0\0\0\0"
+"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+*/
 
-CNetHttpURL::CNetHttpURL() :
-    mPath("/"),
-    mHTTPS(false),
-    mPort(APP_NET_DEFAULT_HTTP_PORT) {
+
+CNetHttpURL::CNetHttpURL() {
+    http_parser_url_init(&mNodes);
 }
 
 
-CNetHttpURL::CNetHttpURL(const core::stringc& url) :
-    //mPath("/"),
-    mHTTPS(false),
-    mPort(APP_NET_DEFAULT_HTTP_PORT) {
+CNetHttpURL::CNetHttpURL(const core::stringc& url) {
     set(url);
+}
+
+CNetHttpURL::CNetHttpURL(const c8* url) {
+    set(url, 0);
+}
+
+CNetHttpURL::CNetHttpURL(const c8* url, u64 len) {
+    set(url, len);
 }
 
 
@@ -29,237 +43,75 @@ CNetHttpURL::CNetHttpURL(const CNetHttpURL& other) {
 CNetHttpURL::~CNetHttpURL() {
 }
 
-
 CNetHttpURL& CNetHttpURL::operator=(const CNetHttpURL& other) {
-    if(this == &other) {
+    if (this == &other) {
         return *this;
     }
-    mHTTPS = other.mHTTPS;
-    mPort = other.mPort;
-    mHost = other.mHost;
-    mPath = other.mPath;
-
+    mCache.set_used(other.mCache.size());
+    memcpy(mCache.pointer(), other.mCache.const_pointer(), other.mCache.size());
+    mNodes = other.mNodes;
     return *this;
 }
 
-
 bool CNetHttpURL::operator==(const CNetHttpURL& other) const {
-    if(this == &other) {
+    if (this == &other) {
         return true;
     }
-    if(mHTTPS == other.mHTTPS &&
-        mPort == other.mPort &&
-        mHost == other.mHost &&
-        mPath == other.mPath) {
-        return true;
+    if (mCache.size() != other.mCache.size()) {
+        return false;
     }
-    return false;
+    return 0 == memcmp(mCache.const_pointer(), other.mCache.const_pointer(), mCache.size());
 }
-
 
 bool CNetHttpURL::operator!=(const CNetHttpURL& other) const {
-    if(this == &other) {
-        return false;
-    }
-    if(mHTTPS != other.mHTTPS ||
-        mPort != other.mPort ||
-        mHost != other.mHost ||
-        mPath != other.mPath) {
-        return true;
-    }
-    return false;
+    return !(*this == other);
 }
-
-
-void CNetHttpURL::mergePath(const core::stringc& it) {
-    if('/' == it[0]) {
-        mPath = it;
-    } else {
-        s32 pos = mPath.findLast('/');
-        if(pos >= 0) {
-            mPath = mPath.subString(0, 1 + pos);
-        } else {
-            mPath = "/";
-        }
-        mPath += it;
-    }
-}
-
 
 bool CNetHttpURL::set(const core::stringc& it) {
-    core::stringc url(it);
-    s32 pos = url.findLast('#');
-    if(pos > 0) {
-        url = url.subString(0, pos);
-    } else if(0 == pos) {
-        return false;
-    }
-
-    const u32 min = 8;
-    if(url.size() <= min) {
-        mergePath(url);
-        return true;
-    }
-
-    bool full_url = false;
-    if(':' == url[4] && '/' == url[5] && '/' == url[6]) {//http://
-        core::AppToLower(&url[0], 4);
-        full_url = true;
-    } else if(':' == url[5] && '/' == url[6] && '/' == url[7]) {//https://
-        core::AppToLower(&url[0], 5);
-        full_url = true;
-    }
-
-    if(full_url && 'h' == url[0] && 't' == url[1] && 't' == url[2] && 'p' == url[3]) {
-        mHTTPS = ('s' == url[4] ? true : false);
-    } else {
-        mergePath(url);
-        return true;
-    }
-
-    s32 start = (mHTTPS ? 8 : 7); //// skip "http://" or "https://"
-    s32 end = url.findNext('/', start);
-    if(end == start) {
-        return false;
-    }if(end > start) {
-        mHost = url.subString(start, end - start);
-        mPath = url.subString(end, url.size() - end);
-    } else {
-        mHost = url.subString(start, url.size() - start);
-        mPath = "/";
-    }
-
-    end = mHost.findLast(':');
-    if(end > 0) {
-        mPort = core::strtoul10(mHost.c_str() + end + 1);
-        mHost = mHost.subString(0, end);
-    } else {
-        mPort = (mHTTPS ? APP_NET_DEFAULT_HTTPS_PORT : APP_NET_DEFAULT_HTTP_PORT);
-    }
-
-    mHost.make_lower();
-    return true;
+    return set(it.c_str(), it.size());
 }
 
+void CNetHttpURL::toLow(s32 idx) {
+    c8* str;
+    s32 len;
+    if (getNode(idx, str, len)) {
+        for (; --len >= 0;) {
+            if (str[len] >= 'A' && str[len] <= 'Z') {
+                str[len] += 32;
+            }
+        }
+    }
+}
 
-u32 CNetHttpURL::setAndCheck(const core::stringc& url) {
-    u32 ret = 0;
-    const core::stringc opath(mPath);
-    const core::stringc ohost(mHost);
-    const u16 oport = mPort;
-    const bool ohttps = mHTTPS;
-    if(!set(url)) {
+bool CNetHttpURL::set(const c8* url, u64 len) {
+    if (nullptr != url) {
+        len = len > 0 ? len : strlen(url);
+        mCache.set_used(len + 1);
+        memcpy(mCache.pointer(), url, len + 1);
+        http_parser_url_init(&mNodes);
+        bool ret = 0 == http_parser_parse_url(url, len, 0, &mNodes);
+        if (ret) {
+            if (0 == mNodes.port) {
+                mNodes.port = 80;
+            }
+            toLow(UF_SCHEMA);
+            toLow(UF_HOST);
+        }
         return ret;
     }
-    if(opath != mPath) {
-        ret |= EURL_NEW_PATH;
-    }
-    if(!isSameHost(ohost, mHost)) {
-        ret |= EURL_NEW_HOST;
-    }
-    if(oport != mPort) {
-        ret |= EURL_NEW_PORT;
-    }
-    if(ohttps != mHTTPS) {
-        ret |= EURL_NEW_HTTP;
-    }
-    return ret;
-}
-
-
-bool CNetHttpURL::isSameHost(const core::stringc& host1, const core::stringc& host2) {
-    if(host1 == host2) {
-        return true;
-    }
-    s32 pos1 = 0;
-    s32 pos2 = 0;
-    s32 sz1 = host1.size();
-    s32 sz2 = host2.size();
-    s32 extsz1, extsz2;
-    s32 count = 0;
-    for(; sz1 > 0 && sz2 > 0;) {
-        pos1 = host1.findLast('.', pos1 - 1);
-        pos2 = host2.findLast('.', pos2 - 1);
-        extsz1 = sz1 - pos1 - 1;
-        extsz2 = sz2 - pos2 - 1;
-        sz1 = pos1;
-        sz2 = pos2;
-        if(extsz1 != extsz2) {
-            return false;
-        }
-        if(0 != memcmp(host1.c_str() + pos1 + 1, host2.c_str() + pos2 + 1, extsz1)) {
-            return false;
-        }
-        if(0 == count) {
-            ++count;
-            continue;
-        }
-        if(isPublicExt(host1.c_str() + pos1 + 1, extsz1)) {
-            continue;
-        }
-        return true;
-    }
     return false;
 }
 
-
-bool CNetHttpURL::isPublicExt(const c8* host, s32 size) {
-    const c8* const ext2[] = {
-        "cn",
-        "cc",
-        0
-    };
-    const c8* const ext3[] = {
-        "com",
-        "net",
-        "gov",
-        "org",
-        0
-    };
-    switch(size) {
-    case 3:
-        for(u32 i = 0; ext3[i]; ++i) {
-            if(0 == memcmp(ext3[i], host, size)) {
-                return true;
-            }
+void CNetHttpURL::show() {
+    c8* str;
+    s32 len;
+    printf("[port=%d][bits=%X]\n", mNodes.port, mNodes.field_set);
+    for (s32 i = 0; i < net::UF_MAX; ++i) {
+        if (getNode(i, str, len)) {
+            printf("item[%d][len=%u]=%.*s\n", i, len, len, str);
         }
-        break;
-    case 2:
-        for(u32 i = 0; ext2[i]; ++i) {
-            if(0 == memcmp(ext2[i], host, size)) {
-                return true;
-            }
-        }
-        break;
-    default: break;
     }
-
-    return false;
 }
-
-
-
-bool CNetHttpURL::isValidChar(c8 c) {
-    if((c >= 'A'&&c <= 'Z') || (c >= 'a'&&c <= 'z') || (c >= '0'&&c <= '9')) {
-        return true;
-    }
-
-    c8 url[17] = {
-        '.', '_', '\\', '/', '~',
-        '%', '-', '+', '&', '#',
-        '?', '!', '=', '(', ')',
-        '@', ':'
-    };
-
-    for(s32 i = 0; i < 17; i++) {
-        if(c == url[i]) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 
 } //namespace net
 } //namespace irr

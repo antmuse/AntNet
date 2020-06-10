@@ -36,7 +36,9 @@ public:
 
     s32 send(u32 id, const void* buffer, s32 size);
 
-    CNetServiceTCP* getServer(u32 id)const;
+    CNetServiceTCP* getServer()const;
+
+    void setServer(CNetServiceTCP* it);
 
     void setLocalAddress(const CNetAddress& it) {
         mAddressLocal = it;
@@ -49,8 +51,6 @@ public:
     void setMaxAccept(u32 max) {
         mAcceptCount = max;
     }
-
-    void setEventer(u32 id, INetEventer* evt);
 
     void setEventer(INetEventer* evt) {
         mReceiver = evt;
@@ -67,7 +67,6 @@ protected:
         ~SContextWaiter();
         bool reset();
     };
-
 
 
     bool clearError();
@@ -95,25 +94,19 @@ protected:
     bool postAccept();
 
     CNetServiceTCP* createServer();
-
-    void removeAllServer();
-
-    void addServer(CNetServiceTCP* it);
-
-    bool removeServer(CNetServiceTCP* it);
-
+    void deleteServer();
 
 private:
     volatile bool mRunning;                ///<True if started, else false
+    bool mCreated;
     u32 mAcceptCount;
-    u32 mCurrent;
     CEventPoller mPoller;
     CThread* mThread;						///<All workers
     CNetSocket mListener;					///<listen socket's context
     CNetAddress mAddressRemote;
     CNetAddress mAddressLocal;
     core::array<SContextWaiter*>  mAllWaiter;
-    core::array<CNetServiceTCP*>  mAllService;
+    CNetServiceTCP* mService;
     void* mFunctionAccept;
     void* mFunctionAcceptSockAddress;
     INetEventer* mReceiver;
@@ -192,7 +185,7 @@ private:
     CNetSocket mListener;						///<listen socket's context
     CNetAddress mAddressRemote;
     CNetAddress mAddressLocal;
-    core::array<CNetServiceTCP*>  mAllService;
+    core::array<CNetServiceTCP*>  mService;
 };
 
 }// end namespace net

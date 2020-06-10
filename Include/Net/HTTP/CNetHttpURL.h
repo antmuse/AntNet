@@ -2,32 +2,26 @@
 #define APP_CNETHTTPURL_H
 
 #include "irrString.h"
-#include "irrMap.h"
+#include "irrArray.h"
+#include "http_parser.h"
 
 namespace irr {
 namespace net {
-
-
-#define APP_NET_DEFAULT_HTTP_PORT       80
-#define APP_NET_DEFAULT_HTTPS_PORT      443
-
-
+/**
+* @brief def a tool for URL
+*   CNetHttpURL url("http://usr:passd@nginx.org:89/docs/guide.html?pa=1&pb=2#proxy");
+*/
 class CNetHttpURL {
 public:
-    enum EURLFlag {
-        EURL_INVALID = 0,
-        EURL_NEW_HTTP = 1,
-        EURL_NEW_PATH = 2,
-        EURL_NEW_HOST = 4,
-        EURL_NEW_PORT = 8
-    };
     CNetHttpURL();
 
+    CNetHttpURL(const c8* url);
+    CNetHttpURL(const c8* url, u64 len);
     CNetHttpURL(const core::stringc& url);
+    CNetHttpURL(const CNetHttpURL& other);
 
     ~CNetHttpURL();
 
-    CNetHttpURL(const CNetHttpURL& other);
 
     CNetHttpURL& operator=(const CNetHttpURL& other);
 
@@ -35,63 +29,95 @@ public:
 
     bool operator!=(const CNetHttpURL& other) const;
 
-    static bool isValidChar(c8 ch);
-
-    /**
-    *@brief Set URL values.
-    *@param url The URL string.
-    *@return Thre flags of changed parts of url.
-    */
-    u32 setAndCheck(const core::stringc& url);
-
     /**
     *@brief Set URL values.
     *@param url The URL string.
     *@return true if valid,  else false.
     */
     bool set(const core::stringc& url);
+    bool set(const c8* url, u64 len = 0);
 
     /**
     *@brief Set a path relatived to current host.
     *@param pth The relative path.
     */
     void setPath(const core::stringc& pth) {
-        mPath = pth;
+    }
+
+    void getPath(core::stringc& pth) {
+        if ((1 << UF_PATH) & mNodes.field_set) {
+            pth = "";
+            pth.append(mCache.pointer() + mNodes.field_data[UF_PATH].off,
+                mNodes.field_data[UF_PATH].len);
+        } else {
+            pth = "/";
+        }
+    }
+
+    void getHost(core::stringc& pth) {
+        if ((1 << UF_HOST) & mNodes.field_set) {
+            pth = "";
+            pth.append(mCache.pointer() + mNodes.field_data[UF_HOST].off,
+                mNodes.field_data[UF_HOST].len);
+        }
     }
 
     void setHost(const core::stringc& host) {
-        mHost = host;
+    }
+
+
+    /**
+    * @param idx @see http_parser_url_fields
+    */
+    bool getNode(const s32 idx, c8*& str, s32& len) {
+        if ((1 << idx) & mNodes.field_set) {
+            str = mCache.pointer() + mNodes.field_data[idx].off;
+            len = mNodes.field_data[idx].len;
+            return true;
+        }
+        str = nullptr;
+        len = 0;
+        return false;
     }
 
     u16 getPort() const {
-        return mPort;
+        return mNodes.port;
     }
 
-    bool isHTTPS() const {
-        return mHTTPS;
+    bool isHTTP() {
+        c8* str;
+        s32 len;
+        if (getNode(UF_SCHEMA, str, len) && 4 == len) {
+            return *reinterpret_cast<s32*>("http") == *reinterpret_cast<s32*>(str);
+        }
+        return false;
     }
 
-    const core::stringc& getHost()const {
-        return mHost;
+    bool isHTTPS() {
+        c8* str;
+        s32 len;
+        if (getNode(UF_SCHEMA, str, len) && 5 == len) {
+            return *reinterpret_cast<s32*>("http") == *reinterpret_cast<s32*>(str) && 's' == str[4];
+        }
+        return false;
     }
 
-    const core::stringc& getPath()const {
-        return mPath;
+    u16 getMask()const {
+        return mNodes.field_set;
     }
 
-    static bool isSameHost(const core::stringc& host1, const core::stringc& host2);
 
-    static bool isPublicExt(const c8* host, s32 size);
+    void show();
 
 protected:
-    void mergePath(const core::stringc& it);
-    bool mHTTPS; ///<default = false
-    u16 mPort;
-    core::stringc mHost;
-    core::stringc mPath;
-    //core::stringc mFile;
-    //core::map<core::stringc, core::stringc> mParameter;
-    //core::stringc mAnchor;
+    /**
+    scheme:[//[user[:password]@]host[:port]][/path][?query][#fragment]
+    https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=1
+    */
+    core::array<c8> mCache;
+    http_parser_url mNodes;
+
+    void toLow(s32 idx);
 };
 
 } //namespace net

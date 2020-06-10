@@ -22,7 +22,7 @@ public:
         mRequest.getURL().set(url);
         mAddressRemote.setPort(mRequest.getURL().getPort());
         if(updateIP) {
-            mAddressRemote.setDomain(mRequest.getURL().getHost().c_str());
+            //mAddressRemote.setDomain(mRequest.getURL().getHost().c_str());
         }
     }
 
