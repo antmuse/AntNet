@@ -1,10 +1,10 @@
 #ifndef APP_CNETECHOCLIENT_H
 #define APP_CNETECHOCLIENT_H
 
-#include "irrList.h"
+#include "AppList.h"
 #include "INetEventer.h"
 
-namespace irr {
+namespace app {
 namespace net {
 class CNetServiceTCP;
 
@@ -61,10 +61,10 @@ public:
     static s32 mRecvBadCount;
     static s32 mMaxSendPackets;
 
-    static void initData(const c8* msg, s32 mb);
+    static void initData(const s8* msg, s32 mb);
 
 private:
-    static c8 mTestData[4 * 1024];
+    static s8 mTestData[4 * 1024];
 
     bool mAutoConnect;
     u32 mSession;
@@ -76,6 +76,6 @@ private:
 };
 
 }//namespace net
-}//namespace irr
+}//namespace app
 
 #endif //APP_CNETECHOCLIENT_H

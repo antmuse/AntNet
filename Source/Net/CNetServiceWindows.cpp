@@ -1,12 +1,12 @@
 #include "CNetService.h"
-#include "IAppTimer.h"
-#include "IAppLogger.h"
+#include "CTimer.h"
+#include "CLogger.h"
 #include "CMemoryHub.h"
 #include "CNetUtility.h"
 
 
 #if defined(APP_PLATFORM_WINDOWS)
-namespace irr {
+namespace app {
 namespace net {
 
 void CNetServiceTCP::run() {
@@ -24,7 +24,7 @@ void CNetServiceTCP::run() {
     for(; mRunning; ) {
         gotsz = mPoller.getEvents(iEvent, maxe, mTimeInterval);
         if(gotsz > 0) {
-            mCurrentTime = IAppTimer::getRelativeTime();
+            mCurrentTime = CTimer::getRelativeTime();
             for(u32 i = 0; i < gotsz; ++i) {
                 ret = 2;
                 if(iEvent[i].mKey < ENET_SESSION_MASK && iEvent[i].mPointer) {
@@ -51,7 +51,7 @@ void CNetServiceTCP::run() {
                         break;
 
                     default:
-                        IAppLogger::log(ELOG_ERROR, "CNetServiceTCP::run",
+                        CLogger::log(ELOG_ERROR, "CNetServiceTCP::run",
                             "unknown operation: [%u]", iAction->mOperationType);
                         continue;
                     }//switch
@@ -105,11 +105,11 @@ void CNetServiceTCP::run() {
             bool bigerror = false;
             switch(pcode) {
             case WAIT_TIMEOUT:
-                mCurrentTime = IAppTimer::getRelativeTime();
+                mCurrentTime = CTimer::getRelativeTime();
                 mWheel.update(mCurrentTime);
                 last = mCurrentTime;
                 if(mCurrentTime - lastshow >= 1000) {
-                    IAppLogger::log(ELOG_INFO, "CNetServiceTCP::run",
+                    CLogger::log(ELOG_INFO, "CNetServiceTCP::run",
                         "[context:%u/%u][socket:%u/%u]",
                         mSessionPool.getActiveCount(), mSessionPool.getMaxContext(),
                         mClosedSocket, mCreatedSocket);
@@ -119,7 +119,7 @@ void CNetServiceTCP::run() {
 
             case ERROR_ABANDONED_WAIT_0: //socket closed
             default:
-                IAppLogger::log(ELOG_ERROR, "CNetServiceTCP::run",
+                CLogger::log(ELOG_ERROR, "CNetServiceTCP::run",
                     "invalid overlap, ecode: [%lu]", pcode);
                 APP_ASSERT(0);
                 bigerror = true;
@@ -134,7 +134,7 @@ void CNetServiceTCP::run() {
     }//for
 
     delete[] iEvent;
-    IAppLogger::log(ELOG_INFO, "CNetServiceTCP::run", "thread exited");
+    CLogger::log(ELOG_INFO, "CNetServiceTCP::run", "thread exited");
 }
 
 //void CNetServiceTCP::postSend() {
@@ -167,14 +167,14 @@ bool CNetServiceTCP::clearError() {
     case ERROR_CONNECTION_ABORTED: //服务器主动关闭
     case ERROR_NETNAME_DELETED: //客户端主动关闭连接
     {
-        IAppLogger::log(ELOG_INFO, "CNetServiceTCP::clearError",
+        CLogger::log(ELOG_INFO, "CNetServiceTCP::clearError",
             "client quit abnormally, [ecode=%u]", ecode);
         //removeClient(pContext);
         return true;
     }
     default:
     {
-        IAppLogger::log(ELOG_ERROR, "CNetServiceTCP::clearError",
+        CLogger::log(ELOG_ERROR, "CNetServiceTCP::clearError",
             "IOCP operation error, [ecode=%u]", ecode);
         return false;
     }
@@ -185,5 +185,5 @@ bool CNetServiceTCP::clearError() {
 
 
 }//namespace net
-}//namespace irr
+}//namespace app
 #endif //APP_PLATFORM_WINDOWS

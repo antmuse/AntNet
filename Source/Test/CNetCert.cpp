@@ -2,7 +2,7 @@
 #include "CFileReader.h"
 
 
-namespace irr {
+namespace app {
 namespace net {
 
 
@@ -14,7 +14,7 @@ CNetCert::~CNetCert() {
     mbedtls_x509_crt_free(&mCertCA);
 }
 
-bool CNetCert::loadFromFile(const io::path& filenm) {
+bool CNetCert::loadFromFile(const core::CPath& filenm) {
     io::CFileReader rer;
     if (!rer.openFile(filenm)) {
         return false;
@@ -52,4 +52,4 @@ bool CNetCert::loadFromBuf(const void* buf, u64 iSize) {
 }
 
 }//namespace net
-}//namespace irr
+}//namespace app

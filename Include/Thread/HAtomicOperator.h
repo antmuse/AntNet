@@ -9,10 +9,9 @@
 #define APP_HATOMICOPERATOR_H
 
 #include "HConfig.h"
-#include "irrTypes.h"
 
 
-namespace irr {
+namespace app {
 void AppAtomicReadBarrier();
 
 void AppAtomicWriteBarrier();
@@ -106,6 +105,6 @@ s64 AppAtomicFetchCompareSet(s64 newValue, s64 comparand, s64* iTarget);
 
 s32 AppAtomicFetch(s32* iTarget);
 s64 AppAtomicFetch(s64* iTarget);
-} //end namespace irr
+} //end namespace app
 
 #endif	// APP_HATOMICOPERATOR_H

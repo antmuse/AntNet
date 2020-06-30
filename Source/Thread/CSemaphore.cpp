@@ -10,7 +10,7 @@
 
 #if defined( APP_PLATFORM_WINDOWS )
 
-namespace irr {
+namespace app {
 CSemaphore::CSemaphore() : mSema(0) {
 }
 
@@ -66,7 +66,7 @@ bool CSemaphore::wait(long milliseconds) {
 }
 
 
-} //namespace irr
+} //namespace app
 
 #elif defined( APP_PLATFORM_ANDROID )  || defined( APP_PLATFORM_LINUX )
 
@@ -93,7 +93,7 @@ bool CSemaphore::wait(long milliseconds) {
 #endif
 
 
-namespace irr {
+namespace app {
 CSemaphore::CSemaphore() : mValue(0), mMax(1) {
 }
 
@@ -244,7 +244,7 @@ void CSemaphore::set() {
 }
 
 
-} //namespace irr
+} //namespace app
 
 
 #endif //( APP_PLATFORM_ANDROID )  || ( APP_PLATFORM_LINUX )

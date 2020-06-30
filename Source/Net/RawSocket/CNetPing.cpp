@@ -1,7 +1,7 @@
 #include "CNetPing.h"
 #include "CNetUtility.h"
 #include "CCheckSum.h"
-#include "IAppTimer.h"
+#include "CTimer.h"
 //#include "IUtility.h"
 
 #if defined(APP_PLATFORM_WINDOWS)
@@ -25,7 +25,7 @@
 
 
 
-namespace irr {
+namespace app {
 namespace net {
 
 CNetPing::CNetPing() :
@@ -43,7 +43,7 @@ CNetPing::~CNetPing() {
 }
 
 
-bool CNetPing::ping(const c8* remoteIP, u32 max, s32 timeout) {
+bool CNetPing::ping(const s8* remoteIP, u32 max, s32 timeout) {
     if(!mSocket.openRaw(IPPROTO_ICMP)) {
         return false;
     }
@@ -59,8 +59,8 @@ bool CNetPing::ping(const c8* remoteIP, u32 max, s32 timeout) {
 
     // 创建报文数据包，先分配内存，在调用FillCMPData填充SHeadICMP结构      
     mDataSize += sizeof(SHeadICMP);
-    mICMP_Data = (c8*) ::malloc(MAX_PACKET);
-    mReceiveBuffer = (c8*) ::malloc(MAX_PACKET);
+    mICMP_Data = (s8*) ::malloc(MAX_PACKET);
+    mReceiveBuffer = (s8*) ::malloc(MAX_PACKET);
     if(!mICMP_Data) {
         return false;
     }
@@ -71,7 +71,7 @@ bool CNetPing::ping(const c8* remoteIP, u32 max, s32 timeout) {
     for(u32 nCount = 0; nCount < max; ++nCount) {
         cksum.clear();
         ((SHeadICMP*) mICMP_Data)->mChecksum = 0;
-        ((SHeadICMP*) mICMP_Data)->mTimestamp = IAppTimer::getRelativeTime();;
+        ((SHeadICMP*) mICMP_Data)->mTimestamp = CTimer::getRelativeTime();;
         ((SHeadICMP*) mICMP_Data)->mSN = mSendSN++;
         cksum.add(mICMP_Data, mDataSize);
         ((SHeadICMP*) mICMP_Data)->mChecksum = cksum.get();
@@ -112,7 +112,7 @@ void CNetPing::clear() {
 }
 
 
-void CNetPing::writeICMPData(c8* mICMP_Data, s32 datasize) {
+void CNetPing::writeICMPData(s8* mICMP_Data, s32 datasize) {
     SHeadICMP* icmp_hdr = (SHeadICMP*) mICMP_Data;
     icmp_hdr->mType = ICMP_ECHO;        // Request an ICMP echo
     icmp_hdr->mCode = 0;
@@ -120,11 +120,11 @@ void CNetPing::writeICMPData(c8* mICMP_Data, s32 datasize) {
     icmp_hdr->mChecksum = 0;
     icmp_hdr->mSN = 0;
 
-    c8* datapart = mICMP_Data + sizeof(SHeadICMP);
+    s8* datapart = mICMP_Data + sizeof(SHeadICMP);
 }
 
 
-bool CNetPing::decodeHeader(c8 *buf, s32 bytes, CNetAddress& from) {
+bool CNetPing::decodeHeader(s8 *buf, s32 bytes, CNetAddress& from) {
     SHeadIP* iphdr = (SHeadIP*) buf;
     u16 iphdrlen = iphdr->getSize();
     if(bytes < iphdrlen + ICMP_MIN) {
@@ -146,4 +146,4 @@ bool CNetPing::decodeHeader(c8 *buf, s32 bytes, CNetAddress& from) {
 }
 
 }//namespace net
-}//namespace irr
+}//namespace app

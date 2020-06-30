@@ -3,10 +3,10 @@
 #include <iostream>
 #include <fstream>
 
-namespace irr {
+namespace app {
 
-CFileLogReceiver::CFileLogReceiver() : IAntLogReceiver() {
-    io::path fn(_IRR_TEXT("App.log"));
+CFileLogReceiver::CFileLogReceiver() : ILogReceiver() {
+    core::CPath fn(APP_STR("App.log"));
     mFile.openFile(fn, true);
 }
 
@@ -22,13 +22,13 @@ bool CFileLogReceiver::log(ELogLevel level, const wchar_t* timestr, const wchar_
 }
 
 
-bool CFileLogReceiver::log(ELogLevel level, const c8* timestr, const c8* sender, const c8* message) {
-    //c8 cache[1024];
+bool CFileLogReceiver::log(ELogLevel level, const s8* timestr, const s8* sender, const s8* message) {
+    //s8 cache[1024];
     //u64 sz = snprintf(cache, sizeof(cache), "[%s][%s] %s> %s\n", timestr, AppLogLevelNames[level], sender, message);
     //mFile.write(cache, sz);
 
     return mFile.writeParams("[%s][%s] %s> %s\n", timestr, AppLogLevelNames[level], sender, message) > 0;
 }
 
-}//namespace irr 
+}//namespace app 
 

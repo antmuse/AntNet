@@ -2,10 +2,9 @@
 #define APP_CEVENTPOLLER_H
 
 #include "HConfig.h"
-#include "irrTypes.h"
 
 #if defined(APP_PLATFORM_WINDOWS)
-namespace irr {
+namespace app {
 namespace net {
 class CNetSocket;
 }
@@ -82,12 +81,12 @@ protected:
 };
 
 
-} //namespace irr
+} //namespace app
 
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
 #include "CNetSocket.h"
 
-namespace irr {
+namespace app {
 //namespace net {
 //class CNetSocket;
 //}
@@ -170,7 +169,7 @@ protected:
     net::CNetSocketPair mSocketPair; ///<send command to epoll
 };
 
-} //namespace irr
+} //namespace app
 
 #endif
 

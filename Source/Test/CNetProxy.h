@@ -3,7 +3,7 @@
 
 #include "CNetServerAcceptor.h"
 
-namespace irr {
+namespace app {
 namespace net {
 class CNetProxy;
 
@@ -97,7 +97,7 @@ public:
     * @param host
     * eg: setProxyHost("127.0.0.1:60000");
     */
-    void setProxyHost(const c8* host);
+    void setProxyHost(const s8* host);
 
     bool start(u16 listenPort);
 
@@ -125,6 +125,6 @@ private:
 };
 
 }//namespace net
-}//namespace irr
+}//namespace app
 
 #endif //APP_CNETPROXY_H

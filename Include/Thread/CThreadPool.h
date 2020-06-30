@@ -8,11 +8,11 @@
 #ifndef APP_CTHREADPOOL_H
 #define APP_CTHREADPOOL_H
 
-#include "irrList.h"
+#include "AppList.h"
 #include "CThread.h"
 #include "CCondition.h"
 
-namespace irr {
+namespace app {
 
 /**
 *@class CThreadPool
@@ -85,7 +85,7 @@ private:
     void removeAll();
 };
 
-}//irr
+}//app
 
 
 #endif	/* APP_CTHREADPOOL_H */

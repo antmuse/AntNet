@@ -6,9 +6,10 @@
 #ifndef APP_CCHECKSUM_H
 #define APP_CCHECKSUM_H
 
-#include "irrTypes.h"
+#include "HConfig.h"
 
-namespace irr {
+
+namespace app {
 
 /**
 * @brief Checksum for TCP/IP head.
@@ -72,5 +73,5 @@ private:
     bool  mHaveTail;
 };
 
-}//namespace irr
+}//namespace app
 #endif //APP_CCHECKSUM_H

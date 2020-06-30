@@ -3,13 +3,13 @@
 
 #include "INetClient.h"
 #include "IRunnable.h"
-#include "irrString.h"
+#include "CString.h"
 #include "CNetProtocal.h"
 #include "CNetPacket.h"
 #include "CNetSocket.h"
 
 
-namespace irr {
+namespace app {
 namespace net {
 
 
@@ -61,7 +61,7 @@ public:
         return mProtocal.getID();
     }
 
-    s32 sendBuffer(void* iUserPointer, const c8* iData, s32 iLength)override;
+    s32 sendBuffer(void* iUserPointer, const s8* iData, s32 iLength)override;
 
 
 private:
@@ -96,6 +96,6 @@ private:
 
 
 }// end namespace net
-}// end namespace irr
+}// end namespace app
 
 #endif //APP_CNETCLIENTUDP_H

@@ -2,7 +2,7 @@
 #include "IUtility.h"
 #include <string>
 
-namespace irr {
+namespace app {
 namespace net {
 
 
@@ -27,7 +27,7 @@ void CNetPacket::SHead::decode() {
 CNetPacket::CNetPacket() :
     mDataSize(0),
     mAllocatedSize(APP_NET_MAX_BUFFER_LEN) {
-    mData = (c8*) ::malloc(mAllocatedSize);
+    mData = (s8*) ::malloc(mAllocatedSize);
     APP_ASSERT(mData);
     seek(0);
 }
@@ -39,7 +39,7 @@ CNetPacket::CNetPacket(u32 iSize) :
     if(mAllocatedSize < 8) {
         mAllocatedSize = 8;
     }
-    mData = (c8*) ::malloc(mAllocatedSize);
+    mData = (s8*) ::malloc(mAllocatedSize);
     APP_ASSERT(mData);
     seek(0);
 }
@@ -53,7 +53,7 @@ CNetPacket::~CNetPacket() {
 void CNetPacket::shrink(u32 maximum) {
     if(mAllocatedSize > maximum) {
         ::free(mData);
-        mData = (c8*) ::malloc(maximum);
+        mData = (s8*) ::malloc(maximum);
         APP_ASSERT(mData);
         mAllocatedSize = maximum;
     }
@@ -69,7 +69,7 @@ void CNetPacket::reallocate(u32 size) {
             (mAllocatedSize < 8 ? 8 : mAllocatedSize)
             : mAllocatedSize >> 2);
 
-        c8* buffer = (c8*) ::malloc(size);
+        s8* buffer = (s8*) ::malloc(size);
         APP_ASSERT(buffer);
 
         if(mDataSize > 0) {
@@ -109,13 +109,13 @@ void CNetPacket::setU32(u32 pos, u32 value) {
 }
 
 
-u32 CNetPacket::add(const c8* iStart) {
+u32 CNetPacket::add(const s8* iStart) {
     return add(iStart, (u32) ::strlen(iStart));
 }
 
 
-u32 CNetPacket::add(const c8* iStart, c8 iEnd) {
-    const c8* end = iStart;
+u32 CNetPacket::add(const s8* iStart, s8 iEnd) {
+    const s8* end = iStart;
     while((*end) != iEnd) {
         ++end;
     }
@@ -123,7 +123,7 @@ u32 CNetPacket::add(const c8* iStart, c8 iEnd) {
 }
 
 
-u32 CNetPacket::add(c8 iData) {
+u32 CNetPacket::add(s8 iData) {
     //add(ENDT_S8);
     if(mDataSize + 1 > mAllocatedSize) {
         reallocate(mAllocatedSize + 1);
@@ -170,7 +170,7 @@ u32 CNetPacket::addBuffer(const void* iData, u32 iLength) {
 }
 
 
-u32 CNetPacket::add(const c8* iData, u32 iLength) {
+u32 CNetPacket::add(const s8* iData, u32 iLength) {
     //add(ENDT_STRING);
     add(iLength);
     return addBuffer(iData, iLength);
@@ -182,7 +182,7 @@ u32 CNetPacket::add(s16 iData) {
 #if defined(APP_ENDIAN_BIG)
     iData = IUtility::swapByte(iData);
 #endif
-    return addBuffer((c8*) &iData, sizeof(iData));
+    return addBuffer((s8*) &iData, sizeof(iData));
 }
 
 
@@ -191,7 +191,7 @@ u32 CNetPacket::add(u16 iData) {
 #if defined(APP_ENDIAN_BIG)
     iData = IUtility::swapByte(iData);
 #endif
-    return addBuffer((c8*) &iData, sizeof(iData));
+    return addBuffer((s8*) &iData, sizeof(iData));
 }
 
 
@@ -200,7 +200,7 @@ u32 CNetPacket::add(s32 iData) {
 #if defined(APP_ENDIAN_BIG)
     iData = IUtility::swapByte(iData);
 #endif
-    return addBuffer((c8*) &iData, sizeof(iData));
+    return addBuffer((s8*) &iData, sizeof(iData));
 }
 
 
@@ -209,7 +209,7 @@ u32 CNetPacket::add(u32 iData) {
 #if defined(APP_ENDIAN_BIG)
     iData = IUtility::swapByte(iData);
 #endif
-    return addBuffer((c8*) &iData, sizeof(iData));
+    return addBuffer((s8*) &iData, sizeof(iData));
 }
 
 
@@ -218,7 +218,7 @@ u32 CNetPacket::add(f32 iData) {
 #if defined(APP_ENDIAN_BIG)
     iData = IUtility::swapByte(iData);
 #endif
-    return addBuffer((c8*) &iData, sizeof(iData));
+    return addBuffer((s8*) &iData, sizeof(iData));
 }
 
 
@@ -232,7 +232,7 @@ u32 CNetPacket::add(const CNetPacket& pack) {
 }
 
 
-u32 CNetPacket::readString(core::array<c8>& out) const {
+u32 CNetPacket::readString(core::TArray<s8>& out) const {
     u32 readed = u32(mCurrent - mData) + sizeof(u32);
     if(readed >= mDataSize) {
         //out.setUsed(1);
@@ -245,7 +245,7 @@ u32 CNetPacket::readString(core::array<c8>& out) const {
         //out[0] = '\0';
         return 0;
     }
-    out.reallocate(nlength + sizeof(c8));
+    out.reallocate(nlength + sizeof(s8));
     ::memcpy(out.pointer(), mCurrent, nlength);
     out.set_used(nlength);
     mCurrent += nlength;
@@ -308,7 +308,7 @@ u32 CNetPacket::add(s64 iData) {
 #if defined(APP_ENDIAN_BIG)
     iData = IUtility::swapByte(iData);
 #endif
-    return addBuffer((c8*) &iData, sizeof(iData));
+    return addBuffer((s8*) &iData, sizeof(iData));
 }
 
 
@@ -316,7 +316,7 @@ u32 CNetPacket::add(u64 iData) {
 #if defined(APP_ENDIAN_BIG)
     iData = IUtility::swapByte(iData);
 #endif
-    return addBuffer((c8*) &iData, sizeof(iData));
+    return addBuffer((s8*) &iData, sizeof(iData));
 }
 
 
@@ -341,4 +341,4 @@ u64 CNetPacket::readU64()const {
 
 
 }// end namespace net
-}// end namespace irr
+}// end namespace app

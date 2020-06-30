@@ -1,6 +1,6 @@
 ﻿#include "CThread.h"
 
-namespace irr {
+namespace app {
 
 CThread::CCurrentThreadHolder CThread::mCurrentHolder;
 
@@ -47,7 +47,7 @@ CThread::CThread() :
 }
 
 
-CThread::CThread(const core::stringc& name) :
+CThread::CThread(const core::CString& name) :
     mID(getUniqueID()),
     mThread(0),
     mThreadID(0),
@@ -241,7 +241,7 @@ CThread::CThread() :
     mEvent.init(0, true);
 }
 
-CThread::CThread(const core::stringc& name) :
+CThread::CThread(const core::CString& name) :
     mID(getUniqueID()),
     mThreadID(0),
     mPriority(PRIO_NORMAL),
@@ -525,7 +525,7 @@ void CThread::wakeUp() {
 
 void CThread::makeName() {
     mName = "#";
-    mName.append(core::stringc(mID));
+    mName.append(core::CString(mID));
 }
 
 
@@ -538,11 +538,11 @@ s32 CThread::getUniqueID() {
 }
 
 
-void CThread::setName(const core::stringc& name) {
+void CThread::setName(const core::CString& name) {
     static CMutex fastMutex(EMT_NO_RECURSIVE);
     CAutoLock lock(fastMutex);
     mName = name;
 }
 
 
-} //end namespace irr
+} //end namespace app

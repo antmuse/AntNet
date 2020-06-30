@@ -5,7 +5,7 @@
 #endif
 
 
-namespace irr {
+namespace app {
 //----------------------------------------------------------------
 CTimerWheel::STimeNode::STimeNode() :
     mCycleStep(0),
@@ -240,4 +240,4 @@ void CTimerWheel::update(s64 millisec) {
 }
 
 
-}//namespace irr
+}//namespace app

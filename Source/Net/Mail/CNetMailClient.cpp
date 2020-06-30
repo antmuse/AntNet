@@ -1,7 +1,7 @@
 #include "CNetMailClient.h"
 
-namespace irr {
+namespace app {
 namespace net {
 
 } //namespace net
-} //namespace irr
+} //namespace app

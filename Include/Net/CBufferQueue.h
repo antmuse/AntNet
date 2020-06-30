@@ -6,7 +6,7 @@
 #include "CSpinlock.h"
 #include "INetEventer.h"
 
-namespace irr {
+namespace app {
 namespace net {
 
 class CEventQueue {
@@ -181,10 +181,10 @@ public:
         u16 mSessionMax;
         s32 mBufferSize;
         s32 mAllocatedSize;
-        c8 mBuffer[1];
+        s8 mBuffer[1];
 
-        c8* getBuffer()const {
-            return const_cast<c8*>(mBuffer) + mSessionMax * sizeof(u32);
+        s8* getBuffer()const {
+            return const_cast<s8*>(mBuffer) + mSessionMax * sizeof(u32);
         }
 
         u32 getSessionID(u32 idx)const {
@@ -263,5 +263,5 @@ private:
 };
 
 }//namespace net
-}//namespace irr
+}//namespace app
 #endif //APP_CBUFFERQUEUE_H

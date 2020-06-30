@@ -14,7 +14,7 @@
 
 
 #if defined(APP_PLATFORM_WINDOWS)
-namespace irr {
+namespace app {
 
 CProcessHandle::CProcessHandle(void* hProcess, CProcessHandle::PID pid) : mProcess(hProcess),
 mID(pid) {
@@ -66,9 +66,9 @@ s32 CProcessHandle::wait() const {
 }
 
 
-} //end namespace irr
+} //end namespace app
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
-namespace irr {
+namespace app {
 
 CProcessHandle::CProcessHandle(CProcessHandle::PID pid) : mID(pid) {
 }
@@ -96,7 +96,7 @@ s32 CProcessHandle::wait() const {
     return WEXITSTATUS(status);
 }
 
-} //end namespace irr
+} //end namespace app
 #endif //APP_PLATFORM_LINUX & APP_PLATFORM_ANDROID
 
 

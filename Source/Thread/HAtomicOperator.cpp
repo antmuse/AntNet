@@ -4,7 +4,7 @@
 #include <Windows.h>
 #include <intrin.h>
 
-namespace irr {
+namespace app {
 
 void AppAtomicReadBarrier() {
     _ReadBarrier();
@@ -103,10 +103,10 @@ s64 AppAtomicFetch(s64* iTarget) {
     return InterlockedExchangeAdd64(iTarget, 0);
 }
 
-} //end namespace irr
+} //end namespace app
 
 #elif defined( APP_PLATFORM_ANDROID ) || defined( APP_PLATFORM_LINUX )
-namespace irr {
+namespace app {
 // in gcc >= 4.7:
 
 void AppAtomicReadBarrier() {
@@ -166,6 +166,6 @@ s64 AppAtomicFetch(s64* iTarget) {
     return __atomic_load_8(iTarget, __ATOMIC_SEQ_CST);
 }
 
-} //end namespace irr
+} //end namespace app
 #endif //APP_PLATFORM_WINDOWS
 

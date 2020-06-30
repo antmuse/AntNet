@@ -1,14 +1,14 @@
 #include "CNetServerSeniorUDP.h"
 #include "CNetUtility.h"
-#include "IAppTimer.h"
-#include "IAppLogger.h"
+#include "CTimer.h"
+#include "CLogger.h"
 #include "CNetPacket.h"
 
 
 #define APP_SERVER_OVERTIME  15*1000
 
 
-namespace irr {
+namespace app {
 namespace net {
 
 CNetServerSeniorUDP::CNetServerSeniorUDP() :
@@ -29,13 +29,13 @@ CNetServerSeniorUDP::~CNetServerSeniorUDP() {
 
 
 void CNetServerSeniorUDP::run() {
-    IAppLogger::log(ELOG_INFO, "CNetServerSeniorUDP::run", "worker theread start, ID: %d", CThread::getCurrentNativeID());
-    c8* buffer = new c8[APP_NET_MAX_BUFFER_LEN]; //buffer for each thread
+    CLogger::log(ELOG_INFO, "CNetServerSeniorUDP::run", "worker theread start, ID: %d", CThread::getCurrentNativeID());
+    s8* buffer = new s8[APP_NET_MAX_BUFFER_LEN]; //buffer for each thread
     s32 ret = 0;
-    u64 last_tick = IAppTimer::getRelativeTime();
+    u64 last_tick = CTimer::getRelativeTime();
 
     for(; mRunning;) {
-        mCurrentTime = IAppTimer::getRelativeTime();
+        mCurrentTime = CTimer::getRelativeTime();
         ret = mConnector.receiveFrom(buffer, APP_NET_MAX_BUFFER_LEN, mAddressRemote);
         if(APP_SOCKET_ERROR == ret) {
             if(!clearError()) {
@@ -43,7 +43,7 @@ void CNetServerSeniorUDP::run() {
             }
         } else {
             CNetAddress::ID cid = mAddressRemote.getID();
-            core::map<CNetAddress::ID, SClientContextUDP*>::Node* node = mAllClient.find(cid);
+            core::TMap<CNetAddress::ID, SClientContextUDP*>::Node* node = mAllClient.find(cid);
             if(node) {
                 SClientContextUDP* client = node->getValue();
                 client->mProtocal.import(buffer, ret);
@@ -64,7 +64,7 @@ void CNetServerSeniorUDP::run() {
         }
 
         //update others
-        for(core::map<CNetAddress::ID, SClientContextUDP*>::Iterator it = mAllClient.getIterator();
+        for(core::TMap<CNetAddress::ID, SClientContextUDP*>::Iterator it = mAllClient.getIterator();
             !it.atEnd(); it++) {
             SClientContextUDP* client = it->getValue();
             if(mCurrentTime >= client->mNextTime) {
@@ -76,7 +76,7 @@ void CNetServerSeniorUDP::run() {
         if(mCurrentTime > (mOverTimeInterval + last_tick)) {
             removeOvertimeClient();
             last_tick += mOverTimeInterval;
-            //IAppLogger::log(ELOG_INFO, "CNetServerSeniorUDP::run", "tick time: [%u]", last_tick);
+            //CLogger::log(ELOG_INFO, "CNetServerSeniorUDP::run", "tick time: [%u]", last_tick);
         }
 
         CThread::sleep(20);
@@ -85,21 +85,21 @@ void CNetServerSeniorUDP::run() {
      //mRunning = false;
     delete[] buffer;
 
-    IAppLogger::log(ELOG_INFO, "CNetServerSeniorUDP::run", "worker thread exit, ID: %d", CThread::getCurrentNativeID());
+    CLogger::log(ELOG_INFO, "CNetServerSeniorUDP::run", "worker thread exit, ID: %d", CThread::getCurrentNativeID());
 }
 
 
 void CNetServerSeniorUDP::removeOvertimeClient() {
     //CAutoLock aulock(mMutex);
-    core::map<CNetAddress::ID, SClientContextUDP*>::Node* node;
+    core::TMap<CNetAddress::ID, SClientContextUDP*>::Node* node;
     SClientContextUDP* context;
     u32 count = 0;
-    for(core::map<CNetAddress::ID, SClientContextUDP*>::Iterator it = mAllClient.getIterator();
+    for(core::TMap<CNetAddress::ID, SClientContextUDP*>::Iterator it = mAllClient.getIterator();
         !it.atEnd(); ) {
         node = it.getNode();
         context = node->getValue();
         if(context->mOverTime < mCurrentTime) {
-            IAppLogger::log(ELOG_INFO, "CNetServerSeniorUDP::removeOvertimeClient",
+            CLogger::log(ELOG_INFO, "CNetServerSeniorUDP::removeOvertimeClient",
                 "remove peer time:[%u],thread ID:[%d]",
                 context->mOverTime,
                 CThread::getCurrentNativeID());
@@ -113,7 +113,7 @@ void CNetServerSeniorUDP::removeOvertimeClient() {
         }
     }
 
-    IAppLogger::log(ELOG_INFO, "CNetServerSeniorUDP::removeOvertimeClient",
+    CLogger::log(ELOG_INFO, "CNetServerSeniorUDP::removeOvertimeClient",
         "removed:[%u], hold client:[%u], time:[%u/s], thread ID:[%d]",
         count,
         mAllClient.size(),
@@ -124,13 +124,13 @@ void CNetServerSeniorUDP::removeOvertimeClient() {
 
 bool CNetServerSeniorUDP::start() {
     if(mRunning) {
-        IAppLogger::log(ELOG_INFO, "CNetServerSeniorUDP::start", "server is running currently.");
+        CLogger::log(ELOG_INFO, "CNetServerSeniorUDP::start", "server is running currently.");
         return false;
     }
 
 
     if(false == initialize()) {
-        IAppLogger::log(ELOG_ERROR, "CNetServerSeniorUDP::start", "init server fail");
+        CLogger::log(ELOG_ERROR, "CNetServerSeniorUDP::start", "init server fail");
         removeAll();
         return false;
     }
@@ -139,7 +139,7 @@ bool CNetServerSeniorUDP::start() {
     mThread->start(*this);
     mRunning = true;
 
-    IAppLogger::log(ELOG_INFO, "CNetServerSeniorUDP::start", "server start success");
+    CLogger::log(ELOG_INFO, "CNetServerSeniorUDP::start", "server start success");
     return true;
 }
 
@@ -153,39 +153,39 @@ bool CNetServerSeniorUDP::stop() {
     mThread->join();
     removeAllClient();
     removeAll();
-    IAppLogger::log(ELOG_INFO, "CNetServerSeniorUDP::stop", "server stoped success");
+    CLogger::log(ELOG_INFO, "CNetServerSeniorUDP::stop", "server stoped success");
     return true;
 }
 
 
 bool CNetServerSeniorUDP::initialize() {
     if(!mConnector.openUDP()) {
-        IAppLogger::log(ELOG_ERROR, "CNetServerSeniorUDP::initialize", "create listen socket fail: %d", mConnector.getError());
+        CLogger::log(ELOG_ERROR, "CNetServerSeniorUDP::initialize", "create listen socket fail: %d", mConnector.getError());
         return false;
     }
 
     if(mConnector.setBlock(false)) {
-        IAppLogger::log(ELOG_ERROR, "CNetServerSeniorUDP::initialize", "set socket unblocked fail");
+        CLogger::log(ELOG_ERROR, "CNetServerSeniorUDP::initialize", "set socket unblocked fail");
     }
 
     if(mConnector.bind(mAddressLocal)) {
-        IAppLogger::log(ELOG_ERROR, "CNetServerSeniorUDP::initialize", "bind socket error: %d", mConnector.getError());
+        CLogger::log(ELOG_ERROR, "CNetServerSeniorUDP::initialize", "bind socket error: %d", mConnector.getError());
         return false;
     }
     mConnector.getLocalAddress(mAddressLocal);
     mAddressLocal.reverse();
 
     if(mConnector.setReuseIP(true)) {
-        IAppLogger::log(ELOG_ERROR, "CNetServerSeniorUDP::initialize", "socket reuse IP error: %d", mConnector.getError());
+        CLogger::log(ELOG_ERROR, "CNetServerSeniorUDP::initialize", "socket reuse IP error: %d", mConnector.getError());
         return false;
     }
 
     if(mConnector.setReusePort(true)) {
-        IAppLogger::log(ELOG_ERROR, "CNetServerSeniorUDP::initialize", "socket reuse port error: %d", mConnector.getError());
+        CLogger::log(ELOG_ERROR, "CNetServerSeniorUDP::initialize", "socket reuse port error: %d", mConnector.getError());
         return false;
     }
 
-    IAppLogger::log(ELOG_INFO, "CNetServerSeniorUDP::initialize", "init ok");
+    CLogger::log(ELOG_INFO, "CNetServerSeniorUDP::initialize", "init ok");
     return true;
 }
 
@@ -194,7 +194,7 @@ void CNetServerSeniorUDP::removeAll() {
     delete mThread;
     mConnector.close();
     mThread = 0;
-    IAppLogger::log(ELOG_INFO, "CNetServerSeniorUDP::removeAll", "remove all success");
+    CLogger::log(ELOG_INFO, "CNetServerSeniorUDP::removeAll", "remove all success");
 }
 
 
@@ -218,7 +218,7 @@ void CNetServerSeniorUDP::addClient(SClientContextUDP* iContext) {
     iContext->mProtocal.setUserPointer(iContext);
     iContext->mProtocal.setSender(this);
 
-    IAppLogger::log(ELOG_INFO, "CNetServerSeniorUDP::addClient",
+    CLogger::log(ELOG_INFO, "CNetServerSeniorUDP::addClient",
         "incoming client [%d=%s:%d]",
         getClientCount(),
         iContext->mClientAddress.getIPString(),
@@ -227,18 +227,18 @@ void CNetServerSeniorUDP::addClient(SClientContextUDP* iContext) {
 
 
 void CNetServerSeniorUDP::removeClient(CNetAddress::ID id) {
-    core::map<CNetAddress::ID, SClientContextUDP*>::Node* node = mAllClient.delink(id);
+    core::TMap<CNetAddress::ID, SClientContextUDP*>::Node* node = mAllClient.delink(id);
     if(node) {
         SClientContextUDP* iContextSocket = node->getValue();
         delete iContextSocket;
         delete node;
-        IAppLogger::log(ELOG_INFO, "CNetServerSeniorUDP::removeClient", "client count: %u", getClientCount());
+        CLogger::log(ELOG_INFO, "CNetServerSeniorUDP::removeClient", "client count: %u", getClientCount());
     }
 }
 
 
 void CNetServerSeniorUDP::removeAllClient() {
-    for(core::map<CNetAddress::ID, SClientContextUDP*>::Iterator it = mAllClient.getIterator();
+    for(core::TMap<CNetAddress::ID, SClientContextUDP*>::Iterator it = mAllClient.getIterator();
         !it.atEnd(); it++) {
         delete it->getValue();
     }
@@ -262,10 +262,10 @@ bool CNetServerSeniorUDP::clearError() {
         return true;
     case ECONNRESET: //reset
 #endif
-        IAppLogger::log(ELOG_ERROR, "CNetServerSeniorUDP::clearError", "remote reseted: %d", ecode);
+        CLogger::log(ELOG_ERROR, "CNetServerSeniorUDP::clearError", "remote reseted: %d", ecode);
         return false;
     default:
-        IAppLogger::log(ELOG_ERROR, "CNetServerSeniorUDP::clearError", "socket error: %d", ecode);
+        CLogger::log(ELOG_ERROR, "CNetServerSeniorUDP::clearError", "socket error: %d", ecode);
         return false;
     }//switch
 
@@ -273,7 +273,7 @@ bool CNetServerSeniorUDP::clearError() {
 }
 
 
-s32 CNetServerSeniorUDP::sendBuffer(void* iUserPointer, const c8* iData, s32 iLength) {
+s32 CNetServerSeniorUDP::sendBuffer(void* iUserPointer, const s8* iData, s32 iLength) {
     if(!iUserPointer) return -1;
 
     SClientContextUDP* iContext = (SClientContextUDP*) iUserPointer;
@@ -303,4 +303,4 @@ APP_INLINE void CNetServerSeniorUDP::onPacket(CNetPacket& it) {
 
 
 }//namespace net
-}//namespace irr
+}//namespace app

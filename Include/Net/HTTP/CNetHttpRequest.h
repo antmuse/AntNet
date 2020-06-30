@@ -1,12 +1,12 @@
 #ifndef APP_CNETHTTPREQUEST_H
 #define APP_CNETHTTPREQUEST_H
 
-#include "irrArray.h"
-#include "irrMap.h"
+#include "AppArray.h"
+#include "AppMap.h"
 #include "CNetHttpURL.h"
 #include "CNetHttpHead.h"
 
-namespace irr {
+namespace app {
 namespace net {
 class CNetPacket;
 
@@ -29,33 +29,33 @@ public:
     }
 
 
-    const core::stringc& getHost()const {
+    const core::CString& getHost()const {
         return "";//        return mURL.getHost();
     }
 
 
-    const core::stringc& getPath()const {
+    const core::CString& getPath()const {
         return "";//        return mURL.getPath();
     }
 
 
-    const core::stringc& getMethod()const {
+    const core::CString& getMethod()const {
         return mMethod;
     }
 
 
-    void setMethod(const core::stringc& it) {
+    void setMethod(const core::CString& it) {
         mMethod = it;
         mMethod.make_upper();
     }
 
 
-    const core::stringc& getVersion()const {
+    const core::CString& getVersion()const {
         return mHttpVersion;
     }
 
 
-    void setVersion(const core::stringc& it) {
+    void setVersion(const core::CString& it) {
         mHttpVersion = it;
     }
 
@@ -65,15 +65,15 @@ public:
     void clear();
 
 private:
-    core::stringc mHttpVersion;
-    core::stringc mMethod;
+    core::CString mHttpVersion;
+    core::CString mMethod;
     CNetHttpHead mHead;
     CNetHttpURL mURL;
-    //core::map<core::stringc, core::stringc> mParameter;
+    //core::TMap<core::CString, core::CString> mParameter;
 };
 
 
 } //namespace net
-} //namespace irr
+} //namespace app
 
 #endif //APP_CNETHTTPREQUEST_H

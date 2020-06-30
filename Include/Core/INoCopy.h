@@ -1,7 +1,7 @@
 #ifndef APP_INOCOPY_H
 #define APP_INOCOPY_H
 
-namespace irr {
+namespace app {
 
 class INoCopy {
 protected:
@@ -15,7 +15,7 @@ private:
     INoCopy& operator = (const INoCopy& other) = delete;
 };
 
-} //namespace irr
+} //namespace app
 
 #endif //APP_INOCOPY_H
 

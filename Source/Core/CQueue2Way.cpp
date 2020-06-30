@@ -1,7 +1,7 @@
 #include "CQueue2Way.h"
 #include "CThread.h"
 
-namespace irr {
+namespace app {
 
 CQueue2Way::CQueue2Way() :
     mIdleCount(0),
@@ -52,4 +52,4 @@ void CQueue2Way::delinkNode(SNode* iNode) {
     }
 }
 
-} //namespace irr
+} //namespace app

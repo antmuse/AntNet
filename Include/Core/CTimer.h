@@ -2,12 +2,11 @@
 #define APP_IAPPTIMER_H
 
 #include "HConfig.h"
-#include "irrTypes.h"
 
-namespace irr {
+namespace app {
 
 /// Interface for date and time
-class IAppTimer {
+class CTimer {
 public:
     enum EWeekday {
         EWD_SUNDAY = 0,
@@ -93,13 +92,13 @@ public:
     *@param cacheSize The max cache size, should not be less than 20.
     *@return len of output str.
     */
-    static u64 getTimeAsString(s64 iTime, c8* cache, u32 cacheSize, c8* format = "%Y-%m-%d %H:%M:%S");
+    static u64 getTimeAsString(s64 iTime, s8* cache, u32 cacheSize, s8* format = "%Y-%m-%d %H:%M:%S");
     static u64 getTimeAsString(s64 iTime, wchar_t* cache, u32 cacheSize, wchar_t* format = L"%Y-%m-%d %H:%M:%S");
 
-    static u64 getTimeAsString(c8* cache, u32 cacheSize, c8* format = "%Y-%m-%d %H:%M:%S");
+    static u64 getTimeAsString(s8* cache, u32 cacheSize, s8* format = "%Y-%m-%d %H:%M:%S");
     static u64 getTimeAsString(wchar_t* cache, u32 cacheSize, wchar_t* format = L"%Y-%m-%d %H:%M:%S");
 };
 
-} // end namespace irr
+} // end namespace app
 
 #endif //APP_IAPPTIMER_H

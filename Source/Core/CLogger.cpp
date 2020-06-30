@@ -1,27 +1,27 @@
 ﻿#include "IUtility.h"
-#include "IAppLogger.h"
-#include "IAppTimer.h"
+#include "CLogger.h"
+#include "CTimer.h"
 #include "CFileManager.h"
 #include "CConsoleLogReceiver.h"
 #include "CFileLogReceiver.h"
 #include "CHtmlLogReceiver.h"
 
-namespace irr {
+namespace app {
 
 
-c8 IAppLogger::mTextBuffer[MAX_TEXT_BUFFER_SIZE];
-wchar_t IAppLogger::mTextBufferW[MAX_TEXT_BUFFER_SIZE];
-core::array<IAntLogReceiver*> IAppLogger::mAllReceiver;
-CMutex IAppLogger::mMutex;
+s8 CLogger::mTextBuffer[MAX_TEXT_BUFFER_SIZE];
+wchar_t CLogger::mTextBufferW[MAX_TEXT_BUFFER_SIZE];
+core::TArray<ILogReceiver*> CLogger::mAllReceiver;
+CMutex CLogger::mMutex;
 
 #ifdef   APP_DEBUG
-ELogLevel IAppLogger::mMinLogLevel = ELOG_DEBUG;
+ELogLevel CLogger::mMinLogLevel = ELOG_DEBUG;
 #else       //for release version
-ELogLevel IAppLogger::mMinLogLevel = ELOG_INFO;
+ELogLevel CLogger::mMinLogLevel = ELOG_INFO;
 #endif  //release version
 
 
-IAppLogger::IAppLogger() {
+CLogger::CLogger() {
 #if defined(APP_USE_ICONV)
     core::IUtility::getInstance();
 #endif
@@ -29,29 +29,29 @@ IAppLogger::IAppLogger() {
 }
 
 
-IAppLogger::~IAppLogger() {
+CLogger::~CLogger() {
     clear();
 }
 
 
-IAppLogger& IAppLogger::getInstance() {
-    static IAppLogger it;
+CLogger& CLogger::getInstance() {
+    static CLogger it;
     return it;
 }
 
-void IAppLogger::addReceiver(u32 flag) {
-    if(IAppLogger::ELRT_CONSOLE & flag) {
-        IAppLogger::add(new CConsoleLogReceiver());
+void CLogger::addReceiver(u32 flag) {
+    if(CLogger::ELRT_CONSOLE & flag) {
+        CLogger::add(new CConsoleLogReceiver());
     }
-    if(IAppLogger::ELRT_FILE_TEXT & flag) {
-        IAppLogger::add(new CFileLogReceiver());
+    if(CLogger::ELRT_FILE_TEXT & flag) {
+        CLogger::add(new CFileLogReceiver());
     }
-    if(IAppLogger::ELRT_FILE_HTML & flag) {
-        IAppLogger::add(new CHtmlLogReceiver());
+    if(CLogger::ELRT_FILE_HTML & flag) {
+        CLogger::add(new CHtmlLogReceiver());
     }
 }
 
-void IAppLogger::log(ELogLevel iLevel, const wchar_t* iSender, const wchar_t* iMsg, ...) {
+void CLogger::log(ELogLevel iLevel, const wchar_t* iSender, const wchar_t* iMsg, ...) {
     if(iLevel >= mMinLogLevel) {
         va_list args;
         va_start(args, iMsg);
@@ -59,7 +59,7 @@ void IAppLogger::log(ELogLevel iLevel, const wchar_t* iSender, const wchar_t* iM
         va_end(args);
     }
 }
-void IAppLogger::log(ELogLevel iLevel, const c8* iSender, const c8* iMsg, ...) {
+void CLogger::log(ELogLevel iLevel, const s8* iSender, const s8* iMsg, ...) {
     if(iLevel >= mMinLogLevel) {
         va_list args;
         va_start(args, iMsg);
@@ -68,7 +68,7 @@ void IAppLogger::log(ELogLevel iLevel, const c8* iSender, const c8* iMsg, ...) {
     }
 }
 
-void IAppLogger::logCritical(const c8* sender, const c8* msg, ...) {
+void CLogger::logCritical(const s8* sender, const s8* msg, ...) {
     if(ELOG_CRITICAL >= mMinLogLevel) {
         va_list args;
         va_start(args, msg);
@@ -76,7 +76,7 @@ void IAppLogger::logCritical(const c8* sender, const c8* msg, ...) {
         va_end(args);
     }
 }
-void IAppLogger::logCritical(const wchar_t* sender, const wchar_t* msg, ...) {
+void CLogger::logCritical(const wchar_t* sender, const wchar_t* msg, ...) {
     if(ELOG_CRITICAL >= mMinLogLevel) {
         va_list args;
         va_start(args, msg);
@@ -86,7 +86,7 @@ void IAppLogger::logCritical(const wchar_t* sender, const wchar_t* msg, ...) {
 }
 
 
-void IAppLogger::logError(const c8* sender, const c8* msg, ...) {
+void CLogger::logError(const s8* sender, const s8* msg, ...) {
     if(ELOG_ERROR >= mMinLogLevel) {
         va_list args;
         va_start(args, msg);
@@ -94,7 +94,7 @@ void IAppLogger::logError(const c8* sender, const c8* msg, ...) {
         va_end(args);
     }
 }
-void IAppLogger::logError(const wchar_t* sender, const wchar_t* msg, ...) {
+void CLogger::logError(const wchar_t* sender, const wchar_t* msg, ...) {
     if(ELOG_ERROR >= mMinLogLevel) {
         va_list args;
         va_start(args, msg);
@@ -104,7 +104,7 @@ void IAppLogger::logError(const wchar_t* sender, const wchar_t* msg, ...) {
 }
 
 
-void IAppLogger::logWarning(const c8* sender, const c8* msg, ...) {
+void CLogger::logWarning(const s8* sender, const s8* msg, ...) {
     if(ELOG_WARN >= mMinLogLevel) {
         va_list args;
         va_start(args, msg);
@@ -112,7 +112,7 @@ void IAppLogger::logWarning(const c8* sender, const c8* msg, ...) {
         va_end(args);
     }
 }
-void IAppLogger::logWarning(const wchar_t* sender, const wchar_t* msg, ...) {
+void CLogger::logWarning(const wchar_t* sender, const wchar_t* msg, ...) {
     if(ELOG_WARN >= mMinLogLevel) {
         va_list args;
         va_start(args, msg);
@@ -122,7 +122,7 @@ void IAppLogger::logWarning(const wchar_t* sender, const wchar_t* msg, ...) {
 }
 
 
-void IAppLogger::logInfo(const c8* sender, const c8* msg, ...) {
+void CLogger::logInfo(const s8* sender, const s8* msg, ...) {
     if(ELOG_INFO >= mMinLogLevel) {
         va_list args;
         va_start(args, msg);
@@ -130,7 +130,7 @@ void IAppLogger::logInfo(const c8* sender, const c8* msg, ...) {
         va_end(args);
     }
 }
-void IAppLogger::logInfo(const wchar_t* sender, const wchar_t* msg, ...) {
+void CLogger::logInfo(const wchar_t* sender, const wchar_t* msg, ...) {
     if(ELOG_INFO >= mMinLogLevel) {
         va_list args;
         va_start(args, msg);
@@ -140,7 +140,7 @@ void IAppLogger::logInfo(const wchar_t* sender, const wchar_t* msg, ...) {
 }
 
 
-void IAppLogger::logDebug(const c8* sender, const c8* msg, ...) {
+void CLogger::logDebug(const s8* sender, const s8* msg, ...) {
     if(ELOG_DEBUG >= mMinLogLevel) {
         va_list args;
         va_start(args, msg);
@@ -148,7 +148,7 @@ void IAppLogger::logDebug(const c8* sender, const c8* msg, ...) {
         va_end(args);
     }
 }
-void IAppLogger::logDebug(const wchar_t* sender, const wchar_t* msg, ...) {
+void CLogger::logDebug(const wchar_t* sender, const wchar_t* msg, ...) {
     if(ELOG_DEBUG >= mMinLogLevel) {
         va_list args;
         va_start(args, msg);
@@ -158,15 +158,15 @@ void IAppLogger::logDebug(const wchar_t* sender, const wchar_t* msg, ...) {
 }
 
 
-void IAppLogger::setLogLevel(const ELogLevel logLevel) {
+void CLogger::setLogLevel(const ELogLevel logLevel) {
     mMinLogLevel = logLevel;
 }
 
-void IAppLogger::postLog(ELogLevel level, const c8* sender, const c8* msg, va_list args) {
+void CLogger::postLog(ELogLevel level, const s8* sender, const s8* msg, va_list args) {
     if(sender && msg) {
         CAutoLock ak(mMutex);
-        c8 tmstr[20];
-        IAppTimer::getTimeAsString(tmstr, sizeof(tmstr));
+        s8 tmstr[20];
+        CTimer::getTimeAsString(tmstr, sizeof(tmstr));
         vsnprintf(mTextBuffer, MAX_TEXT_BUFFER_SIZE, msg, args);
         for(u32 it = 0; it < mAllReceiver.size(); ++it) {
             mAllReceiver[it]->log(level, tmstr, sender, mTextBuffer);
@@ -174,11 +174,11 @@ void IAppLogger::postLog(ELogLevel level, const c8* sender, const c8* msg, va_li
     }
 }
 
-void IAppLogger::postLog(ELogLevel level, const wchar_t* sender, const wchar_t* msg, va_list args) {
+void CLogger::postLog(ELogLevel level, const wchar_t* sender, const wchar_t* msg, va_list args) {
     if(sender && msg) {
         CAutoLock ak(mMutex);
         wchar_t tmstr[20];
-        IAppTimer::getTimeAsString(tmstr, sizeof(tmstr));
+        CTimer::getTimeAsString(tmstr, sizeof(tmstr));
 #if defined(APP_PLATFORM_WINDOWS)
         _vsnwprintf(mTextBufferW, MAX_TEXT_BUFFER_SIZE, msg, args);
         for(u32 it = 0; it < mAllReceiver.size(); ++it) {
@@ -189,7 +189,7 @@ void IAppLogger::postLog(ELogLevel level, const wchar_t* sender, const wchar_t* 
 }
 
 
-bool IAppLogger::add(IAntLogReceiver* pReceiver) {
+bool CLogger::add(ILogReceiver* pReceiver) {
     if(pReceiver) {
         CAutoLock ak(mMutex);
         mAllReceiver.push_back(pReceiver);
@@ -198,7 +198,7 @@ bool IAppLogger::add(IAntLogReceiver* pReceiver) {
 }
 
 
-void IAppLogger::remove(const IAntLogReceiver* iLog) {
+void CLogger::remove(const ILogReceiver* iLog) {
     CAutoLock ak(mMutex);
     for(u32 it = 0; it < mAllReceiver.size(); ++it) {
         if(iLog == mAllReceiver[it]) {
@@ -210,7 +210,7 @@ void IAppLogger::remove(const IAntLogReceiver* iLog) {
 }
 
 
-void IAppLogger::clear() {
+void CLogger::clear() {
     CAutoLock ak(mMutex);
     for(u32 it = 0; it < mAllReceiver.size(); ++it) {
         delete mAllReceiver[it];
@@ -219,4 +219,4 @@ void IAppLogger::clear() {
 }
 
 
-}//namespace irr
+}//namespace app

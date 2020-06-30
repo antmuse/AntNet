@@ -44,10 +44,10 @@
 #include <stdio.h>
 #endif
 
-namespace irr {
+namespace app {
 namespace core {
 
-core::stringw APP_LOCALE_DECIMAL_POINTS(L".");
+core::CWString APP_LOCALE_DECIMAL_POINTS(L".");
 
 
 #if defined(APP_USE_ICONV)
@@ -99,20 +99,20 @@ IUtility::~IUtility() {
 }
 
 
-s32 IUtility::convert2Wchar(const c8* in, size_t inbytesleft, wchar_t* out, size_t outbytesleft) {
+s32 IUtility::convert2Wchar(const s8* in, size_t inbytesleft, wchar_t* out, size_t outbytesleft) {
     APP_ASSERT(in && out);
     s32 ret = 0;
-    c8* p_out = (c8*)out;
+    s8* p_out = (s8*)out;
     outbytesleft = (outbytesleft - 1) << 1;//sizeof(wchar_t)=2 and reserve 1 for L'\0'
     ret = (s32)iconv(m2Wchar, &in, &inbytesleft, &p_out, &outbytesleft);
     *((wchar_t*)p_out) = L'\0';
     APP_ASSERT(0 == inbytesleft);
-    return (s32)(0 == ret ? ((p_out - ((c8*)out)) >> 1) : 0);
+    return (s32)(0 == ret ? ((p_out - ((s8*)out)) >> 1) : 0);
 }
 
-s32 IUtility::convert2UTF8(const c8* in, size_t inbytesleft, c8* out, size_t outbytesleft) {
+s32 IUtility::convert2UTF8(const s8* in, size_t inbytesleft, s8* out, size_t outbytesleft) {
     APP_ASSERT(in && out);
-    c8* p_out = out;
+    s8* p_out = out;
     outbytesleft = (outbytesleft - 1);//reserve 1 for '\0'
     s32 ret = (s32)iconv(m2UTF8, &in, &inbytesleft, &p_out, &outbytesleft);
     *p_out = '\0';
@@ -120,9 +120,9 @@ s32 IUtility::convert2UTF8(const c8* in, size_t inbytesleft, c8* out, size_t out
     return (s32)(0 == ret ? (p_out - out) : 0);
 }
 
-s32 IUtility::convertGBK2UTF8(const c8* in, size_t inbytesleft, c8* out, size_t outbytesleft) {
+s32 IUtility::convertGBK2UTF8(const s8* in, size_t inbytesleft, s8* out, size_t outbytesleft) {
     APP_ASSERT(in && out);
-    c8* p_out = out;
+    s8* p_out = out;
     outbytesleft = (outbytesleft - 1);//reserve 1 for '\0'
     s32 ret = (s32)iconv(mGBK2UTF8, &in, &inbytesleft, &p_out, &outbytesleft);
     *p_out = '\0';
@@ -130,29 +130,29 @@ s32 IUtility::convertGBK2UTF8(const c8* in, size_t inbytesleft, c8* out, size_t 
     return (s32)(0 == ret ? (p_out - out) : 0);
 }
 
-s32 IUtility::convertGBK2Wchar(const c8* pChars, size_t inbytesleft, wchar_t* out, size_t outbytesleft) {
+s32 IUtility::convertGBK2Wchar(const s8* pChars, size_t inbytesleft, wchar_t* out, size_t outbytesleft) {
     outbytesleft = (outbytesleft - 1) << 1;//sizeof(wchar_t)=2 and reserve 1 for L'\0'
-    c8* p_out = (c8*)out;
+    s8* p_out = (s8*)out;
     size_t ret = iconv(mGBK2Wchar, &pChars, &inbytesleft, &p_out, &outbytesleft);
     *((wchar_t*)p_out) = L'\0';
     APP_ASSERT(0 == inbytesleft);
-    return (s32)(0 == ret ? ((p_out - ((c8*)out)) >> 1) : 0);
+    return (s32)(0 == ret ? ((p_out - ((s8*)out)) >> 1) : 0);
 }
 
-s32 IUtility::convertUTF82Wchar(const c8* pChars, size_t inbytesleft, wchar_t* out, size_t outbytesleft) {
+s32 IUtility::convertUTF82Wchar(const s8* pChars, size_t inbytesleft, wchar_t* out, size_t outbytesleft) {
     outbytesleft = (outbytesleft - 1) << 1;//sizeof(wchar_t)=2 and reserve 1 for L'\0'
-    c8* p_out = (c8*)out;
+    s8* p_out = (s8*)out;
     size_t ret = iconv(mUTF8ToWchar, &pChars, &inbytesleft, &p_out, &outbytesleft);
     *((wchar_t*)p_out) = L'\0';
     APP_ASSERT(0 == inbytesleft);
-    return (s32)(0 == ret ? ((p_out - ((c8*)out)) >> 1) : 0);
+    return (s32)(0 == ret ? ((p_out - ((s8*)out)) >> 1) : 0);
 }
 
-s32 IUtility::convertWchar2UTF8(const wchar_t* in, size_t inbytesleft, c8* out, size_t outbytesleft) {
+s32 IUtility::convertWchar2UTF8(const wchar_t* in, size_t inbytesleft, s8* out, size_t outbytesleft) {
     APP_ASSERT(in && out);
-    c8* p_out = out;
+    s8* p_out = out;
     outbytesleft = (outbytesleft - 1);//reserve 1 for '\0'
-    s32 ret = (s32)iconv(mWchar2UTF8, (const c8 * *)& in, &inbytesleft, &p_out, &outbytesleft);
+    s32 ret = (s32)iconv(mWchar2UTF8, (const s8 * *)& in, &inbytesleft, &p_out, &outbytesleft);
     *p_out = '\0';
     APP_ASSERT(0 == inbytesleft);
     return (s32)(0 == ret ? (p_out - out) : 0);
@@ -160,7 +160,7 @@ s32 IUtility::convertWchar2UTF8(const wchar_t* in, size_t inbytesleft, c8* out, 
 #endif //APP_USE_ICONV
 
 
-u32 AppConvertToHexString(const void* in, u32 inSize, c8* out, u32 outLen) {
+u32 AppConvertToHexString(const void* in, u32 inSize, s8* out, u32 outLen) {
     u32 ret = 0;
     if(in && out && outLen > 0) {
         ret = core::min_<u32>((outLen - 1) >> 1, inSize);
@@ -191,7 +191,7 @@ u32 AppConvertToHexString(const void* in, u32 inSize, wchar_t* out, u32 outLen) 
 }
 
 
-u32 AppConvertToU8(const c8* iData, u32 iDataSize, u8* iResult, u32 iSize) {
+u32 AppConvertToU8(const s8* iData, u32 iDataSize, u8* iResult, u32 iSize) {
     if(iDataSize > iSize * 2) {
         iDataSize = iSize * 2;
     }
@@ -215,9 +215,9 @@ void AppPrintToHexString(const void* iData, u32 iSize) {
 void AppPrintToHexText(const void* buffer, u32 len) {
     printf("////////////////////////////////////////////////////////////////////////////////////\n");
     const u32 max = 88;
-    const c8* const buf = (const c8*)buffer;
+    const s8* const buf = (const s8*)buffer;
     u32 i, j, k;
-    c8 binstr[max];
+    s8 binstr[max];
     for(i = 0; i < len; i++) {
         if(0 == (i % 16)) {
             snprintf(binstr, max, "%08x: ", i);
@@ -249,7 +249,7 @@ void AppPrintToHexText(const void* buffer, u32 len) {
 }
 
 
-const c8* AppSkipFlag(const c8* iStart, const c8* const iEnd, const c8 iLeft, const c8 iRight) {
+const s8* AppSkipFlag(const s8* iStart, const s8* const iEnd, const s8 iLeft, const s8 iRight) {
     iStart = AppGoNextFlag(iStart, iEnd, iLeft);
     ++iStart;
     s32 it = 1;
@@ -269,7 +269,7 @@ const c8* AppSkipFlag(const c8* iStart, const c8* const iEnd, const c8 iLeft, co
 }
 
 
-const c8* AppGoNextFlag(const c8* iStart, const c8* const iEnd, const c8 ichar) {
+const s8* AppGoNextFlag(const s8* iStart, const s8* const iEnd, const s8 ichar) {
     while((iStart < iEnd) && (*iStart != ichar)) {
         ++iStart;
     }
@@ -277,7 +277,7 @@ const c8* AppGoNextFlag(const c8* iStart, const c8* const iEnd, const c8 ichar) 
 }
 
 
-const c8* AppGoBackFlag(const c8* iStart, const c8* iEnd, const c8 it) {
+const s8* AppGoBackFlag(const s8* iStart, const s8* iEnd, const s8 it) {
     while((iStart > iEnd) && (*iStart != it)) {
         --iStart;
     }
@@ -285,7 +285,7 @@ const c8* AppGoBackFlag(const c8* iStart, const c8* iEnd, const c8 it) {
 }
 
 
-const c8* AppGoNextLine(const c8* iStart, const c8* const iEnd) {
+const s8* AppGoNextLine(const s8* iStart, const s8* const iEnd) {
     while(iStart < iEnd) {
         if(*iStart == '\n') {
             ++iStart;
@@ -297,13 +297,13 @@ const c8* AppGoNextLine(const c8* iStart, const c8* const iEnd) {
 }
 
 
-const c8* AppGoAndCopyNextWord(c8* iOutBuffer, const c8* iStart, u32 outBufLength, const c8* iEnd, bool acrossNewlines) {
+const s8* AppGoAndCopyNextWord(s8* iOutBuffer, const s8* iStart, u32 outBufLength, const s8* iEnd, bool acrossNewlines) {
     iStart = AppGoNextWord(iStart, iEnd, acrossNewlines);
     return iStart += AppCopyWord(iOutBuffer, iStart, outBufLength, iEnd);
 }
 
 
-u32 AppCopyWord(c8* iOutBuffer, const c8* const iStart, u32 outBufLength, const c8* const iEnd) {
+u32 AppCopyWord(s8* iOutBuffer, const s8* const iStart, u32 outBufLength, const s8* const iEnd) {
     if(!outBufLength) {
         return 0;
     }
@@ -327,7 +327,7 @@ u32 AppCopyWord(c8* iOutBuffer, const c8* const iStart, u32 outBufLength, const 
 }
 
 
-const c8* AppGoFirstWord(const c8* iStart, const c8* const iEnd, bool acrossNewlines) {
+const s8* AppGoFirstWord(const s8* iStart, const s8* const iEnd, bool acrossNewlines) {
     if(acrossNewlines) {
         while((iStart < iEnd) && core::isspace(*iStart)) {
             ++iStart;
@@ -341,7 +341,7 @@ const c8* AppGoFirstWord(const c8* iStart, const c8* const iEnd, bool acrossNewl
 }
 
 
-const c8* AppGoNextWord(const c8* iStart, const c8* const iEnd, bool acrossNewlines) {
+const s8* AppGoNextWord(const s8* iStart, const s8* const iEnd, bool acrossNewlines) {
     while((iStart < iEnd) && !core::isspace(*iStart)) {
         ++iStart;
     }
@@ -349,20 +349,20 @@ const c8* AppGoNextWord(const c8* iStart, const c8* const iEnd, bool acrossNewli
 }
 
 
-bool AppCreatePath(const io::path& iPath) {
+bool AppCreatePath(const core::CPath& iPath) {
     bool ret = true;
 #if defined(APP_PLATFORM_WINDOWS)
-    io::path realpath;
-    io::path directory(_IRR_TEXT(".\\"));
+    core::CPath realpath;
+    core::CPath directory(APP_STR(".\\"));
     core::splitFilename(iPath, &realpath);
-    realpath.replace(_IRR_TEXT('\\'), _IRR_TEXT('/'));
+    realpath.replace(APP_STR('\\'), APP_STR('/'));
     s32 start = 0;
     s32 end = realpath.size();
     while(start < end) {
-        s32 pos = realpath.findNext(_IRR_TEXT('/'), start);
+        s32 pos = realpath.findNext(APP_STR('/'), start);
         pos = (pos > 0 ? pos : end - 1);
         directory += realpath.subString(start, pos - start);
-        directory.append(_IRR_TEXT('\\'));
+        directory.append(APP_STR('\\'));
         start = pos + 1;
         if(::PathFileExists(directory.c_str())) {
             continue;
@@ -377,7 +377,7 @@ bool AppCreatePath(const io::path& iPath) {
     DIR * pDirect = opendir(iPath.c_str());
     if(0 == pDirect) {
         if(0 == ::mkdir(iPath.c_str(), 0777)) {
-            //IAppLogger::logCritical("IUtility::createPath", "new path=%s", iPath.c_str());
+            //CLogger::logCritical("IUtility::createPath", "new path=%s", iPath.c_str());
             //CEngine::mPrinter->addW(L"created new path");
         } else {
             ret = false;
@@ -395,10 +395,10 @@ bool AppCreatePath(const io::path& iPath) {
 // * Returns a list of files/directories in the supplied directory.
 // * Used internally for auto-installation of plugins.
 // */
-//static array<stringc> getFilesInDirectory(stringc path) {
-//    array<stringc> fileList;
+//static array<CString> getFilesInDirectory(CString path) {
+//    array<CString> fileList;
 //#ifdef APP_PLATFORM_WINDOWS
-//    stringc search = path + "\\" + stringc("*.*");
+//    CString search = path + "\\" + CString("*.*");
 //    WIN32_FIND_DATA info;
 //    HANDLE h = FindFirstFile(search.c_str(), &info);
 //    if (h != INVALID_HANDLE_VALUE) {
@@ -431,4 +431,4 @@ bool AppCreatePath(const io::path& iPath) {
 
 
 } //namespace core
-} //namespace irr
+} //namespace app

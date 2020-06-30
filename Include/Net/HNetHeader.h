@@ -2,10 +2,9 @@
 #define APP_CNETHEADER_H
 
 #include "HConfig.h"
-#include "irrTypes.h"
 
 
-namespace irr {
+namespace app {
 namespace net {
 
 #pragma pack(1)
@@ -334,6 +333,6 @@ struct SNetPackARP {
 #pragma pack()
 
 }//namespace net
-}//namespace irr
+}//namespace app
 
 #endif //APP_CNETHEADER_H

@@ -7,7 +7,7 @@
 #include "CNetSocket.h"
 
 
-namespace irr {
+namespace app {
 namespace net {
 
 
@@ -23,7 +23,7 @@ public:
     //0: 主机不存在
     //1: 主机存在但没监听指定端口
     //2: 主机存在并监听指定端口
-    s32 ping(const c8* remoteIP, u16 remotePort);
+    s32 ping(const s8* remoteIP, u16 remotePort);
 
 protected:
     CNetAddress mAddressLocal;
@@ -38,6 +38,6 @@ private:
 };
 
 }//namespace net
-}//namespace irr
+}//namespace app
 
 #endif // APP_CNETSYNPING_H

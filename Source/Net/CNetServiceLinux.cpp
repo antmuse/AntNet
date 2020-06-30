@@ -1,12 +1,12 @@
 #include "CNetService.h"
-#include "IAppTimer.h"
-#include "IAppLogger.h"
+#include "CTimer.h"
+#include "CLogger.h"
 #include "CMemoryHub.h"
 #include "CNetUtility.h"
 
 
 #if defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
-namespace irr {
+namespace app {
 namespace net {
 
 void CNetServiceTCP::run() {
@@ -23,7 +23,7 @@ void CNetServiceTCP::run() {
     for(; mRunning; ) {
         gotsz = mPoller.getEvents(iEvent, maxe, mTimeInterval);
         if(gotsz > 0) {
-            mCurrentTime = IAppTimer::getTime();
+            mCurrentTime = CTimer::getTime();
             for(u32 i = 0; i < gotsz; ++i) {
                 s32 ret = 1;
                 if(iEvent[i].mData.mData32 < ENET_SESSION_MASK) {
@@ -83,11 +83,11 @@ void CNetServiceTCP::run() {
                 mWheel.update(mCurrentTime);
             }
         } else if(0 == gotsz) {
-            mCurrentTime = IAppTimer::getTime();
+            mCurrentTime = CTimer::getTime();
             mWheel.update(mCurrentTime);
             last = mCurrentTime;
             if(mCurrentTime - lastshow >= 1000) {
-                IAppLogger::log(ELOG_INFO, "CNetServiceTCP::run",
+                CLogger::log(ELOG_INFO, "CNetServiceTCP::run",
                     "[context:%u/%u][socket:%u/%u]",
                     mSessionPool.getActiveCount(), mSessionPool.getMaxContext(),
                     mClosedSocket, mCreatedSocket);
@@ -96,7 +96,7 @@ void CNetServiceTCP::run() {
             APP_LOG(ELOG_DEBUG, "CNetServiceTCP::run", "epoll wait timeout");
         } else {
             const s32 pcode = mPoller.getError();
-            IAppLogger::log(ELOG_ERROR, "CNetServiceTCP::run", "epoll wait ecode=[%d]", pcode);
+            CLogger::log(ELOG_ERROR, "CNetServiceTCP::run", "epoll wait ecode=[%d]", pcode);
             switch(pcode) {
             case EINTR://epoll±ª–≈∫≈÷–∂œ
                 break;
@@ -111,7 +111,7 @@ void CNetServiceTCP::run() {
     }//for
 
     delete[] iEvent;
-    IAppLogger::log(ELOG_INFO, "CNetServiceTCP::run", "thread exited");
+    CLogger::log(ELOG_INFO, "CNetServiceTCP::run", "thread exited");
 }
 
 
@@ -120,7 +120,7 @@ bool CNetServiceTCP::clearError() {
     switch(ecode) {
     default:
     {
-        IAppLogger::log(ELOG_ERROR, "CNetServiceTCP::clearError",
+        CLogger::log(ELOG_ERROR, "CNetServiceTCP::clearError",
             "operation error, [ecode=%u]", ecode);
         return false;
     }
@@ -130,5 +130,5 @@ bool CNetServiceTCP::clearError() {
 }
 
 }//namespace net
-}//namespace irr
+}//namespace app
 #endif //APP_PLATFORM_LINUX

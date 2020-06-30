@@ -1,10 +1,10 @@
 #include "CNetSession.h"
-#include "IAppLogger.h"
+#include "CLogger.h"
 #include "CEventPoller.h"
 #include "CNetService.h"
 
 
-namespace irr {
+namespace app {
 namespace net {
 
 void AppTimeoutContext(void* it) {
@@ -95,4 +95,4 @@ s32 CNetSession::postEvent(ENetEventType iEvent) {
 
 
 } //namespace net
-} //namespace irr
+} //namespace app

@@ -1,7 +1,7 @@
 #include "CFileWriter.h"
 #include <stdio.h>
 
-namespace irr {
+namespace app {
 namespace io {
 
 
@@ -38,7 +38,7 @@ u64 CFileWriter::write(const void* buffer, u64 sizeToWrite) {
     return ret;
 }
 
-u64 CFileWriter::writeParams(const c8* format, va_list& args) {
+u64 CFileWriter::writeParams(const s8* format, va_list& args) {
     if(!isOpen()) {
         return 0;
     }
@@ -56,7 +56,7 @@ u64 CFileWriter::writeWParams(const wchar_t* format, va_list& args) {
     return ret;
 }
 
-u64 CFileWriter::writeParams(const c8* format, ...) {
+u64 CFileWriter::writeParams(const s8* format, ...) {
     if(!isOpen()) {
         return 0;
     }
@@ -100,14 +100,14 @@ s64 CFileWriter::getPos() const {
 #endif
 }
 
-bool CFileWriter::openFile(const io::path& fileName, bool append) {
+bool CFileWriter::openFile(const core::CPath& fileName, bool append) {
     if(fileName.empty()) {
         return false;
     }
     close();
 
     mFilename = fileName;
-#if defined(_IRR_WCHAR_FILESYSTEM)
+#if defined(APP_WCHAR_SYS)
     mFile = _wfopen(mFilename.c_str(), append ? L"ab" : L"wb");
 #else
     mFile = fopen(mFilename.c_str(), append ? "ab" : "wb");
@@ -130,5 +130,5 @@ bool CFileWriter::openFile(const io::path& fileName, bool append) {
 
 
 } // end namespace io
-} // end namespace irr
+} // end namespace app
 

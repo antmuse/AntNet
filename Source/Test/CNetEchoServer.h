@@ -3,7 +3,7 @@
 
 #include "CNetEchoClient.h"
 
-namespace irr {
+namespace app {
 namespace net {
 class CNetServerAcceptor;
 
@@ -67,6 +67,6 @@ private:
 };
 
 }//namespace net
-}//namespace irr
+}//namespace app
 
 #endif //APP_CNETECHOSERVER_H

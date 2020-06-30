@@ -1,5 +1,5 @@
 #include "CCheckSum.h"
-namespace irr {
+namespace app {
 
 
 inline u32 AppCheckOverflow(u32 it) {
@@ -130,4 +130,4 @@ u16 CCheckSum::get()const {
     return (~ret & 0xFFFF);
 }
 
-} //namespace irr
+} //namespace app

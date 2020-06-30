@@ -24,7 +24,7 @@
 //#include "HConfig.h"
 #include "CQueueNode.h"
 
-namespace irr {
+namespace app {
 namespace net {
 enum ENetProtocal {
     ENET_LOG_OUTPUT = 1,
@@ -48,7 +48,7 @@ public:
     };
     virtual ~INetDataSender() {
     }
-    virtual s32 sendBuffer(void* iUserPointer, const c8* iData, s32 iLength) = 0;
+    virtual s32 sendBuffer(void* iUserPointer, const s8* iData, s32 iLength) = 0;
 };
 
 
@@ -68,12 +68,12 @@ public:
         u32 mRTO;
         u32 mFastACK;
         u32 mXMIT;
-        c8 mData[1];
+        s8 mData[1];
     };
 
     CQueueNode* createSegment(s32 size);
 
-    void log(s32 mask, const c8* fmt, ...);
+    void log(s32 mask, const s8* fmt, ...);
     void updateACK(s32 rtt);
     void shrinkBuffer();
     void parseSegment(CQueueNode* newnode);
@@ -82,7 +82,7 @@ public:
     void parseACK(u32 sn);
     void parseUNA(u32 una);
     void parseFastACK(u32 sn);
-    c8* encodeSegment(c8* ptr, const SKCPSegment* seg);
+    s8* encodeSegment(s8* ptr, const SKCPSegment* seg);
     s32 getUnusedWindowCount();
 
     // create a new kcp control object
@@ -102,7 +102,7 @@ public:
     }
 
     ///get connection ID
-    u32 getID(const c8* iBuffer) const;
+    u32 getID(const s8* iBuffer) const;
 
     void setUserPointer(void* it) {
         mUserPointer = it;
@@ -133,7 +133,7 @@ public:
     *@param iLength The cache size.
     *@return received size or below zero if error.
     */
-    s32 receiveData(c8* iBuffer, s32 iLength);
+    s32 receiveData(s8* iBuffer, s32 iLength);
 
     /**
    *@brief User or upper level sender.
@@ -141,7 +141,7 @@ public:
    *@param iLength The cache size.
    *@return 0 if success, or below zero if error.
    */
-    s32 sendData(const c8* iBuffer, s32 iLength);
+    s32 sendData(const s8* iBuffer, s32 iLength);
 
     /**
     *@brief update state (call it repeatedly, every 10ms-100ms), or you can ask
@@ -166,7 +166,7 @@ public:
     *@param iLength The data size.
     *@return 0 if success, else below zero.
     */
-    s32 import(const c8* iBuffer, long size);
+    s32 import(const s8* iBuffer, long size);
 
     /// flush pending data
     void flush();
@@ -210,7 +210,7 @@ public:
     }
 
 private:
-    s32 sendOut(const c8* data, s32 size);
+    s32 sendOut(const s8* data, s32 size);
     APP_INLINE void releaseMemory(void *ptr);
     APP_INLINE void* allocateMemory(s32 size);
     //s32 receiveBufferCount();
@@ -259,17 +259,17 @@ private:
     u32 mBlockACK;
     u32* mListACK;																///<ACK list
     void* mUserPointer;													///<will be passed to the output callback
-    c8* mBuffer;
+    s8* mBuffer;
     INetDataSender* mSender;                                      ///<The real socket wrapper.
     bool mStreamMode;                                                   ///<stream mode, default is false.
     s32 mLogMask;
     AppMallocFunction mMallocHook;
     AppFreeFunction mFreeHook;
-    void(*mLogWriter)(const c8 *log, CNetProtocal* kcp, void *user);
+    void(*mLogWriter)(const s8 *log, CNetProtocal* kcp, void *user);
 };
 
 } //namespace net 
-} //namespace irr 
+} //namespace app 
 
 
 #endif //APP_CNETPROTOCAL_H

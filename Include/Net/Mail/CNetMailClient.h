@@ -1,11 +1,11 @@
 #ifndef APP_CNETMAILCLIENT_H
 #define APP_CNETMAILCLIENT_H
 
-#include "irrString.h"
-#include "irrMap.h"
-//#include "irrArray.h"
+#include "CString.h"
+#include "AppMap.h"
+//#include "AppArray.h"
 
-namespace irr {
+namespace app {
 namespace net {
 //class CNetPacket;
 
@@ -23,6 +23,6 @@ private:
 
 
 } //namespace net
-} //namespace irr
+} //namespace app
 
 #endif //APP_CNETMAILCLIENT_H

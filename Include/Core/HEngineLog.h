@@ -1,9 +1,9 @@
 ﻿#ifndef ANTMUSE_HENGINELOG_H
 #define	ANTMUSE_HENGINELOG_H
 
-#include "irrTypes.h"
+#include "HConfig.h"
 
-namespace irr {
+namespace app {
 
 /// Enum of all supported log levels in Legend.
 enum ELogLevel {
@@ -16,7 +16,7 @@ enum ELogLevel {
 };
 
 /// Contains strings for each log level to make them easier to print to a stream.
-const c8* const AppLogLevelNames[] = {
+const s8* const AppLogLevelNames[] = {
     "Debug",
     "Info",
     "Warn",
@@ -35,7 +35,7 @@ const wchar_t* const AppWLogLevelNames[] = {
 };
 
 
-} //namespace irr
+} //namespace app
 
 #endif	/* ANTMUSE_HENGINELOG_H */
 

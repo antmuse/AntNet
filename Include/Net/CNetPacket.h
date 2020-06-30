@@ -2,9 +2,9 @@
 #define APP_CNETPACKET_H
 
 #include "HNetConfig.h"
-#include "irrArray.h"
+#include "AppArray.h"
 
-namespace irr {
+namespace app {
 namespace net {
 
 enum ENetDataType {
@@ -44,12 +44,12 @@ public:
     void reallocate(u32 size);
 
     ///Direct access operator
-    APP_FORCE_INLINE c8& operator[](u32 index) {
+    APP_FORCE_INLINE s8& operator[](u32 index) {
         return mData[index];
     }
 
     ///Direct const access operator
-    APP_FORCE_INLINE const c8& operator[](u32 index) const {
+    APP_FORCE_INLINE const s8& operator[](u32 index) const {
         return mData[index];
     }
 
@@ -76,7 +76,7 @@ public:
     }
 
 
-    APP_FORCE_INLINE c8* getWritePointer()const {
+    APP_FORCE_INLINE s8* getWritePointer()const {
         return mData + mDataSize;
     }
 
@@ -86,7 +86,7 @@ public:
     }
 
 
-    APP_FORCE_INLINE c8* getReadPointer()const {
+    APP_FORCE_INLINE s8* getReadPointer()const {
         return mCurrent;
     }
 
@@ -94,17 +94,17 @@ public:
         return u32(getEnd() - mCurrent);
     }
 
-    APP_FORCE_INLINE c8* getEnd() const {
+    APP_FORCE_INLINE s8* getEnd() const {
         return mData + mDataSize;
     }
 
 
-    APP_FORCE_INLINE c8* getPointer()const {
+    APP_FORCE_INLINE s8* getPointer()const {
         return mData;
     }
 
 
-    APP_FORCE_INLINE const c8* getConstPointer() const {
+    APP_FORCE_INLINE const s8* getConstPointer() const {
         return mData;
     }
 
@@ -123,7 +123,7 @@ public:
             mCurrent = mData + core::min_<u32>(iPos, mDataSize);
         } else {
             mCurrent += iPos;
-            mCurrent = core::clamp<c8*>(mCurrent, mData, getEnd());
+            mCurrent = core::clamp<s8*>(mCurrent, mData, getEnd());
         }
     }
 
@@ -145,15 +145,15 @@ public:
     u32 add(const CNetPacket& pack);
 
     ///add string or memery buffer
-    u32 add(const c8* iStart, u32 iLength);
+    u32 add(const s8* iStart, u32 iLength);
 
     ///add string
-    u32 add(const c8* iStart);
+    u32 add(const s8* iStart);
 
     ///add string or memery buffer
-    u32 add(const c8* iStart, c8 iEnd);
+    u32 add(const s8* iStart, s8 iEnd);
 
-    u32 add(c8 it);
+    u32 add(s8 it);
     u32 add(u8 it);
     u32 add(s16 it);
     u32 add(u16 it);
@@ -168,7 +168,7 @@ public:
         return (ENetDataType) (*mCurrent++);
     }
 
-    APP_FORCE_INLINE c8 readS8()const {
+    APP_FORCE_INLINE s8 readS8()const {
         return (*mCurrent++);
     }
 
@@ -184,7 +184,7 @@ public:
     u64 readU64()const;
     f32 readF32()const;
 
-    u32 readString(core::array<c8>& out)const;
+    u32 readString(core::TArray<s8>& out)const;
 
     u32 addBuffer(const void* iData, u32 iLength);
 
@@ -204,18 +204,18 @@ public:
     *@param iEnd End pointer of consumed buffer .
     *@return The leftover size.
     */
-    APP_FORCE_INLINE u32 clear(const c8* const iEnd) {
+    APP_FORCE_INLINE u32 clear(const s8* const iEnd) {
         return clear(u32(iEnd - mData));
     }
 
 protected:
     u32 mDataSize;
     u32 mAllocatedSize;
-    mutable c8* mCurrent;
-    c8* mData;
+    mutable s8* mCurrent;
+    s8* mData;
 };
 
 }// end namespace net
-}// end namespace irr
+}// end namespace app
 
 #endif //APP_CNETPACKET_H

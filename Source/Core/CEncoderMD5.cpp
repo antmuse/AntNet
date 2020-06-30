@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <memory.h>
 
-namespace irr {
+namespace app {
 
 /*
 * The basic MD5 functions.
@@ -274,4 +274,4 @@ bool CEncoderMD5::operator==(const u8* const other) const {
 
 
 
-}// end namespace irr
+}// end namespace app

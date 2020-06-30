@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "CNetAddress.h"
-#include "IAppLogger.h"
+#include "CLogger.h"
 #include "CNetServerAcceptor.h"
 #include "CNetService.h"
 #include "CNetPing.h"
@@ -30,11 +30,11 @@
 #endif  //APP_PLATFORM_WINDOWS
 
 
-namespace irr {
+namespace app {
 
 void AppQuit() {
     //system("PAUSE");
-    irr::c8 key = '\0';
+    app::s8 key = '\0';
     while ('*' != key) {
         printf("@Please input [*] to quit");
         scanf("%c", &key);
@@ -61,11 +61,11 @@ void AppRunEchoServer() {
     accpetor.start(config);
     config->drop();
     //AppQuit();
-    irr::c8 key = '\0';
+    app::s8 key = '\0';
     while ('*' != key) {
         printf("@Please input [*] to quit");
         scanf("%c", &key);
-        IAppLogger::log(ELOG_INFO, "AppRunEchoServer",
+        CLogger::log(ELOG_INFO, "AppRunEchoServer",
             "link=%u/%u, send = %uKb, sent=%uKb+%uKb, recv=%uKb",
             evt.getDislinkCount(),
             evt.getLinkCount(),
@@ -87,7 +87,7 @@ void AppRunEchoClient() {
     config->check();
     config->print();
 
-    c8 sip[32] = { 0 };
+    s8 sip[32] = { 0 };
     printf("@Please input server's IP = ");
     scanf("%s", sip);
     if (strlen(sip) < 4) {
@@ -120,11 +120,11 @@ void AppRunEchoClient() {
     }
 
     //AppQuit();
-    irr::c8 key = '\0';
+    app::s8 key = '\0';
     while ('*' != key) {
         printf("@Please input [*] to quit");
         scanf("%c", &key);
-        IAppLogger::log(ELOG_INFO, "AppRunEchoClient",
+        CLogger::log(ELOG_INFO, "AppRunEchoClient",
             "request=%u+%u/%u,send=%u+%u(%uKb+%uKb), receive=%u+%u=%uKb, tick=%u-%u=%u",
             net::CNetEchoClient::mSendRequest,
             net::CNetEchoClient::mSendRequestFail,
@@ -150,14 +150,14 @@ void AppRunEchoClient() {
 }
 
 void AppStartPing() {
-    irr::net::CNetPing rpin;
+    app::net::CNetPing rpin;
     bool got = rpin.ping("61.135.169.121", 5, 1000);
     printf("ping 61.135.169.121 = %s\n", got ? "yes" : "no");
     printf("-------------------------------------\n");
 }
 
 void AppStartSynPing() {
-    irr::net::CNetSynPing synping;
+    app::net::CNetSynPing synping;
     s32 ret;
     if (synping.init()) {
         //ret = synping.ping("61.135.169.121", 80);
@@ -295,7 +295,7 @@ void AppRunHttpsClient() {
     config->check();
     config->print();
 
-    c8 sip[32] = { 0 };
+    s8 sip[32] = { 0 };
     printf("@Please input server's Site = ");
     scanf("%s", sip);
     if (strlen(sip) < 4) {
@@ -325,11 +325,11 @@ void AppRunHttpsClient() {
     }
 
     //AppQuit();
-    irr::c8 key = '\0';
+    app::s8 key = '\0';
     while ('*' != key) {
         printf("@Please input [*] to quit");
         scanf("%c", &key);
-        IAppLogger::log(ELOG_INFO, "AppRunHttpsClient", "request=u");
+        CLogger::log(ELOG_INFO, "AppRunHttpsClient", "request=u");
     }
 
     chub.stop();
@@ -347,7 +347,7 @@ void AppRunHttpClient() {
     config->check();
     config->print();
 
-    c8 sbuf[256] = { 0 };
+    s8 sbuf[256] = { 0 };
     printf("@Please input URL[256] = ");
     scanf("%s", sbuf);
     if (strlen(sbuf) < 16) {
@@ -371,11 +371,11 @@ void AppRunHttpClient() {
     }
 
     //AppQuit();
-    irr::c8 key = '\0';
+    app::s8 key = '\0';
     while ('*' != key) {
         printf("@Please input [*] to quit");
         scanf("%c", &key);
-        IAppLogger::log(ELOG_INFO, "AppRunHttpClient", "request=u");
+        CLogger::log(ELOG_INFO, "AppRunHttpClient", "request=u");
     }
 
     chub.stop();
@@ -400,13 +400,13 @@ void AppRunHttpsServer() {
 }
 
 
-}//namespace irr
+}//namespace app
 
 
 int main(int argc, char** argv) {
-    irr::IAppLogger::getInstance().addReceiver(
-        irr::IAppLogger::ELRT_CONSOLE | irr::IAppLogger::ELRT_FILE_TEXT);
-    irr::u32 key = 1;
+    app::CLogger::getInstance().addReceiver(
+        app::CLogger::ELRT_CONSOLE | app::CLogger::ELRT_FILE_TEXT);
+    app::u32 key = 1;
     while (key) {
         printf("@0 = Exit\n");
         printf("@1 = Net Server\n");
@@ -422,36 +422,36 @@ int main(int argc, char** argv) {
         scanf("%u", &key);
         switch (key) {
         case 1:
-            irr::AppRunEchoServer();
+            app::AppRunEchoServer();
             break;
         case 2:
-            irr::AppRunEchoClient();
+            app::AppRunEchoClient();
             break;
         case 3:
-            irr::AppRunTimerWheel();
+            app::AppRunTimerWheel();
             break;
         case 4:
-            irr::AppStartPing();
+            app::AppStartPing();
             break;
         case 5:
-            irr::AppStartSynPing();
+            app::AppStartSynPing();
             break;
         case 6:
-            irr::AppRunHttpsClient();
+            app::AppRunHttpsClient();
             break;
         case 7:
-            irr::AppRunHttpClient();
+            app::AppRunHttpClient();
             break;
         case 8:
-            irr::AppRunProxy();
+            app::AppRunProxy();
             break;
         case 9:
-            irr::AppRunHttpsServer();
+            app::AppRunHttpsServer();
             break;
         case 91:
         {
-            //irr::net::CNetHttpURL url("http://nginx.org/docs/guide.html?pa=1&pb=2#proxy");
-            irr::net::CNetHttpURL url("http://usr:passd@nginx.org:89/docs/guide.html?pa=1&pb=2#proxy");
+            //app::net::CNetHttpURL url("http://nginx.org/docs/guide.html?pa=1&pb=2#proxy");
+            app::net::CNetHttpURL url("http://usr:passd@nginx.org:89/docs/guide.html?pa=1&pb=2#proxy");
             printf("-------------------------------------\n");
             url.show();
             url.set("httP://redisdoc.com/hash/hkeys.html");

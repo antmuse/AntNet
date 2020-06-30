@@ -7,8 +7,8 @@
 #define APP_CNETSERVERACCEPTOR_H
 
 
-#include "irrString.h"
-#include "irrArray.h"
+#include "CString.h"
+#include "AppArray.h"
 #include "IRunnable.h"
 #include "CThread.h"
 #include "CEventPoller.h"
@@ -16,7 +16,7 @@
 #include "CNetService.h"
 
 #if defined(APP_PLATFORM_WINDOWS)
-namespace irr {
+namespace app {
 namespace net {
 
 /**
@@ -105,7 +105,7 @@ private:
     CNetSocket mListener;					///<listen socket's context
     CNetAddress mAddressRemote;
     CNetAddress mAddressLocal;
-    core::array<SContextWaiter*>  mAllWaiter;
+    core::TArray<SContextWaiter*>  mAllWaiter;
     CNetServiceTCP* mService;
     void* mFunctionAccept;
     void* mFunctionAcceptSockAddress;
@@ -115,12 +115,12 @@ private:
 
 
 }// end namespace net
-}// end namespace irr
+}// end namespace app
 
 
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
 
-namespace irr {
+namespace app {
 namespace net {
 
 /**
@@ -185,11 +185,11 @@ private:
     CNetSocket mListener;						///<listen socket's context
     CNetAddress mAddressRemote;
     CNetAddress mAddressLocal;
-    core::array<CNetServiceTCP*>  mService;
+    core::TArray<CNetServiceTCP*>  mService;
 };
 
 }// end namespace net
-}// end namespace irr
+}// end namespace app
 #endif //APP_PLATFORM_LINUX
 
 #endif //APP_CNETSERVERACCEPTOR_H

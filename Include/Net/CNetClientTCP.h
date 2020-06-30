@@ -2,12 +2,12 @@
 #define APP_CNETCLIENTTCP_H
 
 #include "INetClient.h"
-#include "irrString.h"
+#include "CString.h"
 #include "CNetSocket.h"
 #include "CNetPacket.h"
 #include "CThread.h"
 
-namespace irr {
+namespace app {
 namespace net {
 
 
@@ -76,6 +76,6 @@ private:
 };
 
 }// end namespace net
-}// end namespace irr
+}// end namespace app
 
 #endif //APP_CNETCLIENTTCP_H

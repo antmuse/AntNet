@@ -2,7 +2,7 @@
 #define APP_CNETADDRESS_H
 
 #include "HNetConfig.h"
-#include "irrString.h"
+#include "CString.h"
 
 #if defined(APP_NET_USE_IPV6)
 #include "IBigInteger.h"
@@ -20,7 +20,7 @@ struct sockaddr_in;
 #endif
 
 
-namespace irr {
+namespace app {
 namespace net {
 
 /**
@@ -47,13 +47,13 @@ public:
     *@brief Construct a net address with "user defined ip" and any port.
     *@param ip User defined ip.
     */
-    CNetAddress(const c8* ip);
+    CNetAddress(const s8* ip);
 
     /**
     *@brief Construct a net address with "user defined ip" and any port.
     *@param ip User defined ip.
     */
-    CNetAddress(const core::stringc& ip);
+    CNetAddress(const core::CString& ip);
 
     /**
     *@brief Construct a net address with "user defined port" and any ip.
@@ -63,9 +63,9 @@ public:
 
     ~CNetAddress();
 
-    CNetAddress(const c8* ip, u16 port);
+    CNetAddress(const s8* ip, u16 port);
 
-    CNetAddress(const core::stringc& ip, u16 port);
+    CNetAddress(const core::CString& ip, u16 port);
 
     CNetAddress(const CNetAddress& other);
 
@@ -85,13 +85,13 @@ public:
     *@brief Set IP, the real address will auto inited.
     *@param ip User defined IP.
     */
-    void setIP(const c8* ip);
+    void setIP(const s8* ip);
 
     /**
     *@brief Set IP.
     *@param ip User defined IP.
     */
-    void setIP(const core::stringc& ip) {
+    void setIP(const core::CString& ip) {
         setIP(ip.c_str());
     }
 
@@ -131,27 +131,27 @@ public:
     *@brief Set IP by a DNS, the real address will auto inited.
     *@param iDNS User defined domain, eg: "www.google.com".
     */
-    void setDomain(const c8* iDNS);
+    void setDomain(const s8* iDNS);
 
     /**
     *@brief Set IP:Port, the real address will auto inited.
     *@param ip User defined ip.
     *@param port User defined port, in OS-endian.
     */
-    void set(const c8* ip, u16 port);
+    void set(const s8* ip, u16 port);
 
     /**
     *@brief Set IP and Port
     *@param ipAndPort format is "127.0.0.1:8080"
     */
-    void setIPort(const c8* ipAndPort);
+    void setIPort(const s8* ipAndPort);
 
     /**
     *@brief Set IP:Port, the real address will auto inited.
     *@param ip User defined ip.
     *@param port User defined port, in OS-endian.
     */
-    void set(const core::stringc& ip, u16 port) {
+    void set(const core::CString& ip, u16 port) {
         set(ip.c_str(), port);
     }
 
@@ -197,13 +197,13 @@ public:
     *@param ip The IP string to convert.
     *@param result The converted ip, in big endian.
     */
-    static void convertStringToIP(const c8* ip, IP& result);
+    static void convertStringToIP(const s8* ip, IP& result);
 
     /**
     *@param ip The IP to convert, in big endian.
     *@param result The converted ip string.
     */
-    static void convertIPToString(const IP& ip, core::stringc& result);
+    static void convertIPToString(const IP& ip, core::CString& result);
 
 private:
     ///init when created
@@ -232,6 +232,6 @@ private:
 
 
 }//namespace net
-}//namespace irr
+}//namespace app
 
 #endif //APP_CNETADDRESS_H

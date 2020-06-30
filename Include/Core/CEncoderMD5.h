@@ -2,9 +2,8 @@
 #define APP_CENCODERMD5_H
 
 #include "HConfig.h"
-#include "irrTypes.h"
 
-namespace irr {
+namespace app {
 
 class CEncoderMD5 {
 public:
@@ -63,5 +62,5 @@ private:
 };
 
 
-}// end namespace irr
+}// end namespace app
 #endif //APP_CENCODERMD5_H

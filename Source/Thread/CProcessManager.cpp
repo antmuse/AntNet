@@ -15,10 +15,10 @@
 #endif //APP_PLATFORM_LINUX & APP_PLATFORM_ANDROID
 
 
-namespace irr {
+namespace app {
 
-core::array<fschar_t> CProcessManager::getEnvironmentVariablesBuffer(const CProcessManager::DProcessEnvronment& env) {
-    core::array<fschar_t> envbuf;
+core::TArray<fschar_t> CProcessManager::getEnvironmentVariablesBuffer(const CProcessManager::DProcessEnvronment& env) {
+    core::TArray<fschar_t> envbuf;
     u32 pos = 0;
     u32 keysize;
     u32 valuesize;
@@ -43,28 +43,28 @@ core::array<fschar_t> CProcessManager::getEnvironmentVariablesBuffer(const CProc
 }
 
 
-CProcessHandle* CProcessManager::launch(const io::path& command, const DProcessParam& args) {
-    io::path initialDirectory;
+CProcessHandle* CProcessManager::launch(const core::CPath& command, const DProcessParam& args) {
+    core::CPath initialDirectory;
     DProcessEnvronment env;
     return (launch(command, args, initialDirectory, 0, 0, 0, env));
 }
 
 
-CProcessHandle* CProcessManager::launch(const io::path& command, const DProcessParam& args, const io::path& initialDirectory) {
+CProcessHandle* CProcessManager::launch(const core::CPath& command, const DProcessParam& args, const core::CPath& initialDirectory) {
     DProcessEnvronment env;
     return (launch(command, args, initialDirectory, 0, 0, 0, env));
 }
 
 
-CProcessHandle* CProcessManager::launch(const io::path& command, const DProcessParam& args, CPipe* inPipe, CPipe* outPipe, CPipe* errPipe) {
+CProcessHandle* CProcessManager::launch(const core::CPath& command, const DProcessParam& args, CPipe* inPipe, CPipe* outPipe, CPipe* errPipe) {
     APP_ASSERT(inPipe == 0 || (inPipe != outPipe && inPipe != errPipe));
-    io::path initialDirectory;
+    core::CPath initialDirectory;
     DProcessEnvronment env;
     return (launch(command, args, initialDirectory, inPipe, outPipe, errPipe, env));
 }
 
 
-CProcessHandle* CProcessManager::launch(const io::path& command, const DProcessParam& args, const io::path& initialDirectory,
+CProcessHandle* CProcessManager::launch(const core::CPath& command, const DProcessParam& args, const core::CPath& initialDirectory,
     CPipe* inPipe, CPipe* outPipe, CPipe* errPipe) {
     APP_ASSERT(inPipe == 0 || (inPipe != outPipe && inPipe != errPipe));
     DProcessEnvronment env;
@@ -72,21 +72,21 @@ CProcessHandle* CProcessManager::launch(const io::path& command, const DProcessP
 }
 
 
-CProcessHandle* CProcessManager::launch(const io::path& command, const DProcessParam& args, CPipe* inPipe,
+CProcessHandle* CProcessManager::launch(const core::CPath& command, const DProcessParam& args, CPipe* inPipe,
     CPipe* outPipe, CPipe* errPipe, const DProcessEnvronment& env) {
     APP_ASSERT(inPipe == 0 || (inPipe != outPipe && inPipe != errPipe));
-    io::path initialDirectory;
+    core::CPath initialDirectory;
     return (launch(command, args, initialDirectory, inPipe, outPipe, errPipe, env));
 }
 
 
-} //namespace irr
+} //namespace app
 
 
 
 
 #if defined(APP_PLATFORM_WINDOWS)
-namespace irr {
+namespace app {
 
 CProcessHandle::PID CProcessManager::getCurrentID() {
     return ::GetCurrentProcessId();
@@ -113,31 +113,31 @@ void CProcessManager::times(long& userTime, long& kernelTime) {
 }
 
 
-static bool needEscaping(const io::path& arg) {
+static bool needEscaping(const core::CPath& arg) {
     bool isAlreadyQuoted = (arg.size() >= 2) &&
-        (_IRR_TEXT('\"') == arg[0]) &&
-        (_IRR_TEXT('\"') == arg[arg.size() - 1]);
+        (APP_STR('\"') == arg[0]) &&
+        (APP_STR('\"') == arg[arg.size() - 1]);
 
     if(isAlreadyQuoted) {
         return false;
     }
 
-    bool ret = (arg.findFirst(_IRR_TEXT(' ')) >= 0) ||
-        (arg.findFirst(_IRR_TEXT('\t')) >= 0) ||
-        (arg.findFirst(_IRR_TEXT('\n')) >= 0) ||
-        (arg.findFirst(_IRR_TEXT('\v')) >= 0) ||
-        (arg.findFirst(_IRR_TEXT('\"')) >= 0);
+    bool ret = (arg.findFirst(APP_STR(' ')) >= 0) ||
+        (arg.findFirst(APP_STR('\t')) >= 0) ||
+        (arg.findFirst(APP_STR('\n')) >= 0) ||
+        (arg.findFirst(APP_STR('\v')) >= 0) ||
+        (arg.findFirst(APP_STR('\"')) >= 0);
 
     return ret;
 }
 
 
-static io::path escapeParam(const io::path& arg) {
+static core::CPath escapeParam(const core::CPath& arg) {
     if(!needEscaping(arg)) {
         return arg;
     }
 
-    io::path ret("\"");
+    core::CPath ret("\"");
     ret.reserve(arg.size() * 11 / 10 + 6);
 
     for(u32 it = 0; it < arg.size(); ++it) {
@@ -162,11 +162,11 @@ static io::path escapeParam(const io::path& arg) {
 
 
 
-CProcessHandle* CProcessManager::launch(const io::path& command, const DProcessParam& args, const io::path& initialDirectory,
+CProcessHandle* CProcessManager::launch(const core::CPath& command, const DProcessParam& args, const core::CPath& initialDirectory,
     CPipe* inPipe, CPipe* outPipe, CPipe* errPipe, const DProcessEnvronment& env) {
-    io::path commandLine(command);
+    core::CPath commandLine(command);
     for(u32 i = 0; i < args.size(); ++i) {
-        commandLine.append(_IRR_TEXT(' '));
+        commandLine.append(APP_STR(' '));
         commandLine.append(escapeParam(args[i]));
     }
 
@@ -226,7 +226,7 @@ CProcessHandle* CProcessManager::launch(const io::path& command, const DProcessP
 
     const fschar_t* pEnv = 0;
 
-    core::array<fschar_t> envChars;
+    core::TArray<fschar_t> envChars;
 
     if(!env.empty()) {
         envChars = getEnvironmentVariablesBuffer(env);
@@ -318,9 +318,9 @@ bool CProcessManager::isRunning(CProcessHandle::PID pid) {
     return result;
 }
 
-} //end namespace irr
+} //end namespace app
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
-namespace irr {
+namespace app {
 
 CProcessHandle::PID CProcessManager::getCurrentID() {
     return ::getpid();
@@ -335,11 +335,11 @@ void CProcessManager::times(long& userTime, long& kernelTime) {
 }
 
 
-CProcessHandle* CProcessManager::launch(const io::path& command, const DProcessParam& args, const io::path& initialDirectory,
+CProcessHandle* CProcessManager::launch(const core::CPath& command, const DProcessParam& args, const core::CPath& initialDirectory,
     CPipe* inPipe, CPipe* outPipe, CPipe* errPipe, const DProcessEnvronment& env) {
     // We must not allocated memory after fork(), therefore allocate all required buffers first.
-    core::array<fschar_t> envChars = getEnvironmentVariablesBuffer(env);
-    core::array<fschar_t*> argv(args.size() + 2);
+    core::TArray<fschar_t> envChars = getEnvironmentVariablesBuffer(env);
+    core::TArray<fschar_t*> argv(args.size() + 2);
     s32 i = 0;
     argv[i++] = const_cast<fschar_t*>(command.c_str());
     for(u32 it = 0; it < args.size(); ++it) {
@@ -451,7 +451,7 @@ throw SystemException("cannot terminate process");
 }
 */
 
-} //end namespace irr
+} //end namespace app
 #endif //APP_PLATFORM_LINUX & APP_PLATFORM_ANDROID
 
 

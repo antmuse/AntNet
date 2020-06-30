@@ -11,8 +11,8 @@
 
 #if defined( APP_PLATFORM_WINDOWS )
 
-namespace irr {
-CNamedMutex::CNamedMutex(const io::path& iName, EMutexType type/* = EMT_RECURSIVE*/) : mMutex(0),
+namespace app {
+CNamedMutex::CNamedMutex(const core::CPath& iName, EMutexType type/* = EMT_RECURSIVE*/) : mMutex(0),
 mName(iName) {
     mMutex = ::CreateMutex(0, FALSE, mName.c_str());
 }
@@ -58,15 +58,15 @@ void CNamedMutex::unlock() {
     ::ReleaseMutex(mMutex);
 }
 
-}//irr
+}//app
 #elif defined( APP_PLATFORM_ANDROID )  || defined( APP_PLATFORM_LINUX )
 #if defined(APP_HAVE_MUTEX_TIMEOUT)
 #include <sys/time.h>
 #endif //APP_HAVE_MUTEX_TIMEOUT
 
-namespace irr {
+namespace app {
 
-CNamedMutex::CNamedMutex(const io::path& iName, EMutexType type/* = EMT_RECURSIVE*/) :mName(iName) {
+CNamedMutex::CNamedMutex(const core::CPath& iName, EMutexType type/* = EMT_RECURSIVE*/) :mName(iName) {
     pthread_mutexattr_t attr;
     pthread_mutexattr_init(&attr);
     pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED);
@@ -121,5 +121,5 @@ void CNamedMutex::unlock() {
 }
 
 
-} //namespace irr
+} //namespace app
 #endif //APP_PLATFORM_LINUX

@@ -10,12 +10,12 @@
 
 //#include "HConfig.h"
 #include "CProcessHandle.h"
-#include "irrArray.h"
-#include "irrMap.h"
-#include "path.h"
+#include "AppArray.h"
+#include "AppMap.h"
+#include "CString.h"
 
 
-namespace irr {
+namespace app {
 class CPipe;
 
 /**
@@ -36,8 +36,8 @@ class CPipe;
 */
 class CProcessManager {
 public:
-    typedef core::array<io::path> DProcessParam;
-    typedef core::map<io::path, io::path> DProcessEnvronment;
+    typedef core::TArray<core::CPath> DProcessParam;
+    typedef core::TMap<core::CPath, core::CPath> DProcessEnvronment;
 
 
     /**
@@ -60,7 +60,7 @@ public:
     *@param args The given arguments are passed to the command on the command line.
     *@return The handle of process if success, else 0.
     */
-    static CProcessHandle* launch(const io::path& command, const DProcessParam& args);
+    static CProcessHandle* launch(const core::CPath& command, const DProcessParam& args);
 
 
     /**
@@ -70,7 +70,7 @@ public:
     *@param initialDirectory The directory that process starts executing in.
     *@return The handle of process if success, else 0.
     */
-    static CProcessHandle* launch(const io::path& command, const DProcessParam& args, const io::path& initialDirectory);
+    static CProcessHandle* launch(const core::CPath& command, const DProcessParam& args, const core::CPath& initialDirectory);
 
 
     /**
@@ -90,7 +90,7 @@ public:
     *@return The handle of process if success, else 0.
     */
     static CProcessHandle* launch(
-        const io::path& command,
+        const core::CPath& command,
         const DProcessParam& args,
         CPipe* inPipe,
         CPipe* outPipe,
@@ -116,9 +116,9 @@ public:
     *@return The handle of process if success, else 0.
     */
     static CProcessHandle* launch(
-        const io::path& command,
+        const core::CPath& command,
         const DProcessParam& args,
-        const io::path& initialDirectory,
+        const core::CPath& initialDirectory,
         CPipe* inPipe,
         CPipe* outPipe,
         CPipe* errPipe);
@@ -143,7 +143,7 @@ public:
     *@return The handle of process if success, else 0.
     */
     static CProcessHandle* launch(
-        const io::path& command,
+        const core::CPath& command,
         const DProcessParam& args,
         CPipe* inPipe,
         CPipe* outPipe,
@@ -170,9 +170,9 @@ public:
     *@return The handle of process if success, else 0.
     */
     static CProcessHandle* launch(
-        const io::path& command,
+        const core::CPath& command,
         const DProcessParam& args,
-        const io::path& initialDirectory,
+        const core::CPath& initialDirectory,
         CPipe* inPipe,
         CPipe* outPipe,
         CPipe* errPipe,
@@ -219,11 +219,11 @@ public:
 
 
 private:
-    static core::array<fschar_t> getEnvironmentVariablesBuffer(const DProcessEnvronment& env);
+    static core::TArray<fschar_t> getEnvironmentVariablesBuffer(const DProcessEnvronment& env);
 
 };
 
-} //end namespace irr
+} //end namespace app
 
 
 #endif //APP_CPROCESSMANAGER_H

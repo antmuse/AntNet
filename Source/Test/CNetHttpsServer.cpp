@@ -1,7 +1,7 @@
 #include "CNetHttpsServer.h"
 #include "CNetService.h"
 #include "CThread.h"
-#include "IAppLogger.h"
+#include "CLogger.h"
 #include "CNetPacket.h"
 #include "CNetServerAcceptor.h"
 #include "CNetEchoServer.h"
@@ -13,7 +13,7 @@
     "<p>Successful connection using</p>\r\n"
 
 
-namespace irr {
+namespace app {
 namespace net {
 
 static s32 AppTlsSend(void* ctx, const u8* buf, u64 len) {
@@ -73,7 +73,7 @@ s32 CNetHttpsNode::sendBuffer(const void* buf, s32 len) {
         ret = mHttpsHub->getServer()->send(mConnetID, buf, len);
     }
     if (len != ret) {
-        IAppLogger::log(ELOG_INFO, "CNetHttpsNode::send", "fail");
+        CLogger::log(ELOG_INFO, "CNetHttpsNode::send", "fail");
     }
     return ret;
 }
@@ -182,7 +182,7 @@ s32 CNetHttpsNode::onReceive(const CNetAddress& remote, u32 sessionID, void* buf
             } else {
                 printf(" ok\n");
             }
-            IAppLogger::log(ELOG_INFO, "CNetHttpsNode::onReceive", "[%u],size=%d", sessionID, size);
+            CLogger::log(ELOG_INFO, "CNetHttpsNode::onReceive", "[%u],size=%d", sessionID, size);
 
             //resp
             u64 len = strlen(HTTP_RESPONSE);
@@ -197,7 +197,7 @@ s32 CNetHttpsNode::onReceive(const CNetAddress& remote, u32 sessionID, void* buf
     }
 
 
-    c8 buf[1024];
+    s8 buf[1024];
     //response
     do {
         ret = mbedtls_ssl_read(&mSSL, (u8*)buf, sizeof(buf) - 1);
@@ -233,7 +233,7 @@ CNetHttpsServer::CNetHttpsServer() :
     mbedtls_entropy_init(&entropy);
     mbedtls_pk_init(&pkey);
 
-    const c8 *pers = "ssl_server";
+    const s8 *pers = "ssl_server";
     s32 ret = 0;
     if ((ret = mbedtls_ctr_drbg_seed(&ctr_drbg, mbedtls_entropy_func, &entropy,
         (const u8*)pers,
@@ -341,7 +341,7 @@ INetEventer* CNetHttpsServer::onAccept(const CNetAddress& local) {
 
 s32 CNetHttpsServer::onLink(u32 sessionID, const CNetAddress& local, const CNetAddress& remote) {
     AppAtomicIncrementFetch(&mLinkCount);
-    IAppLogger::log(ELOG_INFO, "CNetHttpsServer::onLink", "[%u,%s:%u->%s:%u]",
+    CLogger::log(ELOG_INFO, "CNetHttpsServer::onLink", "[%u,%s:%u->%s:%u]",
         sessionID,
         local.getIPString(),
         local.getPort(),
@@ -361,7 +361,7 @@ s32 CNetHttpsServer::onConnect(u32 sessionID, const CNetAddress& local, const CN
 
 s32 CNetHttpsServer::onDisconnect(u32 sessionID, const CNetAddress& local, const CNetAddress& remote) {
     s32 ret = AppAtomicIncrementFetch(&mDislinkCount);
-    IAppLogger::log(ELOG_INFO, "CNetHttpsServer::onDisconnect", "[%u,%s:%u->%s:%u]",
+    CLogger::log(ELOG_INFO, "CNetHttpsServer::onDisconnect", "[%u,%s:%u->%s:%u]",
         sessionID,
         local.getIPString(),
         local.getPort(),
@@ -386,4 +386,4 @@ s32 CNetHttpsServer::onTimeout(u32 sessionID, const CNetAddress& local, const CN
 }
 
 }//namespace net
-}//namespace irr
+}//namespace app

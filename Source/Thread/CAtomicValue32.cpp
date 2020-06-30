@@ -1,7 +1,7 @@
 #include "CAtomicValue32.h"
 #include "HAtomicOperator.h"
 
-namespace irr {
+namespace app {
 
 CAtomicS32::CAtomicS32() :
     mValue(0) {
@@ -108,4 +108,4 @@ bool CAtomicS32::operator<=(const s32 it)const {
     //return mValue <= it;
 }
 
-} //namespace irr
+} //namespace app

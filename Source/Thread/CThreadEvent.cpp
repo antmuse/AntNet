@@ -5,7 +5,7 @@
 //
 #endif
 
-namespace irr {
+namespace app {
 
 
 #if defined(APP_PLATFORM_WINDOWS)
@@ -203,4 +203,4 @@ bool CThreadEvent::wait(long milliseconds) {
 #endif //APP_PLATFORM_LINUX
 
 
-} //end namespace irr
+} //end namespace app

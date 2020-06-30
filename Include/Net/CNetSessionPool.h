@@ -3,7 +3,7 @@
 
 #include "CNetSession.h"
 
-namespace irr {
+namespace app {
 namespace net {
 
 class CNetSessionPool {
@@ -68,6 +68,6 @@ private:
 
 
 } //namespace net
-} //namespace irr
+} //namespace app
 
 #endif //APP_CNETSESSIONPOOL_H

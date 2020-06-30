@@ -7,7 +7,7 @@
 #include "CNetAddress.h"
 #include "CNetSocket.h"
 
-namespace irr {
+namespace app {
 namespace net {
 
 #define DEF_PACKET_SIZE  32 
@@ -23,9 +23,9 @@ public:
 
     virtual ~CNetPing();
 
-    void writeICMPData(c8* mICMP_Data, s32 datasize);
+    void writeICMPData(s8* mICMP_Data, s32 datasize);
 
-    bool decodeHeader(c8* buf, s32 bytes, CNetAddress& from);
+    bool decodeHeader(s8* buf, s32 bytes, CNetAddress& from);
 
     void clear();
 
@@ -36,20 +36,20 @@ public:
     * @param timeout Timeout.
     * @return True if success, else false.
     */
-    bool ping(const c8* remoteIP, u32 max, s32 timeout = 1000);
+    bool ping(const s8* remoteIP, u32 max, s32 timeout = 1000);
 
 protected:
     CNetSocket mSocket;
     SHeadOptionIP mOption;
     CNetAddress mAddressRemote;
     CNetAddress mAddressFrom;
-    c8* mICMP_Data;
-    c8* mReceiveBuffer;
+    s8* mICMP_Data;
+    s8* mReceiveBuffer;
     u16 mSendSN;
     s32 mDataSize;
 };
 
 }//namespace net
-}//namespace irr
+}//namespace app
 
 #endif //APP_CNETPING_H

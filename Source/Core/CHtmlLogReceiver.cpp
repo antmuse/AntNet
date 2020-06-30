@@ -1,9 +1,9 @@
 ﻿#include "CHtmlLogReceiver.h"
 
-namespace irr {
+namespace app {
 
-CHtmlLogReceiver::CHtmlLogReceiver() : IAntLogReceiver() {
-    io::path fn(_IRR_TEXT("App.html"));
+CHtmlLogReceiver::CHtmlLogReceiver() : ILogReceiver() {
+    core::CPath fn(APP_STR("App.html"));
     mFile.openFile(fn, true);
     if(0 == mFile.getFileSize()) {
         writeHead();
@@ -14,7 +14,7 @@ CHtmlLogReceiver::~CHtmlLogReceiver() {
 }
 
 void CHtmlLogReceiver::writeHead() {
-    const c8* head =
+    const s8* head =
         "<html>\n" \
         "<head>\n" \
         "<meta http-equiv=\"Content-Type\" content=\"text/html charset=utf-8\" />\n" \
@@ -77,7 +77,7 @@ bool CHtmlLogReceiver::log(ELogLevel level, const wchar_t* timestr, const wchar_
 }
 
 
-bool CHtmlLogReceiver::log(ELogLevel level, const c8* timestr, const c8* sender, const c8* message) {
+bool CHtmlLogReceiver::log(ELogLevel level, const s8* timestr, const s8* sender, const s8* message) {
     mFile.write("<tr>\n<td width=\"160\">", sizeof("<tr>\n<td width=\"160\">") - 1);
     mFile.write(timestr, strlen(timestr));
     mFile.write("</td>\n<td class=\"", sizeof("</td>\n<td class=\"") - 1);
@@ -88,5 +88,5 @@ bool CHtmlLogReceiver::log(ELogLevel level, const c8* timestr, const c8* sender,
     return true;
 }
 
-}//namespace irr 
+}//namespace app 
 

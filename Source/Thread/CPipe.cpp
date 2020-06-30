@@ -10,7 +10,7 @@
 
 #if defined(APP_PLATFORM_WINDOWS)
 
-namespace irr {
+namespace app {
 
 CPipe::CPipe() {
     SECURITY_ATTRIBUTES attr;
@@ -78,11 +78,11 @@ void CPipe::closeWrite() {
 }
 
 
-} // namespace irr
+} // namespace app
 
 #elif defined( APP_PLATFORM_ANDROID )  || defined( APP_PLATFORM_LINUX )
 
-namespace irr {
+namespace app {
 
 CPipe::CPipe() {
     s32 fds[2];
@@ -158,6 +158,6 @@ void CPipe::closeWrite() {
 }
 
 
-} // namespace irr
+} // namespace app
 
 #endif //( APP_PLATFORM_ANDROID )  || ( APP_PLATFORM_LINUX )

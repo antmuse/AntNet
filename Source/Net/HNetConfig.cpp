@@ -3,9 +3,9 @@
 #include <stdio.h>  
 #include <stdlib.h>  
 #include <memory.h>
-#include "irrMath.h"  
+#include "AppMath.h"  
 
-namespace irr {
+namespace app {
 namespace net {
 
 
@@ -63,4 +63,4 @@ void CNetConfig::print() const {
 }
 
 }//namespace net
-}//namespace irr
+}//namespace app

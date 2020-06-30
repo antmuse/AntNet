@@ -41,10 +41,9 @@
  */
 
 #include "HConfig.h"
-#include "irrTypes.h"
 #include "IUtility.h"
 
-namespace irr {
+namespace app {
 namespace core {
 
 /* Test of the CPU is Little Endian and supports not aligned accesses.
@@ -245,7 +244,7 @@ u64 AppCaseHashSIP(const void* buf, u64 len) {
 }
 
 }//namespace core
-}//namespace irr
+}//namespace app
 
 
 

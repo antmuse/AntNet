@@ -6,7 +6,7 @@
 #include "HNetConfig.h"
 #include "CNetAddress.h"
 
-namespace irr {
+namespace app {
 namespace net {
 struct SContextIO;
 
@@ -16,16 +16,16 @@ struct SContextIO;
 
 #if defined(APP_PLATFORM_WINDOWS)
 #if defined(APP_OS_64BIT)
-typedef irr::u64 netsocket;
+typedef app::u64 netsocket;
 #else
-typedef irr::u32 netsocket;
+typedef app::u32 netsocket;
 #endif
 
 enum ESystemErrorCode {
     ESEC_TIMEOUT = 10060,   //WSAETIMEDOUT
 };
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
-typedef irr::s32 netsocket;
+typedef app::s32 netsocket;
 enum ESystemErrorCode {
     ESEC_TIMEOUT = 110,     //ETIMEDOUT
 };
@@ -389,7 +389,7 @@ private:
 
 
 } //namespace net 
-} //namespace irr 
+} //namespace app 
 
 
 #endif //APP_CNETSOCKET_H

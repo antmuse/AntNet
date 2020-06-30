@@ -2,9 +2,9 @@
 #define APP_HHASHFUNCTIONS_H
 
 
-#include "irrTypes.h"
+#include "HConfig.h"
 
-namespace irr {
+namespace app {
 namespace core {
 typedef u32(*AppHashCallback32)(const void*, u64);
 typedef u64(*AppHashCallback64)(const void*, u64);
@@ -60,6 +60,6 @@ u32 AppHashFNV(const void* iBuffer, u64 iSize);
 u32 AppHashAP(const void* iBuffer, u64 iSize);
 
 } //namespace core
-} //namespace irr
+} //namespace app
 
 #endif //APP_HHASHFUNCTIONS_H

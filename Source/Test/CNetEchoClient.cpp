@@ -1,12 +1,12 @@
 #include "CNetEchoClient.h"
 #include "CNetService.h"
 #include "CThread.h"
-#include "IAppLogger.h"
+#include "CLogger.h"
 #include "CNetPacket.h"
 #include "CNetServerAcceptor.h"
 #include "CNetEchoServer.h"
 
-namespace irr {
+namespace app {
 namespace net {
 
 s32 CNetEchoClient::mMaxSendPackets = 20000;
@@ -22,11 +22,11 @@ s32 CNetEchoClient::mRecvBytes = 0;
 s32 CNetEchoClient::mTickRequest = 0;
 s32 CNetEchoClient::mTickRequestFail = 0;
 s32 CNetEchoClient::mTickRecv = 0;
-c8 CNetEchoClient::mTestData[4 * 1024];
+s8 CNetEchoClient::mTestData[4 * 1024];
 
 const u32 APP_TICK_SIZE = 10;
 
-void CNetEchoClient::initData(const c8* msg, s32 mb) {
+void CNetEchoClient::initData(const s8* msg, s32 mb) {
     AppAtomicFetchSet((sizeof(mTestData) - 1 + 1024 * 1024 * mb) / sizeof(mTestData),
         &mMaxSendPackets);
     AppAtomicFetchSet(0, &mSendRequest);
@@ -63,7 +63,7 @@ CNetEchoClient::~CNetEchoClient() {
 s32 CNetEchoClient::onLink(u32 sessionID,
     const CNetAddress& local, const CNetAddress& remote) {
     s32 ret = 0;
-    IAppLogger::log(ELOG_ERROR, "CNetEchoClient::onLink", "[%u,%s:%u->%s:%u]",
+    CLogger::log(ELOG_ERROR, "CNetEchoClient::onLink", "[%u,%s:%u->%s:%u]",
         sessionID,
         local.getIPString(),
         local.getPort(),
@@ -78,7 +78,7 @@ s32 CNetEchoClient::onLink(u32 sessionID,
 s32 CNetEchoClient::onConnect(u32 sessionID,
     const CNetAddress& local, const CNetAddress& remote) {
     s32 ret = 0;
-    IAppLogger::log(ELOG_INFO, "CNetEchoClient::onConnect", "[%u,%s:%u->%s:%u]",
+    CLogger::log(ELOG_INFO, "CNetEchoClient::onConnect", "[%u,%s:%u->%s:%u]",
         sessionID,
         local.getIPString(),
         local.getPort(),
@@ -94,7 +94,7 @@ s32 CNetEchoClient::onConnect(u32 sessionID,
 
 void CNetEchoClient::sendTick() {
     s32 cnt = AppAtomicIncrementFetch(&mTickRequest);
-    c8 buf[APP_TICK_SIZE];
+    s8 buf[APP_TICK_SIZE];
     *(u32*)buf = APP_TICK_SIZE;
     buf[sizeof(u32)] = 0xAB;
     memcpy(buf + 5, "tick", 5);
@@ -102,7 +102,7 @@ void CNetEchoClient::sendTick() {
     if(sizeof(buf) != ret) {
         AppAtomicIncrementFetch(&mTickRequestFail);
     }
-    IAppLogger::log(ELOG_INFO, "CNetEchoClient::sendTick", "tick=%u", cnt);
+    CLogger::log(ELOG_INFO, "CNetEchoClient::sendTick", "tick=%u", cnt);
 }
 
 void CNetEchoClient::send() {
@@ -114,7 +114,7 @@ void CNetEchoClient::send() {
         }
     } else {
         AppAtomicDecrementFetch(&mSendRequest);
-        IAppLogger::log(ELOG_INFO, "CNetEchoClient::send", "task finished");
+        CLogger::log(ELOG_INFO, "CNetEchoClient::send", "task finished");
     }
 }
 
@@ -122,7 +122,7 @@ s32 CNetEchoClient::onDisconnect(u32 sessionID,
     const CNetAddress& local, const CNetAddress& remote) {
     s32 ret = 0;
     mPacket.setUsed(0);
-    IAppLogger::log(ELOG_INFO, "CNetEchoClient::onDisconnect", "[%u,%s:%u->%s:%u]",
+    CLogger::log(ELOG_INFO, "CNetEchoClient::onDisconnect", "[%u,%s:%u->%s:%u]",
         sessionID,
         local.getIPString(),
         local.getPort(),
@@ -134,7 +134,7 @@ s32 CNetEchoClient::onDisconnect(u32 sessionID,
         mSession = mHub->connect(remote, this);
         if(0 == mSession) {
             APP_ASSERT(0);
-            IAppLogger::log(ELOG_ERROR, "CNetEchoClient::onDisconnect", "[can't got session now-----]");
+            CLogger::log(ELOG_ERROR, "CNetEchoClient::onDisconnect", "[can't got session now-----]");
         }
     }
     return ret;
@@ -151,11 +151,11 @@ s32 CNetEchoClient::onSend(u32 sessionID, void* buffer, s32 size, s32 result) {
         } else {
             AppAtomicFetchAdd(size, &mSendFailBytes);
             AppAtomicIncrementFetch(&mSendFail);
-            IAppLogger::log(ELOG_ERROR, "CNetEchoClient::onSend", "Failed[%u,%d,%d,%s]",
+            CLogger::log(ELOG_ERROR, "CNetEchoClient::onSend", "Failed[%u,%d,%d,%s]",
                 sessionID,
                 result,
                 size,
-                reinterpret_cast<c8*>(buffer)
+                reinterpret_cast<s8*>(buffer)
             );
         }
     }
@@ -179,7 +179,7 @@ s32 CNetEchoClient::onReceive(const CNetAddress& remote, u32 sessionID, void* bu
             } else if(APP_TICK_SIZE == pksz) {
                 AppAtomicIncrementFetch(&mTickRecv);
                 ret += pksz;
-                IAppLogger::log(ELOG_INFO, "CNetEchoClient::onReceive", "[%u,%d,%s]",
+                CLogger::log(ELOG_INFO, "CNetEchoClient::onReceive", "[%u,%d,%s]",
                     sessionID, size, mPacket.getReadPointer() + 5);
                 mPacket.seek(pksz, false);
             } else {
@@ -198,7 +198,7 @@ s32 CNetEchoClient::onReceive(const CNetAddress& remote, u32 sessionID, void* bu
 s32 CNetEchoClient::onTimeout(u32 sessionID,
     const CNetAddress& local, const CNetAddress& remote) {
     s32 ret = 0;
-    IAppLogger::log(ELOG_INFO, "CNetEchoClient::onTimeout", "[%u,%s:%u->%s:%u]",
+    CLogger::log(ELOG_INFO, "CNetEchoClient::onTimeout", "[%u,%s:%u->%s:%u]",
         sessionID,
         local.getIPString(),
         local.getPort(),
@@ -210,4 +210,4 @@ s32 CNetEchoClient::onTimeout(u32 sessionID,
 }
 
 }//namespace net
-}//namespace irr
+}//namespace app

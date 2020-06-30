@@ -1,7 +1,7 @@
 #include "CCheckCRC.h"  
 
 
-namespace irr {
+namespace app {
 
 
 /* CRC16 implementation according to CCITT standards.
@@ -301,7 +301,7 @@ u64 CCheckCRC64::add(const void* buffer, u64 len) {
 }
 
 
-}//namespace irr
+}//namespace app
 
 
 
@@ -309,10 +309,10 @@ u64 CCheckCRC64::add(const void* buffer, u64 len) {
 #ifdef APP_TEST_CRC
 #include <stdio.h>
 int main(int argc, char** argv) {
-    irr::CCheckCRC32 c32;
-    irr::CCheckCRC64 c64;
-    irr::u32 cc32 = c32.add("c294f5b1", sizeof("c294f5b1") - 1);//cc32=1234567890
-    irr::u64 cc64 = c64.add("c294f5b1", sizeof("c294f5b1") - 1);
+    app::CCheckCRC32 c32;
+    app::CCheckCRC64 c64;
+    app::u32 cc32 = c32.add("c294f5b1", sizeof("c294f5b1") - 1);//cc32=1234567890
+    app::u64 cc64 = c64.add("c294f5b1", sizeof("c294f5b1") - 1);
     printf("c32=%u, c64=%llu\n", cc32, cc64);
 
     c32.clear();

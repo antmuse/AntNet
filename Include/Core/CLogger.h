@@ -1,5 +1,5 @@
 ﻿/**
- * @file   IAppLogger.h
+ * @file   CLogger.h
  * @brief    日志记录
  *
  *  Copyright (c) 2010-2011 Antmuse
@@ -14,24 +14,24 @@
 
 #include "HConfig.h"
 #include <stdarg.h>
-#include "irrArray.h"
+#include "AppArray.h"
 #include "HEngineLog.h"
 #include "CMutex.h"
 
 
 
 #if defined(APP_DEBUG)
-#define APP_LOG(TYPE, FROM, FORMAT, ...)    (IAppLogger::log(TYPE, FROM, FORMAT,__VA_ARGS__))
+#define APP_LOG(TYPE, FROM, FORMAT, ...)    (CLogger::log(TYPE, FROM, FORMAT,__VA_ARGS__))
 #else
 #define APP_LOG(TYPE, FROM, FORMAT, ...)
 #endif
 
 
-namespace irr {
-class IAntLogReceiver;
+namespace app {
+class ILogReceiver;
 
 /**
- * @class   IAppLogger
+ * @class   CLogger
  * @brief    日志记录器接口
  *
  * 用于记录不同类别的日志。
@@ -40,7 +40,7 @@ class IAntLogReceiver;
  * @version   1.0.0
  * @date  2010年11月26日, 下午10:16
  */
-class IAppLogger {
+class CLogger {
 public:
     enum ELoggerRecieverType {
         ELRT_CONSOLE = 1,
@@ -50,48 +50,48 @@ public:
     };
 
 
-    static IAppLogger& getInstance();
+    static CLogger& getInstance();
 
     static void addReceiver(u32 flag);
 
     static void log(ELogLevel iLevel, const wchar_t* iSender, const wchar_t* iMsg, ...);
 
-    static void log(ELogLevel iLevel, const c8* iSender, const c8* iMsg, ...);
+    static void log(ELogLevel iLevel, const s8* iSender, const s8* iMsg, ...);
 
     //! Used to log a critical error message to the logging system.
     /**
     \param sender: Name of the class/component sending the message.
     \param msg: The message to send. */
     static void logCritical(const wchar_t* sender, const wchar_t *msg, ...);
-    static void logCritical(const c8* sender, const c8 *msg, ...);
+    static void logCritical(const s8* sender, const s8 *msg, ...);
 
     //! Used to log an error message to the logging system.
     /**
     \param sender: Name of the class/component sending the message.
     \param msg: The message to send. */
     static void logError(const wchar_t* sender, const wchar_t *msg, ...);
-    static void logError(const c8* sender, const c8 *msg, ...);
+    static void logError(const s8* sender, const s8 *msg, ...);
 
     //! Used to log a warning to the logging system.
     /**
     \param sender: Name of the class/component sending the message.
     \param msg: The message to send. */
     static void logWarning(const wchar_t* sender, const wchar_t *msg, ...);
-    static void logWarning(const c8* sender, const c8 *msg, ...);
+    static void logWarning(const s8* sender, const s8 *msg, ...);
 
     //! Used to log an informational message to the logging system.
     /**
     \param sender: Name of the class/component sending the message.
     \param msg: The message to send. */
     static void logInfo(const wchar_t* sender, const wchar_t *msg, ...);
-    static void logInfo(const c8* sender, const c8 *msg, ...);
+    static void logInfo(const s8* sender, const s8 *msg, ...);
 
     //! Used to log a debug message to the logging system.
     /**
     \param sender: Name of the class/component sending the message.
     \param msg: The message to send. */
     static void logDebug(const wchar_t* sender, const wchar_t *msg, ...);
-    static void logDebug(const c8* sender, const c8 *msg, ...);
+    static void logDebug(const s8* sender, const s8 *msg, ...);
 
     //! Returns the minimum log level that will be sent to the log receivers.
     static const ELogLevel getLogLevel(){
@@ -108,12 +108,12 @@ public:
     If threading is enabled, you MUST make the receiver threadsafe if you plan to access it in your application while it is registered.
     \param iLog: The log receiver.
     \return True on success, False on failure. */
-    static bool add(IAntLogReceiver* iLog);
+    static bool add(ILogReceiver* iLog);
 
     //! Unregister a Log Receiver.
     /** Will NOT delete any user added receiver, you must do that yourself.
     \param iLog: The log receiver to remove. */
-    static void remove(const IAntLogReceiver* iLog);
+    static void remove(const ILogReceiver* iLog);
 
     /**
     * @brief remove all log receivers.
@@ -122,26 +122,26 @@ public:
 
 
 protected:
-    static void postLog(ELogLevel level, const c8* sender, const c8* msg, va_list args);
+    static void postLog(ELogLevel level, const s8* sender, const s8* msg, va_list args);
     static void postLog(ELogLevel level, const wchar_t* sender, const wchar_t* msg, va_list args);
     const static u16 MAX_TEXT_BUFFER_SIZE = 1024;
-    static c8 mTextBuffer[MAX_TEXT_BUFFER_SIZE];
+    static s8 mTextBuffer[MAX_TEXT_BUFFER_SIZE];
     static wchar_t mTextBufferW[MAX_TEXT_BUFFER_SIZE];
     static ELogLevel mMinLogLevel;
     static CMutex mMutex;
-    static core::array<IAntLogReceiver*> mAllReceiver;
+    static core::TArray<ILogReceiver*> mAllReceiver;
 
 private:
     //ILogger* pIrrLogger;
-    IAppLogger();
-    IAppLogger(IAppLogger& it) = delete;
-    IAppLogger& operator=(IAppLogger& it) = delete;
-    virtual ~IAppLogger();
+    CLogger();
+    CLogger(CLogger& it) = delete;
+    CLogger& operator=(CLogger& it) = delete;
+    virtual ~CLogger();
 };
 
-//APP_API IAppLogger* getLogger();
+//APP_API CLogger* getLogger();
 
-} //namespace irr
+} //namespace app
 
 #endif	/* APP_IAPPLOGGER_H */
 

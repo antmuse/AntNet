@@ -15,7 +15,7 @@ void AppRunEchoServer() {
     evt.setServer(&accpetor);
     accpetor.setLocalAddress(addr);
     accpetor.start();
-    irr::c8 key = '\0';
+    app::s8 key = '\0';
     while('*' != key) {
         printf("@Please input [*] to quit\n");
         scanf("%c", &key);

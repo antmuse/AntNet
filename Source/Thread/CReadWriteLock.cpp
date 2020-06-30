@@ -2,7 +2,7 @@
 
 #if defined( APP_PLATFORM_WINDOWS )
 
-namespace irr {
+namespace app {
 
 CReadWriteLock::CReadWriteLock() {
     ::InitializeSRWLock(&mLocker);
@@ -39,11 +39,11 @@ void CReadWriteLock::lockRead() {
 void CReadWriteLock::unlockRead() {
     ::ReleaseSRWLockShared(&mLocker);
 }
-} //namespace irr
+} //namespace app
 
 #elif defined( APP_PLATFORM_ANDROID )  || defined( APP_PLATFORM_LINUX )
 
-namespace irr {
+namespace app {
 
 CReadWriteLock::CReadWriteLock() {
     if(pthread_rwlock_init(&mLocker, NULL)) {
@@ -93,7 +93,7 @@ void CReadWriteLock::unlockWrite() {
         //("cannot unlock mutex");
     }
 }
-} //namespace irr
+} //namespace app
 
 
 #endif //( APP_PLATFORM_ANDROID )  || ( APP_PLATFORM_LINUX )

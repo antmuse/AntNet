@@ -9,14 +9,13 @@
 #define APP_CSEMAPHORE_H
 
 #include "HConfig.h"
-#include "irrTypes.h"
 #if defined( APP_PLATFORM_ANDROID )  || defined( APP_PLATFORM_LINUX )
 #include <pthread.h>
 #include <errno.h>
 #endif
 
 
-namespace irr {
+namespace app {
 
 /**
 *@class CSemaphore
@@ -99,7 +98,7 @@ private:
 #endif //APP_PLATFORM_WINDOWS
 };
 
-} // namespace irr
+} // namespace app
 
 
 #endif // APP_CSEMAPHORE_H

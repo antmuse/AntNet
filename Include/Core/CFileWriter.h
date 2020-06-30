@@ -3,9 +3,9 @@
 
 #include "HConfig.h"
 #include <stdarg.h>
-#include "path.h"
+#include "CString.h"
 
-namespace irr {
+namespace app {
 namespace io {
 
 
@@ -27,8 +27,8 @@ public:
     //! returns how much was read
     u64 write(const void* buffer, u64 sizeToWrite);
 
-    u64 writeParams(const c8* format, ...);
-    u64 writeParams(const c8* format, va_list& param);
+    u64 writeParams(const s8* format, ...);
+    u64 writeParams(const s8* format, va_list& param);
     u64 writeWParams(const wchar_t* format, ...);
     u64 writeWParams(const wchar_t* format, va_list& param);
 
@@ -42,10 +42,10 @@ public:
     s64 getPos() const;
 
 
-    bool openFile(const io::path& fileName, bool append);
+    bool openFile(const core::CPath& fileName, bool append);
 
 
-    const io::path& getFileName() const {
+    const core::CPath& getFileName() const {
         return mFilename;
     }
 
@@ -54,7 +54,7 @@ public:
     }
 
 protected:
-    io::path mFilename;
+    core::CPath mFilename;
     FILE* mFile;
     s64 mFileSize;
 
@@ -65,7 +65,7 @@ private:
 
 
 } // end namespace io
-} // end namespace irr
+} // end namespace app
 
 #endif //APP_CFILEWRITER_H
 

@@ -1,7 +1,7 @@
 #include "CNetServerAcceptor.h"
 #include "CNetUtility.h"
-#include "IAppTimer.h"
-#include "IAppLogger.h"
+#include "CTimer.h"
+#include "CLogger.h"
 #include "SClientContext.h"
 
 
@@ -12,7 +12,7 @@
 
 
 #if defined(APP_PLATFORM_WINDOWS)
-namespace irr {
+namespace app {
 namespace net {
 
 
@@ -79,7 +79,7 @@ void CNetServerAcceptor::run() {
                 iAction = APP_GET_VALUE_POINTER(iEvent[i].mPointer, SContextIO, mOverlapped);
                 iAction->mBytes = iEvent[i].mBytes;
                 stepAccpet(mAllWaiter[iAction->mID]);
-                //IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::run", "unknown operation type");
+                //CLogger::log(ELOG_ERROR, "CNetServerAcceptor::run", "unknown operation type");
             }//for
             mRunning = !stop;
         } else {
@@ -93,7 +93,7 @@ void CNetServerAcceptor::run() {
                 break;
 
             default:
-                IAppLogger::log(ELOG_WARN, "CNetServerAcceptor::run",
+                CLogger::log(ELOG_WARN, "CNetServerAcceptor::run",
                     "invalid overlap, ecode: [%lu]", pcode);
                 APP_ASSERT(0);
                 break;
@@ -103,7 +103,7 @@ void CNetServerAcceptor::run() {
     }//while
 
     delete[] iEvent;
-    IAppLogger::log(ELOG_INFO, "CNetServerAcceptor::run", "acceptor thread exited");
+    CLogger::log(ELOG_INFO, "CNetServerAcceptor::run", "acceptor thread exited");
 }
 
 
@@ -115,14 +115,14 @@ bool CNetServerAcceptor::clearError() {
     case ERROR_SEM_TIMEOUT: //hack? 每秒收到5000个以上的Accept时出现
         return true;
     case WAIT_TIMEOUT: //same as WSA_WAIT_TIMEOUT
-        IAppLogger::log(ELOG_INFO, "CNetServerAcceptor::clearError", "socket timeout, retry...");
+        CLogger::log(ELOG_INFO, "CNetServerAcceptor::clearError", "socket timeout, retry...");
         return true;
     case ERROR_CONNECTION_ABORTED: //服务器主动关闭
     case ERROR_NETNAME_DELETED: //客户端主动关闭连接
         return true;
     default:
     {
-        IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::clearError",
+        CLogger::log(ELOG_ERROR, "CNetServerAcceptor::clearError",
             "IOCP operation error, [ecode=%u]", ecode);
         return false;
     }
@@ -132,7 +132,7 @@ bool CNetServerAcceptor::clearError() {
 
 bool CNetServerAcceptor::start(CNetConfig* cfg) {
     if (mRunning || nullptr == cfg) {
-        IAppLogger::log(ELOG_INFO, "CNetServerAcceptor::start",
+        CLogger::log(ELOG_INFO, "CNetServerAcceptor::start",
             "server is running already, config=%p", cfg);
         return true;
     }
@@ -143,7 +143,7 @@ bool CNetServerAcceptor::start(CNetConfig* cfg) {
 
     if (!initialize()) {
         removeAll();
-        IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::start", "init server fail");
+        CLogger::log(ELOG_ERROR, "CNetServerAcceptor::start", "init server fail");
         return false;
     }
 
@@ -155,7 +155,7 @@ bool CNetServerAcceptor::start(CNetConfig* cfg) {
     }
     mThread->start(*this);
 
-    IAppLogger::log(ELOG_INFO, "CNetServerAcceptor::start",
+    CLogger::log(ELOG_INFO, "CNetServerAcceptor::start",
         "success, posted accpet: [%d]", mAcceptCount);
     return true;
 }
@@ -163,7 +163,7 @@ bool CNetServerAcceptor::start(CNetConfig* cfg) {
 
 bool CNetServerAcceptor::stop() {
     if (!mRunning) {
-        IAppLogger::log(ELOG_INFO, "CNetServerAcceptor::stop", "server had stoped.");
+        CLogger::log(ELOG_INFO, "CNetServerAcceptor::stop", "server had stoped.");
         return true;
     }
     CEventPoller::SEvent evt = { 0 };
@@ -199,30 +199,30 @@ void CNetServerAcceptor::removeAll() {
 
 bool CNetServerAcceptor::initialize() {
     if (!mListener.openSeniorTCP()) {
-        IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "create listen socket fail: %d", CNetSocket::getError());
+        CLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "create listen socket fail: %d", CNetSocket::getError());
         return false;
     }
 
     if (mConfig->mReuse && mListener.setReuseIP(true)) {
-        IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "set reuse IP fail: [%d]", CNetSocket::getError());
+        CLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "set reuse IP fail: [%d]", CNetSocket::getError());
         return false;
     }
 
     if (mConfig->mReuse && mListener.setReusePort(true)) {
-        IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "set reuse port fail: [%d]", CNetSocket::getError());
+        CLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "set reuse port fail: [%d]", CNetSocket::getError());
         return false;
     }
 
     if (mListener.bind(mAddressLocal)) {
-        IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "bind socket error: [%d]", CNetSocket::getError());
+        CLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "bind socket error: [%d]", CNetSocket::getError());
         return false;
     }
 
     if (mListener.listen(SOMAXCONN)) {
-        IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "listen socket error: [%d]", CNetSocket::getError());
+        CLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "listen socket error: [%d]", CNetSocket::getError());
         return false;
     }
-    IAppLogger::log(ELOG_CRITICAL, "CNetServerAcceptor::initialize", "listening: [%s:%d]",
+    CLogger::log(ELOG_CRITICAL, "CNetServerAcceptor::initialize", "listening: [%s:%d]",
         mAddressLocal.getIPString(), mAddressLocal.getPort());
 
     mFunctionAccept = mListener.getFunctionAccpet();
@@ -249,7 +249,7 @@ bool CNetServerAcceptor::postAccept() {
         waiter->mContextIO->mOperationType = EOP_ACCPET;
         if (!postAccept(waiter)) {
             delete waiter;
-            IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::postAccept", "post accpet fail, id: [%d]", id);
+            CLogger::log(ELOG_ERROR, "CNetServerAcceptor::postAccept", "post accpet fail, id: [%d]", id);
             return false;
         }
         mAllWaiter.push_back(waiter);
@@ -279,21 +279,21 @@ bool CNetServerAcceptor::stepAccpet(SContextWaiter* iContext) {
             mListener.getAddress(iContext->mCache, mAddressLocal, mAddressRemote, mFunctionAcceptSockAddress);
             u32 nid = mService->receive(iContext->mSocket, mAddressRemote, mAddressLocal, evt);
             if (0 == nid) {
-                IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::stepAccpet",
+                CLogger::log(ELOG_ERROR, "CNetServerAcceptor::stepAccpet",
                     "[can't add in service, socket:%s:%u->%s:%u]",
                     mAddressRemote.getIPString(), mAddressRemote.getPort(),
                     mAddressLocal.getIPString(), mAddressLocal.getPort());
                 iContext->mSocket.close();
             }
         } else {
-            IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::stepAccpet",
+            CLogger::log(ELOG_ERROR, "CNetServerAcceptor::stepAccpet",
                 "[INetEventer::onAccept fail, socket:%s:%u->%s:%u]",
                 mAddressRemote.getIPString(), mAddressRemote.getPort(),
                 mAddressLocal.getIPString(), mAddressLocal.getPort());
             iContext->mSocket.close();
         }
     } else {
-        IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::stepAccpet",
+        CLogger::log(ELOG_ERROR, "CNetServerAcceptor::stepAccpet",
             "[none INetEventer/Service, socket:%s:%u->%s:%u]",
             mAddressRemote.getIPString(), mAddressRemote.getPort(),
             mAddressLocal.getIPString(), mAddressLocal.getPort());
@@ -347,10 +347,10 @@ void CNetServerAcceptor::setServer(CNetServiceTCP* it) {
 
 
 }//namespace net
-}//namespace irr
+}//namespace app
 
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
-namespace irr {
+namespace app {
 namespace net {
 
 CNetServerAcceptor::CNetServerAcceptor() :
@@ -397,7 +397,7 @@ void CNetServerAcceptor::run() {
                         }
                     }
                 } else {
-                    IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::run", "unknown operation type");
+                    CLogger::log(ELOG_ERROR, "CNetServerAcceptor::run", "unknown operation type");
                     continue;
                 }
             }//for
@@ -405,13 +405,13 @@ void CNetServerAcceptor::run() {
             APP_LOG(ELOG_DEBUG, "CNetServerAcceptor::run", "epoll wait timeout");
         } else {
             s32 pcode = mPoller.getError();
-            IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::run", "epoll wait ecode=[%d]", pcode);
+            CLogger::log(ELOG_ERROR, "CNetServerAcceptor::run", "epoll wait ecode=[%d]", pcode);
             continue;
         }
     }//for
 
     delete[] iEvent;
-    IAppLogger::log(ELOG_INFO, "CNetServerAcceptor::run", "acceptor thread exited");
+    CLogger::log(ELOG_INFO, "CNetServerAcceptor::run", "acceptor thread exited");
 }
 
 
@@ -420,7 +420,7 @@ bool CNetServerAcceptor::clearError() {
     switch (ecode) {
     default:
     {
-        IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::clearError",
+        CLogger::log(ELOG_ERROR, "CNetServerAcceptor::clearError",
             "IOCP operation error, [ecode=%u]", ecode);
         return false;
     }
@@ -430,7 +430,7 @@ bool CNetServerAcceptor::clearError() {
 
 bool CNetServerAcceptor::start(CNetConfig* cfg) {
     if (mRunning || nullptr == cfg) {
-        IAppLogger::log(ELOG_INFO, "CNetServerAcceptor::start",
+        CLogger::log(ELOG_INFO, "CNetServerAcceptor::start",
             "server is running already, config=%p", cfg);
         return true;
     }
@@ -440,7 +440,7 @@ bool CNetServerAcceptor::start(CNetConfig* cfg) {
 
     if (!initialize()) {
         removeAll();
-        IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::start", "init server fail");
+        CLogger::log(ELOG_ERROR, "CNetServerAcceptor::start", "init server fail");
         return false;
     }
 
@@ -452,7 +452,7 @@ bool CNetServerAcceptor::start(CNetConfig* cfg) {
     }
     mThread->start(*this);
 
-    IAppLogger::log(ELOG_INFO, "CNetServerAcceptor::start",
+    CLogger::log(ELOG_INFO, "CNetServerAcceptor::start",
         "success, posted accpet: [%d]", mAcceptCount);
     return true;
 }
@@ -460,7 +460,7 @@ bool CNetServerAcceptor::start(CNetConfig* cfg) {
 
 bool CNetServerAcceptor::stop() {
     if (!mRunning) {
-        //IAppLogger::log(ELOG_INFO, "CNetServerAcceptor::stop", "server had stoped.");
+        //CLogger::log(ELOG_INFO, "CNetServerAcceptor::stop", "server had stoped.");
         return true;
     }
     mRunning = false;
@@ -496,27 +496,27 @@ void CNetServerAcceptor::removeAll() {
 
 bool CNetServerAcceptor::initialize() {
     if (!mListener.openTCP()) {
-        IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "create listen socket fail: %d", CNetSocket::getError());
+        CLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "create listen socket fail: %d", CNetSocket::getError());
         return false;
     }
 
     if (mConfig->mReuse && mListener.setReuseIP(true)) {
-        IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "set reuse IP fail: [%d]", CNetSocket::getError());
+        CLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "set reuse IP fail: [%d]", CNetSocket::getError());
         return false;
     }
 
     if (mConfig->mReuse && mListener.setReusePort(true)) {
-        IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "set reuse port fail: [%d]", CNetSocket::getError());
+        CLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "set reuse port fail: [%d]", CNetSocket::getError());
         return false;
     }
 
     if (mListener.bind(mAddressLocal)) {
-        IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "bind socket error: [%d]", CNetSocket::getError());
+        CLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "bind socket error: [%d]", CNetSocket::getError());
         return false;
     }
 
     if (mListener.listen(SOMAXCONN)) {
-        IAppLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "listen socket error: [%d]", CNetSocket::getError());
+        CLogger::log(ELOG_ERROR, "CNetServerAcceptor::initialize", "listen socket error: [%d]", CNetSocket::getError());
         return false;
     }
 
@@ -610,6 +610,6 @@ bool CNetServerAcceptor::removeServer(CNetServiceTCP* it) {
 
 
 }//namespace net
-}//namespace irr
+}//namespace app
 
 #endif //APP_PLATFORM_LINUX

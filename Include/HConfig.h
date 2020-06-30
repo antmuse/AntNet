@@ -24,9 +24,6 @@
 #define APP_VERSION_NAME  "0.3.5.0"
 #define APP_VERSION_ID    3500
 
-//Configure: Application Defender
-#define APP_DEFENDER
-
 
 //Configure: Debug or Release
 #if !defined( APP_DEBUG )
@@ -48,7 +45,7 @@
 #define APP_ALIGN(N) __declspec(align(N))
 
 #if defined(_UNICODE) || defined(UNICODE)
-#define _IRR_WCHAR_FILESYSTEM
+#define APP_WCHAR_SYS
 #endif
 
 #endif
@@ -71,8 +68,6 @@
 #define APP_INLINE inline
 #define APP_FORCE_INLINE __attribute__((always_inline)) inline
 #define APP_ALIGN(N) __attribute__((__aligned__((N))))
-// On Android platform, i use irrlicht1.8
-#define APP_USE_IRRLICHT_OLD
 #endif
 #endif
 
@@ -150,6 +145,14 @@
 #define APP_PROFILE(iName)
 #endif
 
+#if (_MSC_VER >= 1310) //vs 2003 or higher
+#define APP_DEPRECATED __declspec(deprecated)
+#elif (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1)) // all versions above 3.0 should support this feature
+#define APP_DEPRECATED  __attribute__ ((deprecated))
+#else
+#define APP_DEPRECATED
+#endif
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //Configure: API
@@ -201,6 +204,36 @@
 #define APP_CALL __cdecl
 #endif // STDCALL_SUPPORTED
 ////////////////////////////////////////////////////////////////////////////////
+
+
+
+namespace app {
+
+using s8 = char;
+using u8 = unsigned char;
+using s16 = short;
+using u16 = unsigned short;
+using s32 = int;
+using u32 = unsigned int;
+using s64 = long long;
+using u64 = unsigned long long;
+using f32 = float;
+using f64 = double;
+using uos = size_t;
+
+
+#if defined(APP_WCHAR_SYS)
+using fschar_t = wchar_t;
+#define APP_STR(N) L##N
+
+#else
+
+using fschar_t = char;
+#define APP_STR(N) ##N
+
+#endif
+
+}//namespace app
 
 ////////////////////////////////////////////////////////////////////////////////
 #endif	/* ANTMUSE_HCONFIG_H */

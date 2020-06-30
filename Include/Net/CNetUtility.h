@@ -3,7 +3,7 @@
 
 #include "HNetConfig.h"
 
-namespace irr {
+namespace app {
 namespace net {
 
 class CNetUtility {
@@ -36,7 +36,7 @@ private:
 
 
 }// end namespace net
-}// end namespace irr
+}// end namespace app
 
 
 #endif //APP_CNETUTILITY_H

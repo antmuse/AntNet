@@ -3,10 +3,10 @@
 #include <string.h>
 
 #include "CDict.h"
-#include "IAppTimer.h"
+#include "CTimer.h"
 #include "HHashFunctions.h"
 
-namespace irr {
+namespace app {
 namespace core {
 
 /* Using enableResize() / disableResize() we make possible to
@@ -164,12 +164,12 @@ s32 CDict::rehashBatch(s32 n) {
 
 
 s32 CDict::rehashWithTimeout(s32 ms) {
-    s64 start = IAppTimer::getTime();
+    s64 start = CTimer::getTime();
     s32 rehashes = 0;
 
     while(rehashBatch(100)) {
         rehashes += 100;
-        if(IAppTimer::getTime() - start > ms) {
+        if(CTimer::getTime() - start > ms) {
             break;
         }
     }
@@ -747,7 +747,7 @@ SDictNode** CDict::findNodeRefByPtrAndHash(const void* oldptr, u64 hash) {
 
 /* ------------------------------- Debugging ---------------------------------*/
 #define DICT_STATS_VECTLEN 50
-size_t CDict::getTableStats(c8 * buf, size_t bufsize, CDict::CHashTable * ht, s32 tableid) {
+size_t CDict::getTableStats(s8 * buf, size_t bufsize, CDict::CHashTable * ht, s32 tableid) {
     u64 i, slots = 0, chainlen, maxchainlen = 0;
     u64 totchainlen = 0;
     u32 clvector[DICT_STATS_VECTLEN];
@@ -808,9 +808,9 @@ size_t CDict::getTableStats(c8 * buf, size_t bufsize, CDict::CHashTable * ht, s3
     return strlen(buf);
 }
 
-void CDict::getStats(c8* buf, size_t bufsize) {
+void CDict::getStats(s8* buf, size_t bufsize) {
     size_t l;
-    c8* orig_buf = buf;
+    s8* orig_buf = buf;
     size_t orig_bufsize = bufsize;
 
     l = getTableStats(buf, bufsize, &mHashTable[0], 0);
@@ -864,7 +864,7 @@ public:
     }
 private:
     u32 mSize;
-    c8 mBuf[16];
+    s8 mBuf[16];
 };
 
 using CTestValue = CTestKey;
@@ -887,16 +887,16 @@ void* keyValueDump(void* iUserData, const void* kval) {
     return ret;
 }
 
-#define start_benchmark() start = IAppTimer::getTime()
+#define start_benchmark() start = CTimer::getTime()
 #define end_benchmark(msg) do { \
-    elapsed = IAppTimer::getTime()-start; \
+    elapsed = CTimer::getTime()-start; \
     printf(msg ": %ld items in %lld ms\n", count, elapsed); \
 } while(0);
 
 void AppStartDict() {
-    c8 buf[1024];
-    c8 sed[20];
-    IAppTimer::getTimeAsString(sed, sizeof(sed));
+    s8 buf[1024];
+    s8 sed[20];
+    CTimer::getTimeAsString(sed, sizeof(sed));
     core::AppSetHashSeedSIP(sed);
     core::SDictFunctions dictCalls = {
         hashCallback,
@@ -984,4 +984,4 @@ void AppStartDict() {
 
 
 
-}//namespace irr
+}//namespace app

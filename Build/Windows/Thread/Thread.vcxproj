@@ -22,7 +22,7 @@
     <ProjectGuid>{F71A39F2-9908-4823-9242-BB4352B38CC7}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Thread</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -35,7 +35,7 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -49,7 +49,7 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -181,7 +181,6 @@
     <ClInclude Include="..\..\..\Include\Thread\CMutex.h" />
     <ClInclude Include="..\..\..\Include\Thread\CNamedMutex.h" />
     <ClInclude Include="..\..\..\Include\Thread\CPipe.h" />
-    <ClInclude Include="..\..\..\Include\Thread\CProcess.h" />
     <ClInclude Include="..\..\..\Include\Thread\CProcessHandle.h" />
     <ClInclude Include="..\..\..\Include\Thread\CProcessManager.h" />
     <ClInclude Include="..\..\..\Include\Thread\CReadWriteLock.h" />

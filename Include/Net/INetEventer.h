@@ -5,7 +5,7 @@
 #include "HNetConfig.h"
 #include "CNetPacket.h"
 
-namespace irr {
+namespace app {
 namespace net {
 
 class CNetSocket;
@@ -24,7 +24,7 @@ enum ENetEventType {
     ENET_ET_COUNT
 };
 
-const c8* const AppNetEventTypeNames[] = {
+const s8* const AppNetEventTypeNames[] = {
     "NetInvalid",
     "NetSend",
     "NetReceive",
@@ -97,6 +97,6 @@ public:
 
 
 }// end namespace net
-}// end namespace irr
+}// end namespace app
 
 #endif //APP_INETEVENTER_H

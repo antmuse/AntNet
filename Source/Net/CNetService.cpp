@@ -1,13 +1,13 @@
 #include "CNetService.h"
-#include "IAppTimer.h"
-#include "IAppLogger.h"
+#include "CTimer.h"
+#include "CLogger.h"
 #include "CMemoryHub.h"
 #include "CNetUtility.h"
 
 #define APP_NET_SESSION_LINGER 8000
 
 
-namespace irr {
+namespace app {
 namespace net {
 
 CNetServiceTCP::CNetServiceTCP() :
@@ -81,7 +81,7 @@ bool CNetServiceTCP::start(CNetConfig* cfg) {
     mThreadPool->start();
     mTotalReceived = 0;
     mClosedSocket = 0;
-    mCurrentTime = IAppTimer::getRelativeTime();
+    mCurrentTime = CTimer::getRelativeTime();
     mStartTime = mCurrentTime;
     mSessionPool.create(mConfig->mMaxContext);
     mThread = new CThread();
@@ -92,7 +92,7 @@ bool CNetServiceTCP::start(CNetConfig* cfg) {
 
 bool CNetServiceTCP::stop() {
     if(!mRunning) {
-        //IAppLogger::log(ELOG_INFO, "CNetServiceTCP::stop", "server had stoped.");
+        //CLogger::log(ELOG_INFO, "CNetServiceTCP::stop", "server had stoped.");
         return true;
     }
     for(bool clean = false; !clean; mThread->sleep(100)) {
@@ -100,9 +100,9 @@ bool CNetServiceTCP::stop() {
         clean = mSessionPool.waitClose();
         mMutex.unlock();
     }
-    IAppLogger::log(ELOG_INFO, "CNetServiceTCP::stop", "all session exited");
+    CLogger::log(ELOG_INFO, "CNetServiceTCP::stop", "all session exited");
     mRunning = false;
-    mCurrentTime = IAppTimer::getRelativeTime();
+    mCurrentTime = CTimer::getRelativeTime();
     if(activePoller(ENET_SESSION_MASK)) {
         mThread->join();
         delete mThread;
@@ -116,7 +116,7 @@ bool CNetServiceTCP::stop() {
         if(mMemHub) {
             mMemHub->drop();
         }
-        IAppLogger::log(ELOG_INFO, "CNetServiceTCP::stop",
+        CLogger::log(ELOG_INFO, "CNetServiceTCP::stop",
             "Statistics: [session=%u][speed=%lluKb/s][size=%lluKb][seconds=%llu]",
             mCreatedSocket,
             (mTotalReceived >> 10) / ((mCurrentTime - mStartTime + 1000 - 1) / 1000),
@@ -134,12 +134,12 @@ void CNetServiceTCP::remove(CNetSession* iContext) {
 
 #if defined(APP_PLATFORM_WINDOWS)
     /*if(!mPoller.cancel(iContext->getSocket(), 0)) {
-    IAppLogger::log(ELOG_ERROR, "CNetServiceTCP::remove",
+    CLogger::log(ELOG_ERROR, "CNetServiceTCP::remove",
     "cancel IO, epoll ecode:[%d]", mPoller.getError());
     }*/
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
     if(!mPoller.remove(iContext->getSocket())) {
-        IAppLogger::log(ELOG_ERROR, "CNetServiceTCP::remove",
+        CLogger::log(ELOG_ERROR, "CNetServiceTCP::remove",
             "ecode:[%d]", mPoller.getError());
     }
     iContext->getSocket().close();
@@ -148,7 +148,7 @@ void CNetServiceTCP::remove(CNetSession* iContext) {
     mWheel.remove(iContext->getTimeNode());
     mSessionPool.addIdleSession(iContext);
 
-    IAppLogger::log(ELOG_INFO, "CNetServiceTCP::remove",
+    CLogger::log(ELOG_INFO, "CNetServiceTCP::remove",
         "[context:%u/%u][socket:%u/%u]",
         mSessionPool.getIdleCount(), mSessionPool.getMaxContext(),
         mClosedSocket, mCreatedSocket);
@@ -192,7 +192,7 @@ u32 CNetServiceTCP::receive(CNetSocket& sock, const CNetAddress& remote,
     //don't add in iocp twice
     if(!mPoller.add(sock, reinterpret_cast<void*>(session->getIndex()))) {
         APP_ASSERT(0);
-        IAppLogger::log(ELOG_ERROR, "CNetServiceTCP::getSession",
+        CLogger::log(ELOG_ERROR, "CNetServiceTCP::getSession",
             "can't add in epoll, socket: [%ld]",
             sock.getValue());
 
@@ -206,7 +206,7 @@ u32 CNetServiceTCP::receive(CNetSocket& sock, const CNetAddress& remote,
     addevt.mEvent = EPOLLIN | EPOLLOUT | EPOLLET;
     if(!mPoller.add(sock, addevt)) {
         APP_ASSERT(0);
-        IAppLogger::log(ELOG_ERROR, "CNetServiceTCP::getSession",
+        CLogger::log(ELOG_ERROR, "CNetServiceTCP::getSession",
             "can't add in epoll, socket: [%ld]",
             sock.getValue());
 
@@ -279,7 +279,7 @@ u32 CNetServiceTCP::connect(const CNetAddress& remote, INetEventer* it) {
         //don't add in iocp twice
         if(!mPoller.add(sock, reinterpret_cast<void*>(session->getIndex()))) {
             APP_ASSERT(0);
-            IAppLogger::log(ELOG_ERROR, "CNetClientSeniorTCP::getSession",
+            CLogger::log(ELOG_ERROR, "CNetClientSeniorTCP::getSession",
                 "can't add in epoll, socket: [%ld]",
                 sock.getValue());
 
@@ -293,7 +293,7 @@ u32 CNetServiceTCP::connect(const CNetAddress& remote, INetEventer* it) {
         addevt.mEvent = EPOLLERR | EPOLLIN | EPOLLOUT | EPOLLET;
         if(!mPoller.add(sock, addevt)) {
             APP_ASSERT(0);
-            IAppLogger::log(ELOG_ERROR, "CNetServiceTCP::connect",
+            CLogger::log(ELOG_ERROR, "CNetServiceTCP::connect",
                 "can't add in epoll, socket: [%ld]",
                 sock.getValue());
 
@@ -324,7 +324,7 @@ u32 CNetServiceTCP::connect(const CNetAddress& remote, INetEventer* it) {
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
     if(session->postConnect() <= 0) {
         if(!mPoller.remove(sock)) {
-            IAppLogger::log(ELOG_ERROR, "CNetServiceTCP::connect",
+            CLogger::log(ELOG_ERROR, "CNetServiceTCP::connect",
                 "can't remove from epoll, socket: [%ld]", sock.getValue());
         }
         session->getSocket().close();
@@ -470,8 +470,8 @@ void CNetServiceTCP::clearBuffers() {
         buf->drop();
         ++cnt;
     }
-    IAppLogger::log(ELOG_INFO, "CNetServiceTCP::clearBuffers", "count=%u", cnt);
+    CLogger::log(ELOG_INFO, "CNetServiceTCP::clearBuffers", "count=%u", cnt);
 }
 
 }//namespace net
-}//namespace irr
+}//namespace app

@@ -5,22 +5,22 @@
 #ifndef __IRR_HEAPSORT_H_INCLUDED__
 #define __IRR_HEAPSORT_H_INCLUDED__
 
-#include "irrTypes.h"
+#include "HConfig.h"
 
-namespace irr {
+namespace app {
 namespace core {
 
 //! Sinks an element into the heap.
 template<class T>
 inline void heapsink(T*array, s32 element, s32 max) {
-    while((element << 1) < max) // there is a left child
+    while ((element << 1) < max) // there is a left child
     {
         s32 j = (element << 1);
 
-        if(j + 1 < max && array[j] < array[j + 1])
+        if (j + 1 < max && array[j] < array[j + 1])
             j = j + 1; // take right child
 
-        if(array[element] < array[j]) {
+        if (array[element] < array[j]) {
             T t = array[j]; // swap elements
             array[j] = array[element];
             array[element] = t;
@@ -44,11 +44,11 @@ inline void heapsort(T* array_, s32 size) {
 
     // build heap
 
-    for(i = ((size - 1) / 2); i >= 0; --i)
+    for (i = ((size - 1) / 2); i >= 0; --i)
         heapsink(virtualArray, i + 1, virtualSize - 1);
 
     // sort array, leave out the last element (0)
-    for(i = size - 1; i > 0; --i) {
+    for (i = size - 1; i > 0; --i) {
         T t = array_[0];
         array_[0] = array_[i];
         array_[i] = t;
@@ -57,7 +57,7 @@ inline void heapsort(T* array_, s32 size) {
 }
 
 } // end namespace core
-} // end namespace irr
+} // end namespace app
 
 #endif
 

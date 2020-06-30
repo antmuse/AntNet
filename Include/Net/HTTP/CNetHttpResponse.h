@@ -1,13 +1,13 @@
 #ifndef APP_CNETHTTPRESPONSE_H
 #define APP_CNETHTTPRESPONSE_H
 
-#include "irrMap.h"
-#include "irrString.h"
+#include "AppMap.h"
+#include "CString.h"
 #include "HNetHttpStatus.h"
 #include "CNetHttpHead.h"
 #include "CNetPacket.h"
 
-namespace irr {
+namespace app {
 namespace net {
 
 
@@ -45,15 +45,15 @@ public:
         return mWebPage;
     }
 
-    void writeHTTP(const c8* iBuffer, u32 size);
+    void writeHTTP(const s8* iBuffer, u32 size);
 
-    void writePage(const c8* iBuffer, u32 size);
+    void writePage(const s8* iBuffer, u32 size);
 
     u32 getStatusCode() const {
         return mStatusCode;
     }
 
-    const c8* import(const c8* iBuffer, u32 size);
+    const s8* import(const s8* iBuffer, u32 size);
 
     bool isFull()const {
         return mPageFull;
@@ -83,13 +83,13 @@ private:
     *@brief
     *eg: "Connection: close" or "Connection:close"
     */
-    const c8* goValue(const c8* iStart, const c8* const iEnd);
+    const s8* goValue(const s8* iStart, const s8* const iEnd);
 
-    const c8* parseHead(const c8* const iBuffer, const c8* const iEnd);
+    const s8* parseHead(const s8* const iBuffer, const s8* const iEnd);
 
-    const c8* parseChuck(const c8* const iStart, const c8* const iEnd);
+    const s8* parseChuck(const s8* const iStart, const s8* const iEnd);
 
-    const c8* parseHeadInner(const c8* const iStart, const c8* const iEnd);
+    const s8* parseHeadInner(const s8* const iStart, const s8* const iEnd);
     //void createFile(u32 size);
 
     EHttpStatus mStatusCode;
@@ -101,7 +101,7 @@ private:
     u32 mReadedSize;
     u32 mChunkSize;
     u32 mPageSize;
-    core::stringc mHttpVersion;
+    core::CString mHttpVersion;
     CNetHttpHead mHead;
     CNetPacket mWebPage;
     CNetPacket mHTTP;
@@ -109,6 +109,6 @@ private:
 
 
 } //namespace net
-} //namespace irr
+} //namespace app
 
 #endif //APP_CNETHTTPRESPONSE_H

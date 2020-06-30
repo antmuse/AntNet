@@ -2,10 +2,9 @@
 #define APP_HNETCONFIG_H
 
 #include "HConfig.h"
-#include "irrTypes.h"
 
 
-namespace irr {
+namespace app {
 namespace net {
 
 //#define APP_NET_USE_IPV6
@@ -35,7 +34,7 @@ enum ENetNodeType {
 
 
 ///Define net peer typenames
-const c8* const AppNetNodeNames[] = {
+const s8* const AppNetNodeNames[] = {
     "Unknown",
     "ClientTCP",
     "ClientUDP",
@@ -96,7 +95,7 @@ private:
 
 
 } // end namespace net
-} // end namespace irr
+} // end namespace app
 
 
 #endif //APP_HNETCONFIG_H

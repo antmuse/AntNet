@@ -19,7 +19,7 @@
 #endif
 
 
-namespace irr {
+namespace app {
 namespace net {
 
 CNetCheckIP::CNetCheckIP() : m_size(0) {
@@ -65,14 +65,14 @@ bool CNetCheckIP::isValidLittleEndianIP(u32 ip)const {
 }
 
 
-bool CNetCheckIP::addNode(const c8* iStart, const c8* iEnd) {
+bool CNetCheckIP::addNode(const s8* iStart, const s8* iEnd) {
     APP_ASSERT(iStart && iEnd);
     if(m_size >= APP_MAX_IP_CHECK_NODE) {//full
         return false;
     }
 
     SNetIPNode node;
-    const c8* curr = core::AppGoNextFlag(iStart, iEnd, '/');
+    const s8* curr = core::AppGoNextFlag(iStart, iEnd, '/');
     if(curr > iStart && curr < iEnd) {//found eg: "192.168.1.1/24"
         const u32 bitcount = ::atoi(curr + sizeof(char));
         node.m_min = convertToIP(iStart);
@@ -109,11 +109,11 @@ bool CNetCheckIP::addNode(const c8* iStart, const c8* iEnd) {
 }
 
 
-u32 CNetCheckIP::convertToIP(const c8* str) {
+u32 CNetCheckIP::convertToIP(const s8* str) {
     u32 ret = 0; //little endian
 #if (0)
     if(str) {
-        const c8* iEnd = str + ::strlen(str);
+        const s8* iEnd = str + ::strlen(str);
         ret = (::atoi(str) & 0x000000FF) << 24;
         str = core::AppStringGoNextFlag(str, iEnd, '.');
         if(str >= iEnd) {
@@ -226,16 +226,16 @@ u32 CNetCheckIP::erodeBack(u32 idx, SNetIPNode& it) {
 }
 
 
-u32 CNetCheckIP::parseConfig(const c8* cfg, u32 cfgsize/*=0*/) {
+u32 CNetCheckIP::parseConfig(const s8* cfg, u32 cfgsize/*=0*/) {
     if(!cfg || '\0' == *cfg) {
         return m_size;
     }
     if(0 == cfgsize) {
         cfgsize = (u32)::strlen(cfg);
     }
-    const c8* iStart = cfg;
-    const c8* iEnd = iStart + cfgsize;
-    const c8* curr = core::AppGoNextFlag(iStart, iEnd, APP_IP_SPLIT_FLAG);
+    const s8* iStart = cfg;
+    const s8* iEnd = iStart + cfgsize;
+    const s8* curr = core::AppGoNextFlag(iStart, iEnd, APP_IP_SPLIT_FLAG);
     bool added = true;
     while(added && curr > iStart && iStart < iEnd) {
         added = addNode(iStart, curr);
@@ -303,12 +303,12 @@ void AppTestNetIP() {
 #endif
 
 };//namespace net
-};//namespace irr
+};//namespace app
 
 
 #if !defined(NDEBUG)
-irr::s32 test_main(irr::s32 argc, irr::c8** argv) {
-    irr::net::AppTestNetIP();
+app::s32 test_main(app::s32 argc, app::s8** argv) {
+    app::net::AppTestNetIP();
     return 0;
 }
 #endif

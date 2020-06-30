@@ -6,7 +6,7 @@
 #define APP_DEFAULT_MAX_BLOCKS      (8)
 #define APP_DEFAULT_BLOCK_SIZE      (4096 - sizeof(SQueueRingFreelock))
 
-namespace irr {
+namespace app {
 namespace io {
 
 CStreamFile::CStreamFile() :
@@ -49,7 +49,7 @@ bool CStreamFile::isEnough(u32 size)const {
 }
 
 
-bool CStreamFile::openWrite(c8** cache, s32* size, s32 append/* = 0*/) {
+bool CStreamFile::openWrite(s8** cache, s32* size, s32 append/* = 0*/) {
     APP_ASSERT(mWriteHandle);
 
     if(isWritable()) {
@@ -87,7 +87,7 @@ void CStreamFile::closeWrite(s32 size) {
 }
 
 
-bool CStreamFile::openRead(c8** cache, s32* size) {
+bool CStreamFile::openRead(s8** cache, s32* size) {
     APP_ASSERT(mReadHandle);
 
     if(isReadable()) {
@@ -121,7 +121,7 @@ bool CStreamFile::isWritable() const {
 }
 
 
-s32 CStreamFile::read(c8* buffer, s32 sizeToRead) {
+s32 CStreamFile::read(s8* buffer, s32 sizeToRead) {
     APP_ASSERT(mReadHandle);
 
     s32 ret = 0;
@@ -147,7 +147,7 @@ s32 CStreamFile::read(c8* buffer, s32 sizeToRead) {
 }
 
 
-s32 CStreamFile::readLine(c8* buffer, s32 maxSize) {
+s32 CStreamFile::readLine(s8* buffer, s32 maxSize) {
     APP_ASSERT(mReadHandle);
 
     //empty file
@@ -157,7 +157,7 @@ s32 CStreamFile::readLine(c8* buffer, s32 maxSize) {
 
     SQueueRingFreelock* node = mReadHandle;
     bool find = false;
-    const c8* pos;
+    const s8* pos;
     s32 linesize = 0;
     s32 leftover;
     s32 got = 0;
@@ -219,7 +219,7 @@ SQueueRingFreelock* CStreamFile::goNextRead(SQueueRingFreelock* current) {
 }
 
 
-s32 CStreamFile::write(const c8* buffer, s32 sizeToWrite, bool force/* = false*/, bool close/* = true*/) {
+s32 CStreamFile::write(const s8* buffer, s32 sizeToWrite, bool force/* = false*/, bool close/* = true*/) {
     APP_ASSERT(buffer);
     APP_ASSERT(mWriteHandle);
 
@@ -355,5 +355,5 @@ void CStreamFile::clear() {
 
 
 } // end namespace io
-} // end namespace irr
+} // end namespace app
 

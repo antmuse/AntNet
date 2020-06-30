@@ -1,7 +1,7 @@
 #include "CNetSessionPool.h"
-//#include "IAppLogger.h"
+//#include "CLogger.h"
 
-namespace irr {
+namespace app {
 namespace net {
 
 CNetSessionPool::CNetSessionPool() :
@@ -114,4 +114,4 @@ void CNetSessionPool::clearAll() {
 
 
 } //namespace net
-} //namespace irr
+} //namespace app

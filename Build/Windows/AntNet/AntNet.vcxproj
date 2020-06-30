@@ -22,7 +22,7 @@
     <ProjectGuid>{01F8D505-77A7-4D41-97BC-8F60A381548E}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>AntNet</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -35,7 +35,7 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -49,7 +49,7 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -199,23 +199,18 @@
     <ClInclude Include="..\..\..\Include\Core\heapsort.h" />
     <ClInclude Include="..\..\..\Include\Core\HEngineLog.h" />
     <ClInclude Include="..\..\..\Include\Core\HHashFunctions.h" />
-    <ClInclude Include="..\..\..\Include\Core\IAntLogReceiver.h" />
-    <ClInclude Include="..\..\..\Include\Core\IAppEventReceiver.h" />
-    <ClInclude Include="..\..\..\Include\Core\IAppLogger.h" />
-    <ClInclude Include="..\..\..\Include\Core\IAppTimer.h" />
-    <ClInclude Include="..\..\..\Include\Core\IBigInteger.h" />
+    <ClInclude Include="..\..\..\Include\Core\ILogReceiver.h" />
+    <ClInclude Include="..\..\..\Include\Core\CLogger.h" />
+    <ClInclude Include="..\..\..\Include\Core\CTimer.h" />
     <ClInclude Include="..\..\..\Include\Core\INoCopy.h" />
-    <ClInclude Include="..\..\..\Include\Core\IPairOrderID.h" />
     <ClInclude Include="..\..\..\Include\Core\IReferenceCounted.h" />
-    <ClInclude Include="..\..\..\Include\Core\irrAllocator.h" />
-    <ClInclude Include="..\..\..\Include\Core\irrArray.h" />
-    <ClInclude Include="..\..\..\Include\Core\irrList.h" />
-    <ClInclude Include="..\..\..\Include\Core\irrMap.h" />
-    <ClInclude Include="..\..\..\Include\Core\irrMath.h" />
-    <ClInclude Include="..\..\..\Include\Core\irrString.h" />
-    <ClInclude Include="..\..\..\Include\Core\irrTypes.h" />
+    <ClInclude Include="..\..\..\Include\Core\TAllocator.h" />
+    <ClInclude Include="..\..\..\Include\Core\AppArray.h" />
+    <ClInclude Include="..\..\..\Include\Core\AppList.h" />
+    <ClInclude Include="..\..\..\Include\Core\AppMap.h" />
+    <ClInclude Include="..\..\..\Include\Core\AppMath.h" />
+    <ClInclude Include="..\..\..\Include\Core\CString.h" />
     <ClInclude Include="..\..\..\Include\Core\IUtility.h" />
-    <ClInclude Include="..\..\..\Include\Core\path.h" />
     <ClInclude Include="..\..\..\Include\HConfig.h" />
     <ClInclude Include="..\..\..\Include\Net\CBase64Coder.h" />
     <ClInclude Include="..\..\..\Include\Net\CBufferQueue.h" />
@@ -241,10 +236,38 @@
     <ClInclude Include="..\..\..\Include\Net\HNetConfig.h" />
     <ClInclude Include="..\..\..\Include\Net\HNetHeader.h" />
     <ClInclude Include="..\..\..\Include\Net\HNetOperationType.h" />
+    <ClInclude Include="..\..\..\Include\Net\HTTP\CNetClientHttp.h" />
+    <ClInclude Include="..\..\..\Include\Net\HTTP\CNetHttpHead.h" />
+    <ClInclude Include="..\..\..\Include\Net\HTTP\CNetHttpRequest.h" />
+    <ClInclude Include="..\..\..\Include\Net\HTTP\CNetHttpResponse.h" />
+    <ClInclude Include="..\..\..\Include\Net\HTTP\CNetHttpURL.h" />
+    <ClInclude Include="..\..\..\Include\Net\HTTP\HNetHttpStatus.h" />
+    <ClInclude Include="..\..\..\Include\Net\HTTP\http_parser.h" />
+    <ClInclude Include="..\..\..\Include\Net\HTTP\INetEventerHttp.h" />
     <ClInclude Include="..\..\..\Include\Net\INetClient.h" />
     <ClInclude Include="..\..\..\Include\Net\INetEventer.h" />
     <ClInclude Include="..\..\..\Include\Net\INetServer.h" />
+    <ClInclude Include="..\..\..\Include\Net\Mail\CNetMailClient.h" />
+    <ClInclude Include="..\..\..\Include\Net\Mail\CNetMailMessage.h" />
+    <ClInclude Include="..\..\..\Include\Net\RawSocket\CNetPing.h" />
+    <ClInclude Include="..\..\..\Include\Net\RawSocket\CNetSynPing.h" />
     <ClInclude Include="..\..\..\Include\Net\SClientContext.h" />
+    <ClInclude Include="..\..\..\Include\Thread\CAtomicValue32.h" />
+    <ClInclude Include="..\..\..\Include\Thread\CCondition.h" />
+    <ClInclude Include="..\..\..\Include\Thread\CMutex.h" />
+    <ClInclude Include="..\..\..\Include\Thread\CNamedMutex.h" />
+    <ClInclude Include="..\..\..\Include\Thread\CPipe.h" />
+    <ClInclude Include="..\..\..\Include\Thread\CProcessHandle.h" />
+    <ClInclude Include="..\..\..\Include\Thread\CProcessManager.h" />
+    <ClInclude Include="..\..\..\Include\Thread\CReadWriteLock.h" />
+    <ClInclude Include="..\..\..\Include\Thread\CSemaphore.h" />
+    <ClInclude Include="..\..\..\Include\Thread\CSpinlock.h" />
+    <ClInclude Include="..\..\..\Include\Thread\CThread.h" />
+    <ClInclude Include="..\..\..\Include\Thread\CThreadEvent.h" />
+    <ClInclude Include="..\..\..\Include\Thread\CThreadPool.h" />
+    <ClInclude Include="..\..\..\Include\Thread\HAtomicOperator.h" />
+    <ClInclude Include="..\..\..\Include\Thread\HMutexType.h" />
+    <ClInclude Include="..\..\..\Include\Thread\IRunnable.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\Core\CConsoleLogReceiver.cpp" />
@@ -265,8 +288,8 @@
     <ClCompile Include="..\..\..\Source\Core\HashMurmur.cpp" />
     <ClCompile Include="..\..\..\Source\Core\HashSIP.cpp" />
     <ClCompile Include="..\..\..\Source\Core\HHashFunctions.cpp" />
-    <ClCompile Include="..\..\..\Source\Core\IAppLogger.cpp" />
-    <ClCompile Include="..\..\..\Source\Core\IAppTimer.cpp" />
+    <ClCompile Include="..\..\..\Source\Core\CLogger.cpp" />
+    <ClCompile Include="..\..\..\Source\Core\CTimer.cpp" />
     <ClCompile Include="..\..\..\Source\Core\IUtility.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CBase64Coder.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CBufferQueue.cpp" />

@@ -2,12 +2,12 @@
 #define APP_CNETCERT_H
 
 
-#include "path.h"
+#include "CString.h"
 #include "CNetPacket.h"
 #include "mbedtls/ssl.h"
 #include "mbedtls/certs.h"
 
-namespace irr {
+namespace app {
 namespace net {
 
 class CNetCert {
@@ -28,7 +28,7 @@ public:
         return mCertCA;
     }
 
-    bool loadFromFile(const io::path& filenm);
+    bool loadFromFile(const core::CPath& filenm);
 
     bool loadFromBuf(const void* buf = nullptr, u64 iSize = 0);
 
@@ -38,6 +38,6 @@ private:
 };
 
 }//namespace net
-}//namespace irr
+}//namespace app
 
 #endif //APP_CNETCERT_H

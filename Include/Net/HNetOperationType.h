@@ -2,7 +2,7 @@
 #define APP_HNETOPERATIONTYPE_H
 
 
-namespace irr {
+namespace app {
 namespace net {
 
 ///net operation type
@@ -29,5 +29,5 @@ const char* const AppOperationTypeName[] = {
 
 
 }//namespace net
-}//namespace irr
+}//namespace app
 #endif //APP_HNETOPERATIONTYPE_H

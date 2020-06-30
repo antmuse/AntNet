@@ -3,7 +3,7 @@
 
 #include "INetEventer.h"
 
-namespace irr {
+namespace app {
 namespace net {
 
 class CNetAddress;
@@ -43,6 +43,6 @@ public:
 };
 
 }// end namespace net
-}// end namespace irr
+}// end namespace app
 
 #endif //APP_INETCLIENT_H

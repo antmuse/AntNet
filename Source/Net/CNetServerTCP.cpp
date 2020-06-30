@@ -1,10 +1,10 @@
 #include "CNetServerTCP.h"
 #include "CThread.h"
-#include "IAppLogger.h"
+#include "CLogger.h"
 #include "CNetUtility.h"
 
 
-namespace irr {
+namespace app {
 namespace net {
 
 CNetServerTCP::CNetServerTCP() :
@@ -27,30 +27,30 @@ CNetServerTCP::~CNetServerTCP() {
 
 void CNetServerTCP::run() {
     if(!mSocket.openTCP()) {
-        IAppLogger::log(ELOG_ERROR, "CNetServerTCP::run", "create socket error!!!");
+        CLogger::log(ELOG_ERROR, "CNetServerTCP::run", "create socket error!!!");
         return;
     }
 
     if(mSocket.bind(mAddressLocal)) {
-        IAppLogger::log(ELOG_ERROR, "CNetServerTCP::run", "bind error: [%s:%u]",
+        CLogger::log(ELOG_ERROR, "CNetServerTCP::run", "bind error: [%s:%u]",
             mAddressLocal.getIPString(), mAddressLocal.getPort());
         return;
     }
 
     if(mSocket.listen(1)) {
-        IAppLogger::log(ELOG_ERROR, "CNetServerTCP::run", "listen error: [%s:%u]",
+        CLogger::log(ELOG_ERROR, "CNetServerTCP::run", "listen error: [%s:%u]",
             mAddressLocal.getIPString(), mAddressLocal.getPort());
         return;
     }
 
     /*if(mSocket.setBlock(false)) {
-        IAppLogger::log(ELOG_ERROR, "CNetServerTCP::run", "setBlock error: [%s:%u]",
+        CLogger::log(ELOG_ERROR, "CNetServerTCP::run", "setBlock error: [%s:%u]",
             mAddressLocal.getIPString(), mAddressLocal.getPort());
         return;
     }*/
 
     if(mSocket.setReceiveOvertime(1000)) {
-        IAppLogger::log(ELOG_ERROR, "CNetServerTCP::run", "setReceiveOvertime error: [%s:%u]",
+        CLogger::log(ELOG_ERROR, "CNetServerTCP::run", "setReceiveOvertime error: [%s:%u]",
             mAddressLocal.getIPString(), mAddressLocal.getPort());
         return;
     }
@@ -81,11 +81,11 @@ void CNetServerTCP::run() {
             mSocketSub = mSocket.accept(mAddressRemote);
             if(mSocketSub.isOpen()) {
                 mAddressRemote.reverse();
-                IAppLogger::log(ELOG_CRITICAL, "CNetServerTCP::run", "client incoming: [%s:%u]",
+                CLogger::log(ELOG_CRITICAL, "CNetServerTCP::run", "client incoming: [%s:%u]",
                     mAddressRemote.getIPString(), mAddressRemote.getPort());
 
                 if(mSocketSub.setReceiveOvertime(1000)) {
-                    IAppLogger::log(ELOG_ERROR, "CNetServerTCP::run", "setReceiveOvertime error: [%s:%u]",
+                    CLogger::log(ELOG_ERROR, "CNetServerTCP::run", "setReceiveOvertime error: [%s:%u]",
                         mAddressLocal.getIPString(), mAddressLocal.getPort());
                 }
                 mStatus = ENET_RECEIVE;
@@ -109,7 +109,7 @@ void CNetServerTCP::run() {
         }
         case ENET_DISCONNECT:
         {
-            IAppLogger::log(ELOG_CRITICAL, "CNetServerTCP::run", "client quit: [%s:%u]",
+            CLogger::log(ELOG_CRITICAL, "CNetServerTCP::run", "client quit: [%s:%u]",
                 mAddressRemote.getIPString(), mAddressRemote.getPort());
             if(mReceiver2) {
                 mReceiver2->onDisconnect(0, mAddressLocal, mAddressRemote);
@@ -128,7 +128,7 @@ void CNetServerTCP::run() {
         }//switch
     }//while
 
-    //IAppLogger::log(ELOG_CRITICAL, "CNetServerTCP::run", "server exiting, please wait...");
+    //CLogger::log(ELOG_CRITICAL, "CNetServerTCP::run", "server exiting, please wait...");
     mSocketSub.close();
     mSocket.close();
 }
@@ -154,7 +154,7 @@ bool CNetServerTCP::clearError() {
         return false;
     }//switch
 
-    IAppLogger::log(ELOG_ERROR, "CNetServerTCP::clearError", "socket error: %d", ecode);
+    CLogger::log(ELOG_ERROR, "CNetServerTCP::clearError", "socket error: %d", ecode);
     return false;
 }
 
@@ -189,7 +189,7 @@ bool CNetServerTCP::stop() {
 }
 
 
-s32 CNetServerTCP::send(const c8* iData, s32 iLength) {
+s32 CNetServerTCP::send(const s8* iData, s32 iLength) {
     if(1 != mRunning || !iData) {
         return 0;
     }
@@ -198,4 +198,4 @@ s32 CNetServerTCP::send(const c8* iData, s32 iLength) {
 
 
 }// end namespace net
-}// end namespace irr
+}// end namespace app

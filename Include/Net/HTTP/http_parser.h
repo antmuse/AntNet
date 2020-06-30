@@ -25,9 +25,9 @@
 #ifndef http_parser_h
 #define http_parser_h
 
-#include "irrTypes.h"
+#include "HConfig.h"
 
-namespace irr {
+namespace app {
 namespace net {
 
 /* Also update SONAME in the Makefile whenever you change these. */
@@ -428,6 +428,6 @@ int http_body_is_final(const http_parser *parser);
 void http_parser_set_max_header_size(u32 size);
 
 }//namespace net
-}//namespace irr
+}//namespace app
 
 #endif

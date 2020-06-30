@@ -2,7 +2,7 @@
 #include <memory.h>
 #include "HAtomicOperator.h"
 
-namespace irr {
+namespace app {
 
 CMemoryHub::CMemoryHub() :
     mReferenceCount(1) {
@@ -38,13 +38,13 @@ void CMemoryHub::setPageCount(s32 cnt) {
     mPool10K.setPageSize(10240 * cnt);
 }
 
-c8* CMemoryHub::allocateAndClear(u64 bytesWanted, u64 align/* = sizeof(void*)*/) {
-    c8* ret = allocate(bytesWanted, align);
+s8* CMemoryHub::allocateAndClear(u64 bytesWanted, u64 align/* = sizeof(void*)*/) {
+    s8* ret = allocate(bytesWanted, align);
     memset(ret, 0, bytesWanted);
     return ret;
 }
 
-c8* CMemoryHub::allocate(u64 bytesWanted, u64 align/* = sizeof(void*)*/) {
+s8* CMemoryHub::allocate(u64 bytesWanted, u64 align/* = sizeof(void*)*/) {
 #if defined(APP_DEBUG)
     grab();
 #endif
@@ -55,12 +55,12 @@ c8* CMemoryHub::allocate(u64 bytesWanted, u64 align/* = sizeof(void*)*/) {
 #ifdef APP_DISABLE_BYTE_POOL
     return malloc(bytesWanted);
 #endif
-    c8* out;
+    s8* out;
     if(bytesWanted <= 128) {
 #ifdef APP_THREADSAFE_MEMORY_POOL
         mMutex128.lock();
 #endif
-        out = (c8*) mPool128.allocate();
+        out = (s8*) mPool128.allocate();
 #ifdef APP_THREADSAFE_MEMORY_POOL
         mMutex128.unlock();
 #endif
@@ -70,7 +70,7 @@ c8* CMemoryHub::allocate(u64 bytesWanted, u64 align/* = sizeof(void*)*/) {
 #ifdef APP_THREADSAFE_MEMORY_POOL
         mMutex512.lock();
 #endif
-        out = (c8*) mPool512.allocate();
+        out = (s8*) mPool512.allocate();
 #ifdef APP_THREADSAFE_MEMORY_POOL
         mMutex512.unlock();
 #endif
@@ -80,7 +80,7 @@ c8* CMemoryHub::allocate(u64 bytesWanted, u64 align/* = sizeof(void*)*/) {
 #ifdef APP_THREADSAFE_MEMORY_POOL
         mMutex2048.lock();
 #endif
-        out = (c8*) mPool2048.allocate();
+        out = (s8*) mPool2048.allocate();
 #ifdef APP_THREADSAFE_MEMORY_POOL
         mMutex2048.unlock();
 #endif
@@ -90,7 +90,7 @@ c8* CMemoryHub::allocate(u64 bytesWanted, u64 align/* = sizeof(void*)*/) {
 #ifdef APP_THREADSAFE_MEMORY_POOL
         mMutex8192.lock();
 #endif
-        out = (c8*) mPool8192.allocate();
+        out = (s8*) mPool8192.allocate();
 #ifdef APP_THREADSAFE_MEMORY_POOL
         mMutex8192.unlock();
 #endif
@@ -100,13 +100,13 @@ c8* CMemoryHub::allocate(u64 bytesWanted, u64 align/* = sizeof(void*)*/) {
 #ifdef APP_THREADSAFE_MEMORY_POOL
         mMutex10K.lock();
 #endif
-        out = (c8*) mPool10K.allocate();
+        out = (s8*) mPool10K.allocate();
 #ifdef APP_THREADSAFE_MEMORY_POOL
         mMutex10K.unlock();
 #endif
         return getUserPointer(out, align, EMT_10K);
     }
-    out = (c8*) ::malloc(bytesWanted + 1);
+    out = (s8*) ::malloc(bytesWanted + 1);
     return getUserPointer(out, align, EMT_DEFAULT);
 }
 
@@ -122,7 +122,7 @@ void CMemoryHub::release(void* data) {
 #ifdef APP_DISABLE_BYTE_POOL
     ::free(data);
 #endif
-    c8* realData;
+    s8* realData;
     switch(getRealPointer(data, realData)) {
     case EMT_128:
 #ifdef APP_THREADSAFE_MEMORY_POOL
@@ -189,4 +189,4 @@ void CMemoryHub::clear() {
 #endif //APP_THREADSAFE_MEMORY_POOL
 }
 
-}//namespace irr
+}//namespace app

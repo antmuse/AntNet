@@ -1,7 +1,7 @@
 #include "CQueue1Way.h"
 #include "CThread.h"
 
-namespace irr {
+namespace app {
 
 CQueue1Way::CQueue1Way() :
     mIdleCount(0),
@@ -56,4 +56,4 @@ void CQueue1Way::pushNode(SNode* iNode) {
 }
 
 
-} //namespace irr
+} //namespace app

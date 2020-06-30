@@ -9,7 +9,6 @@
 #define APP_CREADWRITELOCK_H
 
 #include "HConfig.h"
-#include "irrTypes.h"
 
 #if defined(APP_PLATFORM_WINDOWS)
 #include <winsock2.h>   //just here to prevent <winsock.h>
@@ -20,7 +19,7 @@
 #endif
 
 
-namespace irr {
+namespace app {
 
 /**
 *@class CReadWriteLock
@@ -135,7 +134,7 @@ private:
     bool mSuccess;
 };
 
-} // namespace irr
+} // namespace app
 
 
 #endif // APP_CREADWRITELOCK_H

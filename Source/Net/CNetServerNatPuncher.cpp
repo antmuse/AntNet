@@ -2,15 +2,15 @@
 #include "CThread.h"
 #include "CNetUtility.h"
 #include "CNetPacket.h"
-#include "IAppTimer.h"
-#include "IAppLogger.h"
+#include "CTimer.h"
+#include "CLogger.h"
 
 //TODO>> fix
 
 #define APP_SERVER_OVERTIME  15*1000
 #define APP_SERVER_PORT  9981
 
-namespace irr {
+namespace app {
 namespace net {
 
 CNetServerNatPuncher::CNetServerNatPuncher() :
@@ -30,32 +30,32 @@ CNetServerNatPuncher::~CNetServerNatPuncher() {
 
 bool CNetServerNatPuncher::initialize() {
     if(!mConnector.openUDP()) {
-        IAppLogger::log(ELOG_ERROR, "CNetServerNatPuncher::initialize", "create listen socket fail: %d", mConnector.getError());
+        CLogger::log(ELOG_ERROR, "CNetServerNatPuncher::initialize", "create listen socket fail: %d", mConnector.getError());
         return false;
     }
 
     if(mConnector.setBlock(false)) {
-        IAppLogger::log(ELOG_ERROR, "CNetServerNatPuncher::initialize", "set socket unblocked fail");
+        CLogger::log(ELOG_ERROR, "CNetServerNatPuncher::initialize", "set socket unblocked fail");
     }
 
     if(mConnector.bind(mAddressLocal)) {
-        IAppLogger::log(ELOG_ERROR, "CNetServerNatPuncher::initialize", "bind socket error: %d", mConnector.getError());
+        CLogger::log(ELOG_ERROR, "CNetServerNatPuncher::initialize", "bind socket error: %d", mConnector.getError());
         return false;
     }
     mConnector.getLocalAddress(mAddressLocal);
     mAddressLocal.reverse();
 
     if(mConnector.setReuseIP(true)) {
-        IAppLogger::log(ELOG_ERROR, "CNetServerNatPuncher::initialize", "socket reuse IP error: %d", mConnector.getError());
+        CLogger::log(ELOG_ERROR, "CNetServerNatPuncher::initialize", "socket reuse IP error: %d", mConnector.getError());
         return false;
     }
 
     if(mConnector.setReusePort(true)) {
-        IAppLogger::log(ELOG_ERROR, "CNetServerNatPuncher::initialize", "socket reuse port error: %d", mConnector.getError());
+        CLogger::log(ELOG_ERROR, "CNetServerNatPuncher::initialize", "socket reuse port error: %d", mConnector.getError());
         return false;
     }
 
-    IAppLogger::log(ELOG_INFO, "CNetServerNatPuncher::initialize", "success on [%s:%u]",
+    CLogger::log(ELOG_INFO, "CNetServerNatPuncher::initialize", "success on [%s:%u]",
         mAddressLocal.getIPString(),
         mAddressLocal.getPort());
 
@@ -65,14 +65,14 @@ bool CNetServerNatPuncher::initialize() {
 
 bool CNetServerNatPuncher::start() {
     if(mRunning) {
-        IAppLogger::log(ELOG_INFO, "CNetServerNatPuncher::start",
+        CLogger::log(ELOG_INFO, "CNetServerNatPuncher::start",
             "server is running already.");
         return false;
     }
 
 
     if(false == initialize()) {
-        IAppLogger::log(ELOG_ERROR, "CNetServerNatPuncher::start", "init server fail");
+        CLogger::log(ELOG_ERROR, "CNetServerNatPuncher::start", "init server fail");
         removeAll();
         return false;
     }
@@ -81,7 +81,7 @@ bool CNetServerNatPuncher::start() {
     mThread = new CThread();
     mThread->start(*this);
 
-    IAppLogger::log(ELOG_INFO, "CNetServerNatPuncher::start", "server start success");
+    CLogger::log(ELOG_INFO, "CNetServerNatPuncher::start", "server start success");
     return true;
 }
 
@@ -95,7 +95,7 @@ bool CNetServerNatPuncher::stop() {
     mThread->join();
     //removeAllClient();
     removeAll();
-    IAppLogger::log(ELOG_INFO, "CNetServerNatPuncher::stop", "server stoped success");
+    CLogger::log(ELOG_INFO, "CNetServerNatPuncher::stop", "server stoped success");
     return true;
 }
 
@@ -116,10 +116,10 @@ bool CNetServerNatPuncher::clearError() {
         return true;
     case ECONNRESET: //reset
 #endif
-        IAppLogger::log(ELOG_ERROR, "CNetServerNatPuncher::clearError", "remote reseted: %d", ecode);
+        CLogger::log(ELOG_ERROR, "CNetServerNatPuncher::clearError", "remote reseted: %d", ecode);
         return false;
     default:
-        IAppLogger::log(ELOG_ERROR, "CNetServerNatPuncher::clearError", "socket error: %d", ecode);
+        CLogger::log(ELOG_ERROR, "CNetServerNatPuncher::clearError", "socket error: %d", ecode);
         return false;
     }//switch
 
@@ -127,9 +127,9 @@ bool CNetServerNatPuncher::clearError() {
 }
 
 
-const core::map<CNetAddress::ID, CNetServerNatPuncher::SClientNode*>::Node*
+const core::TMap<CNetAddress::ID, CNetServerNatPuncher::SClientNode*>::Node*
 CNetServerNatPuncher::getRemote(CNetAddress::ID& id)const {
-    for(core::map<CNetAddress::ID, SClientNode*>::ConstIterator it = mAllClient.getConstIterator();
+    for(core::TMap<CNetAddress::ID, SClientNode*>::ConstIterator it = mAllClient.getConstIterator();
         !it.atEnd(); it++) {
         if(it->getKey() == id) {
             return it.getNode();
@@ -140,9 +140,9 @@ CNetServerNatPuncher::getRemote(CNetAddress::ID& id)const {
 
 
 
-const core::map<CNetAddress::ID, CNetServerNatPuncher::SClientNode*>::Node*
+const core::TMap<CNetAddress::ID, CNetServerNatPuncher::SClientNode*>::Node*
 CNetServerNatPuncher::getAnyRemote(CNetAddress::ID& my)const {
-    for(core::map<CNetAddress::ID, SClientNode*>::ConstIterator it = mAllClient.getConstIterator();
+    for(core::TMap<CNetAddress::ID, SClientNode*>::ConstIterator it = mAllClient.getConstIterator();
         !it.atEnd(); it++) {
         if(it->getKey() != my) {
             return it.getNode();
@@ -153,19 +153,19 @@ CNetServerNatPuncher::getAnyRemote(CNetAddress::ID& my)const {
 
 
 void CNetServerNatPuncher::run() {
-    IAppLogger::log(ELOG_INFO, "CNetServerNatPuncher::run", "worker theread start, ID: %d", CThread::getCurrentNativeID());
+    CLogger::log(ELOG_INFO, "CNetServerNatPuncher::run", "worker theread start, ID: %d", CThread::getCurrentNativeID());
     CNetPacket pack(1024);
     s32 ret = 0;
-    u64 last_tick = IAppTimer::getRelativeTime();
+    u64 last_tick = CTimer::getRelativeTime();
 
     for(; mRunning;) {
-        mCurrentTime = IAppTimer::getRelativeTime();
+        mCurrentTime = CTimer::getRelativeTime();
         //pack.setUsed(0);
         ret = mConnector.receiveFrom(pack.getPointer(), pack.getAllocatedSize(), mAddressRemote);
         if(ret > 0) {
             mAddressRemote.reverse();
             CNetAddress::ID cid = mAddressRemote.getID();
-            core::map<CNetAddress::ID, SClientNode*>::Node* node = mAllClient.find(cid);
+            core::TMap<CNetAddress::ID, SClientNode*>::Node* node = mAllClient.find(cid);
             SClientNode* client = node ? node->getValue() : 0;
 
             pack.setUsed(ret);
@@ -176,7 +176,7 @@ void CNetServerNatPuncher::run() {
                     client = new SClientNode();
                     client->mAddress = mAddressRemote;
                     mAllClient.insert(cid, client);
-                    IAppLogger::log(ELOG_INFO, "CNetServerNatPuncher::run",
+                    CLogger::log(ELOG_INFO, "CNetServerNatPuncher::run",
                         "new client: [%s:%u]",
                         mAddressRemote.getIPString(),
                         mAddressRemote.getPort());
@@ -191,7 +191,7 @@ void CNetServerNatPuncher::run() {
             case ENET_SEND:
             {
                 CNetAddress::ID peerid = pack.readU64();
-                const core::map<CNetAddress::ID, SClientNode*>::Node* peer = 0;
+                const core::TMap<CNetAddress::ID, SClientNode*>::Node* peer = 0;
                 if(0 == peerid) {
                     peer = getAnyRemote(peerid);
                 } else {
@@ -202,7 +202,7 @@ void CNetServerNatPuncher::run() {
                     pack.add(u8(ENET_SEND));
                     const CNetAddress::ID& pid = peer->getKey();
                     pack.add(pid);
-                    IAppLogger::log(ELOG_INFO, "CNetServerNatPuncher::run",
+                    CLogger::log(ELOG_INFO, "CNetServerNatPuncher::run",
                         "peer a: [%u]->[%s:%u]", pid,
                         mAddressRemote.getIPString(), mAddressRemote.getPort());
 
@@ -212,7 +212,7 @@ void CNetServerNatPuncher::run() {
                     const CNetAddress& pb = peer->getValue()->mAddress;
                     pack.add(pb.getID());
 
-                    IAppLogger::log(ELOG_INFO, "CNetServerNatPuncher::run",
+                    CLogger::log(ELOG_INFO, "CNetServerNatPuncher::run",
                         "peer b: [%u]->[%s:%u]", pb.getID(),
                         pb.getIPString(), pb.getPort());
 
@@ -247,21 +247,21 @@ void CNetServerNatPuncher::run() {
         CThread::sleep(20);
     }//for
 
-    IAppLogger::log(ELOG_INFO, "CNetServerNatPuncher::run", "worker thread exit, ID: %d", CThread::getCurrentNativeID());
+    CLogger::log(ELOG_INFO, "CNetServerNatPuncher::run", "worker thread exit, ID: %d", CThread::getCurrentNativeID());
 }
 
 
 void CNetServerNatPuncher::checkTimeout() {
     //CAutoLock aulock(mMutex);
-    core::map<CNetAddress::ID, SClientNode*>::Node* node;
+    core::TMap<CNetAddress::ID, SClientNode*>::Node* node;
     SClientNode* context;
     u32 count = 0;
-    for(core::map<CNetAddress::ID, SClientNode*>::Iterator it = mAllClient.getIterator();
+    for(core::TMap<CNetAddress::ID, SClientNode*>::Iterator it = mAllClient.getIterator();
         !it.atEnd(); ) {
         node = it.getNode();
         context = node->getValue();
         if(context->mTime < mCurrentTime) {
-            IAppLogger::log(ELOG_INFO, "CNetServerNatPuncher::checkTimeout",
+            CLogger::log(ELOG_INFO, "CNetServerNatPuncher::checkTimeout",
                 "remove peer time:[%u],thread ID:[%d]",
                 context->mTime,
                 CThread::getCurrentNativeID());
@@ -275,7 +275,7 @@ void CNetServerNatPuncher::checkTimeout() {
         }
     }
 
-    IAppLogger::log(ELOG_INFO, "CNetServerNatPuncher::checkTimeout",
+    CLogger::log(ELOG_INFO, "CNetServerNatPuncher::checkTimeout",
         "removed:[%u], hold client:[%u], time:[%u/s], thread ID:[%d]",
         count,
         mAllClient.size(),
@@ -285,7 +285,7 @@ void CNetServerNatPuncher::checkTimeout() {
 
 
 void CNetServerNatPuncher::removeAllClient() {
-    for(core::map<CNetAddress::ID, SClientNode*>::Iterator it = mAllClient.getIterator();
+    for(core::TMap<CNetAddress::ID, SClientNode*>::Iterator it = mAllClient.getIterator();
         !it.atEnd(); it++) {
         delete it->getValue();
     }
@@ -297,10 +297,10 @@ void CNetServerNatPuncher::removeAll() {
     delete mThread;
     mConnector.close();
     mThread = 0;
-    IAppLogger::log(ELOG_INFO, "CNetServerNatPuncher::removeAll", "remove all success");
+    CLogger::log(ELOG_INFO, "CNetServerNatPuncher::removeAll", "remove all success");
 }
 
 
 
 } //namespace net
-} //namespace irr
+} //namespace app

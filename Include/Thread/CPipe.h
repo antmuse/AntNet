@@ -12,7 +12,7 @@
 #include "IReferenceCounted.h"
 
 
-namespace irr {
+namespace app {
 
 /**
 *@class CPipe
@@ -62,7 +62,7 @@ private:
 };
 
 
-} // namespace irr
+} // namespace app
 
 
 #endif // APP_CPIPE_H

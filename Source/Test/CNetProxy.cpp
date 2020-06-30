@@ -1,10 +1,10 @@
 #include "CNetProxy.h"
 #include "CNetService.h"
-#include "IAppLogger.h"
+#include "CLogger.h"
 #include "CNetServerAcceptor.h"
 #include <conio.h>
 
-namespace irr {
+namespace app {
 namespace net {
 
 void CNetProxyNode::grab() {
@@ -146,7 +146,7 @@ bool CNetProxy::start(u16 port) {
     return true;
 }
 
-void CNetProxy::setProxyHost(const c8* host) {
+void CNetProxy::setProxyHost(const s8* host) {
     mRemoteAddr.setIPort(host);
 }
 
@@ -163,7 +163,7 @@ INetEventer* CNetProxy::onAccept(const CNetAddress& local) {
 
 
 s32 CNetProxy::onLink(u32 sessionID, const CNetAddress& local, const CNetAddress& remote) {
-    IAppLogger::log(ELOG_INFO, "CNetProxy::onLink", "[%u,%s:%u->%s:%u]",
+    CLogger::log(ELOG_INFO, "CNetProxy::onLink", "[%u,%s:%u->%s:%u]",
         sessionID,
         local.getIPString(),
         local.getPort(),
@@ -176,7 +176,7 @@ s32 CNetProxy::onLink(u32 sessionID, const CNetAddress& local, const CNetAddress
 
 
 s32 CNetProxy::onConnect(u32 sessionID, const CNetAddress& local, const CNetAddress& remote) {
-    IAppLogger::log(ELOG_INFO, "CNetProxy::onConnect", "[%u,%s:%u->%s:%u]",
+    CLogger::log(ELOG_INFO, "CNetProxy::onConnect", "[%u,%s:%u->%s:%u]",
         sessionID,
         local.getIPString(),
         local.getPort(),
@@ -190,7 +190,7 @@ s32 CNetProxy::onConnect(u32 sessionID, const CNetAddress& local, const CNetAddr
 
 s32 CNetProxy::onDisconnect(u32 sessionID, const CNetAddress& local, const CNetAddress& remote) {
     s32 ret = AppAtomicIncrementFetch(&mDislinkCount);
-    IAppLogger::log(ELOG_INFO, "CNetProxy::onDisconnect", "%d[%u,%s:%u->%s:%u]",
+    CLogger::log(ELOG_INFO, "CNetProxy::onDisconnect", "%d[%u,%s:%u->%s:%u]",
         ret,
         sessionID,
         local.getIPString(),
@@ -216,4 +216,4 @@ s32 CNetProxy::onReceive(const CNetAddress& remote, u32 sessionID, void* buffer,
 
 
 }//namespace net
-}//namespace irr
+}//namespace app

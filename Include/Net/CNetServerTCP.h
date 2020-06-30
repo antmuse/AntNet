@@ -7,7 +7,7 @@
 #include "CNetSocket.h"
 #include "CNetAddress.h"
 
-namespace irr {
+namespace app {
 class CThread;
 
 namespace net {
@@ -43,7 +43,7 @@ public:
         return mAddressLocal;
     }
 
-    virtual s32 send(const c8* iData, s32 iLength);
+    virtual s32 send(const s8* iData, s32 iLength);
 
 
     virtual void setMaxClients(u32 max) override {
@@ -72,6 +72,6 @@ private:
 };
 
 }// end namespace net
-}// end namespace irr
+}// end namespace app
 
 #endif //APP_CNETSERVERTCP_H

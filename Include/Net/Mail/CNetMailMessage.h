@@ -1,11 +1,11 @@
 #ifndef APP_CNETMAILMESSAGE_H
 #define APP_CNETMAILMESSAGE_H
 
-#include "irrString.h"
-//#include "irrMap.h"
-//#include "irrArray.h"
+#include "CString.h"
+//#include "AppMap.h"
+//#include "AppArray.h"
 
-namespace irr {
+namespace app {
 namespace net {
 //class CNetPacket;
 
@@ -16,15 +16,15 @@ public:
 
     ~CNetMailMessage();
 
-    void setTitle(const core::stringc& it) {
+    void setTitle(const core::CString& it) {
         mTitle = it;
     }
 
-    void setFrom(const core::stringc& it) {
+    void setFrom(const core::CString& it) {
         mMailFrom = it;
     }
 
-    void setTo(const core::stringc& it) {
+    void setTo(const core::CString& it) {
         mMailTo = it;
     }
 
@@ -32,13 +32,13 @@ public:
     }
 
 private:
-    core::stringc mTitle;
-    core::stringc mMailFrom;
-    core::stringc mMailTo;
+    core::CString mTitle;
+    core::CString mMailFrom;
+    core::CString mMailTo;
 };
 
 
 } //namespace net
-} //namespace irr
+} //namespace app
 
 #endif //APP_CNETMAILMESSAGE_H

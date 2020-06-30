@@ -1,7 +1,7 @@
 #include "CSpinlock.h"
 #include "HAtomicOperator.h"
 
-namespace irr {
+namespace app {
 
 
 CSpinlock::CSpinlock() :
@@ -30,4 +30,4 @@ void CSpinlock::unlock() {
 }
 
 
-} //namespace irr
+} //namespace app

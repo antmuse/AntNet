@@ -2,7 +2,7 @@
 #include "CMutex.h"
 #include "CReadWriteLock.h"
 
-namespace irr {
+namespace app {
 
 
 #if defined(APP_PLATFORM_WINDOWS)
@@ -126,4 +126,4 @@ bool CCondition::wait(CMutex& mutex, u32 milliseconds) {
 }
 
 #endif //APP_PLATFORM_LINUX
-} //end namespace irr
+} //end namespace app

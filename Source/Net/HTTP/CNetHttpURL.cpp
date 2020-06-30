@@ -2,10 +2,10 @@
 //#include "IUtility.h"
 //#include "fast_atof.h"
 
-namespace irr {
+namespace app {
 namespace net {
 /*
-static c8 lowcase[] =
+static s8 lowcase[] =
 "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
 "\0\0\0\0\0\0\0\0\0\0\0\0\0-\0\0" "0123456789\0\0\0\0\0\0"
 "\0abcdefghijklmnopqrstuvwxyz\0\0\0\0\0"
@@ -22,15 +22,15 @@ CNetHttpURL::CNetHttpURL() {
 }
 
 
-CNetHttpURL::CNetHttpURL(const core::stringc& url) {
+CNetHttpURL::CNetHttpURL(const core::CString& url) {
     set(url);
 }
 
-CNetHttpURL::CNetHttpURL(const c8* url) {
+CNetHttpURL::CNetHttpURL(const s8* url) {
     set(url, 0);
 }
 
-CNetHttpURL::CNetHttpURL(const c8* url, u64 len) {
+CNetHttpURL::CNetHttpURL(const s8* url, u64 len) {
     set(url, len);
 }
 
@@ -67,12 +67,12 @@ bool CNetHttpURL::operator!=(const CNetHttpURL& other) const {
     return !(*this == other);
 }
 
-bool CNetHttpURL::set(const core::stringc& it) {
+bool CNetHttpURL::set(const core::CString& it) {
     return set(it.c_str(), it.size());
 }
 
 void CNetHttpURL::toLow(s32 idx) {
-    c8* str;
+    s8* str;
     s32 len;
     if (getNode(idx, str, len)) {
         for (; --len >= 0;) {
@@ -83,7 +83,7 @@ void CNetHttpURL::toLow(s32 idx) {
     }
 }
 
-bool CNetHttpURL::set(const c8* url, u64 len) {
+bool CNetHttpURL::set(const s8* url, u64 len) {
     if (nullptr != url) {
         len = len > 0 ? len : strlen(url);
         mCache.set_used(len + 1);
@@ -103,7 +103,7 @@ bool CNetHttpURL::set(const c8* url, u64 len) {
 }
 
 void CNetHttpURL::show() {
-    c8* str;
+    s8* str;
     s32 len;
     printf("[port=%d][bits=%X]\n", mNodes.port, mNodes.field_set);
     for (s32 i = 0; i < net::UF_MAX; ++i) {
@@ -114,4 +114,4 @@ void CNetHttpURL::show() {
 }
 
 } //namespace net
-} //namespace irr
+} //namespace app

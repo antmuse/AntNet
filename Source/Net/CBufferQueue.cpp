@@ -2,7 +2,7 @@
 #include "CMemoryHub.h"
 #include "HAtomicOperator.h"
 
-namespace irr {
+namespace app {
 namespace net {
 
 
@@ -144,4 +144,4 @@ bool CBufferQueue::lockPush(const void* buffer, s32 size, const u32* uid, u16 ma
 
 
 }//namespace net
-}//namespace irr
+}//namespace app

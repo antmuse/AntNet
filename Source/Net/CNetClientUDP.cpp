@@ -1,7 +1,7 @@
 #include "CNetClientUDP.h"
 #include "CNetUtility.h"
 #include "CThread.h"
-#include "IAppLogger.h"
+#include "CLogger.h"
 
 //TODO>> fix
 
@@ -13,7 +13,7 @@
 ///We will relink the socket if tick count >= APP_NET_TICK_MAX_COUNT
 #define APP_NET_TICK_MAX_COUNT  (4)
 
-namespace irr {
+namespace app {
 namespace net {
 
 CNetClientUDP::CNetClientUDP() :
@@ -33,7 +33,7 @@ CNetClientUDP::~CNetClientUDP() {
 }
 
 
-s32 CNetClientUDP::sendBuffer(void* iUserPointer, const c8* iData, s32 iLength) {
+s32 CNetClientUDP::sendBuffer(void* iUserPointer, const s8* iData, s32 iLength) {
     s32 ret = 0;
     s32 sent;
     for(; ret < iLength;) {
@@ -58,7 +58,7 @@ s32 CNetClientUDP::send(const void* iData, s32 iLength) {
     case ENET_INVALID:
         return 0;
     }
-    return mProtocal.sendData((const c8*)iData, iLength);
+    return mProtocal.sendData((const s8*)iData, iLength);
 }
 
 
@@ -78,10 +78,10 @@ bool CNetClientUDP::clearError() {
         return true;
     case ECONNRESET: //reset
 #endif
-        IAppLogger::log(ELOG_ERROR, "CNetClientUDP::clearError", "server reseted: %d", ecode);
+        CLogger::log(ELOG_ERROR, "CNetClientUDP::clearError", "server reseted: %d", ecode);
         return false;
     default:
-        IAppLogger::log(ELOG_ERROR, "CNetClientUDP::clearError", "socket error: %d", ecode);
+        CLogger::log(ELOG_ERROR, "CNetClientUDP::clearError", "socket error: %d", ecode);
         return false;
     }//switch
 
@@ -117,7 +117,7 @@ bool CNetClientUDP::update(s64 iTime) {
     default:
         mStatus = ENET_DISCONNECT;
         CThread::sleep(1000);
-        IAppLogger::log(ELOG_ERROR, "CNetClientUDP::run", "Default? How can you come here?");
+        CLogger::log(ELOG_ERROR, "CNetClientUDP::run", "Default? How can you come here?");
         break;
 
     }//switch
@@ -128,7 +128,7 @@ bool CNetClientUDP::update(s64 iTime) {
 
 bool CNetClientUDP::start(bool useThread) {
     if(mRunning) {
-        IAppLogger::log(ELOG_INFO, "CNetClientUDP::start", "client is running currently.");
+        CLogger::log(ELOG_INFO, "CNetClientUDP::start", "client is running currently.");
         return false;
     }
     mRunning = true;
@@ -142,7 +142,7 @@ bool CNetClientUDP::start(bool useThread) {
 
 bool CNetClientUDP::stop() {
     if(!mRunning) {
-        IAppLogger::log(ELOG_INFO, "CNetClientUDP::stop", "client stoped.");
+        CLogger::log(ELOG_INFO, "CNetClientUDP::stop", "client stoped.");
         return false;
     }
 
@@ -166,7 +166,7 @@ void CNetClientUDP::resetSocket() {
         bindLocal();
         mStatus = ENET_RECEIVE;
         mProtocal.flush();
-        IAppLogger::log(ELOG_CRITICAL, "CNetClientUDP::resetSocket", "reused previous socket");
+        CLogger::log(ELOG_CRITICAL, "CNetClientUDP::resetSocket", "reused previous socket");
     }
 }
 
@@ -176,7 +176,7 @@ void CNetClientUDP::sendTick() {
     if(0 == ret) {
         mTickTime = 0;
         mStatus = ENET_RECEIVE;
-        IAppLogger::log(ELOG_INFO, "CNetClientUDP::run", "tick %u", mTickCount);
+        CLogger::log(ELOG_INFO, "CNetClientUDP::run", "tick %u", mTickCount);
     }
 }
 
@@ -185,9 +185,9 @@ void CNetClientUDP::sendBye() {
     mTickTime = 0;
     s32 ret = mProtocal.sendData("bye", 4);
     if(0 == ret) {
-        IAppLogger::log(ELOG_INFO, "CNetClientUDP::sendBye", "bye");
+        CLogger::log(ELOG_INFO, "CNetClientUDP::sendBye", "bye");
     } else {
-        IAppLogger::log(ELOG_ERROR, "CNetClientUDP::sendBye", "bye error");
+        CLogger::log(ELOG_ERROR, "CNetClientUDP::sendBye", "bye error");
     }
 }
 
@@ -208,7 +208,7 @@ void CNetClientUDP::step(u64 iTime) {
                 mTickCount = 0;
                 mTickTime = 0;
                 mStatus = ENET_INVALID;
-                IAppLogger::log(ELOG_CRITICAL, "CNetClientUDP::step", "over tick count[%s:%d]",
+                CLogger::log(ELOG_CRITICAL, "CNetClientUDP::step", "over tick count[%s:%d]",
                     mAddressRemote.getIPString(), mAddressRemote.getPort());
             }
         } else {
@@ -217,17 +217,17 @@ void CNetClientUDP::step(u64 iTime) {
     }
 
     /////////////receive////////
-    c8 buffer[APP_PER_CACHE_SIZE];
+    s8 buffer[APP_PER_CACHE_SIZE];
     ret = mConnector.receiveFrom(buffer, APP_PER_CACHE_SIZE, mAddressRemote);
     if(ret > 0) {
         s32 inret = mProtocal.import(buffer, ret);
         if(inret < 0) {
             APP_ASSERT(0 && "check protocal");
-            IAppLogger::log(ELOG_ERROR, "CNetClientUDP::step", "protocal import error: [%d]", inret);
+            CLogger::log(ELOG_ERROR, "CNetClientUDP::step", "protocal import error: [%d]", inret);
         }
     } else if(0 == ret) {
         mStatus = ENET_DISCONNECT;
-        IAppLogger::log(ELOG_CRITICAL, "CNetClientUDP::step", "server quit[%s:%d]",
+        CLogger::log(ELOG_CRITICAL, "CNetClientUDP::step", "server quit[%s:%d]",
             mAddressRemote.getIPString(), mAddressRemote.getPort());
     } else if(ret < 0) {
         if(clearError()) {
@@ -241,16 +241,16 @@ void CNetClientUDP::step(u64 iTime) {
 
 bool CNetClientUDP::bindLocal() {
     if(mConnector.setBlock(false)) {
-        IAppLogger::log(ELOG_ERROR, "CNetClientUDP::bindLocal", "set socket unblocked fail");
+        CLogger::log(ELOG_ERROR, "CNetClientUDP::bindLocal", "set socket unblocked fail");
     }
 
     if(mConnector.bind(mAddressLocal)) {
-        IAppLogger::log(ELOG_ERROR, "CNetClientUDP::bindLocal", "bind socket error: %d", mConnector.getError());
+        CLogger::log(ELOG_ERROR, "CNetClientUDP::bindLocal", "bind socket error: %d", mConnector.getError());
         return false;
     }
     mConnector.getLocalAddress(mAddressLocal);
     mAddressLocal.reverse();
-    IAppLogger::log(ELOG_CRITICAL, "CNetClientUDP::bindLocal", "local: [%s:%d]", mAddressLocal.getIPString(), mAddressLocal.getPort());
+    CLogger::log(ELOG_CRITICAL, "CNetClientUDP::bindLocal", "local: [%s:%d]", mAddressLocal.getIPString(), mAddressLocal.getPort());
     return true;
 }
 
@@ -262,5 +262,5 @@ APP_INLINE void CNetClientUDP::onPacket(CNetPacket& it) {
 }
 
 }// end namespace net
-}// end namespace irr
+}// end namespace app
 

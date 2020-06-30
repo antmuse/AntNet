@@ -1,7 +1,7 @@
 #include "CFileReader.h"
 #include <stdio.h>
 
-namespace irr {
+namespace app {
 namespace io {
 
 
@@ -49,14 +49,14 @@ s64 CFileReader::getPos() const {
 #endif
 }
 
-bool CFileReader::openFile(const io::path& fileName) {
+bool CFileReader::openFile(const core::CPath& fileName) {
     if(fileName.empty()) {
         return false;
     }
     close();
 
     mFilename = fileName;
-#if defined(_IRR_WCHAR_FILESYSTEM)
+#if defined(APP_WCHAR_SYS)
     mFile = _wfopen(mFilename.c_str(), L"rb");
 #else
     mFile = fopen(mFilename.c_str(), "rb");
@@ -78,5 +78,5 @@ bool CFileReader::openFile(const io::path& fileName) {
 
 
 } // end namespace io
-} // end namespace irr
+} // end namespace app
 

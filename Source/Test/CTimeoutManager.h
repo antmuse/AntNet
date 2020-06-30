@@ -6,7 +6,7 @@
 #include "CTimerWheel.h"
 
 
-namespace irr {
+namespace app {
 
 
 class CTimeoutManager : public IRunnable {
@@ -48,6 +48,6 @@ private:
 };
 
 
-}//namespace irr
+}//namespace app
 
 #endif //APP_CTIMEOUTMANAGER_H

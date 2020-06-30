@@ -1,15 +1,13 @@
 #ifndef __FAST_ATOF_H_INCLUDED__
 #define __FAST_ATOF_H_INCLUDED__
 
-#include "irrMath.h"
-#include "irrString.h"
+#include "AppMath.h"
+#include "CString.h"
 
-namespace irr {
+namespace app {
 namespace core {
 //! Selection of characters which count as decimal point in fast_atof
-// TODO: This should probably also be used in irr::core::string, but the float-to-string code
-//		used there has to be rewritten first.
-extern irr::core::stringc LOCALE_DECIMAL_POINTS;
+extern app::core::CString LOCALE_DECIMAL_POINTS;
 
 #define IRR_ATOF_TABLE_SIZE 17
 // we write [IRR_ATOF_TABLE_SIZE] here instead of [] to work around a swig bug
@@ -42,26 +40,26 @@ first character not used in the calculation.
 too many digits to encode in an u32 then INT_MAX will be returned.
 */
 inline u32 strtoul10(const char* in, const char** out = 0) {
-    if(!in) {
-        if(out)
+    if (!in) {
+        if (out)
             * out = in;
         return 0;
     }
 
     bool overflow = false;
     u32 unsignedValue = 0;
-    while((*in >= '0') && (*in <= '9')) {
+    while ((*in >= '0') && (*in <= '9')) {
         const u32 tmp = (unsignedValue * 10) + (*in - '0');
-        if(tmp < unsignedValue) {
+        if (tmp < unsignedValue) {
             unsignedValue = (u32)0xffffffff;
             overflow = true;
         }
-        if(!overflow)
+        if (!overflow)
             unsignedValue = tmp;
         ++in;
     }
 
-    if(out)
+    if (out)
         * out = in;
 
     return unsignedValue;
@@ -78,24 +76,24 @@ too many digits to encode in an s32 then +INT_MAX or -INT_MAX will be
 returned.
 */
 inline s32 strtol10(const char* in, const char** out = 0) {
-    if(!in) {
-        if(out)
+    if (!in) {
+        if (out)
             * out = in;
         return 0;
     }
 
     const bool negative = ('-' == *in);
-    if(negative || ('+' == *in))
+    if (negative || ('+' == *in))
         ++in;
 
     const u32 unsignedValue = strtoul10(in, out);
-    if(unsignedValue > (u32)INT_MAX) {
-        if(negative)
+    if (unsignedValue > (u32)INT_MAX) {
+        if (negative)
             return (s32)INT_MIN;
         else
             return (s32)INT_MAX;
     } else {
-        if(negative)
+        if (negative)
             return -((s32)unsignedValue);
         else
             return (s32)unsignedValue;
@@ -109,11 +107,11 @@ will be considered.
 not hex
 */
 inline u32 ctoul16(char in) {
-    if(in >= '0' && in <= '9')
+    if (in >= '0' && in <= '9')
         return in - '0';
-    else if(in >= 'a' && in <= 'f')
+    else if (in >= 'a' && in <= 'f')
         return 10u + in - 'a';
-    else if(in >= 'A' && in <= 'F')
+    else if (in >= 'A' && in <= 'F')
         return 10u + in - 'A';
     else
         return 0xffffffff;
@@ -129,34 +127,34 @@ first character not used in the calculation.
 too many digits to encode in an u32 then INT_MAX will be returned.
 */
 inline u32 strtoul16(const char* in, const char** out = 0) {
-    if(!in) {
-        if(out)
+    if (!in) {
+        if (out)
             * out = in;
         return 0;
     }
 
     bool overflow = false;
     u32 unsignedValue = 0;
-    while(true) {
+    while (true) {
         u32 tmp = 0;
-        if((*in >= '0') && (*in <= '9'))
+        if ((*in >= '0') && (*in <= '9'))
             tmp = (unsignedValue << 4u) + (*in - '0');
-        else if((*in >= 'A') && (*in <= 'F'))
+        else if ((*in >= 'A') && (*in <= 'F'))
             tmp = (unsignedValue << 4u) + (*in - 'A') + 10;
-        else if((*in >= 'a') && (*in <= 'f'))
+        else if ((*in >= 'a') && (*in <= 'f'))
             tmp = (unsignedValue << 4u) + (*in - 'a') + 10;
         else
             break;
-        if(tmp < unsignedValue) {
+        if (tmp < unsignedValue) {
             unsignedValue = (u32)INT_MAX;
             overflow = true;
         }
-        if(!overflow)
+        if (!overflow)
             unsignedValue = tmp;
         ++in;
     }
 
-    if(out)
+    if (out)
         * out = in;
 
     return unsignedValue;
@@ -172,30 +170,30 @@ first character not used in the calculation.
 too many digits to encode in an u32 then INT_MAX will be returned.
 */
 inline u32 strtoul8(const char* in, const char** out = 0) {
-    if(!in) {
-        if(out)
+    if (!in) {
+        if (out)
             * out = in;
         return 0;
     }
 
     bool overflow = false;
     u32 unsignedValue = 0;
-    while(true) {
+    while (true) {
         u32 tmp = 0;
-        if((*in >= '0') && (*in <= '7'))
+        if ((*in >= '0') && (*in <= '7'))
             tmp = (unsignedValue << 3u) + (*in - '0');
         else
             break;
-        if(tmp < unsignedValue) {
+        if (tmp < unsignedValue) {
             unsignedValue = (u32)INT_MAX;
             overflow = true;
         }
-        if(!overflow)
+        if (!overflow)
             unsignedValue = tmp;
         ++in;
     }
 
-    if(out)
+    if (out)
         * out = in;
 
     return unsignedValue;
@@ -211,12 +209,12 @@ first character not used in the calculation.
 too many digits to encode in an u32 then INT_MAX will be returned.
 */
 inline u32 strtoul_prefix(const char* in, const char** out = 0) {
-    if(!in) {
-        if(out)
+    if (!in) {
+        if (out)
             * out = in;
         return 0;
     }
-    if('0' == in[0])
+    if ('0' == in[0])
         return ('x' == in[1] ? strtoul16(in + 2, out) : strtoul8(in + 1, out));
     return strtoul10(in, out);
 }
@@ -231,8 +229,8 @@ character.
 sequence.
 */
 inline f32 strtof10(const char* in, const char** out = 0) {
-    if(!in) {
-        if(out)
+    if (!in) {
+        if (out)
             * out = in;
         return 0.f;
     }
@@ -242,10 +240,10 @@ inline f32 strtof10(const char* in, const char** out = 0) {
 
     // Use integer arithmetic for as long as possible, for speed
     // and precision.
-    while((*in >= '0') && (*in <= '9')) {
+    while ((*in >= '0') && (*in <= '9')) {
         // If it looks like we're going to overflow, bail out
         // now and start using floating point.
-        if(intValue >= MAX_SAFE_U32_VALUE)
+        if (intValue >= MAX_SAFE_U32_VALUE)
             break;
 
         intValue = (intValue * 10) + (*in - '0');
@@ -256,14 +254,14 @@ inline f32 strtof10(const char* in, const char** out = 0) {
 
     // If there are any digits left to parse, then we need to use
     // floating point arithmetic from here.
-    while((*in >= '0') && (*in <= '9')) {
+    while ((*in >= '0') && (*in <= '9')) {
         floatValue = (floatValue * 10.f) + (f32)(*in - '0');
         ++in;
-        if(floatValue > FLT_MAX) // Just give up.
+        if (floatValue > FLT_MAX) // Just give up.
             break;
     }
 
-    if(out)
+    if (out)
         * out = in;
 
     return floatValue;
@@ -281,20 +279,20 @@ inline const char* fast_atof_move(const char* in, f32& result) {
     // Please run the regression test when making any modifications to this function.
 
     result = 0.f;
-    if(!in)
+    if (!in)
         return 0;
 
     const bool negative = ('-' == *in);
-    if(negative || ('+' == *in))
+    if (negative || ('+' == *in))
         ++in;
 
     f32 value = strtof10(in, &in);
 
-    if(LOCALE_DECIMAL_POINTS.findFirst(*in) >= 0) {
+    if (LOCALE_DECIMAL_POINTS.findFirst(*in) >= 0) {
         const char* afterDecimal = ++in;
         f32 decimal = strtof10(in, &afterDecimal);
         size_t numDecimals = afterDecimal - in;
-        if(numDecimals < IRR_ATOF_TABLE_SIZE) {
+        if (numDecimals < IRR_ATOF_TABLE_SIZE) {
             value += decimal * fast_atof_table[numDecimals];
         } else {
             value += decimal * (f32)pow(10.f, -(float)numDecimals);
@@ -302,7 +300,7 @@ inline const char* fast_atof_move(const char* in, f32& result) {
         in = afterDecimal;
     }
 
-    if('e' == *in || 'E' == *in) {
+    if ('e' == *in || 'E' == *in) {
         ++in;
         // Assume that the exponent is a whole number.
         // strtol10() will deal with both + and - signs,
@@ -323,7 +321,7 @@ wasn't used to create the float value.
 */
 inline float fast_atof(const char* floatAsString, const char** out = 0) {
     float ret;
-    if(out)
+    if (out)
         * out = fast_atof_move(floatAsString, ret);
     else
         fast_atof_move(floatAsString, ret);
@@ -331,7 +329,7 @@ inline float fast_atof(const char* floatAsString, const char** out = 0) {
 }
 
 } // end namespace core
-} // end namespace irr
+} // end namespace app
 
 #endif
 

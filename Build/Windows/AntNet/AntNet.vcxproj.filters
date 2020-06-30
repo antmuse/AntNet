@@ -34,6 +34,18 @@
     <Filter Include="Include\Core">
       <UniqueIdentifier>{2891dd55-cd94-458d-a0ac-0061865d1913}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Include\Net\HTTP">
+      <UniqueIdentifier>{080db612-f8b7-4b02-941e-79eaed7afc1a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\Net\RawSocket">
+      <UniqueIdentifier>{39230a3f-b6e6-460c-8d48-317dffcc25be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\Net\Mail">
+      <UniqueIdentifier>{9990e78d-263e-4a0a-af98-32a5bd52ff99}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\Thread">
+      <UniqueIdentifier>{37c5393b-76f3-4481-b0e8-08cb39009e3d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -190,55 +202,124 @@
     <ClInclude Include="..\..\..\Include\Core\HHashFunctions.h">
       <Filter>Include\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Include\Core\IAntLogReceiver.h">
-      <Filter>Include\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Core\IAppEventReceiver.h">
-      <Filter>Include\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Core\IAppLogger.h">
-      <Filter>Include\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Core\IAppTimer.h">
-      <Filter>Include\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Core\IBigInteger.h">
-      <Filter>Include\Core</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Include\Core\INoCopy.h">
-      <Filter>Include\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Core\IPairOrderID.h">
       <Filter>Include\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Include\Core\IReferenceCounted.h">
       <Filter>Include\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Include\Core\irrAllocator.h">
-      <Filter>Include\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Core\irrArray.h">
-      <Filter>Include\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Core\irrList.h">
-      <Filter>Include\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Core\irrMap.h">
-      <Filter>Include\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Core\irrMath.h">
-      <Filter>Include\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Core\irrString.h">
-      <Filter>Include\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Core\irrTypes.h">
-      <Filter>Include\Core</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Include\Core\IUtility.h">
       <Filter>Include\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Include\Core\path.h">
+    <ClInclude Include="..\..\..\Include\Net\HTTP\CNetClientHttp.h">
+      <Filter>Include\Net\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\HTTP\CNetHttpHead.h">
+      <Filter>Include\Net\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\HTTP\CNetHttpRequest.h">
+      <Filter>Include\Net\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\HTTP\CNetHttpResponse.h">
+      <Filter>Include\Net\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\HTTP\CNetHttpURL.h">
+      <Filter>Include\Net\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\HTTP\HNetHttpStatus.h">
+      <Filter>Include\Net\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\HTTP\http_parser.h">
+      <Filter>Include\Net\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\HTTP\INetEventerHttp.h">
+      <Filter>Include\Net\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\RawSocket\CNetPing.h">
+      <Filter>Include\Net\RawSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\RawSocket\CNetSynPing.h">
+      <Filter>Include\Net\RawSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\Mail\CNetMailClient.h">
+      <Filter>Include\Net\Mail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\Mail\CNetMailMessage.h">
+      <Filter>Include\Net\Mail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\CAtomicValue32.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\CCondition.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\CMutex.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\CNamedMutex.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\CPipe.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\CProcessHandle.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\CProcessManager.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\CReadWriteLock.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\CSemaphore.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\CSpinlock.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\CThread.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\CThreadEvent.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\CThreadPool.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\HAtomicOperator.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\HMutexType.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Thread\IRunnable.h">
+      <Filter>Include\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\CString.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\TAllocator.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\AppMath.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\AppMap.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\AppList.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\AppArray.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\CLogger.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\CTimer.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\ILogReceiver.h">
       <Filter>Include\Core</Filter>
     </ClInclude>
   </ItemGroup>
@@ -339,12 +420,6 @@
     <ClCompile Include="..\..\..\Source\Core\CTimerWheel.cpp">
       <Filter>Source\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\Core\IAppLogger.cpp">
-      <Filter>Source\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Source\Core\IAppTimer.cpp">
-      <Filter>Source\Core</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\Source\Core\IUtility.cpp">
       <Filter>Source\Core</Filter>
     </ClCompile>
@@ -416,6 +491,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Source\Net\HTTP\http_parser.cpp">
       <Filter>Source\Net\HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Core\CLogger.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Core\CTimer.cpp">
+      <Filter>Source\Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -9,7 +9,6 @@
 #define APP_CCONDITION_H
 
 #include "HConfig.h"
-#include "irrTypes.h"
 
 #if defined( APP_PLATFORM_WINDOWS )
 #include <winsock2.h>   //just here to prevent <winsock.h>
@@ -20,7 +19,7 @@
 #include <errno.h>
 #endif
 
-namespace irr {
+namespace app {
 class CMutex;
 class CReadWriteLock;
 
@@ -94,6 +93,6 @@ private:
 
 //class CSuperCondition;
 
-} //end namespace irr
+} //end namespace app
 
 #endif	/* APP_CCONDITION_H */

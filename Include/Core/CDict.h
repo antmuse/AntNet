@@ -8,7 +8,6 @@
  */
 
 #include "HConfig.h"
-#include "irrTypes.h"
 
 #ifndef APP_CDICT_H
 #define APP_CDICT_H
@@ -16,7 +15,7 @@
 #define DICT_OK 0
 #define DICT_ERR 1
 
-namespace irr {
+namespace app {
 namespace core {
 
 
@@ -372,7 +371,7 @@ public:
     SIterator* createSafeIterator();
     void releaseIterator(SIterator* iter);
 
-    void getStats(c8* buf, size_t bufsize);
+    void getStats(s8* buf, size_t bufsize);
 
 private:
     bool mCanResize;        //default: true
@@ -434,7 +433,7 @@ private:
     s32 clearTable(CHashTable* ht);
 
     //for Debugging
-    size_t getTableStats(c8* buf, size_t bufsize, CHashTable* ht, s32 tableid);
+    size_t getTableStats(s8* buf, size_t bufsize, CHashTable* ht, s32 tableid);
 
     CDict(const CDict& it) = delete;
     CDict& operator=(const CDict& it) = delete;
@@ -442,6 +441,6 @@ private:
 
 
 }//namespace core
-}//namespace irr
+}//namespace app
 
 #endif //APP_CDICT_H

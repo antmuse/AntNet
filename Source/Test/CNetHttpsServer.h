@@ -10,11 +10,11 @@
 #include "mbedtls/certs.h"
 #include "CNetCert.h"
 
-#include "irrList.h"
+#include "AppList.h"
 #include "INetEventer.h"
 #include "CNetServerAcceptor.h"
 
-namespace irr {
+namespace app {
 namespace net {
 class CNetHttpsServer;
 
@@ -129,6 +129,6 @@ private:
 };
 
 }//namespace net
-}//namespace irr
+}//namespace app
 
 #endif //APP_CNETHTTPSSERVER_H

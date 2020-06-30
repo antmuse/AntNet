@@ -9,9 +9,8 @@
 #define APP_CATOMICVALUE32_H
 
 #include "HConfig.h"
-#include "irrTypes.h"
 
-namespace irr {
+namespace app {
 
 /**
 *@class CAtomicS32
@@ -65,6 +64,6 @@ protected:
 };
 
 
-} //namespace irr
+} //namespace app
 
 #endif	// APP_CATOMICVALUE32_H

@@ -3,7 +3,7 @@
 
 #include "INetEventer.h"
 
-namespace irr {
+namespace app {
 namespace net {
 
 
@@ -35,6 +35,6 @@ public:
 };
 
 }// end namespace net
-}// end namespace irr
+}// end namespace app
 
 #endif //APP_INETSERVER_H

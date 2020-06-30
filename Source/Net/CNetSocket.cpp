@@ -30,7 +30,7 @@
 #endif
 
 
-namespace irr {
+namespace app {
 namespace net {
 
 CNetSocket::CNetSocket(netsocket sock) :
@@ -118,31 +118,31 @@ void CNetSocket::getRemoteAddress(CNetAddress& it) {
 
 s32 CNetSocket::setReceiveOvertime(u32 it) {
 #if defined(APP_PLATFORM_WINDOWS)
-    return ::setsockopt(mSocket, SOL_SOCKET, SO_RCVTIMEO, (c8*) &it, sizeof(it));
+    return ::setsockopt(mSocket, SOL_SOCKET, SO_RCVTIMEO, (s8*) &it, sizeof(it));
 #else
     struct timeval time;
     time.tv_sec = it / 1000;                     //seconds
     time.tv_usec = 1000 * (it % 1000);         //microseconds
-    return ::setsockopt(mSocket, SOL_SOCKET, SO_RCVTIMEO, (c8*) &time, sizeof(time));
+    return ::setsockopt(mSocket, SOL_SOCKET, SO_RCVTIMEO, (s8*) &time, sizeof(time));
 #endif
 }
 
 
 s32 CNetSocket::setSendOvertime(u32 it) {
 #if defined(APP_PLATFORM_WINDOWS)
-    return ::setsockopt(mSocket, SOL_SOCKET, SO_SNDTIMEO, (c8*) &it, sizeof(it));
+    return ::setsockopt(mSocket, SOL_SOCKET, SO_SNDTIMEO, (s8*) &it, sizeof(it));
 #else
     struct timeval time;
     time.tv_sec = it / 1000;                     //seconds
     time.tv_usec = 1000 * (it % 1000);           //microseconds
-    return ::setsockopt(mSocket, SOL_SOCKET, SO_SNDTIMEO, (c8*) &time, sizeof(time));
+    return ::setsockopt(mSocket, SOL_SOCKET, SO_SNDTIMEO, (s8*) &time, sizeof(time));
 #endif
 }
 
 
 s32 CNetSocket::setCustomIPHead(bool on) {
     s32 opt = on ? 1 : 0;
-    return ::setsockopt(mSocket, IPPROTO_IP, IP_HDRINCL, (c8*) &opt, sizeof(opt));
+    return ::setsockopt(mSocket, IPPROTO_IP, IP_HDRINCL, (s8*) &opt, sizeof(opt));
 }
 
 
@@ -201,7 +201,7 @@ s32 CNetSocket::keepAlive(bool on, s32 idleTime, s32 timeInterval, s32 maxTick) 
     s32 opt = on ? 1 : 0;
     s32 ret;
     //SOL_TCP
-    ret = ::setsockopt(mSocket, SOL_SOCKET, SO_KEEPALIVE, (c8*) &opt, sizeof(opt));
+    ret = ::setsockopt(mSocket, SOL_SOCKET, SO_KEEPALIVE, (s8*) &opt, sizeof(opt));
     if(!on || ret) return ret;
 
     ret = ::setsockopt(mSocket, IPPROTO_TCP, TCP_KEEPIDLE, &idleTime, sizeof(idleTime));
@@ -221,13 +221,13 @@ s32 CNetSocket::setLinger(bool it, u16 iTime) {
     struct linger val;
     val.l_onoff = it ? 1 : 0;
     val.l_linger = iTime;
-    return ::setsockopt(mSocket, SOL_SOCKET, SO_LINGER, (c8*) &val, sizeof(val));
+    return ::setsockopt(mSocket, SOL_SOCKET, SO_LINGER, (s8*) &val, sizeof(val));
 }
 
 
 s32 CNetSocket::setBroadcast(bool it) {
     s32 opt = it ? 1 : 0;
-    return ::setsockopt(mSocket, SOL_SOCKET, SO_BROADCAST, (c8*) &opt, sizeof(opt));
+    return ::setsockopt(mSocket, SOL_SOCKET, SO_BROADCAST, (s8*) &opt, sizeof(opt));
 }
 
 
@@ -249,7 +249,7 @@ s32 CNetSocket::setBlock(bool it) {
 
 s32 CNetSocket::setReuseIP(bool it) {
     s32 opt = it ? 1 : 0;
-    return ::setsockopt(mSocket, SOL_SOCKET, SO_REUSEADDR, (c8*) &opt, sizeof(opt));
+    return ::setsockopt(mSocket, SOL_SOCKET, SO_REUSEADDR, (s8*) &opt, sizeof(opt));
 }
 
 
@@ -258,18 +258,18 @@ s32 CNetSocket::setReusePort(bool it) {
     return 0;
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
     s32 opt = it ? 1 : 0;
-    return ::setsockopt(mSocket, SOL_SOCKET, SO_REUSEPORT, (c8*) &opt, sizeof(opt));
+    return ::setsockopt(mSocket, SOL_SOCKET, SO_REUSEPORT, (s8*) &opt, sizeof(opt));
 #endif
 }
 
 
 s32 CNetSocket::setSendCache(s32 size) {
-    return ::setsockopt(mSocket, SOL_SOCKET, SO_SNDBUF, (c8*) &size, sizeof(size));
+    return ::setsockopt(mSocket, SOL_SOCKET, SO_SNDBUF, (s8*) &size, sizeof(size));
 }
 
 
 s32 CNetSocket::setReceiveCache(s32 size) {
-    return ::setsockopt(mSocket, SOL_SOCKET, SO_RCVBUF, (c8*) &size, sizeof(size));
+    return ::setsockopt(mSocket, SOL_SOCKET, SO_RCVBUF, (s8*) &size, sizeof(size));
 }
 
 
@@ -299,7 +299,7 @@ bool CNetSocket::getTcpInfo(STCP_Info* info) const {
 
 s32 CNetSocket::sendto(const void* iBuffer, s32 iSize, const CNetAddress& address) {
 #if defined(APP_PLATFORM_WINDOWS)
-    return ::sendto(mSocket, (const c8*) iBuffer, iSize, 0,
+    return ::sendto(mSocket, (const s8*) iBuffer, iSize, 0,
         (sockaddr*) address.getAddress(), sizeof(*address.getAddress()));
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
     return ::sendto(mSocket, iBuffer, iSize, 0,
@@ -311,7 +311,7 @@ s32 CNetSocket::sendto(const void* iBuffer, s32 iSize, const CNetAddress& addres
 s32 CNetSocket::receiveFrom(void* iBuffer, s32 iSize, const CNetAddress& address) {
 #if defined(APP_PLATFORM_WINDOWS)
     socklen_t size = sizeof(*address.getAddress());
-    return ::recvfrom(mSocket, (c8*) iBuffer, iSize, 0, (sockaddr*) address.getAddress(), &size);
+    return ::recvfrom(mSocket, (s8*) iBuffer, iSize, 0, (sockaddr*) address.getAddress(), &size);
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
     socklen_t size = sizeof(*address.getAddress());
     return ::recvfrom(mSocket, iBuffer, iSize, 0, (sockaddr*) address.getAddress(), &size);
@@ -347,7 +347,7 @@ bool CNetSocket::open(s32 domain, s32 type, s32 protocol) {
 
 s32 CNetSocket::setDelay(bool it) {
     s32 opt = it ? 0 : 1;
-    return ::setsockopt(mSocket, IPPROTO_TCP, TCP_NODELAY, (c8*) &opt, sizeof(opt));
+    return ::setsockopt(mSocket, IPPROTO_TCP, TCP_NODELAY, (s8*) &opt, sizeof(opt));
 }
 
 
@@ -370,7 +370,7 @@ s32 CNetSocket::sendAll(const void* iBuffer, s32 iSize) {
     s32 ret = 0;
     s32 step;
     for(; ret < iSize;) {
-        step = send(((const c8*) iBuffer) + ret, iSize - ret);
+        step = send(((const s8*) iBuffer) + ret, iSize - ret);
         if(step > 0) {
             ret += step;
         } else {
@@ -383,7 +383,7 @@ s32 CNetSocket::sendAll(const void* iBuffer, s32 iSize) {
 
 s32 CNetSocket::send(const void* iBuffer, s32 iSize) {
 #if defined(APP_PLATFORM_WINDOWS)
-    return ::send(mSocket, (const c8*) iBuffer, iSize, 0);
+    return ::send(mSocket, (const s8*) iBuffer, iSize, 0);
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
     return ::send(mSocket, iBuffer, iSize, MSG_NOSIGNAL);
 #endif
@@ -394,7 +394,7 @@ s32 CNetSocket::receiveAll(void* iBuffer, s32 iSize) {
     s32 ret = 0;
     s32 step;
     for(; ret < iSize;) {
-        step = ::recv(mSocket, ((c8*) iBuffer) + ret, iSize - ret, MSG_WAITALL);
+        step = ::recv(mSocket, ((s8*) iBuffer) + ret, iSize - ret, MSG_WAITALL);
         if(step > 0) {
             ret += step;
         } else {
@@ -403,7 +403,7 @@ s32 CNetSocket::receiveAll(void* iBuffer, s32 iSize) {
     }
     return ret;
 //#if defined(APP_PLATFORM_WINDOWS)
-//    return ::recv(mSocket, (c8*) iBuffer, iSize, MSG_WAITALL);
+//    return ::recv(mSocket, (s8*) iBuffer, iSize, MSG_WAITALL);
 //#elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
 //    return ::recv(mSocket, iBuffer, iSize, MSG_WAITALL);
 //#endif
@@ -412,7 +412,7 @@ s32 CNetSocket::receiveAll(void* iBuffer, s32 iSize) {
 
 s32 CNetSocket::receive(void* iBuffer, s32 iSize) {
 #if defined(APP_PLATFORM_WINDOWS)
-    return ::recv(mSocket, (c8*) iBuffer, iSize, 0);
+    return ::recv(mSocket, (s8*) iBuffer, iSize, 0);
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
     return ::recv(mSocket, iBuffer, iSize, 0);
 #endif
@@ -438,7 +438,7 @@ CNetSocket CNetSocket::accept(CNetAddress& it) {
 #if defined(APP_PLATFORM_WINDOWS)
 s32 CNetSocket::updateByAccepter(const CNetSocket& sockListen) {
     netsocket it = sockListen.getValue();
-    return ::setsockopt(mSocket, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (c8*) &it, sizeof(it));
+    return ::setsockopt(mSocket, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (s8*) &it, sizeof(it));
 }
 
 
@@ -709,4 +709,4 @@ bool CNetSocketPair::open(s32 domain, s32 type, s32 protocol) {
 
 #endif //OS APP_PLATFORM_LINUX  APP_PLATFORM_ANDROID
 } //namespace net
-} //namespace irr
+} //namespace app

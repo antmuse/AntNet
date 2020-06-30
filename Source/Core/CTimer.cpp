@@ -1,4 +1,4 @@
-#include "IAppTimer.h"
+#include "CTimer.h"
 #include <stdio.h>
 #include <time.h>
 #if defined(APP_PLATFORM_WINDOWS)
@@ -7,7 +7,7 @@
 #include <sys/time.h>
 #endif
 
-namespace irr {
+namespace app {
 
 s64 AppGetTimeZone() {
     long ret;
@@ -27,20 +27,20 @@ s64 AppGetTimeZone() {
 }
 
 
-void AppDateConvert(const struct tm& timeinfo, IAppTimer::SDate& date) {
+void AppDateConvert(const struct tm& timeinfo, CTimer::SDate& date) {
     date.mHour = ( u32) timeinfo.tm_hour;
     date.mMinute = ( u32) timeinfo.tm_min;
     date.mSecond = ( u32) timeinfo.tm_sec;
     date.mDay = ( u32) timeinfo.tm_mday;
     date.mMonth = ( u32) timeinfo.tm_mon + 1;
     date.mYear = ( u32) timeinfo.tm_year + 1900;
-    date.mWeekday = (IAppTimer::EWeekday)timeinfo.tm_wday;
+    date.mWeekday = (CTimer::EWeekday)timeinfo.tm_wday;
     date.mYearday = ( u32) timeinfo.tm_yday + 1;
     date.mIsDST = timeinfo.tm_isdst != 0;
 }
 
 
-void IAppTimer::getDate(IAppTimer::SDate& date) {
+void CTimer::getDate(CTimer::SDate& date) {
     time_t rawtime = time(nullptr);
     struct tm timeinfo;
 #if defined(APP_PLATFORM_WINDOWS)
@@ -52,7 +52,7 @@ void IAppTimer::getDate(IAppTimer::SDate& date) {
 }
 
 
-void IAppTimer::getDate(s64 rawtime, IAppTimer::SDate& date) {
+void CTimer::getDate(s64 rawtime, CTimer::SDate& date) {
     struct tm timeinfo;
 #if defined(APP_PLATFORM_WINDOWS)
     localtime_s(&timeinfo, &rawtime);
@@ -64,21 +64,21 @@ void IAppTimer::getDate(s64 rawtime, IAppTimer::SDate& date) {
 }
 
 
-IAppTimer::SDate IAppTimer::getDate() {
-    IAppTimer::SDate date = {0};
+CTimer::SDate CTimer::getDate() {
+    CTimer::SDate date = {0};
     getDate(date);
     return date;
 }
 
 
-IAppTimer::SDate IAppTimer::getDate(s64 time) {
-    IAppTimer::SDate date = {0};
+CTimer::SDate CTimer::getDate(s64 time) {
+    CTimer::SDate date = {0};
     getDate(time, date);
     return date;
 }
 
 
-s64 IAppTimer::getRelativeTime() {
+s64 CTimer::getRelativeTime() {
 #if defined(APP_PLATFORM_WINDOWS)
 #if defined(APP_OS_64BIT)
     return ::GetTickCount64();
@@ -92,16 +92,16 @@ s64 IAppTimer::getRelativeTime() {
 #endif
 }
 
-s64 IAppTimer::getTimestamp() {
+s64 CTimer::getTimestamp() {
     return time(nullptr);
 }
 
-s64 IAppTimer::getTimeZone() {
+s64 CTimer::getTimeZone() {
     static s64 ret = AppGetTimeZone();
     return ret;
 }
 
-s64 IAppTimer::cutDays(s64 timestamp) {
+s64 CTimer::cutDays(s64 timestamp) {
     const s64 daysec = 24 * 60 * 60;
     return (timestamp - getTimeZone()) / daysec * daysec + getTimeZone();
 }
@@ -141,7 +141,7 @@ s64 AppGetHardwareTime() {
 #endif
 
 
-s64 IAppTimer::getTime() {
+s64 CTimer::getTime() {
 #if defined(APP_PLATFORM_WINDOWS)
     struct tm tms;
     SYSTEMTIME wtm;
@@ -161,7 +161,7 @@ s64 IAppTimer::getTime() {
 #endif
 }
 
-s64 IAppTimer::getRealTime() {
+s64 CTimer::getRealTime() {
 #if defined(APP_PLATFORM_WINDOWS)
     static const u64 FILETIME_to_timval_skew = 116444736000000000ULL;
     FILETIME tfile;
@@ -189,7 +189,7 @@ s64 IAppTimer::getRealTime() {
 #endif
 }
 
-u64 IAppTimer::getTimeAsString(s64 iTime, c8* cache, u32 max, c8* format) {
+u64 CTimer::getTimeAsString(s64 iTime, s8* cache, u32 max, s8* format) {
     struct tm timeinfo;
 #if defined(APP_PLATFORM_WINDOWS)
     localtime_s(&timeinfo, &iTime);
@@ -200,7 +200,7 @@ u64 IAppTimer::getTimeAsString(s64 iTime, c8* cache, u32 max, c8* format) {
     return strftime(cache, max, format, &timeinfo);
 }
 
-u64 IAppTimer::getTimeAsString(c8* cache, u32 max, c8* format) {
+u64 CTimer::getTimeAsString(s8* cache, u32 max, s8* format) {
     s64 iTime = ::time(nullptr);
     struct tm timeinfo;
 #if defined(APP_PLATFORM_WINDOWS)
@@ -213,7 +213,7 @@ u64 IAppTimer::getTimeAsString(c8* cache, u32 max, c8* format) {
 }
 
 
-u64 IAppTimer::getTimeAsString(s64 iTime, wchar_t* cache, u32 max, wchar_t* format) {
+u64 CTimer::getTimeAsString(s64 iTime, wchar_t* cache, u32 max, wchar_t* format) {
     struct tm timeinfo;
 #if defined(APP_PLATFORM_WINDOWS)
     localtime_s(&timeinfo, &iTime);
@@ -224,7 +224,7 @@ u64 IAppTimer::getTimeAsString(s64 iTime, wchar_t* cache, u32 max, wchar_t* form
     return wcsftime(cache, max, format, &timeinfo);
 }
 
-u64 IAppTimer::getTimeAsString(wchar_t* cache, u32 max, wchar_t* format) {
+u64 CTimer::getTimeAsString(wchar_t* cache, u32 max, wchar_t* format) {
     s64 iTime = ::time(nullptr);
     struct tm timeinfo;
 #if defined(APP_PLATFORM_WINDOWS)
@@ -237,15 +237,15 @@ u64 IAppTimer::getTimeAsString(wchar_t* cache, u32 max, wchar_t* format) {
 }
 
 
-bool IAppTimer::isLeapYear(u32 iYear) {
+bool CTimer::isLeapYear(u32 iYear) {
     return ((0 == iYear % 4 && 0 != iYear % 100) || 0 == iYear % 400);
 }
 
 
-u32 IAppTimer::getMonthMaxDay(u32 iYear, u32 iMonth) {
+u32 CTimer::getMonthMaxDay(u32 iYear, u32 iMonth) {
     switch(iMonth) {
     case 2:
-        return IAppTimer::isLeapYear(iYear) ? 29 : 28;
+        return CTimer::isLeapYear(iYear) ? 29 : 28;
     case 4:
     case 6:
     case 9:
@@ -258,4 +258,4 @@ u32 IAppTimer::getMonthMaxDay(u32 iYear, u32 iMonth) {
 }
 
 
-} // end namespace irr
+} // end namespace app

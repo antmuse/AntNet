@@ -1,9 +1,9 @@
 #ifndef APP_CBASE64CODER_H
 #define APP_CBASE64CODER_H
 
-#include "irrTypes.h"
+#include "HConfig.h"
 
-namespace irr {
+namespace app {
  
 
 #define APP_BASE64_ENCODE_OUT_SIZE(s)	(((s) + 2) / 3 * 4)
@@ -28,7 +28,7 @@ public:
     *@note output cache size should be no less than result of getEncodeCacheSize().
     *@return How many bytes were written.
     */
-    static u32 encode(const u8* inputData, u32 inLength, c8* outputData);
+    static u32 encode(const u8* inputData, u32 inLength, s8* outputData);
 
     /**
     *@brief decode base64 string.
@@ -37,7 +37,7 @@ public:
     *@note output cache size should be no less than result of getDecodeCacheSize().
     *@return How many bytes were written.
     */
-    static u32 decode(const c8* inputData, u32 inLength, u8* outputData);
+    static u32 decode(const s8* inputData, u32 inLength, u8* outputData);
 
 
 protected:
@@ -45,6 +45,6 @@ protected:
     ~CBase64Coder(){ }
 };
 
-} //namespace irr
+} //namespace app
 
 #endif //APP_CBASE64CODER_H

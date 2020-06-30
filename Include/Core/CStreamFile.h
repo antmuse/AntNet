@@ -9,7 +9,7 @@
 #include "IReferenceCounted.h"
 #include "CQueueNode.h"
 
-namespace irr {
+namespace app {
 namespace io {
 
 /**
@@ -51,7 +51,7 @@ public:
     *@param maxSize User's cache size.
     *@return The size readed.
     */
-    s32 read(c8* cache, s32 maxSize);
+    s32 read(s8* cache, s32 maxSize);
 
     /**
     *@brief Read a line which end with '\n'.
@@ -59,7 +59,7 @@ public:
     *@param maxSize User's cache size.
     *@return The size readed, else -1 if had not provide enough cache.
     */
-    s32 readLine(c8* cache, s32 maxSize);
+    s32 readLine(s8* cache, s32 maxSize);
 
     /**
     *@brief Write buffer
@@ -69,7 +69,7 @@ public:
     *@param close Close cache block after writen.
     *@return The size was wrote.
     */
-    s32 write(const c8* buffer, s32 sizeToWrite, bool force = false, bool close = true);
+    s32 write(const s8* buffer, s32 sizeToWrite, bool force = false, bool close = true);
 
     /**
     *@brief Append cache block with flag ECF_ORIGINAL
@@ -88,7 +88,7 @@ public:
     *@note User must call closeWrite() to return block to it's original holder if success to got a writable block.
     *eg:
     *@code
-    c8* block;
+    s8* block;
     u32 size;
     if(CStreamFile->openWrite(&block, &size)){
         u32 realsize = user_size >= size ? size : user_size;
@@ -97,7 +97,7 @@ public:
     }
     *@endcode
     */
-    bool openWrite(c8** cache, s32* size, s32 need = 0);
+    bool openWrite(s8** cache, s32* size, s32 need = 0);
 
     /**
     *@brief Return a cache block to it's original holder after writed.
@@ -113,7 +113,7 @@ public:
     *@note User must call closeRead() to return block to it's original holder if success to got a readable block.
     *eg:
     *@code
-    c8* block;
+    s8* block;
     u32 size;
     if(CStreamFile->openRead(&block, &size)){
         u32 realsize = user_size >= size ? size : user_size;
@@ -122,7 +122,7 @@ public:
     }
     *@endcode
     */
-    bool openRead(c8** cache, s32* size);
+    bool openRead(s8** cache, s32* size);
 
     /**
     *@brief Return a cache block to it's original holder after readed.
@@ -211,7 +211,7 @@ private:
 };
 
 } // end namespace io
-} // end namespace irr
+} // end namespace app
 
 #endif //APP_CSTREAMFILE_H
 

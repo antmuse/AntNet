@@ -7,12 +7,12 @@
 #include <stdarg.h>
 
 #include "HNetConfig.h"
-#include "irrMath.h"
+#include "AppMath.h"
 #include "IUtility.h"
 
 //#define APP_DEBUG_PRINT_ON
 
-namespace irr {
+namespace app {
 namespace net {
 
 const u32 APP_NET_NODELAY_MIN_RTO = 30;						///< no delay min RTO
@@ -44,7 +44,7 @@ static inline u64 AppValueDiff(u64 later, u64 earlier) {
 
 // output queue
 #if defined(APP_DEBUG_PRINT_ON)
-void AppPrintQueue(const c8* name, const CQueueNode* head) {
+void AppPrintQueue(const s8* name, const CQueueNode* head) {
     const CQueueNode *p;
     printf("<%s>: [", name);
     for(; !head->isEmpty(); ) {
@@ -76,11 +76,11 @@ CQueueNode* CNetProtocal::createSegment(s32 size) {
 //}
 
 // write log
-void CNetProtocal::log(s32 mask, const c8 *fmt, ...) {
+void CNetProtocal::log(s32 mask, const s8 *fmt, ...) {
     if((mask & mLogMask) == 0 || mLogWriter == 0) {
         return;
     }
-    c8 iBuffer[1024];
+    s8 iBuffer[1024];
     va_list argptr;
     va_start(argptr, fmt);
     vsnprintf(iBuffer, 1024, fmt, argptr);
@@ -89,7 +89,7 @@ void CNetProtocal::log(s32 mask, const c8 *fmt, ...) {
 }
 
 // output segment
-s32 CNetProtocal::sendOut(const c8* data, s32 size) {
+s32 CNetProtocal::sendOut(const s8* data, s32 size) {
     APP_ASSERT(mSender);
     if(size <= 0) {
         return 0;
@@ -144,7 +144,7 @@ CNetProtocal::CNetProtocal() :
     mLogWriter(0) {
 
     mMSS = mMTU - APP_NET_ENDIANOVERHEAD;
-    mBuffer = (c8*) allocateMemory((mMTU + APP_NET_ENDIANOVERHEAD) * 3);
+    mBuffer = (s8*) allocateMemory((mMTU + APP_NET_ENDIANOVERHEAD) * 3);
     if(!mBuffer) {
         return;
     }
@@ -176,7 +176,7 @@ CNetProtocal::~CNetProtocal() {
 }
 
 
-u32 CNetProtocal::getID(const c8* iBuffer) const {
+u32 CNetProtocal::getID(const s8* iBuffer) const {
     u32 conv;
     core::AppDecodeU32(iBuffer, &conv);
     return conv;
@@ -194,7 +194,7 @@ void CNetProtocal::setSender(INetDataSender* iSender) {
 //---------------------------------------------------------------------
 // user/upper level recv: returns size, returns below zero for EAGAIN
 //---------------------------------------------------------------------
-s32 CNetProtocal::receiveData(c8* iBuffer, s32 len) {
+s32 CNetProtocal::receiveData(s8* iBuffer, s32 len) {
     if(mQueueReceive.isEmpty()) {
         return -1;
     }
@@ -301,7 +301,7 @@ s32 CNetProtocal::peekNextSize() {
 //---------------------------------------------------------------------
 // user/upper level send, returns below zero for error
 //---------------------------------------------------------------------
-s32 CNetProtocal::sendData(const c8* iBuffer, s32 len) {
+s32 CNetProtocal::sendData(const s8* iBuffer, s32 len) {
     APP_ASSERT(mMSS > 0);
     if(len < 0) {
         return -1;
@@ -586,7 +586,7 @@ void CNetProtocal::parseSegment(CQueueNode* node) {
 //---------------------------------------------------------------------
 // import raw data
 //---------------------------------------------------------------------
-s32 CNetProtocal::import(const c8* data, long size) {
+s32 CNetProtocal::import(const s8* data, long size) {
     u32 una = mSendUNA;
     u32 maxack = 0;
     s32 flag = 0;
@@ -718,7 +718,7 @@ s32 CNetProtocal::import(const c8* data, long size) {
 
 
 
-c8* CNetProtocal::encodeSegment(c8 *ptr, const SKCPSegment *seg) {
+s8* CNetProtocal::encodeSegment(s8 *ptr, const SKCPSegment *seg) {
     ptr = core::AppEncodeU32(seg->mConnectionID, ptr);
     ptr = core::AppEncodeU8((u8) seg->mCMD, ptr);
     ptr = core::AppEncodeU8((u8) seg->mFrag, ptr);
@@ -741,8 +741,8 @@ s32 CNetProtocal::getUnusedWindowCount() {
 
 void CNetProtocal::flush() {
     u32 current = mTimeCurrent;
-    c8* iBuffer = mBuffer;
-    c8 *ptr = iBuffer;
+    s8* iBuffer = mBuffer;
+    s8 *ptr = iBuffer;
     s32 count, size;
     u32 resent, cwnd;
     u32 rtomin;
@@ -1006,7 +1006,7 @@ s32 CNetProtocal::setMTU(s32 iMTU) {
         return -1;
     }
 
-    c8* iBuffer = (c8*) allocateMemory((iMTU + APP_NET_ENDIANOVERHEAD) * 3);
+    s8* iBuffer = (s8*) allocateMemory((iMTU + APP_NET_ENDIANOVERHEAD) * 3);
 
     if(!iBuffer) {
         return -2;
@@ -1071,4 +1071,4 @@ s32 CNetProtocal::getWaitSendCount() {
 
 
 } //namespace net 
-} //namespace irr 
+} //namespace app 

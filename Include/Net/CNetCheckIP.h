@@ -7,7 +7,7 @@
 #define APP_IP_SPLIT_FLAG ','
 #define APP_IP_CHECK_INVALID_RESULT 0xFFFFFFFFU
 
-namespace irr {
+namespace app {
 namespace net {
 
 
@@ -89,7 +89,7 @@ public:
 
     CNetCheckIP& operator=(const CNetCheckIP& it);
 
-    bool isValidIP(const c8* str)const {
+    bool isValidIP(const s8* str)const {
         return (str ? isValidLittleEndianIP(convertToIP(str)) : false);
     }
 
@@ -102,7 +102,7 @@ public:
     }
 
     //@return size of nodes.
-    u32 parseConfig(const c8* cfg, u32 size = 0);
+    u32 parseConfig(const s8* cfg, u32 size = 0);
 
     void remove(u32 idx);
 
@@ -113,13 +113,13 @@ public:
     }
 
     //@return IP in little endian.
-    static u32 convertToIP(const c8* str);
+    static u32 convertToIP(const s8* str);
 
 private:
     SNetIPNode m_data[APP_MAX_IP_CHECK_NODE];
     u32 m_size;	//count of SNetIPNode
 
-    bool addNode(const c8* iStart, const c8* iEnd);
+    bool addNode(const s8* iStart, const s8* iEnd);
 
     u32 insert(SNetIPNode& it);
 
@@ -129,7 +129,7 @@ private:
 };
 
 };//namespace net
-};//namespace irr
+};//namespace app
 
 
 #endif //APP_CNETCHECKIP_H

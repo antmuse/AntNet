@@ -1,9 +1,9 @@
 #ifndef APP_CCHECKCRC_H
 #define APP_CCHECKCRC_H
 
-#include "irrTypes.h"
+#include "HConfig.h"
 
-namespace irr {
+namespace app {
 
 /*
 * @brief CRC16 implementation according to CCITT standards.
@@ -75,5 +75,5 @@ private:
     u64 mResult;
 };
 
-}//namespace irr
+}//namespace app
 #endif //APP_CCHECKCRC_H

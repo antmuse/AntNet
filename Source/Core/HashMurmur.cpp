@@ -8,10 +8,9 @@
 // non-native version will be less than optimal.
 
 #include "HConfig.h"
-#include "irrTypes.h"
 
 
-namespace irr {
+namespace app {
 namespace core {
 
 
@@ -393,4 +392,4 @@ void AppHashMurmur128(const void* buf, u64 len, void* out) {
 }
 
 }//namespace core
-}//namespace irr
+}//namespace app

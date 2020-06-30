@@ -12,7 +12,7 @@
 #endif
 
 
-namespace irr {
+namespace app {
 namespace net {
 
 void CNetUtility::setLastError(s32 it) {
@@ -61,4 +61,4 @@ s32 CNetUtility::unloadSocketLib() {
 }
 
 } //namespace net
-} //namespace irr
+} //namespace app

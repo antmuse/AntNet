@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-namespace irr {
+namespace app {
 /////////////////////SQueueRingFreelock/////////////////////
 void SQueueRingFreelock::init(s32 size) {
     //APP_ASSERT(size>sizeof(SQueueRingFreelock));
@@ -91,8 +91,8 @@ CQueueNode* CQueueNode::getPrevious() const {
     return mPrevious;
 }
 
-c8* CQueueNode::getValue() const {
-    return  ((c8*) this) + sizeof(CQueueNode);
+s8* CQueueNode::getValue() const {
+    return  ((s8*) this) + sizeof(CQueueNode);
 }
 
 void CQueueNode::init() {
@@ -104,4 +104,4 @@ bool CQueueNode::isEmpty() const {
     return mNext == this;
 }
 
-} //namespace irr 
+} //namespace app 

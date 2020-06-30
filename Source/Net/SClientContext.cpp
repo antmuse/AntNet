@@ -2,7 +2,7 @@
 //#include "CNetUtility.h"
 
 
-namespace irr {
+namespace app {
 namespace net {
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -11,4 +11,4 @@ SClientContextUDP::SClientContextUDP()
 }
 
 }//namespace net
-}//namespace irr
+}//namespace app

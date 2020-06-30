@@ -1,12 +1,12 @@
 #include "CNetSession.h"
-#include "IAppLogger.h"
+#include "CLogger.h"
 #include "CEventPoller.h"
 #include "CNetService.h"
 
 
 #if defined(APP_PLATFORM_WINDOWS)
 
-namespace irr {
+namespace app {
 namespace net {
 
 s32 CNetSession::postSend(u32 id, CBufferQueue::SBuffer* buf) {
@@ -73,7 +73,7 @@ s32 CNetSession::stepSend(SContextIO& act) {
     CEventQueue::SNode* nd = getEventNode(&act);
     if(0 == act.mBytes) {
         //CEventPoller::cancelIO(mSocket, 0);
-        IAppLogger::log(ELOG_ERROR, "CNetSession::stepSend",
+        CLogger::log(ELOG_ERROR, "CNetSession::stepSend",
             "quit on send: [%u] [ecode=%u]",
             mSocket.getValue(),
             CNetSocket::getError());
@@ -102,17 +102,17 @@ s32 CNetSession::postReceive() {
     nd->mEvent.mInfo.mDataReceive.mSize = 0;
     nd->mEvent.mInfo.mDataReceive.mAllocatedSize = bufsz;
     nd->mEvent.mInfo.mDataReceive.mBuffer
-        = reinterpret_cast<c8*>(nd + 1) + sizeof(SContextIO);
+        = reinterpret_cast<s8*>(nd + 1) + sizeof(SContextIO);
 
     SContextIO* act = getAction(nd);
     act->clear();
     act->mOperationType = EOP_RECEIVE;
-    act->mBuffer.buf = reinterpret_cast<c8*>(nd->mEvent.mInfo.mDataReceive.mBuffer);
+    act->mBuffer.buf = reinterpret_cast<s8*>(nd->mEvent.mInfo.mDataReceive.mBuffer);
     act->mBuffer.len = nd->mEvent.mInfo.mDataReceive.mAllocatedSize;
     if(mSocket.receive(act)) {
         return ++mCount;
     }
-    IAppLogger::log(ELOG_ERROR, "CNetSession::postReceive", "ecode=%u", CNetSocket::getError());
+    CLogger::log(ELOG_ERROR, "CNetSession::postReceive", "ecode=%u", CNetSocket::getError());
     nd->drop();
     return mCount;
 }
@@ -124,7 +124,7 @@ s32 CNetSession::stepReceive(SContextIO& act) {
     CEventQueue::SNode* nd = getEventNode(&act);
     if(0 == act.mBytes) {
         //CEventPoller::cancelIO(mSocket, 0);
-        IAppLogger::log(ELOG_ERROR, "CNetSession::stepReceive",
+        CLogger::log(ELOG_ERROR, "CNetSession::stepReceive",
             "ID=%u,mCount=%u,remote[%s:%u],ecode=%d",
             mID,
             mCount,
@@ -309,7 +309,7 @@ void CNetSession::dispatchEvents() {
             case ENET_RECEIVE:
             {
                 nd->mEventer->onReceive(mAddressRemote, nd->mEvent.mSessionID,
-                    reinterpret_cast<c8*>(nd + 1) + sizeof(SContextIO),
+                    reinterpret_cast<s8*>(nd + 1) + sizeof(SContextIO),
                     nd->mEvent.mInfo.mDataReceive.mSize);
                 break;
             }
@@ -369,6 +369,6 @@ void CNetSession::dispatchEvents() {
 }
 
 } //namespace net
-} //namespace irr
+} //namespace app
 
 #endif //APP_PLATFORM_WINDOWS

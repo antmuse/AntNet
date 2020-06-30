@@ -9,7 +9,7 @@
 #define APP_CNAMEDMUTEX_H
 
 #include "HConfig.h"
-#include "path.h"
+#include "CString.h"
 #include "HMutexType.h"
 #if defined(APP_PLATFORM_ANDROID )  || defined( APP_PLATFORM_LINUX )
 #include <errno.h>
@@ -18,7 +18,7 @@
 #endif
 
 
-namespace irr {
+namespace app {
 /**
 *@class  CNamedMutex
 *@brief A CNamedMutex(mutual exclusion) is a global synchronization
@@ -40,7 +40,7 @@ class  CNamedMutex {
 public:
 
     /// Constructor
-    CNamedMutex(const io::path& iName, EMutexType type = EMT_RECURSIVE);
+    CNamedMutex(const core::CPath& iName, EMutexType type = EMT_RECURSIVE);
 
     /// Destructor
     ~CNamedMutex();
@@ -63,7 +63,7 @@ private:
     CNamedMutex(const CNamedMutex&);
     CNamedMutex& operator = (const CNamedMutex&);
 
-    io::path mName;
+    core::CPath mName;
 
 #if defined( APP_PLATFORM_WINDOWS )
     void* mMutex; //HANDLE
@@ -73,7 +73,7 @@ private:
 };
 
 
-}//irr
+}//app
 
 
 #endif	/* APP_CNAMEDMUTEX_H */

@@ -6,7 +6,7 @@
 #include "CTimerWheel.h"
 #include "CBufferQueue.h"
 
-namespace irr {
+namespace app {
 namespace net {
 class CNetServiceTCP;
 
@@ -182,7 +182,7 @@ protected:
     APP_FORCE_INLINE CEventQueue::SNode* getEventNode(SContextIO* it) const {
         APP_ASSERT(it);
         return reinterpret_cast<CEventQueue::SNode*>(
-            reinterpret_cast<c8*>(it) - sizeof(CEventQueue::SNode));
+            reinterpret_cast<s8*>(it) - sizeof(CEventQueue::SNode));
     }
 
     /**
@@ -222,6 +222,6 @@ private:
 
 
 } //namespace net
-} //namespace irr
+} //namespace app
 
 #endif //APP_CNETSESSION_H

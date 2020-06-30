@@ -1,9 +1,8 @@
 ﻿#include "CMutex.h"
-#include "irrTypes.h"
 
 
 #if defined( APP_PLATFORM_WINDOWS )
-namespace irr {
+namespace app {
 
 CMutex::CMutex(EMutexType type/* = EMT_RECURSIVE*/) {
     ::InitializeCriticalSectionAndSpinCount(&mCriticalSection, 4000);
@@ -43,7 +42,7 @@ void* CMutex::getHandle() {
     return &mCriticalSection;
 }
 
-} //namespace irr
+} //namespace app
 
 #elif defined( APP_PLATFORM_ANDROID )  || defined( APP_PLATFORM_LINUX )
 
@@ -51,7 +50,7 @@ void* CMutex::getHandle() {
 #include <sys/time.h>
 #endif //APP_HAVE_MUTEX_TIMEOUT
 
-namespace irr {
+namespace app {
 
 CMutex::CMutex(EMutexType type/* = EMT_RECURSIVE*/) {
     pthread_mutexattr_t attr;
@@ -162,5 +161,5 @@ void CMutex::unlock() {
 }
 
 
-} //namespace irr
+} //namespace app
 #endif

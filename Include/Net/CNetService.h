@@ -7,16 +7,16 @@
 #define APP_CNETSERVICE_H
 
 
-#include "irrString.h"
-#include "irrArray.h"
-#include "irrList.h"
+#include "CString.h"
+#include "AppArray.h"
+#include "AppList.h"
 #include "CThreadPool.h"
 #include "CEventPoller.h"
 #include "CNetSocket.h"
 #include "CTimerWheel.h"
 #include "CNetSessionPool.h"
 
-namespace irr {
+namespace app {
 namespace net {
 class INetEventer;
 struct SContextIO;
@@ -130,6 +130,6 @@ private:
 
 
 }// end namespace net
-}// end namespace irr
+}// end namespace app
 
 #endif //APP_CNETSERVICE_H

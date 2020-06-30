@@ -3,12 +3,12 @@
 
 
 #include "CNetService.h"
-#include "irrString.h"
+#include "CString.h"
 #include "CNetAddress.h"
 #include "CNetHttpRequest.h"
 #include "CNetHttpResponse.h"
 
-namespace irr {
+namespace app {
 namespace net {
 class INetEventerHttp;
 
@@ -18,7 +18,7 @@ public:
 
     virtual ~CNetClientHttp();
 
-    void setURL(const core::stringc& url, bool updateIP) {
+    void setURL(const core::CString& url, bool updateIP) {
         mRequest.getURL().set(url);
         mAddressRemote.setPort(mRequest.getURL().getPort());
         if(updateIP) {
@@ -73,6 +73,6 @@ private:
 
 
 }// end namespace net
-}// end namespace irr
+}// end namespace app
 
 #endif //APP_CNETCLIENTHTTP_H

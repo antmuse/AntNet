@@ -2,7 +2,7 @@
 #include "CSpinlock.h"
 #include "CQueueNode.h"
 
-namespace irr {
+namespace app {
 class CQueue2Way {
 public:
     struct SNode {
@@ -36,4 +36,4 @@ private:
     u32 mPopCount;
 };
 
-} //namespace irr
+} //namespace app

@@ -13,7 +13,7 @@
 #include "IReferenceCounted.h"
 
 
-namespace irr {
+namespace app {
 /**
 *@class CProcessHandle
 *@brief A handle for a process created with CProcessManager::launch().
@@ -69,6 +69,6 @@ private:
 };
 
 
-} //end namespace irr
+} //end namespace app
 
 #endif	/* APP_CPROCESSHANDLE_H */

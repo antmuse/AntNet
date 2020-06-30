@@ -10,10 +10,10 @@
 #include "mbedtls/certs.h"
 #include "CNetCert.h"
 
-#include "irrList.h"
+#include "AppList.h"
 #include "INetEventer.h"
 
-namespace irr {
+namespace app {
 namespace net {
 class CNetServiceTCP;
 
@@ -65,7 +65,7 @@ public:
         return ssl.state;
     }
 private:
-    //c8 mTestData[4 * 1024];
+    //s8 mTestData[4 * 1024];
     bool mAutoConnect;
     bool mHandshake;
     u32 mSession;
@@ -88,6 +88,6 @@ private:
 };
 
 }//namespace net
-}//namespace irr
+}//namespace app
 
 #endif //APP_CNETHTTPSCLIENT_H

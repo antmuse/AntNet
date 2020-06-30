@@ -26,7 +26,7 @@
 #include <limits.h>
 
 
-namespace irr {
+namespace app {
 namespace net {
 
 static u32 max_header_size = HTTP_MAX_HEADER_SIZE;
@@ -2563,4 +2563,4 @@ http_parser_set_max_header_size(u32 size) {
 
 
 }//namespace net {
-}//namespace irr {
+}//namespace app {

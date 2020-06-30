@@ -7,7 +7,7 @@
 // #define APP_DISABLE_BYTE_POOL
 #define APP_THREADSAFE_MEMORY_POOL
 
-namespace irr {
+namespace app {
 
 ///allocate some number of bytes from pools.  Uses the heap if necessary.
 class CMemoryHub {
@@ -18,9 +18,9 @@ public:
 
     void setPageCount(s32 count);
 
-    c8* allocate(u64 bytesWanted, u64 align = sizeof(void*));
+    s8* allocate(u64 bytesWanted, u64 align = sizeof(void*));
 
-    c8* allocateAndClear(u64 bytesWanted, u64 align = sizeof(void*));
+    s8* allocateAndClear(u64 bytesWanted, u64 align = sizeof(void*));
 
     void release(void* data);
 
@@ -65,8 +65,8 @@ private:
     CMemoryHub(const CMemoryHub& it) = delete;
     CMemoryHub& operator=(const CMemoryHub& it) = delete;
 
-    APP_FORCE_INLINE c8* getUserPointer(const c8* real, const u64 align, const EMemType tp)const {
-        c8* user = APP_ALIGN_POINTER(real, align);
+    APP_FORCE_INLINE s8* getUserPointer(const s8* real, const u64 align, const EMemType tp)const {
+        s8* user = APP_ALIGN_POINTER(real, align);
         user = user >= real + sizeof(SMemHead) ? user : user + align;
         SMemHead& hd = *reinterpret_cast<SMemHead*>(user - sizeof(SMemHead));
         hd.mHeadSize = (u8) (user - real);
@@ -74,14 +74,14 @@ private:
         return user;
     }
 
-    APP_FORCE_INLINE const EMemType getRealPointer(const void* user, c8*& real)const {
-        const SMemHead& hd = *(reinterpret_cast<const SMemHead*>(((c8*) user) - sizeof(SMemHead)));
-        real = ((c8*) user) - hd.mHeadSize;
+    APP_FORCE_INLINE const EMemType getRealPointer(const void* user, s8*& real)const {
+        const SMemHead& hd = *(reinterpret_cast<const SMemHead*>(((s8*) user) - sizeof(SMemHead)));
+        real = ((s8*) user) - hd.mHeadSize;
         return (EMemType) hd.mMemTypte;
     }
 };
 
-}//namespace irr
+}//namespace app
 
 
 #endif // ANTMUSE_CMEMORYHUB_H

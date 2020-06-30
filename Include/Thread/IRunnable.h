@@ -8,7 +8,7 @@
 #ifndef APP_IRUNNABLE_H
 #define APP_IRUNNABLE_H
 
-namespace irr {
+namespace app {
 
 /**
 *@class IRunnable
@@ -30,6 +30,6 @@ public:
 };
 
 
-} //namespace irr 
+} //namespace app 
 
 #endif	/* APP_IRUNNABLE_H */

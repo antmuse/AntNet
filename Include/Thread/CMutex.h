@@ -24,7 +24,7 @@
 #include <sys/select.h>
 #endif
 
-namespace irr {
+namespace app {
 
 /**
 *@class CMutex
@@ -177,6 +177,6 @@ private:
 };
 
 
-} //end namespace irr
+} //end namespace app
 
 #endif	/* APP_CMUTEX_H */

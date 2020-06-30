@@ -1,15 +1,15 @@
 #ifndef APP_CNETHTTPHEAD_H
 #define APP_CNETHTTPHEAD_H
 
-#include "irrString.h"
-#include "irrMap.h"
+#include "CString.h"
+#include "AppMap.h"
 
 
 #define APP_INIT_STRING(X) sizeof(X) - 1, X
 #define APP_NULL_STRING    0, NULL
 
 
-namespace irr {
+namespace app {
 namespace net {
 class CNetPacket;
 
@@ -43,7 +43,7 @@ enum EHttpHeadID {
 struct SHttpHead {
     u16 mID;
     u8 mLen;
-    c8* mKey;
+    s8* mKey;
 };
 
 const SHttpHead AppHttpHeads[] = {
@@ -78,13 +78,13 @@ public:
 
     ~CNetHttpHead();
 
-    const core::stringc* getValue(EHttpHeadID id)const {
+    const core::CString* getValue(EHttpHeadID id)const {
         THttpHeadNode* it = mMapHead.find(id);
         return (it ? &it->getValue() : 0);
     }
 
 
-    void setValue(EHttpHeadID id, const core::stringc& it) {
+    void setValue(EHttpHeadID id, const core::CString& it) {
         mMapHead.set(id, it);
     }
 
@@ -103,13 +103,13 @@ public:
 
 
 private:
-    typedef core::map<EHttpHeadID, core::stringc>::Node THttpHeadNode;
-    typedef core::map<EHttpHeadID, core::stringc>::Iterator THttpHeadIterator;
-    core::map<EHttpHeadID, core::stringc> mMapHead;
+    typedef core::TMap<EHttpHeadID, core::CString>::Node THttpHeadNode;
+    typedef core::TMap<EHttpHeadID, core::CString>::Iterator THttpHeadIterator;
+    core::TMap<EHttpHeadID, core::CString> mMapHead;
 };
 
 
 } //namespace net
-} //namespace irr
+} //namespace app
 
 #endif //APP_CNETHTTPHEAD_H

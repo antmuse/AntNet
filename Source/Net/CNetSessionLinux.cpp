@@ -1,11 +1,11 @@
 #include "CNetSession.h"
-#include "IAppLogger.h"
+#include "CLogger.h"
 #include "CEventPoller.h"
 #include "CNetService.h"
 
 #if defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
 
-namespace irr {
+namespace app {
 namespace net {
 
 s32 CNetSession::postSend(u32 id, CBufferQueue::SBuffer* buf) {
@@ -51,7 +51,7 @@ s32 CNetSession::postReceive() {
     nd->mEvent.mType = ENET_RECEIVE;
     nd->mEvent.mInfo.mDataReceive.mSize = 0;
     nd->mEvent.mInfo.mDataReceive.mAllocatedSize = bufsz;
-    nd->mEvent.mInfo.mDataReceive.mBuffer = reinterpret_cast<c8*>(nd + 1) + sizeof(SContextIO);
+    nd->mEvent.mInfo.mDataReceive.mBuffer = reinterpret_cast<s8*>(nd + 1) + sizeof(SContextIO);
 
     pushGlobalQueue(nd);
     return ++mCount;
@@ -67,7 +67,7 @@ s32 CNetSession::postConnect() {
     if(EINPROGRESS == ecode) {
         return ++mCount;
     }
-    IAppLogger::log(ELOG_ERROR, "CNetSession::postConnect", "ecode=%u", ecode);
+    CLogger::log(ELOG_ERROR, "CNetSession::postConnect", "ecode=%u", ecode);
     return -1;
 }
 
@@ -115,19 +115,19 @@ s32 CNetSession::stepReceive(SContextIO& act) {
     CEventQueue::SNode* nd = getEventNode(&act);
     nd->mEvent.mType = ENET_RECEIVE;
     const s32 max = nd->mEvent.mInfo.mDataReceive.mAllocatedSize;
-    c8* buf = reinterpret_cast<c8*>(nd->mEvent.mInfo.mDataReceive.mBuffer);
+    s8* buf = reinterpret_cast<s8*>(nd->mEvent.mInfo.mDataReceive.mBuffer);
     while(true) {
         s32 step = mSocket.receive(buf, max);
         if(step > 0) {
             nd->mEvent.mInfo.mDataReceive.mSize = step;
             nd->mEventer->onReceive(mAddressRemote, nd->mEvent.mSessionID, buf, step);
         } else if(0 == step) {
-            IAppLogger::log(ELOG_INFO, "CNetSession::stepReceive", "recv=0, sock=%d", mSocket.getValue());
+            CLogger::log(ELOG_INFO, "CNetSession::stepReceive", "recv=0, sock=%d", mSocket.getValue());
             break;
         } else {
             s32 ecode = mSocket.getError();
             if(EAGAIN != ecode) {
-                IAppLogger::log(ELOG_ERROR, "CNetSession::stepReceive", "recv<0, ecode=%d", ecode);
+                CLogger::log(ELOG_ERROR, "CNetSession::stepReceive", "recv<0, ecode=%d", ecode);
             }
             break;
         }
@@ -142,26 +142,26 @@ s32 CNetSession::stepSend() {
     --mCount;
     CEventQueue::SNode* nd = mQueueInput.lockPick();
     if(nullptr == nd) {
-        IAppLogger::log(ELOG_ERROR, "CNetSession::stepSend", "none buf");
+        CLogger::log(ELOG_ERROR, "CNetSession::stepSend", "none buf");
         return mCount;
     }
     bool post = true;
     CBufferQueue::SBuffer* buf = reinterpret_cast<CBufferQueue::SBuffer*>(
         nd->mEvent.mInfo.mDataSend.mBuffer);
     const s32 max = buf->mBufferSize;
-    c8* buffer = buf->getBuffer();
+    s8* buffer = buf->getBuffer();
     s32 snd = nd->mEvent.mInfo.mDataSend.mSize;
     for(; snd < max; ) {
         s32 step = mSocket.send(buffer + snd, max - snd);
         if(step > 0) {
             snd += step;
         } else if(0 == step) {
-            IAppLogger::log(ELOG_INFO, "CNetSession::stepSend", "send=0, sock=%d", mSocket.getValue());
+            CLogger::log(ELOG_INFO, "CNetSession::stepSend", "send=0, sock=%d", mSocket.getValue());
             break;
         } else {
             s32 ecode = mSocket.getError();
             if(EAGAIN != ecode) {
-                IAppLogger::log(ELOG_ERROR, "CNetSession::stepSend", "send<0, ecode=%d", ecode);
+                CLogger::log(ELOG_ERROR, "CNetSession::stepSend", "send<0, ecode=%d", ecode);
             } else {
                 post = false;
             }
@@ -332,6 +332,6 @@ void CNetSession::dispatchEvents() {
 }
 
 } //namespace net
-} //namespace irr
+} //namespace app
 
 #endif //APP_PLATFORM_LINUX or APP_PLATFORM_ANDROID

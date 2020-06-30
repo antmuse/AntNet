@@ -1,7 +1,7 @@
 #include "CNetHttpHead.h"
 #include "CNetPacket.h"
 
-namespace irr {
+namespace app {
 namespace net {
 
 CNetHttpHead::CNetHttpHead() {
@@ -20,7 +20,7 @@ void CNetHttpHead::getBuffer(CNetPacket& out) const {
     for(THttpHeadIterator it = mMapHead.getIterator(); !it.atEnd(); it++) {
         nd = it.getNode();
         key = nd->getKey();
-        core::stringc& value = nd->getValue();
+        core::CString& value = nd->getValue();
         out.addBuffer(AppHttpHeads[key].mKey, AppHttpHeads[key].mLen);
         out.addBuffer(": ", 2);
         out.addBuffer(value.c_str(), value.size());
@@ -30,4 +30,4 @@ void CNetHttpHead::getBuffer(CNetPacket& out) const {
 
 
 } //namespace net
-} //namespace irr
+} //namespace app

@@ -48,9 +48,6 @@
     <ClInclude Include="..\..\..\Include\Thread\CPipe.h">
       <Filter>Include\Thread</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Include\Thread\CProcess.h">
-      <Filter>Include\Thread</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Include\Thread\CProcessManager.h">
       <Filter>Include\Thread</Filter>
     </ClInclude>

@@ -9,14 +9,13 @@
 #define APP_CTHREADEVENT_H
 
 #include "HConfig.h"
-#include "irrTypes.h"
 
 #if defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
 #include <pthread.h>
 #include <errno.h>
 #endif
 
-namespace irr {
+namespace app {
 
 
 /**
@@ -98,6 +97,6 @@ private:
 };
 
 
-} //end namespace irr
+} //end namespace app
 
 #endif	/* APP_CTHREADEVENT_H */

@@ -6,7 +6,7 @@
 #define APP_BASE64DE_LAST	'z'
 
 
-namespace irr {
+namespace app {
 
 
 //BASE 64 encode table
@@ -23,7 +23,7 @@ static const char AppBase64EncodeTable[] = {
 
 
 //ASCII order for BASE 64 decode, -1 in unused character
-static const c8 AppBase64DecodeTable[] = {
+static const s8 AppBase64DecodeTable[] = {
     /* '+', ',', '-', '.', '/', '0', '1', '2', */
     62, -1, -1, -1, 63, 52, 53, 54,
 
@@ -56,7 +56,7 @@ static const c8 AppBase64DecodeTable[] = {
 };
 
 
-u32 CBase64Coder::encode(const u8* in, u32 inlen, c8* out) {
+u32 CBase64Coder::encode(const u8* in, u32 inlen, s8* out) {
     u32 i, j;
 
     for(i = j = 0; i < inlen; i++) {
@@ -92,7 +92,7 @@ u32 CBase64Coder::encode(const u8* in, u32 inlen, c8* out) {
 }
 
 
-u32 CBase64Coder::decode(const c8* in, u32 inlen, u8* out) {
+u32 CBase64Coder::decode(const s8* in, u32 inlen, u8* out) {
     u32 i, j;
 
     for(i = j = 0; i < inlen; i++) {
@@ -133,7 +133,7 @@ u32 CBase64Coder::decode(const c8* in, u32 inlen, u8* out) {
 }
 
 
-} //namespace irr
+} //namespace app
 
 
 
@@ -141,15 +141,15 @@ u32 CBase64Coder::decode(const c8* in, u32 inlen, u8* out) {
 /*
 int main(int argc, char** argv) {
     char* src = "base64test";
-    const irr::s32 strsize = 1 + ::strlen(src);
-    int esize = irr::CBase64Coder::getEncodeCacheSize(strsize);
+    const app::s32 strsize = 1 + ::strlen(src);
+    int esize = app::CBase64Coder::getEncodeCacheSize(strsize);
     char* dest = new char[esize];
-    esize = irr::CBase64Coder::encode((irr::u8*)src, strsize, dest);
+    esize = app::CBase64Coder::encode((app::u8*)src, strsize, dest);
     printf("src=%s/%d, encode=%s/%d\n", src, strsize, dest, esize);
 
-    int dsize = irr::CBase64Coder::getDecodeCacheSize(esize);
+    int dsize = app::CBase64Coder::getDecodeCacheSize(esize);
     char* decode = new char[dsize];
-    dsize = irr::CBase64Coder::decode(dest, esize, (irr::u8*)decode);
+    dsize = app::CBase64Coder::decode(dest, esize, (app::u8*)decode);
     printf("decode=%s/%d, encode=%s/%d\n", decode, dsize, dest, esize);
     delete[] dest;
     delete[] decode;

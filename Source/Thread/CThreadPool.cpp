@@ -1,8 +1,8 @@
 ﻿#include "CThreadPool.h"
-#include "IAppLogger.h"
+#include "CLogger.h"
 #include "HAtomicOperator.h"
 
-namespace irr {
+namespace app {
 #if defined(APP_DEBUG)
 static s32 G_ENQUEUE_COUNT = 0;
 static s32 G_DEQUEUE_COUNT = 0;
@@ -32,7 +32,7 @@ void CThreadPool::creatThread(u32 iCount) {
         mWorker[i] = (new CThread());
         mWorker[i]->start(*this);
     }
-    //IAppLogger::log(ELOG_INFO, "CThreadPool::creatThread", "created thereads success, total: [%d]",iCount);
+    //CLogger::log(ELOG_INFO, "CThreadPool::creatThread", "created thereads success, total: [%d]",iCount);
 }
 
 
@@ -61,7 +61,7 @@ void CThreadPool::removeAll() {
 void CThreadPool::run() {
     mMutex.lock();
     ++mActiveCount;
-    IAppLogger::log(ELOG_CRITICAL, "CThreadPool::run", "thread start: %u", CThread::getCurrentThread()->getID());
+    CLogger::log(ELOG_CRITICAL, "CThreadPool::run", "thread start: %u", CThread::getCurrentThread()->getID());
     mMutex.unlock();
 
     SThreadTask* iTask = 0;
@@ -116,7 +116,7 @@ void CThreadPool::run() {
     mMutex.lock();
     --mActiveCount;
     mMutex.unlock();
-    IAppLogger::log(ELOG_CRITICAL, "CThreadPool::run", "thread quit: %u", CThread::getCurrentThread()->getID());
+    CLogger::log(ELOG_CRITICAL, "CThreadPool::run", "thread quit: %u", CThread::getCurrentThread()->getID());
 }
 
 
@@ -131,7 +131,7 @@ void CThreadPool::start() {
     mMutex.unlock();
     creatThread(mThreadCount);
     while(mActiveCount < mThreadCount) {
-        IAppLogger::log(ELOG_CRITICAL, "CThreadPool::start",
+        CLogger::log(ELOG_CRITICAL, "CThreadPool::start",
             "waiting all threads start: %u/%u", mActiveCount, mThreadCount);
         CThread::sleep(10);
     }
@@ -143,7 +143,7 @@ void CThreadPool::stop() {
         return;
     }
     mStatus = ESTATUS_STOPED;
-    IAppLogger::log(ELOG_CRITICAL, "CThreadPool::stop",
+    CLogger::log(ELOG_CRITICAL, "CThreadPool::stop",
         "[active=%u],[threads=%u],[tasks=%u]",
         mActiveCount, mThreadCount, mWaitingTasks);
     while(mActiveCount > 0) {
@@ -151,7 +151,7 @@ void CThreadPool::stop() {
         CThread::sleep(20);
     }
     removeAll();
-    IAppLogger::log(ELOG_CRITICAL, "CThreadPool::stop",
+    CLogger::log(ELOG_CRITICAL, "CThreadPool::stop",
         "threads[%u], tasks[%u]",
         mThreadCount, mWaitingTasks);
 }
@@ -162,7 +162,7 @@ void CThreadPool::join() {
         return;
     }
     mStatus = ESTATUS_JOINING;
-    IAppLogger::log(ELOG_CRITICAL, "CThreadPool::join",
+    CLogger::log(ELOG_CRITICAL, "CThreadPool::join",
         "[active=%u],[threads=%u],[tasks=%u]",
         mActiveCount, mThreadCount, mWaitingTasks);
     while(mActiveCount > 0) {
@@ -171,7 +171,7 @@ void CThreadPool::join() {
     }
     APP_ASSERT(G_ENQUEUE_COUNT == G_DEQUEUE_COUNT);
     removeAll();
-    IAppLogger::log(ELOG_CRITICAL, "CThreadPool::join",
+    CLogger::log(ELOG_CRITICAL, "CThreadPool::join",
         "threads[%u], tasks[%u]",
         mThreadCount, mWaitingTasks);
 }
@@ -255,4 +255,4 @@ bool CThreadPool::addSoleTask(IRunnable* it) {
     return true;
 }
 
-}//irr
+}//app

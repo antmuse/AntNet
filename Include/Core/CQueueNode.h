@@ -3,9 +3,8 @@
 
 
 #include "HConfig.h"
-#include "irrTypes.h"
 
-namespace irr {
+namespace app {
 
 typedef  void* (*AppMallocFunction)(u32);
 typedef  void(*AppFreeFunction)(void*);
@@ -50,7 +49,7 @@ public:
 
     CQueueNode* getPrevious() const;
 
-    c8* getValue() const;
+    s8* getValue() const;
 
     void init();
 
@@ -93,7 +92,7 @@ struct SQueueRingFreelock {
     u32 mSize;										///<node size
     volatile u8 mFlag;								///<User defined flags
     volatile u8 mStatus;							///<node status, see: EFreeLockStatus
-    c8 mData[1];									///<node memory
+    s8 mData[1];									///<node memory
 
     bool isReadable()const {
         return EFLS_READABLE == mStatus;
@@ -141,5 +140,5 @@ struct SQueueRingFreelock {
 };
 
 
-} //namespace irr 
+} //namespace app 
 #endif //APP_CQUEUENODE_H

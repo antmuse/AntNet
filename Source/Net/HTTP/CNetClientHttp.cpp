@@ -1,11 +1,11 @@
 //#include "CNetClientHttp.h"
 //#include "INetEventerHttp.h"
 //#include "IUtility.h"
-//#include "IAppLogger.h"
+//#include "CLogger.h"
 //#include "CNetHttpRequest.h"
 //
 //
-//namespace irr {
+//namespace app {
 //namespace net {
 //
 //CNetClientHttp::CNetClientHttp(CNetServiceTCP* hub) :
@@ -36,7 +36,7 @@
 //    case EHS_SEE_OTHER:
 //    case EHS_FOUND:
 //    {
-//        const core::stringc* loc = mResponse.getHead().getValue(EHHID_LOCATION);
+//        const core::CString* loc = mResponse.getHead().getValue(EHHID_LOCATION);
 //        if(!loc) {
 //            break;
 //        }
@@ -101,7 +101,7 @@
 //
 //s32 CNetClientHttp::onReceive(const CNetAddress& remote, u32 sessionID, void* buffer, s32 size) {
 //    s32 ret = 0;
-//    const c8* pos = mResponse.import((c8*) buffer, size);
+//    const s8* pos = mResponse.import((s8*) buffer, size);
 //    if(!pos) return ret;
 //
 //    if(mResponse.isFull()) {
@@ -109,7 +109,7 @@
 //        //mResponse.clear();
 //    }
 //
-//    ret = (s32) (pos - ((c8*) buffer));
+//    ret = (s32) (pos - ((s8*) buffer));
 //
 //    if(mReceiver) {
 //        //mReceiver->onConnect(sessionID, sock, local, remote);
@@ -147,4 +147,4 @@
 //}
 //
 //}// end namespace net
-//}// end namespace irr
+//}// end namespace app

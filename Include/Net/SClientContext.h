@@ -3,7 +3,7 @@
 
 #include "HNetOperationType.h"
 #include "INetServer.h"
-#include "irrArray.h"
+#include "AppArray.h"
 #include "CNetPacket.h"
 #include "CNetProtocal.h"
 #include "CNetSocket.h"
@@ -17,7 +17,7 @@
 #endif
 
 
-namespace irr {
+namespace app {
 namespace net {
 
 /// Socket contex of each client
@@ -35,11 +35,11 @@ struct SClientContextUDP {
 };
 
 }//namespace net
-}//namespace irr
+}//namespace app
 
 
 #if defined(APP_PLATFORM_WINDOWS)
-namespace irr {
+namespace app {
 namespace net {
 
 ///Socket IO contex
@@ -62,12 +62,12 @@ struct SContextIO {
 };
 
 }// end namespace net
-}// end namespace irr
+}// end namespace app
 
 
 #elif defined( APP_PLATFORM_ANDROID )  || defined( APP_PLATFORM_LINUX )
 
-namespace irr {
+namespace app {
 namespace net {
 
 ///Socket IO contex
@@ -82,7 +82,7 @@ struct SContextIO {
 };
 
 }// end namespace net
-}// end namespace irr
+}// end namespace app
 #endif
 
 #endif //APP_SCLIENTCONTEXT_H

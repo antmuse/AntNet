@@ -72,4 +72,9 @@
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\..\Source\Test\CMakeLists.txt">
+      <Filter>Source</Filter>
+    </Text>
+  </ItemGroup>
 </Project>

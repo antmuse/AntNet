@@ -2,17 +2,17 @@
 #define	APP_CFILEMANAGER_H
 
 #include "HConfig.h"
-#include "path.h"
-#include "irrList.h"
-#include "irrArray.h"
+#include "CString.h"
+#include "AppList.h"
+#include "AppArray.h"
 
-namespace irr {
+namespace app {
 namespace io {
 
 //! An entry in a list of files, can be a folder or a file.
 struct SPathNode {
     u32 mID;
-    io::path mName; //file or path
+    core::CPath mName; //file or path
     SPathNode(const fschar_t* nam) : mID(0), mName(nam) {
     }
     bool operator==(const struct SPathNode& other) const {
@@ -26,11 +26,11 @@ struct SPathNode {
 
 class CPathList {
 public:
-    CPathList(const io::path& workPath) :mWorkPath(workPath) {
+    CPathList(const core::CPath& workPath) :mWorkPath(workPath) {
     }
     ~CPathList() {
     }
-    const io::path& getWorkPath()const {
+    const core::CPath& getWorkPath()const {
         return mWorkPath;
     }
     u32 getCount()const {
@@ -55,25 +55,25 @@ public:
     u32 addNode(const fschar_t* fname, bool isDir);
 
 private:
-    io::path mWorkPath;
-    core::array<SPathNode> mPaths;
-    core::array<SPathNode> mFiles;
+    core::CPath mWorkPath;
+    core::TArray<SPathNode> mPaths;
+    core::TArray<SPathNode> mFiles;
 };
 
 class CFileManager {
 public:
-    static const io::path& getStartWorkPath();
+    static const core::CPath& getStartWorkPath();
 
     //! Returns the string of the current working directory
-    static io::path getWorkPath();
+    static core::CPath getWorkPath();
 
     //! Changes the current Working Directory to the given string.
-    static bool setWorkPath(const io::path& newDirectory);
+    static bool setWorkPath(const core::CPath& newDirectory);
 
 
     CFileManager();
 
-    CFileManager(const io::path& iVal);
+    CFileManager(const core::CPath& iVal);
 
     ~CFileManager();
 
@@ -82,26 +82,26 @@ public:
     }
 
     //! flatten a path and file name for example: "/you/me/../." becomes "/you"
-    io::path& flattenFilename(io::path& directory, const io::path& root) const;
+    core::CPath& flattenFilename(core::CPath& directory, const core::CPath& root) const;
 
     //! Get the relative filename, relative to the given directory
-    io::path getRelativeFilename(const path& filename, const path& directory) const;
+    core::CPath getRelativeFilename(const core::CPath& filename, const core::CPath& directory) const;
 
-    io::path getAbsolutePath(const io::path& filename) const;
+    core::CPath getAbsolutePath(const core::CPath& filename) const;
 
     /**
     * @return the base part of a filename(removed the directory part).
     *  If no directory path is prefixed, the full name is returned.
     */
-    io::path getFileBasename(const io::path& filename, bool keepExtension = true) const;
+    core::CPath getFileBasename(const core::CPath& filename, bool keepExtension = true) const;
 
     //! returns the directory part of a filename, i.e. all until the first
     //! slash or backslash, excluding it. If no directory path is prefixed, a '.'
     //! is returned.
-    io::path getFilePath(const io::path& filename) const;
+    core::CPath getFilePath(const core::CPath& filename) const;
 
     //! determines if a file exists and would be able to be opened.
-    bool existFile(const io::path& filename) const;
+    bool existFile(const core::CPath& filename) const;
 
     /**
     * @brief Creates a list of files and directories in the current working directory
@@ -109,23 +109,23 @@ public:
     */
     CPathList* createFileList(bool readHide = false);
 
-    bool createPath(const io::path& iPath);
+    bool createPath(const core::CPath& iPath);
 
-    void setCurrentPath(const io::path& iVal) {
+    void setCurrentPath(const core::CPath& iVal) {
         mWorkPath = iVal;
     }
 
-    const io::path& getCurrentPath() const {
+    const core::CPath& getCurrentPath() const {
         return mWorkPath;
     }
 
 protected:
-    io::path mWorkPath;
+    core::CPath mWorkPath;
 };
 
 
 } // end namespace io
-} // end namespace irr
+} // end namespace app
 
 #endif //APP_CFILEMANAGER_H
 

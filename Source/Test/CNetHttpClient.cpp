@@ -1,8 +1,8 @@
 #include "CNetHttpClient.h"
 #include "CNetService.h"
-#include "IAppLogger.h"
+#include "CLogger.h"
 
-namespace irr {
+namespace app {
 namespace net {
 
 int on_message_begin(http_parser* iContext) {
@@ -85,12 +85,12 @@ CNetHttpClient::~CNetHttpClient() {
 //Cookie: _ga=GA1.2.1402562334.1587380379; _gid=GA1.2.190891489.1588990983
 //If-None-Match: W/"5da7c8c6-2ebb"
 //If-Modified-Since: Thu, 17 Oct 2019 01:49:58 GMT
-bool CNetHttpClient::request(const c8* url) {
+bool CNetHttpClient::request(const s8* url) {
     if (!mServer || !mURL.set(url)) {
         return false;
     }
     CNetAddress ad(mURL.getPort());
-    core::stringc host;
+    core::CString host;
     mURL.getPath(host);
     mPack.setUsed(0);
     mPack.addBuffer("GET ", (u32)sizeof("GET ") - 1);
@@ -130,7 +130,7 @@ bool CNetHttpClient::request(const c8* url) {
 s32 CNetHttpClient::onTimeout(u32 sessionID,
     const CNetAddress& local, const CNetAddress& remote) {
     s32 ret = 0;
-    IAppLogger::log(ELOG_INFO, "CNetHttpClient::onTimeout", "[%u,%s:%u->%s:%u]",
+    CLogger::log(ELOG_INFO, "CNetHttpClient::onTimeout", "[%u,%s:%u->%s:%u]",
         sessionID,
         local.getIPString(),
         local.getPort(),
@@ -143,7 +143,7 @@ s32 CNetHttpClient::onTimeout(u32 sessionID,
 s32 CNetHttpClient::onLink(u32 sessionID,
     const CNetAddress& local, const CNetAddress& remote) {
     s32 ret = 0;
-    IAppLogger::log(ELOG_INFO, "CNetHttpClient::onLink", "[%u,%s:%u->%s:%u]",
+    CLogger::log(ELOG_INFO, "CNetHttpClient::onLink", "[%u,%s:%u->%s:%u]",
         sessionID,
         local.getIPString(),
         local.getPort(),
@@ -157,7 +157,7 @@ s32 CNetHttpClient::onLink(u32 sessionID,
 s32 CNetHttpClient::onConnect(u32 sessionID,
     const CNetAddress& local, const CNetAddress& remote) {
     s32 ret = 0;
-    IAppLogger::log(ELOG_ERROR, "CNetHttpClient::onConnect", "[%u,%s:%u->%s:%u]",
+    CLogger::log(ELOG_ERROR, "CNetHttpClient::onConnect", "[%u,%s:%u->%s:%u]",
         sessionID,
         local.getIPString(),
         local.getPort(),
@@ -172,7 +172,7 @@ s32 CNetHttpClient::onConnect(u32 sessionID,
 
 
 s32 CNetHttpClient::onDisconnect(u32 sessionID, const CNetAddress& local, const CNetAddress& remote) {
-    IAppLogger::log(ELOG_ERROR, "CNetHttpClient::onDisconnect", "[%u,%s:%u->%s:%u]",
+    CLogger::log(ELOG_ERROR, "CNetHttpClient::onDisconnect", "[%u,%s:%u->%s:%u]",
         sessionID,
         local.getIPString(),
         local.getPort(),
@@ -185,7 +185,7 @@ s32 CNetHttpClient::onDisconnect(u32 sessionID, const CNetAddress& local, const 
 
 s32 CNetHttpClient::onSend(u32 sessionID, void* buffer, s32 size, s32 result) {
     s32 ret = 0;
-    IAppLogger::log(ELOG_ERROR, "CNetHttpClient::onSend", "[%u,%d,%d]",
+    CLogger::log(ELOG_ERROR, "CNetHttpClient::onSend", "[%u,%d,%d]",
         sessionID,
         result,
         size
@@ -198,7 +198,7 @@ s32 CNetHttpClient::onReceive(const CNetAddress& remote, u32 sessionID, void* bu
     APP_ASSERT(size > 0);
 
     if (HPE_OK != mParser.http_errno) {
-        IAppLogger::log(ELOG_ERROR, "CNetHttpClient::onReceive", "[parser ecode=%u]", mParser.http_errno);
+        CLogger::log(ELOG_ERROR, "CNetHttpClient::onReceive", "[parser ecode=%u]", mParser.http_errno);
         return 0;
     }
     if (mPack.getSize() > 0) {
@@ -206,9 +206,9 @@ s32 CNetHttpClient::onReceive(const CNetAddress& remote, u32 sessionID, void* bu
         u64 parsed = http_parser_execute(&mParser, &mSets, mPack.getConstPointer(), mPack.getSize());
         mPack.clear((u32)parsed);
     } else {
-        s32 parsed = (s32)http_parser_execute(&mParser, &mSets, static_cast<const c8*>(buffer), size);
+        s32 parsed = (s32)http_parser_execute(&mParser, &mSets, static_cast<const s8*>(buffer), size);
         if (parsed < size) {
-            mPack.addBuffer(static_cast<const c8*>(buffer) + parsed, size - parsed);
+            mPack.addBuffer(static_cast<const s8*>(buffer) + parsed, size - parsed);
         }
     }
     return 0;
@@ -216,4 +216,4 @@ s32 CNetHttpClient::onReceive(const CNetAddress& remote, u32 sessionID, void* bu
 
 
 }//namespace net
-}//namespace irr
+}//namespace app

@@ -11,7 +11,7 @@
 
 
 #if defined(APP_PLATFORM_WINDOWS)
-namespace irr {
+namespace app {
 
 CEventPoller::CEventPoller() {
     APP_ASSERT(sizeof(SEvent::mKey) == sizeof(ULONG_PTR));
@@ -129,13 +129,13 @@ bool CEventPoller::postEvent(SEvent& iEvent) {
 }
 
 
-} //namespace irr
+} //namespace app
 
 
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
 
 
-namespace irr {
+namespace app {
 
 CEventPoller::CEventPoller() {
     APP_ASSERT(sizeof(SEvent) == sizeof(epoll_event));
@@ -205,6 +205,6 @@ bool CEventPoller::postEvent(SEvent& iEvent) {
 }
 
 
-} //namespace irr
+} //namespace app
 
 #endif

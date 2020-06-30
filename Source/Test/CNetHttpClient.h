@@ -2,12 +2,12 @@
 #define APP_CNETHTTPCLIENT_H
 
 #include "http_parser.h"
-#include "irrList.h"
+#include "AppList.h"
 #include "INetEventer.h"
 #include "CNetPacket.h"
 #include "CNetHttpURL.h"
 
-namespace irr {
+namespace app {
 namespace net {
 class CNetServiceTCP;
 
@@ -21,7 +21,7 @@ public:
         mServer = mServer ? mServer : hub;
     }
 
-    bool request(const c8* url);
+    bool request(const s8* url);
 
     virtual INetEventer* onAccept(const CNetAddress& local)override {
         return this;
@@ -53,6 +53,6 @@ private:
 };
 
 }//namespace net
-}//namespace irr
+}//namespace app
 
 #endif //APP_CNETHTTPCLIENT_H

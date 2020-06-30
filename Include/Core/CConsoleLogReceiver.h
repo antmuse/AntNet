@@ -8,23 +8,20 @@
 #ifndef ANTMUSE_CCONSOLELOGRECEIVER_H
 #define	ANTMUSE_CCONSOLELOGRECEIVER_H
 
-#include "HConfig.h"
-#include "IAntLogReceiver.h"
+#include "ILogReceiver.h"
 
+namespace app {
 
-
-namespace irr {
-
-class CConsoleLogReceiver : public IAntLogReceiver {
+class CConsoleLogReceiver : public ILogReceiver {
 public:
     CConsoleLogReceiver();
     ~CConsoleLogReceiver();
-    virtual bool log(ELogLevel iLevel, const c8* timestr, const c8* iSender, const c8* iMessage)override;
+    virtual bool log(ELogLevel iLevel, const s8* timestr, const s8* iSender, const s8* iMessage)override;
     virtual bool log(ELogLevel iLevel, const wchar_t* timestr, const wchar_t* iSender, const wchar_t* iMessage)override;
 };
 
 
-}//namespace irr 
+}//namespace app 
 
 #endif	/* ANTMUSE_CCONSOLELOGRECEIVER_H */
 

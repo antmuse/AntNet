@@ -1,17 +1,17 @@
 #include "CNetHttpRequest.h"
 #include "HNetConfig.h"
-#include "irrMath.h"
+#include "AppMath.h"
 #include "IUtility.h"
 #include "CNetPacket.h"
 
 
-namespace irr {
+namespace app {
 namespace net {
 
 CNetHttpRequest::CNetHttpRequest() :
     mHttpVersion("1.1"),
     mMethod("GET") {
-    core::stringc tmp("Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1667.0 Safari/537.36");
+    core::CString tmp("Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1667.0 Safari/537.36");
     mHead.setValue(EHHID_USER_AGENT, tmp);
     tmp = "*/*";
     mHead.setValue(EHRID_ACCEPT, tmp);
@@ -47,4 +47,4 @@ void CNetHttpRequest::clear() {
 }
 
 } //namespace net
-} //namespace irr
+} //namespace app

@@ -2,7 +2,7 @@
 #include "HConfig.h"
 #include "CSpinlock.h"
 
-namespace irr {
+namespace app {
 namespace core {
 
 class CSpeedLimiter {
@@ -40,4 +40,4 @@ private:
 };
 
 }//namespace core 
-}//namespace irr 
+}//namespace app 

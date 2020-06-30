@@ -3,9 +3,9 @@
 
 #include "HConfig.h"
 #include <stdarg.h>
-#include "path.h"
+#include "CString.h"
 
-namespace irr {
+namespace app {
 namespace io {
 
 
@@ -33,10 +33,10 @@ public:
     s64 getPos() const;
 
 
-    bool openFile(const io::path& fileName);
+    bool openFile(const core::CPath& fileName);
 
 
-    const io::path& getFileName() const {
+    const core::CPath& getFileName() const {
         return mFilename;
     }
 
@@ -47,7 +47,7 @@ public:
     void close();
 
 protected:
-    io::path mFilename;
+    core::CPath mFilename;
     FILE* mFile;
     s64 mFileSize;
 
@@ -58,7 +58,7 @@ private:
 
 
 } // end namespace io
-} // end namespace irr
+} // end namespace app
 
 #endif //APP_CFILEREADER_H
 

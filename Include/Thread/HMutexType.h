@@ -1,7 +1,7 @@
 #ifndef APP_HMUTEXTYPE_H
 #define APP_HMUTEXTYPE_H
 
-namespace irr {
+namespace app {
 
 ///Mutex type defines.
 enum EMutexType {
@@ -14,6 +14,6 @@ enum EMutexType {
     EMT_NO_RECURSIVE
 };
 
-} //namespace irr
+} //namespace app
 
 #endif //APP_HMUTEXTYPE_H

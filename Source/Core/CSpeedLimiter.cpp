@@ -1,15 +1,15 @@
 #include "CSpeedLimiter.h"
-#include "IAppTimer.h"
+#include "CTimer.h"
 #include "HAtomicOperator.h"
 
-namespace irr {
+namespace app {
 namespace core {
 
 
 CSpeedLimiter::CSpeedLimiter() :
     mFrequency(0x0FFFFFFF),
     mCount(0),
-    mTime(IAppTimer::getRelativeTime()) {
+    mTime(CTimer::getRelativeTime()) {
 }
 
 
@@ -29,7 +29,7 @@ u32 CSpeedLimiter::getLimitTime() {
     }
     if (mLock.trylock()) {
         u32 ret = 0;
-        const s64 curr = IAppTimer::getRelativeTime();
+        const s64 curr = CTimer::getRelativeTime();
         const s64 sub = curr - mTime;
         if (sub >= 1000) {
             AppAtomicFetchSet(curr, &mTime);
@@ -45,4 +45,4 @@ u32 CSpeedLimiter::getLimitTime() {
 
 
 }//namespace core 
-}//namespace irr 
+}//namespace app 

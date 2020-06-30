@@ -1,14 +1,14 @@
 #include "CNetHttpsClient.h"
 #include "CNetService.h"
 #include "CThread.h"
-#include "IAppLogger.h"
+#include "CLogger.h"
 #include "CNetPacket.h"
 #include "CNetServerAcceptor.h"
 #include "CNetEchoServer.h"
 #include "HAtomicOperator.h"
 
 
-namespace irr {
+namespace app {
 namespace net {
 
 //#define SERVER_NAME "www.baidu.com"
@@ -16,7 +16,7 @@ namespace net {
 //模拟普通请求
 //#define GET_REQUEST "GET / HTTP/1.0\r\n\r\n"
 //模拟微信请求
-c8* GET_REQUEST =
+s8* GET_REQUEST =
 "GET /party/qGERf/activityDetail?r=it HTTP/1.1\r\n"
 "Host: lxuet.ljbao.net\r\n"
 "Connection: keep-alive\r\n"
@@ -128,7 +128,7 @@ CNetHttpsClient::~CNetHttpsClient() {
 s32 CNetHttpsClient::onLink(u32 sessionID,
     const CNetAddress& local, const CNetAddress& remote) {
     s32 ret = 0;
-    IAppLogger::log(ELOG_ERROR, "CNetHttpsClient::onLink", "[%u,%s:%u->%s:%u]",
+    CLogger::log(ELOG_ERROR, "CNetHttpsClient::onLink", "[%u,%s:%u->%s:%u]",
         sessionID,
         local.getIPString(),
         local.getPort(),
@@ -185,7 +185,7 @@ s32 CNetHttpsClient::onConnect(u32 sessionID,
     mPacket.setUsed(0);
     mSession = sessionID;
 
-    IAppLogger::log(ELOG_INFO, "CNetHttpsClient::onConnect", "[%u,%s:%u->%s:%u]",
+    CLogger::log(ELOG_INFO, "CNetHttpsClient::onConnect", "[%u,%s:%u->%s:%u]",
         sessionID,
         local.getIPString(),
         local.getPort(),
@@ -206,7 +206,7 @@ s32 CNetHttpsClient::sendBuffer(const void* buf, s32 len) {
         ret = mHub->send(mSession, buf, len);
     }
     if(len != ret) {
-        IAppLogger::log(ELOG_INFO, "CNetHttpsClient::send", "fail");
+        CLogger::log(ELOG_INFO, "CNetHttpsClient::send", "fail");
     }
     return ret;
 }
@@ -217,7 +217,7 @@ s32 CNetHttpsClient::onDisconnect(u32 sessionID,
     mbedtls_ssl_session_reset(&ssl);
     s32 ret = 0;
     mPacket.setUsed(0);
-    IAppLogger::log(ELOG_INFO, "CNetHttpsClient::onDisconnect", "[%u,%s:%u->%s:%u]",
+    CLogger::log(ELOG_INFO, "CNetHttpsClient::onDisconnect", "[%u,%s:%u->%s:%u]",
         sessionID,
         local.getIPString(),
         local.getPort(),
@@ -229,7 +229,7 @@ s32 CNetHttpsClient::onDisconnect(u32 sessionID,
         mSession = mHub->connect(remote, this);
         if(0 == mSession) {
             APP_ASSERT(0);
-            IAppLogger::log(ELOG_ERROR, "CNetHttpsClient::onDisconnect", "[can't got session now-----]");
+            CLogger::log(ELOG_ERROR, "CNetHttpsClient::onDisconnect", "[can't got session now-----]");
         }
     }
     return ret;
@@ -238,7 +238,7 @@ s32 CNetHttpsClient::onDisconnect(u32 sessionID,
 
 s32 CNetHttpsClient::onSend(u32 sessionID, void* buffer, s32 size, s32 result) {
     s32 ret = 0;
-    IAppLogger::log(ELOG_INFO, "CNetHttpsClient::onSend", "[%u],result=%d,size=%d",
+    CLogger::log(ELOG_INFO, "CNetHttpsClient::onSend", "[%u],result=%d,size=%d",
         sessionID, result, size);
     return ret;
 }
@@ -246,7 +246,7 @@ s32 CNetHttpsClient::onSend(u32 sessionID, void* buffer, s32 size, s32 result) {
 
 s32 CNetHttpsClient::onReceive(const CNetAddress& remote, u32 sessionID, void* buffer, s32 size) {
     APP_ASSERT(mSession == sessionID);
-    //IAppLogger::log(ELOG_INFO, "CNetHttpsClient::onReceive", "[%u],size=%d", sessionID, size);
+    //CLogger::log(ELOG_INFO, "CNetHttpsClient::onReceive", "[%u],size=%d", sessionID, size);
     s32 ret;
     mPacket.addBuffer(buffer, size);
     if(mHandshake) {
@@ -269,7 +269,7 @@ s32 CNetHttpsClient::onReceive(const CNetAddress& remote, u32 sessionID, void* b
             } else {
                 printf(" ok\n");
             }
-            //IAppLogger::log(ELOG_INFO, "CNetHttpsClient::onReceive", "ssl.size=%llu", ssl.in_left);
+            //CLogger::log(ELOG_INFO, "CNetHttpsClient::onReceive", "ssl.size=%llu", ssl.in_left);
 
             //request
             u64 len = strlen(GET_REQUEST);
@@ -284,7 +284,7 @@ s32 CNetHttpsClient::onReceive(const CNetAddress& remote, u32 sessionID, void* b
     }
 
 
-    c8 buf[1024];
+    s8 buf[1024];
     //response
     do {
         ret = mbedtls_ssl_read(&ssl, (u8*)buf, sizeof(buf) - 1);
@@ -308,7 +308,7 @@ s32 CNetHttpsClient::onReceive(const CNetAddress& remote, u32 sessionID, void* b
 s32 CNetHttpsClient::onTimeout(u32 sessionID,
     const CNetAddress& local, const CNetAddress& remote) {
     s32 ret = 0;
-    IAppLogger::log(ELOG_INFO, "CNetHttpsClient::onTimeout", "[%u,%s:%u->%s:%u]",
+    CLogger::log(ELOG_INFO, "CNetHttpsClient::onTimeout", "[%u,%s:%u->%s:%u]",
         sessionID,
         local.getIPString(),
         local.getPort(),
@@ -319,4 +319,4 @@ s32 CNetHttpsClient::onTimeout(u32 sessionID,
 }
 
 }//namespace net
-}//namespace irr
+}//namespace app

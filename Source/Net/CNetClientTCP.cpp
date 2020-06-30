@@ -1,12 +1,12 @@
 #include "CNetClientTCP.h"
 #include "CNetUtility.h"
 #include "HAtomicOperator.h"
-#include "IAppLogger.h"
+#include "CLogger.h"
 #include "CNetPacket.h"
 #include "CThread.h"
 
 
-namespace irr {
+namespace app {
 namespace net {
 
 CNetClientTCP::CNetClientTCP() :
@@ -100,7 +100,7 @@ bool CNetClientTCP::connect() {
         return true;
     }
 
-    IAppLogger::log(ELOG_CRITICAL, "CNetClientTCP::connect", "can't connect with server: [%s:%d] [ecode=%d]",
+    CLogger::log(ELOG_CRITICAL, "CNetClientTCP::connect", "can't connect with server: [%s:%d] [ecode=%d]",
         mAddressRemote.getIPString(), mAddressRemote.getPort(),
         mConnector.getError());
     //mThread->sleep(5000);
@@ -115,7 +115,7 @@ void CNetClientTCP::resetSocket() {
     if(mConnector.openTCP()) {
         mConnector.setReceiveOvertime(1000);
     } else {
-        IAppLogger::log(ELOG_ERROR, "CNetClientTCP::resetSocket", "create socket fail");
+        CLogger::log(ELOG_ERROR, "CNetClientTCP::resetSocket", "create socket fail");
     }
 }
 
@@ -141,7 +141,7 @@ bool CNetClientTCP::clearError() {
         return false;
     }//switch
 
-    IAppLogger::log(ELOG_ERROR, "CNetClientTCP::clearError", "socket error: %d", ecode);
+    CLogger::log(ELOG_ERROR, "CNetClientTCP::clearError", "socket error: %d", ecode);
     return false;
 }
 
@@ -164,7 +164,7 @@ bool CNetClientTCP::start(bool useThread) {
         mThread = new CThread();
         mThread->start(*this);
     }
-    IAppLogger::log(ELOG_INFO, "CNetClientTCP::start", "success");
+    CLogger::log(ELOG_INFO, "CNetClientTCP::start", "success");
     return true;
 }
 
@@ -182,14 +182,14 @@ bool CNetClientTCP::stop() {
     }
     mStatus = ENET_INVALID;
     mRunning = 0;
-    IAppLogger::log(ELOG_INFO, "CNetClientTCP::stop", "success");
+    CLogger::log(ELOG_INFO, "CNetClientTCP::stop", "success");
     return true;
 }
 
 
 s32 CNetClientTCP::send(const void* iData, s32 iLength) {
     if(1 != mRunning || !iData) {
-        IAppLogger::log(ELOG_ERROR, "CNetClientTCP::send",
+        CLogger::log(ELOG_ERROR, "CNetClientTCP::send",
             "status: %d", mStatus);
         return 0;
     }
@@ -199,5 +199,5 @@ s32 CNetClientTCP::send(const void* iData, s32 iLength) {
 
 
 }// end namespace net
-}// end namespace irr
+}// end namespace app
 

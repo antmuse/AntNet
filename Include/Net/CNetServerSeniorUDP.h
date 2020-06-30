@@ -8,8 +8,8 @@
 
 
 #include "INetServer.h"
-#include "irrString.h"
-#include "irrMap.h"
+#include "CString.h"
+#include "AppMap.h"
 #include "IRunnable.h"
 #include "SClientContext.h"
 #include "CThread.h"
@@ -18,7 +18,7 @@
 
 
 
-namespace irr {
+namespace app {
 namespace net {
 /**
 *@class CNetServerSeniorUDP
@@ -37,7 +37,7 @@ public:
         mReceiver = it;
     }
 
-    virtual s32 sendBuffer(void* iUserPointer, const c8* iData, s32 iLength)override;
+    virtual s32 sendBuffer(void* iUserPointer, const s8* iData, s32 iLength)override;
 
     virtual void run();
 
@@ -92,7 +92,7 @@ private:
     u32 mMaxClientCount;
     u64 mCurrentTime;
     u64 mOverTimeInterval;
-    core::map<CNetAddress::ID, SClientContextUDP*>  mAllClient;          ///<All the clients's socket context
+    core::TMap<CNetAddress::ID, SClientContextUDP*>  mAllClient;          ///<All the clients's socket context
     CThread* mThread;								                         ///<busy worker
     INetEventer* mReceiver;
     CNetAddress mAddressRemote;
@@ -103,6 +103,6 @@ private:
 
 
 }// end namespace net
-}// end namespace irr
+}// end namespace app
 
 #endif //APP_CNETSERVERSENIORUDP_H

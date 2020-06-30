@@ -18,7 +18,7 @@
 
 #include "HHashFunctions.h"
 
-namespace irr {
+namespace app {
 namespace core {
 
 u32 AppHashRS(const void* buf, u64 len) {
@@ -153,4 +153,4 @@ u32 AppHashAP(const void* buf, u64 len) {
 
 
 } //namespace core
-} //namespace irr
+} //namespace app

@@ -3,14 +3,13 @@
 
 #include <stdlib.h>
 #include "HConfig.h"
-#include "irrTypes.h"
 
 // APP_MEMORY_POOL_MAX_FREE_PAGES must be > 1
 #define APP_MEMORY_POOL_MAX_FREE_PAGES 4
 
 //#define APP_DISABLE_MEMORY_POOL
 
-namespace irr {
+namespace app {
 
 /// Very fast memory pool for allocating and deallocating structures that don't have constructors or destructors.
 /// Contains a list of pages, each of which has an array of the user structures
@@ -294,7 +293,7 @@ typedef CMemoryPool<u8[2048]> CMemoryPool2048;
 typedef CMemoryPool<u8[4096]> CMemoryPool4096;
 typedef CMemoryPool<u8[8192]> CMemoryPool8192;
 typedef CMemoryPool<u8[10240]> CMemoryPool10K;
-}//namespace irr
+}//namespace app
 
 
 #endif // ANTMUSE_CMEMORYPOOL_H

@@ -9,7 +9,7 @@
 #define  APP_CTHREAD_H
 
 #include "HConfig.h"
-#include "irrString.h"
+#include "CString.h"
 #include "IRunnable.h"
 #include "CMutex.h"
 #include "CThreadEvent.h"
@@ -21,7 +21,7 @@
 #include <signal.h>
 #endif
 
-namespace irr {
+namespace app {
 
 ///A callable function pointer for threads.
 typedef void(*AppCallable)(void*);
@@ -157,7 +157,7 @@ public:
 
 
     /// Creates a named thread. Call start() to start it.
-    CThread(const core::stringc& iName);
+    CThread(const core::CString& iName);
 
 
     /// Destructor
@@ -177,13 +177,13 @@ public:
 
 
     /// Returns the name of the thread.
-    const core::stringc& getName() const {
+    const core::CString& getName() const {
         return mName;
     }
 
 
     /// Sets the name of the thread.
-    void setName(const core::stringc& iName);
+    void setName(const core::CString& iName);
 
 
     /**
@@ -384,7 +384,7 @@ private:
     s32 mPolicy;
     s32 mStackSize;
     TID mThreadID;
-    core::stringc mName;
+    core::CString mName;
     CThreadEvent mEvent;
     SThreadTask mTask;
 
@@ -443,7 +443,7 @@ private:
 
 
 
-} //end namespace irr
+} //end namespace app
 
 
 #endif  //APP_CTHREAD_H

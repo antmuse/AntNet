@@ -7,27 +7,26 @@
 #ifndef APP_CFILELOGRECEIVER_H
 #define	APP_CFILELOGRECEIVER_H
 
-#include "HConfig.h"
-#include "IAntLogReceiver.h"
+#include "ILogReceiver.h"
 #include "CFileWriter.h"
 
 
-namespace irr {
+namespace app {
 
-class CFileLogReceiver : public IAntLogReceiver {
+class CFileLogReceiver : public ILogReceiver {
 public:
     CFileLogReceiver();
     ~CFileLogReceiver();
 
-    //bool log(const c8* sender, const fschar_t* message, ELogLevel level);
-    virtual bool log(ELogLevel iLevel, const c8* timestr, const c8* iSender, const c8* iMessage)override;
+    //bool log(const s8* sender, const fschar_t* message, ELogLevel level);
+    virtual bool log(ELogLevel iLevel, const s8* timestr, const s8* iSender, const s8* iMessage)override;
     virtual bool log(ELogLevel iLevel, const wchar_t* timestr, const wchar_t* iSender, const wchar_t* iMessage)override;
 
 private:
     io::CFileWriter mFile;
 };
 
-}//namespace irr 
+}//namespace app 
 
 #endif	/* APP_CFILELOGRECEIVER_H */
 

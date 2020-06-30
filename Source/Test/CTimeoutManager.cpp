@@ -1,7 +1,7 @@
 #include "CTimeoutManager.h"
-#include "IAppTimer.h"
+#include "CTimer.h"
 
-namespace irr {
+namespace app {
 
 
 CTimeoutManager::CTimeoutManager(u32 step) :
@@ -16,11 +16,11 @@ CTimeoutManager::~CTimeoutManager() {
 
 
 void CTimeoutManager::run() {
-    s64 last = IAppTimer::getTime();
+    s64 last = CTimer::getTime();
     s64 curr = last;
     for(; mRunning;) {
-        mTimer.update(IAppTimer::getTime());
-        curr = IAppTimer::getTime();
+        mTimer.update(CTimer::getTime());
+        curr = CTimer::getTime();
         last = curr - last;
         if(last < mStep) {
             CThread::sleep(mStep - last);
@@ -33,7 +33,7 @@ void CTimeoutManager::run() {
 void CTimeoutManager::start() {
     if(!mRunning) {
         mRunning = true;
-        mTimer.setCurrent(IAppTimer::getTime());
+        mTimer.setCurrent(CTimer::getTime());
         mThread.start(*this);
     }
 }
@@ -49,4 +49,4 @@ void CTimeoutManager::stop() {
 
 
 
-}//namespace irr
+}//namespace app

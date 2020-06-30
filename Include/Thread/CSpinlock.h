@@ -1,9 +1,9 @@
 #ifndef APP_CSPINLOCK_H
 #define APP_CSPINLOCK_H
 
-#include "irrTypes.h"
+#include "HConfig.h"
 
-namespace irr {
+namespace app {
 
 /**
 * @brief a spinlock base on atomic operations.
@@ -54,6 +54,6 @@ private:
 };
 
 
-} //namespace irr
+} //namespace app
 
 #endif //APP_CSPINLOCK_H

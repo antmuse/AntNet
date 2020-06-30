@@ -1,12 +1,12 @@
 #ifndef APP_CNETSERVERNATPUNCHER_H
 #define APP_CNETSERVERNATPUNCHER_H
 
-#include "irrMap.h"
+#include "AppMap.h"
 #include "INetServer.h"
 #include "IRunnable.h"
 #include "CNetSocket.h"
 
-namespace irr {
+namespace app {
 class CThread;
 
 namespace net {
@@ -39,8 +39,8 @@ private:
         CNetAddress mAddress;
     };
 
-    const core::map<CNetAddress::ID, SClientNode*>::Node* getAnyRemote(CNetAddress::ID& my)const;
-    const core::map<CNetAddress::ID, SClientNode*>::Node* getRemote(CNetAddress::ID& my)const;
+    const core::TMap<CNetAddress::ID, SClientNode*>::Node* getAnyRemote(CNetAddress::ID& my)const;
+    const core::TMap<CNetAddress::ID, SClientNode*>::Node* getRemote(CNetAddress::ID& my)const;
     void checkTimeout();
     void removeAllClient();
     bool initialize();
@@ -50,7 +50,7 @@ private:
     bool mRunning;                  ///<True if server started, else false
     u32 mOverTimeInterval;
     u64 mCurrentTime;
-    core::map<CNetAddress::ID, SClientNode*>  mAllClient;
+    core::TMap<CNetAddress::ID, SClientNode*>  mAllClient;
     CNetSocket mConnector;
     CNetAddress mAddressRemote;
     CNetAddress mAddressLocal;
@@ -59,6 +59,6 @@ private:
 
 
 } //namespace net
-} //namespace irr
+} //namespace app
 
 #endif //APP_CNETSERVERNATPUNCHER_H

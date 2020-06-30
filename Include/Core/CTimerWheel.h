@@ -4,7 +4,7 @@
 #include "CQueueNode.h"
 #include "CSpinlock.h"
 
-namespace irr {
+namespace app {
 
 //32bit = 8+6*4;  slot0=8bits, slot1 & slot2 & slot3 & slot4 = 6bits.
 #define APP_TIME_SLOT_BITS		    6
@@ -125,6 +125,6 @@ private:
     CQueueNode mSlot_4[APP_TIME_SLOT_SIZE];
 };
 
-}//namespace irr
+}//namespace app
 
 #endif //APP_CTIMERWHEEL_H
