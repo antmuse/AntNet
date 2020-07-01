@@ -42,7 +42,7 @@ public:
     * a wait() successfully returns if ture, else not reset.
     *@return true if success, else false.
     */
-    bool init(const fschar_t* iName, bool autoReset);
+    bool init(const tchar* iName, bool autoReset);
 
     /**
     *@brief Open an existing event.
@@ -50,7 +50,7 @@ public:
     *@param inherit The inheritance option of event.
     *@return true if success, else false.
     */
-    bool open(const fschar_t* iName, bool inherit);
+    bool open(const tchar* iName, bool inherit);
 
 
     /// Destructor

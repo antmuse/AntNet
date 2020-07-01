@@ -47,6 +47,10 @@
 namespace app {
 namespace core {
 
+inline s32 AppIsSpace(s32 c) {
+    return c == ' ' || c == '\f' || c == '\n' || c == '\r' || c == '\t' || c == '\v';
+}
+
 core::CWString APP_LOCALE_DECIMAL_POINTS(L".");
 
 
@@ -313,7 +317,7 @@ u32 AppCopyWord(s8* iOutBuffer, const s8* const iStart, u32 outBufLength, const 
     }
     u32 i = 0;
     while(iStart[i]) {
-        if(core::isspace(iStart[i]) || &(iStart[i]) == iEnd) {
+        if(core::AppIsSpace(iStart[i]) || &(iStart[i]) == iEnd) {
             break;
         }
         ++i;
@@ -329,11 +333,11 @@ u32 AppCopyWord(s8* iOutBuffer, const s8* const iStart, u32 outBufLength, const 
 
 const s8* AppGoFirstWord(const s8* iStart, const s8* const iEnd, bool acrossNewlines) {
     if(acrossNewlines) {
-        while((iStart < iEnd) && core::isspace(*iStart)) {
+        while((iStart < iEnd) && core::AppIsSpace(*iStart)) {
             ++iStart;
         }
     } else {
-        while((iStart < iEnd) && core::isspace(*iStart) && (*iStart != '\n')) {
+        while((iStart < iEnd) && core::AppIsSpace(*iStart) && (*iStart != '\n')) {
             ++iStart;
         }
     }
@@ -342,53 +346,10 @@ const s8* AppGoFirstWord(const s8* iStart, const s8* const iEnd, bool acrossNewl
 
 
 const s8* AppGoNextWord(const s8* iStart, const s8* const iEnd, bool acrossNewlines) {
-    while((iStart < iEnd) && !core::isspace(*iStart)) {
+    while((iStart < iEnd) && !core::AppIsSpace(*iStart)) {
         ++iStart;
     }
     return AppGoFirstWord(iStart, iEnd, acrossNewlines);
-}
-
-
-bool AppCreatePath(const core::CPath& iPath) {
-    bool ret = true;
-#if defined(APP_PLATFORM_WINDOWS)
-    core::CPath realpath;
-    core::CPath directory(APP_STR(".\\"));
-    core::splitFilename(iPath, &realpath);
-    realpath.replace(APP_STR('\\'), APP_STR('/'));
-    s32 start = 0;
-    s32 end = realpath.size();
-    while(start < end) {
-        s32 pos = realpath.findNext(APP_STR('/'), start);
-        pos = (pos > 0 ? pos : end - 1);
-        directory += realpath.subString(start, pos - start);
-        directory.append(APP_STR('\\'));
-        start = pos + 1;
-        if(::PathFileExists(directory.c_str())) {
-            continue;
-        }
-        if(FALSE == ::CreateDirectory(directory.c_str(), 0)) {
-            ret = false;
-            break;
-        }
-    }
-#elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)
-    //CEngine::getInstance().get->add(iPath.c_str());
-    DIR * pDirect = opendir(iPath.c_str());
-    if(0 == pDirect) {
-        if(0 == ::mkdir(iPath.c_str(), 0777)) {
-            //CLogger::logCritical("IUtility::createPath", "new path=%s", iPath.c_str());
-            //CEngine::mPrinter->addW(L"created new path");
-        } else {
-            ret = false;
-            //CEngine::mPrinter->addW(L"path create error");
-        }
-    } else {
-        ::closedir(pDirect);
-        //CEngine::mPrinter->addW(L"Old path already there");
-    }
-#endif
-    return ret;
 }
 
 ///**
@@ -404,7 +365,7 @@ bool AppCreatePath(const core::CPath& iPath) {
 //    if (h != INVALID_HANDLE_VALUE) {
 //        do {
 //            if (!(strcmp(info.cFileName, ".") == 0 || strcmp(info.cFileName, "..") == 0)) {
-//                fileList.push_back(info.cFileName);
+//                fileList.pushBack(info.cFileName);
 //            }
 //        } while (FindNextFile(h, &info));
 //        FindClose(h);
@@ -421,7 +382,7 @@ bool AppCreatePath(const core::CPath& iPath) {
 //                continue;
 //            }
 //            if (dir->d_type == DT_DIR) continue;
-//            fileList.push_back(dir->d_name);
+//            fileList.pushBack(dir->d_name);
 //        }
 //        closedir(d);
 //    }

@@ -247,9 +247,9 @@ u32 CNetPacket::readString(core::TArray<s8>& out) const {
     }
     out.reallocate(nlength + sizeof(s8));
     ::memcpy(out.pointer(), mCurrent, nlength);
-    out.set_used(nlength);
+    out.setUsed(nlength);
     mCurrent += nlength;
-    out.push_back('\0');
+    out.pushBack('\0');
     return out.size();
 }
 

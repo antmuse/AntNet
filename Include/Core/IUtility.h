@@ -12,7 +12,6 @@
 #include "HConfig.h"
 #include "CString.h"
 #include "fast_atof.h"
-#include "coreutil.h"
 
 namespace app {
 namespace core {
@@ -379,8 +378,6 @@ const s8* AppGoNextFlag(const s8* iBuf, const s8* const iEnd, const s8 ichar);
 *@brief skip the codes that marked with ichar & ichar2
 */
 const s8* AppSkipFlag(const s8* iStart, const s8* const iEnd, const s8 leftFlag, const s8 rightFlag);
-
-bool AppCreatePath(const core::CPath& iPath);
 
 
 APP_INLINE static bool AppCharEquals(const s8 in, const s8 smallChar) {

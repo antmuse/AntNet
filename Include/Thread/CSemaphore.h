@@ -48,7 +48,7 @@ public:
     *@param inherit The inheritance option of semaphore.
     *@return true if success, else false.
     */
-    bool open(fschar_t* iName, bool inherit);
+    bool open(tchar* iName, bool inherit);
 
 
     /**
@@ -58,7 +58,7 @@ public:
     *@param max The maximum value of the semaphore, must be greater than zero.
     *@return true if success, else false.
     */
-    bool init(fschar_t* iName, s32 initValue, s32 max);
+    bool init(tchar* iName, s32 initValue, s32 max);
 
 
     /**

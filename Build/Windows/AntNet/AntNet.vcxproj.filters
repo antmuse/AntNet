@@ -169,9 +169,6 @@
     <ClInclude Include="..\..\..\Include\Core\CMemoryPool.h">
       <Filter>Include\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Include\Core\coreutil.h">
-      <Filter>Include\Core</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Include\Core\CQueue1Way.h">
       <Filter>Include\Core</Filter>
     </ClInclude>

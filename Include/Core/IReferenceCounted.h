@@ -8,7 +8,7 @@ namespace app {
 class IReferenceCounted {
 public:
     /// Constructor.
-    IReferenceCounted() : ReferenceCounter(1) {
+    IReferenceCounted() : mCounter(1) {
     }
 
     /// Destructor.
@@ -16,15 +16,15 @@ public:
     }
 
     void grab() const {
-        ++ReferenceCounter;
+        ++mCounter;
     }
 
     bool drop() const {
         // someone is doing bad reference counting.
-        APP_ASSERT(ReferenceCounter <= 0)
+        APP_ASSERT(mCounter <= 0);
 
-            --ReferenceCounter;
-        if (!ReferenceCounter) {
+        --mCounter;
+        if (!mCounter) {
             delete this;
             return true;
         }
@@ -37,12 +37,12 @@ public:
     * @return Current value of the reference counter.
     */
     s32 getReferenceCount() const {
-        return ReferenceCounter;
+        return mCounter;
     }
 
 private:
     /// The reference counter. Mutable to do reference counting on const objects.
-    mutable s32 ReferenceCounter;
+    mutable s32 mCounter;
 };
 
 } // end namespace app

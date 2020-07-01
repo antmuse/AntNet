@@ -192,7 +192,7 @@ void CNetServerAcceptor::removeAll() {
     for (u32 i = 0; i < mAllWaiter.size(); ++i) {
         delete mAllWaiter[i];
     }
-    mAllWaiter.set_used(0);
+    mAllWaiter.setUsed(0);
     mAcceptCount = 0;
 }
 
@@ -252,7 +252,7 @@ bool CNetServerAcceptor::postAccept() {
             CLogger::log(ELOG_ERROR, "CNetServerAcceptor::postAccept", "post accpet fail, id: [%d]", id);
             return false;
         }
-        mAllWaiter.push_back(waiter);
+        mAllWaiter.pushBack(waiter);
     }
     return true;
 }
@@ -592,7 +592,7 @@ void CNetServerAcceptor::removeAllServer() {
 
 
 void CNetServerAcceptor::addServer(CNetServiceTCP* it) {
-    mService.push_back(it);
+    mService.pushBack(it);
 }
 
 

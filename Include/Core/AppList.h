@@ -141,7 +141,7 @@ public:
 
         SKListNode* node = other.First;
         while (node) {
-            push_back(node->Element);
+            pushBack(node->Element);
             node = node->Next;
         }
     }
@@ -182,7 +182,7 @@ public:
 
     //! Adds an element at the end of the TList.
     /** \param element Element to add to the TList. */
-    void push_back(const T& element) {
+    void pushBack(const T& element) {
         SKListNode* node = allocator.allocate(1);
         allocator.construct(node, element);
 

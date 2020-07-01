@@ -192,7 +192,7 @@ void CLogger::postLog(ELogLevel level, const wchar_t* sender, const wchar_t* msg
 bool CLogger::add(ILogReceiver* pReceiver) {
     if(pReceiver) {
         CAutoLock ak(mMutex);
-        mAllReceiver.push_back(pReceiver);
+        mAllReceiver.pushBack(pReceiver);
     }
     return true;
 }
@@ -215,7 +215,7 @@ void CLogger::clear() {
     for(u32 it = 0; it < mAllReceiver.size(); ++it) {
         delete mAllReceiver[it];
     }
-    mAllReceiver.set_used(0);
+    mAllReceiver.setUsed(0);
 }
 
 

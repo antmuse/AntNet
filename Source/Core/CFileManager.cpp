@@ -21,22 +21,19 @@
 #include <unistd.h>
 #endif
 
-#include "coreutil.h"
-
-
 
 namespace app {
 namespace io {
 
-u32 CPathList::addNode(const fschar_t* fname, bool isDir) {
+u32 CPathList::addNode(const tchar* fname, bool isDir) {
     SPathNode nd(fname);
     if (isDir) {
         nd.mID = mPaths.size();
-        mPaths.push_back(nd);
+        mPaths.pushBack(nd);
         return mPaths.size();
     }
     nd.mID = mFiles.size();
-    mFiles.push_back(nd);
+    mFiles.pushBack(nd);
     return mFiles.size();
 }
 
@@ -61,7 +58,7 @@ bool CFileManager::createPath(const core::CPath& iPath) {
 #if defined(APP_PLATFORM_WINDOWS)
     core::CPath realpath;
     core::CPath directory(APP_STR(".\\"));
-    core::splitFilename(iPath, &realpath);
+    iPath.splitFilename(&realpath);
     realpath.replace(APP_STR('\\'), APP_STR('/'));
     s32 start = 0;
     s32 end = realpath.size();
@@ -98,17 +95,17 @@ bool CFileManager::createPath(const core::CPath& iPath) {
 #ifdef APP_PLATFORM_WINDOWS
 bool AppLoadWindowsDrives(CPathList* iRet) {
     const u32 len = GetLogicalDriveStrings(0, nullptr);
-    fschar_t buf[512];
+    tchar buf[512];
     const bool created = len > 512;
-    fschar_t* drives = created ? new fschar_t[len] : buf;
+    tchar* drives = created ? new tchar[len] : buf;
     if (!GetLogicalDriveStrings(len, drives)) {
         if (created) {
             delete[] drives;
         }
         return false;
     }
-    fschar_t* temp = drives;
-    for (fschar_t* drv = nullptr; *temp != 0; temp++) {
+    tchar* temp = drives;
+    for (tchar* drv = nullptr; *temp != 0; temp++) {
         drv = temp;
         while (*(++temp)) {
             if ('\\' == temp[0]) {
@@ -258,7 +255,7 @@ core::CPath& CFileManager::flattenFilename(core::CPath& directory, const core::C
 
         if (subdir == APP_STR("../")) {
             if (lastWasRealDir) {
-                deletePathFromPath(dir, 2);
+                dir.deletePathFromPath(2);
                 lastWasRealDir = (dir.size() != 0);
             } else {
                 dir.append(subdir);
@@ -283,7 +280,7 @@ core::CPath CFileManager::getRelativeFilename(const core::CPath& filename, const
         return filename;
     }
     core::CPath path1, file, ext;
-    core::splitFilename(getAbsolutePath(filename), &path1, &file, &ext);
+    getAbsolutePath(filename).splitFilename(&path1, &file, &ext);
     core::CPath path2(getAbsolutePath(directory));
     core::TList<core::CPath> list1, list2;
     path1.split(list1, APP_STR("/\\"), 2);
@@ -294,16 +291,16 @@ core::CPath CFileManager::getRelativeFilename(const core::CPath& filename, const
     it2 = list2.begin();
 
 #if defined (APP_PLATFORM_WINDOWS)
-    fschar_t partition1 = 0, partition2 = 0;
+    tchar partition1 = 0, partition2 = 0;
     core::CPath prefix1, prefix2;
     if (it1 != list1.end())
         prefix1 = *it1;
     if (it2 != list2.end())
         prefix2 = *it2;
     if (prefix1.size() > 1 && prefix1[1] == APP_STR(':'))
-        partition1 = core::locale_lower(prefix1[0]);
+        partition1 = core::App2Lower(prefix1[0]);
     if (prefix2.size() > 1 && prefix2[1] == APP_STR(':'))
-        partition2 = core::locale_lower(prefix2[0]);
+        partition2 = core::App2Lower(prefix2[0]);
 
     // must have the same prefix or we can't resolve it to a relative filename
     if (partition1 != partition2) {
@@ -314,7 +311,7 @@ core::CPath CFileManager::getRelativeFilename(const core::CPath& filename, const
 
     for (; i < list1.size() && i < list2.size()
 #if defined (APP_PLATFORM_WINDOWS)
-        && (core::CPath(*it1).make_lower() == core::CPath(*it2).make_lower())
+        && (core::CPath(*it1).makeLower() == core::CPath(*it2).makeLower())
 #else
         && (*it1 == *it2)
 #endif
@@ -343,7 +340,7 @@ core::CPath CFileManager::getWorkPath() {
     core::CPath wkpath;
 
 #if defined(APP_PLATFORM_WINDOWS)
-    fschar_t tmp[_MAX_PATH];
+    tchar tmp[_MAX_PATH];
 #if defined(APP_WCHAR_SYS )
     _wgetcwd(tmp, _MAX_PATH);
 #else
@@ -388,7 +385,7 @@ core::CPath CFileManager::getWorkPath() {
 
 bool CFileManager::setWorkPath(const core::CPath& newDirectory) {
     bool success = false;
-    const fschar_t* wpth = newDirectory.c_str();
+    const tchar* wpth = newDirectory.c_str();
 
 #if defined(_MSC_VER)
     if (newDirectory.size() > 1 && '/' == newDirectory[0]) {
@@ -412,17 +409,15 @@ bool CFileManager::setWorkPath(const core::CPath& newDirectory) {
 
 core::CPath CFileManager::getAbsolutePath(const core::CPath& filename) const {
 #if defined(APP_PLATFORM_WINDOWS)
-    fschar_t* p = 0;
-    fschar_t fpath[_MAX_PATH];
-#if defined(APP_WCHAR_SYS )
+    tchar* p = 0;
+    tchar fpath[_MAX_PATH];
+#if defined(APP_WCHAR_SYS)
     p = _wfullpath(fpath, filename.c_str(), _MAX_PATH);
-    core::CWString tmp(p);
-    tmp.replace(L'\\', L'/');
 #else
     p = _fullpath(fpath, filename.c_str(), _MAX_PATH);
-    core::CString tmp(p);
-    tmp.replace('\\', '/');
 #endif
+    core::CPath tmp(p);
+    tmp.replace('\\', '/');
     return tmp;
 #elif (defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID))
     s8* p = 0;

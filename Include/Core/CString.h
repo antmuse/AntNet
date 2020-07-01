@@ -1,9 +1,5 @@
-// Copyright (C) 2002-2012 Nikolaus Gebhardt
-// This file is part of the "Irrlicht Engine" and the "irrXML" project.
-// For conditions of distribution and use, see copyright notice in irrlicht.h and irrXML.h
-
-#ifndef __IRR_STRING_H_INCLUDED__
-#define __IRR_STRING_H_INCLUDED__
+#ifndef APP_TSTRING_H
+#define APP_TSTRING_H
 
 #include <stdio.h>
 #include <string.h>
@@ -17,51 +13,47 @@
 namespace app {
 namespace core {
 
-//! Returns a character converted to lower case
-static inline u32 locale_lower(u32 x) {
+static inline u32 App2Lower(u32 x) {
     return x >= 'A' && x <= 'Z' ? x + 0x20 : x;
 }
 
-//! Returns a character converted to upper case
-static inline u32 locale_upper(u32 x) {
+static inline u32 App2Upper(u32 x) {
     return x >= 'a' && x <= 'z' ? x + ('A' - 'a') : x;
 }
 
 
 /**
-* @brief Very simple TString class with some useful features.
+* @brief Very simple string class with some useful features.
 */
 template <typename T, typename TAlloc = TAllocator<T> >
 class TString {
 public:
 
-    typedef T char_type;
-
     //! Default constructor
     TString()
-        : array(0), allocated(1), used(1) {
-        array = allocator.allocate(1); // new T[1];
-        array[0] = 0;
+        : mBuffer(0), mAllocated(1), mUsed(1) {
+        mBuffer = mAllocator.allocate(1); // new T[1];
+        mBuffer[0] = 0;
     }
 
 
     //! Constructor
     TString(const TString<T, TAlloc>& other)
-        : array(0), allocated(0), used(0) {
+        : mBuffer(0), mAllocated(0), mUsed(0) {
         *this = other;
     }
 
     //! Constructor from other TString types
     template <class B, class A>
     TString(const TString<B, A>& other)
-        : array(0), allocated(0), used(0) {
+        : mBuffer(0), mAllocated(0), mUsed(0) {
         *this = other;
     }
 
 
     //! Constructs a TString from a float
-    explicit TString(const double number)
-        : array(0), allocated(0), used(0) {
+    explicit TString(const f64 number)
+        : mBuffer(0), mAllocated(0), mUsed(0) {
         s8 tmpbuf[255];
         snprintf(tmpbuf, 255, "%0.6f", number);
         *this = tmpbuf;
@@ -69,8 +61,8 @@ public:
 
 
     //! Constructs a TString from an int
-    explicit TString(int number)
-        : array(0), allocated(0), used(0) {
+    explicit TString(s32 number)
+        : mBuffer(0), mAllocated(0), mUsed(0) {
         // store if negative and make positive
 
         bool negative = false;
@@ -112,8 +104,8 @@ public:
 
 
     //! Constructs a TString from an unsigned int
-    explicit TString(unsigned int number)
-        : array(0), allocated(0), used(0) {
+    explicit TString(u32 number)
+        : mBuffer(0), mAllocated(0), mUsed(0) {
         // temporary buffer for 16 numbers
 
         s8 tmpbuf[16] = { 0 };
@@ -141,7 +133,7 @@ public:
 
     //! Constructs a TString from a long
     explicit TString(long number)
-        : array(0), allocated(0), used(0) {
+        : mBuffer(0), mAllocated(0), mUsed(0) {
         // store if negative and make positive
 
         bool negative = false;
@@ -151,12 +143,10 @@ public:
         }
 
         // temporary buffer for 16 numbers
-
         s8 tmpbuf[16] = { 0 };
         u32 idx = 15;
 
         // special case '0'
-
         if (!number) {
             tmpbuf[14] = '0';
             *this = &tmpbuf[14];
@@ -164,7 +154,6 @@ public:
         }
 
         // add numbers
-
         while (number && idx) {
             --idx;
             tmpbuf[idx] = (s8)('0' + (number % 10));
@@ -172,7 +161,6 @@ public:
         }
 
         // add sign
-
         if (negative) {
             --idx;
             tmpbuf[idx] = '-';
@@ -184,14 +172,13 @@ public:
 
     //! Constructs a TString from an unsigned long
     explicit TString(unsigned long number)
-        : array(0), allocated(0), used(0) {
+        : mBuffer(0), mAllocated(0), mUsed(0) {
         // temporary buffer for 16 numbers
 
         s8 tmpbuf[16] = { 0 };
         u32 idx = 15;
 
         // special case '0'
-
         if (!number) {
             tmpbuf[14] = '0';
             *this = &tmpbuf[14];
@@ -199,7 +186,6 @@ public:
         }
 
         // add numbers
-
         while (number && idx) {
             --idx;
             tmpbuf[idx] = (s8)('0' + (number % 10));
@@ -212,54 +198,55 @@ public:
 
     //! Constructor for copying a TString from a pointer with a given length
     template <class B>
-    TString(const B* const c, u32 length)
-        : array(0), allocated(0), used(0) {
+    TString(const B* const c, u32 length) : mBuffer(0), mAllocated(0), mUsed(0) {
         if (!c) {
             // correctly init the TString to an empty one
             *this = "";
             return;
         }
 
-        allocated = used = length + 1;
-        array = allocator.allocate(used); // new T[used];
+        mAllocated = mUsed = length + 1;
+        mBuffer = mAllocator.allocate(mUsed); // new T[mUsed];
 
-        for (u32 l = 0; l < length; ++l)
-            array[l] = (T)c[l];
-
-        array[length] = 0;
+        for (u32 l = 0; l < length; ++l) {
+            mBuffer[l] = (T)c[l];
+        }
+        mBuffer[length] = 0;
     }
 
 
     //! Constructor for unicode and ascii strings
     template <class B>
-    TString(const B* const c)
-        : array(0), allocated(0), used(0) {
+    TString(const B* const c) : mBuffer(0), mAllocated(0), mUsed(0) {
         *this = c;
     }
 
+    //TString(const T* const c) : mBuffer(0), mAllocated(0), mUsed(0) {
+    //    *this = c;
+    //}
 
     //! Destructor
     ~TString() {
-        allocator.deallocate(array); // delete [] array;
+        mAllocator.deallocate(mBuffer); // delete [] mBuffer;
     }
 
 
     //! Assignment operator
     TString<T, TAlloc>& operator=(const TString<T, TAlloc>& other) {
-        if (this == &other)
+        if (this == &other) {
             return *this;
-
-        used = other.size() + 1;
-        if (used > allocated) {
-            allocator.deallocate(array); // delete [] array;
-            allocated = used;
-            array = allocator.allocate(used); //new T[used];
+        }
+        mUsed = other.size() + 1;
+        if (mUsed > mAllocated) {
+            mAllocator.deallocate(mBuffer); // delete [] mBuffer;
+            mAllocated = mUsed;
+            mBuffer = mAllocator.allocate(mUsed); //new T[mUsed];
         }
 
         const T* p = other.c_str();
-        for (u32 i = 0; i < used; ++i, ++p)
-            array[i] = *p;
-
+        for (u32 i = 0; i < mUsed; ++i, ++p) {
+            mBuffer[i] = *p;
+        }
         return *this;
     }
 
@@ -275,18 +262,18 @@ public:
     template <class B>
     TString<T, TAlloc>& operator=(const B* const c) {
         if (!c) {
-            if (!array) {
-                array = allocator.allocate(1); //new T[1];
-                allocated = 1;
+            if (!mBuffer) {
+                mBuffer = mAllocator.allocate(1); //new T[1];
+                mAllocated = 1;
             }
-            used = 1;
-            array[0] = 0x0;
+            mUsed = 1;
+            mBuffer[0] = 0x0;
             return *this;
         }
 
-        if ((void*)c == (void*)array)
+        if ((void*)c == (void*)mBuffer) {
             return *this;
-
+        }
         u32 len = 0;
         const B* p = c;
         do {
@@ -295,20 +282,20 @@ public:
 
         // we'll keep the old TString for a while, because the new
         // TString could be a part of the current TString.
-        T* oldArray = array;
+        T* oldArray = mBuffer;
 
-        used = len;
-        if (used > allocated) {
-            allocated = used;
-            array = allocator.allocate(used); //new T[used];
+        mUsed = len;
+        if (mUsed > mAllocated) {
+            mAllocated = mUsed;
+            mBuffer = mAllocator.allocate(mUsed); //new T[mUsed];
         }
 
-        for (u32 l = 0; l < len; ++l)
-            array[l] = (T)c[l];
-
-        if (oldArray != array)
-            allocator.deallocate(oldArray); // delete [] oldArray;
-
+        for (u32 l = 0; l < len; ++l) {
+            mBuffer[l] = (T)c[l];
+        }
+        if (oldArray != mBuffer) {
+            mAllocator.deallocate(oldArray); // delete [] oldArray;
+        }
         return *this;
     }
 
@@ -317,7 +304,6 @@ public:
     TString<T, TAlloc> operator+(const TString<T, TAlloc>& other) const {
         TString<T, TAlloc> str(*this);
         str.append(other);
-
         return str;
     }
 
@@ -327,58 +313,56 @@ public:
     TString<T, TAlloc> operator+(const B* const c) const {
         TString<T, TAlloc> str(*this);
         str.append(c);
-
         return str;
     }
 
 
     //! Direct access operator
-    T& operator [](const u32 index) {
-        APP_ASSERT(index >= used) // bad index
-            return array[index];
+    T& operator[](const u32 index) {
+        APP_ASSERT(index < mUsed); // bad index
+        return mBuffer[index];
     }
 
 
     //! Direct access operator
-    const T& operator [](const u32 index) const {
-        APP_ASSERT(index >= used) // bad index
-            return array[index];
+    const T& operator[](const u32 index) const {
+        APP_ASSERT(index < mUsed); // bad index
+        return mBuffer[index];
     }
 
 
     //! Equality operator
     bool operator==(const T* const str) const {
-        if (!str)
+        if (!str) {
             return false;
-
+        }
         u32 i;
-        for (i = 0; array[i] && str[i]; ++i)
-            if (array[i] != str[i])
+        for (i = 0; mBuffer[i] && str[i]; ++i) {
+            if (mBuffer[i] != str[i])
                 return false;
-
-        return (!array[i] && !str[i]);
+        }
+        return (!mBuffer[i] && !str[i]);
     }
 
 
     //! Equality operator
     bool operator==(const TString<T, TAlloc>& other) const {
-        for (u32 i = 0; array[i] && other.array[i]; ++i)
-            if (array[i] != other.array[i])
+        for (u32 i = 0; mBuffer[i] && other.mBuffer[i]; ++i) {
+            if (mBuffer[i] != other.mBuffer[i])
                 return false;
-
-        return used == other.used;
+        }
+        return mUsed == other.mUsed;
     }
 
 
     //! Is smaller comparator
     bool operator<(const TString<T, TAlloc>& other) const {
-        for (u32 i = 0; array[i] && other.array[i]; ++i) {
-            const s32 diff = array[i] - other.array[i];
+        for (u32 i = 0; mBuffer[i] && other.mBuffer[i]; ++i) {
+            const s32 diff = mBuffer[i] - other.mBuffer[i];
             if (diff)
                 return (diff < 0);
         }
-
-        return (used < other.used);
+        return (mUsed < other.mUsed);
     }
 
 
@@ -394,11 +378,10 @@ public:
     }
 
 
-    //! Returns length of the TString's content
-    /** \return Length of the TString's content in characters, excluding
-    the trailing NUL. */
+    /**
+    * @return Length of the TString's content in characters, excluding the trailing NUL. */
     u32 size() const {
-        return used - 1;
+        return mUsed - 1;
     }
 
     //! Informs if the TString is empty or not.
@@ -410,22 +393,24 @@ public:
     //! Returns character TString
     /** \return pointer to C-style NUL terminated TString. */
     const T* c_str() const {
-        return array;
+        return mBuffer;
     }
 
 
     //! Makes the TString lower case.
-    TString<T, TAlloc>& make_lower() {
-        for (u32 i = 0; array[i]; ++i)
-            array[i] = locale_lower(array[i]);
+    TString<T, TAlloc>& makeLower() {
+        for (u32 i = 0; mBuffer[i]; ++i) {
+            mBuffer[i] = App2Lower(mBuffer[i]);
+        }
         return *this;
     }
 
 
     //! Makes the TString upper case.
-    TString<T, TAlloc>& make_upper() {
-        for (u32 i = 0; array[i]; ++i)
-            array[i] = locale_upper(array[i]);
+    TString<T, TAlloc>& makeUpper() {
+        for (u32 i = 0; mBuffer[i]; ++i) {
+            mBuffer[i] = App2Upper(mBuffer[i]);
+        }
         return *this;
     }
 
@@ -434,11 +419,11 @@ public:
     /** \param other: Other TString to compare.
     \return True if the strings are equal ignoring case. */
     bool equals_ignore_case(const TString<T, TAlloc>& other) const {
-        for (u32 i = 0; array[i] && other[i]; ++i)
-            if (locale_lower(array[i]) != locale_lower(other[i]))
+        for (u32 i = 0; mBuffer[i] && other[i]; ++i) {
+            if (App2Lower(mBuffer[i]) != App2Lower(other[i]))
                 return false;
-
-        return used == other.used;
+        }
+        return mUsed == other.mUsed;
     }
 
     //! Compares the strings ignoring case.
@@ -446,15 +431,15 @@ public:
         \param sourcePos: where to start to compare in the TString
     \return True if the strings are equal ignoring case. */
     bool equals_substring_ignore_case(const TString<T, TAlloc>&other, const s32 sourcePos = 0) const {
-        if ((u32)sourcePos >= used)
+        if ((u32)sourcePos >= mUsed)
             return false;
 
         u32 i;
-        for (i = 0; array[sourcePos + i] && other[i]; ++i)
-            if (locale_lower(array[sourcePos + i]) != locale_lower(other[i]))
+        for (i = 0; mBuffer[sourcePos + i] && other[i]; ++i) {
+            if (App2Lower(mBuffer[sourcePos + i]) != App2Lower(other[i]))
                 return false;
-
-        return array[sourcePos + i] == 0 && other[i] == 0;
+        }
+        return mBuffer[sourcePos + i] == 0 && other[i] == 0;
     }
 
 
@@ -462,13 +447,12 @@ public:
     /** \param other: Other TString to compare.
     \return True if this TString is smaller ignoring case. */
     bool lower_ignore_case(const TString<T, TAlloc>& other) const {
-        for (u32 i = 0; array[i] && other.array[i]; ++i) {
-            s32 diff = (s32)locale_lower(array[i]) - (s32)locale_lower(other.array[i]);
+        for (u32 i = 0; mBuffer[i] && other.mBuffer[i]; ++i) {
+            s32 diff = (s32)App2Lower(mBuffer[i]) - (s32)App2Lower(other.mBuffer[i]);
             if (diff)
                 return diff < 0;
         }
-
-        return used < other.used;
+        return mUsed < other.mUsed;
     }
 
 
@@ -478,13 +462,13 @@ public:
     \return True if the n first characters of both strings are equal. */
     bool equalsn(const TString<T, TAlloc>& other, u32 n) const {
         u32 i;
-        for (i = 0; array[i] && other[i] && i < n; ++i)
-            if (array[i] != other[i])
+        for (i = 0; mBuffer[i] && other[i] && i < n; ++i) {
+            if (mBuffer[i] != other[i])
                 return false;
-
+        }
         // if one (or both) of the strings was smaller then they
         // are only equal if they have the same length
-        return (i == n) || (used == other.used);
+        return (i == n) || (mUsed == other.mUsed);
     }
 
 
@@ -493,29 +477,30 @@ public:
     \param n Number of characters to compare
     \return True if the n first characters of both strings are equal. */
     bool equalsn(const T* const str, u32 n) const {
-        if (!str)
+        if (!str) {
             return false;
+        }
         u32 i;
-        for (i = 0; array[i] && str[i] && i < n; ++i)
-            if (array[i] != str[i])
+        for (i = 0; mBuffer[i] && str[i] && i < n; ++i) {
+            if (mBuffer[i] != str[i])
                 return false;
-
+        }
         // if one (or both) of the strings was smaller then they
         // are only equal if they have the same length
-        return (i == n) || (array[i] == 0 && str[i] == 0);
+        return (i == n) || (mBuffer[i] == 0 && str[i] == 0);
     }
 
 
     //! Appends a character to this TString
     /** \param character: Character to append. */
     TString<T, TAlloc>& append(T character) {
-        if (used + 1 > allocated)
-            reallocate(used + 1);
+        if (mUsed + 1 > mAllocated) {
+            reallocate(mUsed + 1);
+        }
+        ++mUsed;
 
-        ++used;
-
-        array[used - 2] = character;
-        array[used - 1] = 0;
+        mBuffer[mUsed - 2] = character;
+        mBuffer[mUsed - 1] = 0;
 
         return *this;
     }
@@ -525,29 +510,24 @@ public:
     /** \param other: Char TString to append. */
     /** \param length: The length of the TString to append. */
     TString<T, TAlloc>& append(const T* const other, u32 length = 0xffffffff) {
-        if (!other)
+        if (!other) {
             return *this;
-
+        }
         u32 len = 0;
         const T* p = other;
-        while (*p) {
+        while (*p && len < length) {
             ++len;
             ++p;
         }
-        if (len > length)
-            len = length;
-
-        if (used + len > allocated)
-            reallocate(used + len);
-
-        --used;
+        if (mUsed + len > mAllocated) {
+            reallocate(mUsed + len);
+        }
+        --mUsed;
         ++len;
-
-        for (u32 l = 0; l < len; ++l)
-            array[l + used] = *(other + l);
-
-        used += len;
-
+        for (u32 l = 0; l < len; ++l) {
+            mBuffer[l + mUsed] = *(other + l);
+        }
+        mUsed += len;
         return *this;
     }
 
@@ -558,16 +538,16 @@ public:
         if (other.size() == 0)
             return *this;
 
-        --used;
+        --mUsed;
         u32 len = other.size() + 1;
 
-        if (used + len > allocated)
-            reallocate(used + len);
+        if (mUsed + len > mAllocated)
+            reallocate(mUsed + len);
 
         for (u32 l = 0; l < len; ++l)
-            array[used + l] = other[l];
+            mBuffer[mUsed + l] = other[l];
 
-        used += len;
+        mUsed += len;
 
         return *this;
     }
@@ -585,18 +565,18 @@ public:
             return *this;
         }
 
-        if (used + length > allocated)
-            reallocate(used + length);
+        if (mUsed + length > mAllocated)
+            reallocate(mUsed + length);
 
-        --used;
+        --mUsed;
 
         for (u32 l = 0; l < length; ++l)
-            array[l + used] = other[l];
-        used += length;
+            mBuffer[l + mUsed] = other[l];
+        mUsed += length;
 
         // ensure proper termination
-        array[used] = 0;
-        ++used;
+        mBuffer[mUsed] = 0;
+        ++mUsed;
 
         return *this;
     }
@@ -605,10 +585,9 @@ public:
     //! Reserves some memory.
     /** \param count: Amount of characters to reserve. */
     void reserve(u32 count) {
-        if (count < allocated)
-            return;
-
-        reallocate(count);
+        if (count > mAllocated) {
+            reallocate(count);
+        }
     }
 
 
@@ -617,8 +596,8 @@ public:
     \return Position where the character has been found,
     or -1 if not found. */
     s32 findFirst(T c) const {
-        for (u32 i = 0; i < used - 1; ++i)
-            if (array[i] == c)
+        for (u32 i = 0; i < mUsed - 1; ++i)
+            if (mBuffer[i] == c)
                 return i;
 
         return -1;
@@ -635,9 +614,9 @@ public:
         if (!c || !count)
             return -1;
 
-        for (u32 i = 0; i < used - 1; ++i)
+        for (u32 i = 0; i < mUsed - 1; ++i)
             for (u32 j = 0; j < count; ++j)
-                if (array[i] == c[j])
+                if (mBuffer[i] == c[j])
                     return i;
 
         return -1;
@@ -656,10 +635,10 @@ public:
         if (!c || !count)
             return -1;
 
-        for (u32 i = 0; i < used - 1; ++i) {
+        for (u32 i = 0; i < mUsed - 1; ++i) {
             u32 j;
             for (j = 0; j < count; ++j)
-                if (array[i] == c[j])
+                if (mBuffer[i] == c[j])
                     break;
 
             if (j == count)
@@ -681,10 +660,10 @@ public:
         if (!c || !count)
             return -1;
 
-        for (s32 i = (s32)(used - 2); i >= 0; --i) {
+        for (s32 i = (s32)(mUsed - 2); i >= 0; --i) {
             u32 j;
             for (j = 0; j < count; ++j)
-                if (array[i] == c[j])
+                if (mBuffer[i] == c[j])
                     break;
 
             if (j == count)
@@ -700,8 +679,8 @@ public:
     \return Position where the character has been found,
     or -1 if not found. */
     s32 findNext(T c, u32 startPos) const {
-        for (u32 i = startPos; i < used - 1; ++i)
-            if (array[i] == c)
+        for (u32 i = startPos; i < mUsed - 1; ++i)
+            if (mBuffer[i] == c)
                 return i;
 
         return -1;
@@ -714,9 +693,9 @@ public:
     \return Position where the character has been found,
     or -1 if not found. */
     s32 findLast(T c, s32 start = -1) const {
-        start = core::clamp(start < 0 ? (s32)(used)-2 : start, 0, (s32)(used)-2);
+        start = clamp(start < 0 ? (s32)(mUsed)-2 : start, 0, (s32)(mUsed)-2);
         for (s32 i = start; i >= 0; --i)
-            if (array[i] == c)
+            if (mBuffer[i] == c)
                 return i;
 
         return -1;
@@ -733,9 +712,9 @@ public:
         if (!c || !count)
             return -1;
 
-        for (s32 i = (s32)used - 2; i >= 0; --i)
+        for (s32 i = (s32)mUsed - 2; i >= 0; --i)
             for (u32 j = 0; j < count; ++j)
-                if (array[i] == c[j])
+                if (mBuffer[i] == c[j])
                     return i;
 
         return -1;
@@ -755,13 +734,13 @@ public:
             while (str[len])
                 ++len;
 
-            if (len > used - 1)
+            if (len > mUsed - 1)
                 return -1;
 
-            for (u32 i = start; i < used - len; ++i) {
+            for (u32 i = start; i < mUsed - len; ++i) {
                 u32 j = 0;
 
-                while (str[j] && array[i + j] == str[j])
+                while (str[j] && mBuffer[i + j] == str[j])
                     ++j;
 
                 if (!str[j])
@@ -776,12 +755,12 @@ public:
     //! Returns a substring
     /** \param begin Start of substring.
     \param length Length of substring.
-    \param make_lower copy only lower case */
-    TString<T> subString(u32 begin, s32 length, bool make_lower = false) const {
-        // if start after TString
-        // or no proper substring length
+    \param iLower copy only lower case */
+    TString<T> subString(u32 begin, s32 length, bool iLower = false) const {
+        // if start after TString or no proper substring length
         if ((length <= 0) || (begin >= size()))
             return TString<T>("");
+
         // clamp length to maximal value
         if ((length + begin) > size())
             length = size() - begin;
@@ -790,16 +769,16 @@ public:
         o.reserve(length + 1);
 
         s32 i;
-        if (!make_lower) {
+        if (!iLower) {
             for (i = 0; i < length; ++i)
-                o.array[i] = array[i + begin];
+                o.mBuffer[i] = mBuffer[i + begin];
         } else {
             for (i = 0; i < length; ++i)
-                o.array[i] = locale_lower(array[i + begin]);
+                o.mBuffer[i] = App2Lower(mBuffer[i + begin]);
         }
 
-        o.array[length] = 0;
-        o.used = length + 1;
+        o.mBuffer[length] = 0;
+        o.mUsed = length + 1;
 
         return o;
     }
@@ -807,7 +786,7 @@ public:
 
     //! Appends a character to this TString
     /** \param c Character to append. */
-    TString<T, TAlloc>& operator += (T c) {
+    TString<T, TAlloc>& operator+=(T c) {
         append(c);
         return *this;
     }
@@ -815,7 +794,7 @@ public:
 
     //! Appends a char TString to this TString
     /** \param c Char TString to append. */
-    TString<T, TAlloc>& operator += (const T* const c) {
+    TString<T, TAlloc>& operator+=(const T* const c) {
         append(c);
         return *this;
     }
@@ -831,7 +810,7 @@ public:
 
     //! Appends a TString representation of a number to this TString
     /** \param i Number to append. */
-    TString<T, TAlloc>& operator += (const int i) {
+    TString<T, TAlloc>& operator += (const s32 i) {
         append(TString<T, TAlloc>(i));
         return *this;
     }
@@ -839,7 +818,7 @@ public:
 
     //! Appends a TString representation of a number to this TString
     /** \param i Number to append. */
-    TString<T, TAlloc>& operator += (const unsigned int i) {
+    TString<T, TAlloc>& operator += (const u32 i) {
         append(TString<T, TAlloc>(i));
         return *this;
     }
@@ -863,7 +842,7 @@ public:
 
     //! Appends a TString representation of a number to this TString
     /** \param i Number to append. */
-    TString<T, TAlloc>& operator += (const double i) {
+    TString<T, TAlloc>& operator += (const f64 i) {
         append(TString<T, TAlloc>(i));
         return *this;
     }
@@ -871,7 +850,7 @@ public:
 
     //! Appends a TString representation of a number to this TString
     /** \param i Number to append. */
-    TString<T, TAlloc>& operator += (const float i) {
+    TString<T, TAlloc>& operator += (const f32 i) {
         append(TString<T, TAlloc>(i));
         return *this;
     }
@@ -881,9 +860,10 @@ public:
     /** \param toReplace Character to replace.
     \param replaceWith Character replacing the old one. */
     TString<T, TAlloc>& replace(T toReplace, T replaceWith) {
-        for (u32 i = 0; i < used - 1; ++i)
-            if (array[i] == toReplace)
-                array[i] = replaceWith;
+        for (u32 i = 0; i < mUsed - 1; ++i) {
+            if (mBuffer[i] == toReplace)
+                mBuffer[i] = replaceWith;
+        }
         return *this;
     }
 
@@ -908,7 +888,7 @@ public:
             s32 pos = 0;
             while ((pos = find(other, pos)) != -1) {
                 for (u32 i = 0; i < replace_size; ++i)
-                    array[pos + i] = replace[i];
+                    mBuffer[pos + i] = replace[i];
                 ++pos;
             }
             return *this;
@@ -917,20 +897,20 @@ public:
         // We are going to be removing some characters.  The TString will shrink.
         if (delta < 0) {
             u32 i = 0;
-            for (u32 pos = 0; pos < used; ++i, ++pos) {
+            for (u32 pos = 0; pos < mUsed; ++i, ++pos) {
                 // Is this potentially a match?
-                if (array[pos] == *other) {
+                if (mBuffer[pos] == *other) {
                     // Check to see if we have a match.
                     u32 j;
                     for (j = 0; j < other_size; ++j) {
-                        if (array[pos + j] != other[j])
+                        if (mBuffer[pos + j] != other[j])
                             break;
                     }
 
                     // If we have a match, replace characters.
                     if (j == other_size) {
                         for (j = 0; j < replace_size; ++j)
-                            array[i + j] = replace[j];
+                            mBuffer[i + j] = replace[j];
                         i += replace_size - 1;
                         pos += other_size - 1;
                         continue;
@@ -938,10 +918,10 @@ public:
                 }
 
                 // No match found, just copy characters.
-                array[i] = array[pos];
+                mBuffer[i] = mBuffer[pos];
             }
-            array[i - 1] = 0;
-            used = i;
+            mBuffer[i - 1] = 0;
+            mUsed = i;
 
             return *this;
         }
@@ -957,15 +937,15 @@ public:
 
         // Re-allocate the TString now, if needed.
         u32 len = delta * find_count;
-        if (used + len > allocated)
-            reallocate(used + len);
+        if (mUsed + len > mAllocated)
+            reallocate(mUsed + len);
 
         // Start replacing.
         pos = 0;
         while ((pos = find(other, pos)) != -1) {
-            T* start = array + pos + other_size - 1;
-            T* ptr = array + used - 1;
-            T* end = array + delta + used - 1;
+            T* start = mBuffer + pos + other_size - 1;
+            T* ptr = mBuffer + mUsed - 1;
+            T* end = mBuffer + delta + mUsed - 1;
 
             // Shift characters to make room for the TString.
             while (ptr != start) {
@@ -976,10 +956,10 @@ public:
 
             // Add the new TString now.
             for (u32 i = 0; i < replace_size; ++i)
-                array[pos + i] = replace[i];
+                mBuffer[pos + i] = replace[i];
 
             pos += replace_size;
-            used += delta;
+            mUsed += delta;
         }
 
         return *this;
@@ -991,16 +971,16 @@ public:
     TString<T, TAlloc>& remove(T c) {
         u32 pos = 0;
         u32 found = 0;
-        for (u32 i = 0; i < used - 1; ++i) {
-            if (array[i] == c) {
+        for (u32 i = 0; i < mUsed - 1; ++i) {
+            if (mBuffer[i] == c) {
                 ++found;
                 continue;
             }
 
-            array[pos++] = array[i];
+            mBuffer[pos++] = mBuffer[i];
         }
-        used -= found;
-        array[used - 1] = 0;
+        mUsed -= found;
+        mBuffer[mUsed - 1] = 0;
         return *this;
     }
 
@@ -1013,10 +993,10 @@ public:
             return *this;
         u32 pos = 0;
         u32 found = 0;
-        for (u32 i = 0; i < used - 1; ++i) {
+        for (u32 i = 0; i < mUsed - 1; ++i) {
             u32 j = 0;
             while (j < size) {
-                if (array[i + j] != toRemove[j])
+                if (mBuffer[i + j] != toRemove[j])
                     break;
                 ++j;
             }
@@ -1026,10 +1006,10 @@ public:
                 continue;
             }
 
-            array[pos++] = array[i];
+            mBuffer[pos++] = mBuffer[i];
         }
-        used -= found;
-        array[used - 1] = 0;
+        mUsed -= found;
+        mBuffer[mUsed - 1] = 0;
         return *this;
     }
 
@@ -1042,12 +1022,12 @@ public:
 
         u32 pos = 0;
         u32 found = 0;
-        for (u32 i = 0; i < used - 1; ++i) {
+        for (u32 i = 0; i < mUsed - 1; ++i) {
             // Don't use characters.findFirst as it finds the \0,
-            // causing used to become incorrect.
+            // causing mUsed to become incorrect.
             bool docontinue = false;
             for (u32 j = 0; j < characters.size(); ++j) {
-                if (characters[j] == array[i]) {
+                if (characters[j] == mBuffer[i]) {
                     ++found;
                     docontinue = true;
                     break;
@@ -1056,10 +1036,10 @@ public:
             if (docontinue)
                 continue;
 
-            array[pos++] = array[i];
+            mBuffer[pos++] = mBuffer[i];
         }
-        used -= found;
-        array[used - 1] = 0;
+        mUsed -= found;
+        mBuffer[mUsed - 1] = 0;
 
         return *this;
     }
@@ -1070,11 +1050,11 @@ public:
     from the begining and the end of the TString. */
     TString<T, TAlloc>& trim(const TString<T, TAlloc> & whitespace = " \t\n\r") {
         // find start and end of the substring without the specified characters
-        const s32 begin = findFirstCharNotInList(whitespace.c_str(), whitespace.used);
+        const s32 begin = findFirstCharNotInList(whitespace.c_str(), whitespace.mUsed);
         if (begin == -1)
             return (*this = "");
 
-        const s32 end = findLastCharNotInList(whitespace.c_str(), whitespace.used);
+        const s32 end = findLastCharNotInList(whitespace.c_str(), whitespace.mUsed);
 
         return (*this = subString(begin, (end + 1) - begin));
     }
@@ -1085,31 +1065,31 @@ public:
     following after the erased element have to be copied.
     \param index: Index of element to be erased. */
     TString<T, TAlloc>& erase(u32 index) {
-        APP_ASSERT(index >= used) // access violation
+        APP_ASSERT(index < mUsed); // access violation
 
-            for (u32 i = index + 1; i < used; ++i)
-                array[i - 1] = array[i];
-
-        --used;
+        for (u32 i = index + 1; i < mUsed; ++i) {
+            mBuffer[i - 1] = mBuffer[i];
+        }
+        --mUsed;
         return *this;
     }
 
     //! verify the existing TString.
     TString<T, TAlloc>& validate() {
         // terminate on existing null
-        for (u32 i = 0; i < allocated; ++i) {
-            if (array[i] == 0) {
-                used = i + 1;
+        for (u32 i = 0; i < mAllocated; ++i) {
+            if (mBuffer[i] == 0) {
+                mUsed = i + 1;
                 return *this;
             }
         }
 
         // terminate
-        if (allocated > 0) {
-            used = allocated;
-            array[used - 1] = 0;
+        if (mAllocated > 0) {
+            mUsed = mAllocated;
+            mBuffer[mUsed - 1] = 0;
         } else {
-            used = 0;
+            mUsed = 0;
         }
 
         return *this;
@@ -1117,13 +1097,13 @@ public:
 
     //! gets the last char of a TString or null
     T lastChar() const {
-        return used > 1 ? array[used - 2] : 0;
+        return mUsed > 1 ? mBuffer[mUsed - 2] : 0;
     }
 
     //! split TString into parts.
     /** This method will split a TString at certain delimiter characters
     into the container passed in as reference. The type of the container
-    has to be given as template parameter. It must provide a push_back and
+    has to be given as template parameter. It must provide a pushBack and
     a size method.
     \param ret The result container
     \param c C-style TString of delimiter characters
@@ -1139,20 +1119,21 @@ public:
     \return The number of resulting substrings
     */
     template<class container>
-    u32 split(container& ret, const T* const c, u32 count = 1, bool ignoreEmptyTokens = true, bool keepSeparators = false) const {
-        if (!c)
+    u32 split(container& ret, const T* const c, u32 count = 1, bool ignoreEmptyTokens = true,
+        bool keepSeparators = false) const {
+        if (!c) {
             return 0;
-
+        }
         const u32 oldSize = ret.size();
         u32 lastpos = 0;
         bool lastWasSeparator = false;
-        for (u32 i = 0; i < used; ++i) {
+        for (u32 i = 0; i < mUsed; ++i) {
             bool foundSeparator = false;
             for (u32 j = 0; j < count; ++j) {
-                if (array[i] == c[j]) {
+                if (mBuffer[i] == c[j]) {
                     if ((!ignoreEmptyTokens || i - lastpos != 0) &&
                         !lastWasSeparator)
-                        ret.push_back(TString<T, TAlloc>(&array[lastpos], i - lastpos));
+                        ret.pushBack(TString<T, TAlloc>(&mBuffer[lastpos], i - lastpos));
                     foundSeparator = true;
                     lastpos = (keepSeparators ? i : i + 1);
                     break;
@@ -1160,35 +1141,37 @@ public:
             }
             lastWasSeparator = foundSeparator;
         }
-        if ((used - 1) > lastpos)
-            ret.push_back(TString<T, TAlloc>(&array[lastpos], (used - 1) - lastpos));
+
+        if ((mUsed - 1) > lastpos) {
+            ret.pushBack(TString<T, TAlloc>(&mBuffer[lastpos], (mUsed - 1) - lastpos));
+        }
         return ret.size() - oldSize;
     }
 
-private:
+protected:
 
-    //! Reallocate the array, make it bigger or smaller
+    //! Reallocate the mBuffer, make it bigger or smaller
     void reallocate(u32 new_size) {
-        T* old_array = array;
+        T* old_array = mBuffer;
 
-        array = allocator.allocate(new_size); //new T[new_size];
-        allocated = new_size;
+        mBuffer = mAllocator.allocate(new_size); //new T[new_size];
+        mAllocated = new_size;
 
-        u32 amount = used < new_size ? used : new_size;
-        for (u32 i = 0; i < amount; ++i)
-            array[i] = old_array[i];
-
-        if (allocated < used)
-            used = allocated;
-
-        allocator.deallocate(old_array); // delete [] old_array;
+        u32 amount = mUsed < new_size ? mUsed : new_size;
+        for (u32 i = 0; i < amount; ++i) {
+            mBuffer[i] = old_array[i];
+        }
+        if (mAllocated < mUsed) {
+            mUsed = mAllocated;
+        }
+        mAllocator.deallocate(old_array); // delete [] old_array;
     }
 
-    //--- member variables
-    T* array;
-    u32 allocated;
-    u32 used;
-    TAlloc allocator;
+
+    T* mBuffer;
+    u32 mAllocated;
+    u32 mUsed;
+    TAlloc mAllocator;
 };
 
 
@@ -1198,12 +1181,193 @@ typedef TString<s8> CString;
 //! Typedef for wide character strings
 typedef TString<wchar_t> CWString;
 
-//! Type used for all file system related strings.
-/** This type will transparently handle different file system encodings. */
-typedef TString<fschar_t> CPath;
 
-} // end namespace core
-} // end namespace app
+//! used for all file system related strings.
+/** This type will transparently handle different file system encodings. */
+class CPath : public TString<tchar> {
+public:
+    CPath() : TString<tchar>() {
+    }
+    CPath(const TString<tchar>& val) : TString<tchar>(val) {
+    }
+    template <class B>
+    CPath(const B* const c) : TString<tchar>(c) {
+    }
+
+    //! Assignment operator
+    CPath& operator=(const TString<tchar>& other) {
+        if (this == &other) {
+            return *this;
+        }
+        mUsed = other.size() + 1;
+        if (mUsed > mAllocated) {
+            mAllocator.deallocate(mBuffer); // delete [] mBuffer;
+            mAllocated = mUsed;
+            mBuffer = mAllocator.allocate(mUsed); //new T[mUsed];
+        }
+
+        const tchar* p = other.c_str();
+        for (u32 i = 0; i < mUsed; ++i, ++p) {
+            mBuffer[i] = *p;
+        }
+        return *this;
+    }
+
+    /**
+    * @brief splits a path into components
+    */
+    void splitFilename(CPath* path = 0, CPath* filename = 0,
+        CPath* extension = 0, bool make_lower = false)const {
+        s32 i = size();
+        s32 extpos = i;
+
+        // search for path separator or beginning
+        while (i >= 0) {
+            if (mBuffer[i] == '.') {
+                extpos = i;
+                if (extension) {
+                    *extension = subString(extpos + 1, size() - (extpos + 1), make_lower);
+                }
+            } else if (mBuffer[i] == '/' || mBuffer[i] == '\\') {
+                if (filename)
+                    *filename = subString(i + 1, extpos - (i + 1), make_lower);
+                if (path) {
+                    *path = subString(0, i + 1, make_lower);
+                    path->replace('\\', '/');
+                }
+                return;
+            }
+            i -= 1;
+        }
+        if (filename) {
+            *filename = subString(0, extpos, make_lower);
+        }
+    }
+
+
+    //! delete path from filename
+    CPath& deletePathFromFilename() {
+        // delete path from filename
+        const tchar* s = c_str();
+        const tchar* p = s + size();
+
+        // search for path separator or beginning
+        while (*p != '/' && *p != '\\' && p != s) {
+            p--;
+        }
+        if (p != s) {
+            ++p;
+            *this = p;
+        }
+        return *this;
+    }
+
+    /**
+    * @brief get the filename extension from a file path
+    */
+    CPath& getFileNameExtension(CPath& dest) const {
+        s32 endPos = findLast('.');
+        if (endPos < 0) {
+            dest = "";
+        } else {
+            dest = subString(endPos, size());
+        }
+        return dest;
+    }
+
+    /**
+    * @brief search if a filename has a proper extension
+    */
+    s32 isFileExtension(const CPath& ext0,
+        const CPath& ext1, const CPath& ext2)const {
+        s32 extPos = findLast('.');
+        if (extPos < 0) {
+            return 0;
+        }
+        extPos += 1;
+        if (equals_substring_ignore_case(ext0, extPos)) {
+            return 1;
+        }
+        if (equals_substring_ignore_case(ext1, extPos)) {
+            return 2;
+        }
+        if (equals_substring_ignore_case(ext2, extPos)) {
+            return 3;
+        }
+        return 0;
+    }
+
+    /**
+    * @brief search if a filename has a proper extension
+    */
+    bool hasFileExtension(const CPath& ext0)const {
+        s32 extPos = findLast('.');
+        if (extPos < 0) {
+            return 0;
+        }
+        extPos += 1;
+        return equals_substring_ignore_case(ext0, extPos);
+    }
+
+
+    /**
+    * @brief cut the filename extension from a source file path and store it in a dest file path
+    */
+    CPath& cutFilenameExtension(CPath &dest)const {
+        s32 endPos = findLast('.');
+        dest = subString(0, endPos < 0 ? size() : endPos);
+        return dest;
+    }
+
+
+    //! looks if file is in the same directory of path. returns offset of directory.
+    //! 0 means in same directory. 1 means file is direct child of path
+    s32 isInSameDirectory(const CPath& file)const {
+        s32 subA = 0;
+        s32 subB = 0;
+        if (size() && !equalsn(file, size())) {
+            return -1;
+        }
+        s32 pos = 0;
+        while ((pos = findNext('/', pos)) >= 0) {
+            subA += 1;
+            pos += 1;
+        }
+        pos = 0;
+        while ((pos = file.findNext('/', pos)) >= 0) {
+            subB += 1;
+            pos += 1;
+        }
+        return subB - subA;
+    }
+
+    //! trim paths
+    CPath& deletePathFromPath(s32 pathCount) {
+        // delete path from filename
+        s32 i = size();
+
+        // search for path separator or beginning
+        while (i >= 0) {
+            if (mBuffer[i] == '/' || mBuffer[i] == '\\') {
+                if (--pathCount <= 0) {
+                    break;
+                }
+            }
+            --i;
+        }
+        if (i > 0) {
+            mBuffer[i + 1] = 0;
+            validate();
+        } else {
+            *this = "";
+        }
+        return *this;
+    }
+
+};
+
+} //namespace core
+} //namespace app
 
 #endif
 

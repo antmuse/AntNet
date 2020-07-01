@@ -13,7 +13,7 @@ CThreadEvent::CThreadEvent() : mHandle(0) {
 }
 
 
-bool CThreadEvent::open(const fschar_t* iName, bool inherit) {
+bool CThreadEvent::open(const tchar* iName, bool inherit) {
     if(0 == mHandle) {
         mHandle = ::OpenEvent(EVENT_ALL_ACCESS, inherit, iName);
     }
@@ -21,7 +21,7 @@ bool CThreadEvent::open(const fschar_t* iName, bool inherit) {
 }
 
 
-bool CThreadEvent::init(const fschar_t* iName, bool autoReset) {
+bool CThreadEvent::init(const tchar* iName, bool autoReset) {
     if(0 == mHandle) {
         mHandle = ::CreateEvent(NULL, autoReset ? FALSE : TRUE, FALSE, iName);
     }
@@ -79,13 +79,13 @@ CThreadEvent::CThreadEvent() : mStatus(false), mAutoReset(true) {
 }
 
 
-bool CThreadEvent::open(const fschar_t* iName, bool inherit) {
+bool CThreadEvent::open(const tchar* iName, bool inherit) {
     //TODO
     return true;
 }
 
 
-bool CThreadEvent::init(const fschar_t* iName, bool autoReset) {
+bool CThreadEvent::init(const tchar* iName, bool autoReset) {
     mAutoReset = autoReset;
     pthread_mutexattr_t mutexattr;
     pthread_mutexattr_init(&mutexattr);

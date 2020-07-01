@@ -11,22 +11,23 @@
 namespace app {
 namespace net {
 
-//#define SERVER_NAME "www.baidu.com"
-#define SERVER_NAME "lxuet.ljbao.net"
-//模拟普通请求
-//#define GET_REQUEST "GET / HTTP/1.0\r\n\r\n"
-//模拟微信请求
-s8* GET_REQUEST =
-"GET /party/qGERf/activityDetail?r=it HTTP/1.1\r\n"
-"Host: lxuet.ljbao.net\r\n"
-"Connection: keep-alive\r\n"
-"Upgrade-Insecure-Requests: 1\r\n"
-"User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36 QBCore/4.0.1295.400 QQBrowser/9.0.2524.400 Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2875.116 Safari/537.36 NetType/WIFI MicroMessenger/7.0.5 WindowsWechat\r\n"
-"Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\r\n"
-"Accept-Encoding: gzip, deflate\r\n"
-"Accept-Language: zh-CN,zh;q=0.8,en-US;q=0.6,en;q=0.5;q=0.4\r\n"
-"\r\n";
 
+////模拟微信请求
+//s8* GET_REQUEST =
+//"GET /v1/arch/notify/sms/reply/wels?MsgId=200701090749 HTTP/1.1\r\n"
+//"Host: callback.danke.com\r\n"
+//"Connection: keep-alive\r\n"
+//"Upgrade-Insecure-Requests: 1\r\n"
+//"User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36 QBCore/4.0.1295.400 QQBrowser/9.0.2524.400 Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2875.116 Safari/537.36 NetType/WIFI MicroMessenger/7.0.5 WindowsWechat\r\n"
+//"Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\r\n"
+//"Accept-Encoding: gzip, deflate\r\n"
+//"Accept-Language: zh-CN,zh;q=0.8,en-US;q=0.6,en;q=0.5;q=0.4\r\n"
+//"\r\n";
+
+
+//模拟普通请求
+s8* GET_REQUEST = "GET / HTTP/1.0\r\n\r\n";
+#define SERVER_NAME "www.baidu.com"
 
 static s32 AppTlsSend(void* ctx, const u8* buf, u64 len) {
     CNetHttpsClient* nd = reinterpret_cast<CNetHttpsClient*>(ctx);

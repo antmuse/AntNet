@@ -219,7 +219,7 @@ public:
 
 
 private:
-    static core::TArray<fschar_t> getEnvironmentVariablesBuffer(const DProcessEnvronment& env);
+    static core::TArray<tchar> getEnvironmentVariablesBuffer(const DProcessEnvronment& env);
 
 };
 

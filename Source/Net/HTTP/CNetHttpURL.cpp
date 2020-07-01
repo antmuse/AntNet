@@ -47,8 +47,8 @@ CNetHttpURL& CNetHttpURL::operator=(const CNetHttpURL& other) {
     if (this == &other) {
         return *this;
     }
-    mCache.set_used(other.mCache.size());
-    memcpy(mCache.pointer(), other.mCache.const_pointer(), other.mCache.size());
+    mCache.setUsed(other.mCache.size());
+    memcpy(mCache.pointer(), other.mCache.constPointer(), other.mCache.size());
     mNodes = other.mNodes;
     return *this;
 }
@@ -60,7 +60,7 @@ bool CNetHttpURL::operator==(const CNetHttpURL& other) const {
     if (mCache.size() != other.mCache.size()) {
         return false;
     }
-    return 0 == memcmp(mCache.const_pointer(), other.mCache.const_pointer(), mCache.size());
+    return 0 == memcmp(mCache.constPointer(), other.mCache.constPointer(), mCache.size());
 }
 
 bool CNetHttpURL::operator!=(const CNetHttpURL& other) const {
@@ -86,7 +86,7 @@ void CNetHttpURL::toLow(s32 idx) {
 bool CNetHttpURL::set(const s8* url, u64 len) {
     if (nullptr != url) {
         len = len > 0 ? len : strlen(url);
-        mCache.set_used(len + 1);
+        mCache.setUsed(len + 1);
         memcpy(mCache.pointer(), url, len + 1);
         http_parser_url_init(&mNodes);
         bool ret = 0 == http_parser_parse_url(url, len, 0, &mNodes);

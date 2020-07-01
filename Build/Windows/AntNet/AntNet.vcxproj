@@ -188,7 +188,6 @@
     <ClInclude Include="..\..\..\Include\Core\CHtmlLogReceiver.h" />
     <ClInclude Include="..\..\..\Include\Core\CMemoryHub.h" />
     <ClInclude Include="..\..\..\Include\Core\CMemoryPool.h" />
-    <ClInclude Include="..\..\..\Include\Core\coreutil.h" />
     <ClInclude Include="..\..\..\Include\Core\CQueue1Way.h" />
     <ClInclude Include="..\..\..\Include\Core\CQueue2Way.h" />
     <ClInclude Include="..\..\..\Include\Core\CQueueNode.h" />

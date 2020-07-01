@@ -15,7 +15,7 @@ CSemaphore::CSemaphore() : mSema(0) {
 }
 
 
-bool CSemaphore::open(fschar_t* iName, bool inherit) {
+bool CSemaphore::open(tchar* iName, bool inherit) {
     APP_ASSERT(iName);
     if(0 == mSema) {
         mSema = ::OpenSemaphore(SEMAPHORE_ALL_ACCESS, inherit ? TRUE : FALSE, iName);
@@ -24,7 +24,7 @@ bool CSemaphore::open(fschar_t* iName, bool inherit) {
 }
 
 
-bool CSemaphore::init(fschar_t* iName, s32 n, s32 max) {
+bool CSemaphore::init(tchar* iName, s32 n, s32 max) {
     APP_ASSERT(n >= 0 && max > 0 && n <= max);
     if(0 == mSema) {
         mSema = ::CreateSemaphore(0, n, max, iName);
@@ -97,7 +97,7 @@ namespace app {
 CSemaphore::CSemaphore() : mValue(0), mMax(1) {
 }
 
-bool CSemaphore::open(fschar_t* iName, bool inherit) {
+bool CSemaphore::open(tchar* iName, bool inherit) {
     //TODO>>
     //mValue = n;
     //mMax = ?
@@ -105,7 +105,7 @@ bool CSemaphore::open(fschar_t* iName, bool inherit) {
 }
 
 
-bool CSemaphore::init(fschar_t* iName, s32 n, s32 max) {
+bool CSemaphore::init(tchar* iName, s32 n, s32 max) {
     APP_ASSERT(n >= 0 && max > 0 && n <= max);
     mValue = n;
     mMax = max;

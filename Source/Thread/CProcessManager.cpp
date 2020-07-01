@@ -17,8 +17,8 @@
 
 namespace app {
 
-core::TArray<fschar_t> CProcessManager::getEnvironmentVariablesBuffer(const CProcessManager::DProcessEnvronment& env) {
-    core::TArray<fschar_t> envbuf;
+core::TArray<tchar> CProcessManager::getEnvironmentVariablesBuffer(const CProcessManager::DProcessEnvronment& env) {
+    core::TArray<tchar> envbuf;
     u32 pos = 0;
     u32 keysize;
     u32 valuesize;
@@ -34,8 +34,8 @@ core::TArray<fschar_t> CProcessManager::getEnvironmentVariablesBuffer(const CPro
         envbuf[pos++] = '\0';   //1 byte
     }//for
 
-    envbuf.set_used(pos);
-    envbuf.push_back('\0');
+    envbuf.setUsed(pos);
+    envbuf.pushBack('\0');
 
     APP_ASSERT(pos + 1 == envbuf.size());
 
@@ -222,11 +222,11 @@ CProcessHandle* CProcessManager::launch(const core::CPath& command, const DProce
         startupInfo.dwFlags |= STARTF_USESTDHANDLES;
     }
 
-    const fschar_t* workingDirectory = initialDirectory.empty() ? 0 : initialDirectory.c_str();
+    const tchar* workingDirectory = initialDirectory.empty() ? 0 : initialDirectory.c_str();
 
-    const fschar_t* pEnv = 0;
+    const tchar* pEnv = 0;
 
-    core::TArray<fschar_t> envChars;
+    core::TArray<tchar> envChars;
 
     if(!env.empty()) {
         envChars = getEnvironmentVariablesBuffer(env);
@@ -237,7 +237,7 @@ CProcessHandle* CProcessManager::launch(const core::CPath& command, const DProce
     DWORD creationFlags = ::GetConsoleWindow() ? 0 : CREATE_NO_WINDOW;
     BOOL rc = ::CreateProcess(
         0,
-        const_cast<fschar_t*>(commandLine.c_str()),
+        const_cast<tchar*>(commandLine.c_str()),
         0, // process Attributes
         0, // thread Attributes
         mustInheritHandles,
@@ -338,16 +338,16 @@ void CProcessManager::times(long& userTime, long& kernelTime) {
 CProcessHandle* CProcessManager::launch(const core::CPath& command, const DProcessParam& args, const core::CPath& initialDirectory,
     CPipe* inPipe, CPipe* outPipe, CPipe* errPipe, const DProcessEnvronment& env) {
     // We must not allocated memory after fork(), therefore allocate all required buffers first.
-    core::TArray<fschar_t> envChars = getEnvironmentVariablesBuffer(env);
-    core::TArray<fschar_t*> argv(args.size() + 2);
+    core::TArray<tchar> envChars = getEnvironmentVariablesBuffer(env);
+    core::TArray<tchar*> argv(args.size() + 2);
     s32 i = 0;
-    argv[i++] = const_cast<fschar_t*>(command.c_str());
+    argv[i++] = const_cast<tchar*>(command.c_str());
     for(u32 it = 0; it < args.size(); ++it) {
-        argv[i++] = const_cast<fschar_t*>(args[it].c_str());
+        argv[i++] = const_cast<tchar*>(args[it].c_str());
     }
     argv[i] = 0;
 
-    const fschar_t* pInitialDirectory = initialDirectory.empty() ? 0 : initialDirectory.c_str();
+    const tchar* pInitialDirectory = initialDirectory.empty() ? 0 : initialDirectory.c_str();
 
     s32 pid = fork();
     if(0 != pid) {
@@ -362,7 +362,7 @@ CProcessHandle* CProcessManager::launch(const core::CPath& command, const DProce
     }
 
     // set environment variables
-    fschar_t* p = &envChars[0];
+    tchar* p = &envChars[0];
     while(*p) {
         putenv(p);
         while(*p) {

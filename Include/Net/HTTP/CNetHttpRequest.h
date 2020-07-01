@@ -46,7 +46,7 @@ public:
 
     void setMethod(const core::CString& it) {
         mMethod = it;
-        mMethod.make_upper();
+        mMethod.makeUpper();
     }
 
 

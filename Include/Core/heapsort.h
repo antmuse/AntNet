@@ -1,9 +1,5 @@
-// Copyright (C) 2002-2012 Nikolaus Gebhardt
-// This file is part of the "Irrlicht Engine".
-// For conditions of distribution and use, see copyright notice in irrlicht.h
-
-#ifndef __IRR_HEAPSORT_H_INCLUDED__
-#define __IRR_HEAPSORT_H_INCLUDED__
+#ifndef APP_HEAPSORT_H
+#define APP_HEAPSORT_H
 
 #include "HConfig.h"
 
@@ -13,8 +9,7 @@ namespace core {
 //! Sinks an element into the heap.
 template<class T>
 inline void heapsink(T*array, s32 element, s32 max) {
-    while ((element << 1) < max) // there is a left child
-    {
+    while ((element << 1) < max) { // there is a left child
         s32 j = (element << 1);
 
         if (j + 1 < max && array[j] < array[j + 1])
@@ -59,5 +54,5 @@ inline void heapsort(T* array_, s32 size) {
 } // end namespace core
 } // end namespace app
 
-#endif
+#endif //APP_HEAPSORT_H
 

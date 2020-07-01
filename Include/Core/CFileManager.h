@@ -13,7 +13,7 @@ namespace io {
 struct SPathNode {
     u32 mID;
     core::CPath mName; //file or path
-    SPathNode(const fschar_t* nam) : mID(0), mName(nam) {
+    SPathNode(const tchar* nam) : mID(0), mName(nam) {
     }
     bool operator==(const struct SPathNode& other) const {
         return mName.equals_ignore_case(other.mName);
@@ -52,7 +52,7 @@ public:
     const SPathNode& getFile(u32 idx)const {
         return mFiles[idx];
     }
-    u32 addNode(const fschar_t* fname, bool isDir);
+    u32 addNode(const tchar* fname, bool isDir);
 
 private:
     core::CPath mWorkPath;
@@ -109,7 +109,7 @@ public:
     */
     CPathList* createFileList(bool readHide = false);
 
-    bool createPath(const core::CPath& iPath);
+    static bool createPath(const core::CPath& iPath);
 
     void setCurrentPath(const core::CPath& iVal) {
         mWorkPath = iVal;

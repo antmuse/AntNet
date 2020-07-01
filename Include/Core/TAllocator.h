@@ -1,9 +1,5 @@
-// Copyright (C) 2002-2012 Nikolaus Gebhardt
-// This file is part of the "Irrlicht Engine" and the "irrXML" project.
-// For conditions of distribution and use, see copyright notice in irrlicht.h and irrXML.h
-
-#ifndef __IRR_ALLOCATOR_H_INCLUDED__
-#define __IRR_ALLOCATOR_H_INCLUDED__
+#ifndef APP_TALLOCATOR_H
+#define APP_TALLOCATOR_H
 
 #include "HConfig.h"
 #include <new>
@@ -63,7 +59,7 @@ protected:
 /** Containers using it are NOT able to be used it across dll boundaries. Use this
 when using in an internal class or function or when compiled into a static lib */
 template<typename T>
-class irrAllocatorFast {
+class TAllocatorFast {
 public:
 
     //! Allocate memory for an array of objects
@@ -95,15 +91,15 @@ public:
 #endif
 
 //! defines an allocation strategy
-enum eAllocStrategy {
-    ALLOC_STRATEGY_SAFE = 0,
-    ALLOC_STRATEGY_DOUBLE = 1,
-    ALLOC_STRATEGY_SQRT = 2
+enum EAllocStrategy {
+    E_STRATEGY_SAFE = 0,
+    E_STRATEGY_DOUBLE = 1,
+    E_STRATEGY_SQRT = 2
 };
 
 
 } // end namespace core
 } // end namespace app
 
-#endif
+#endif //APP_TALLOCATOR_H
 

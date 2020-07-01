@@ -219,16 +219,16 @@ using s64 = long long;
 using u64 = unsigned long long;
 using f32 = float;
 using f64 = double;
-using uos = size_t;
+using usz = size_t;
 
 
 #if defined(APP_WCHAR_SYS)
-using fschar_t = wchar_t;
+using tchar = wchar_t;
 #define APP_STR(N) L##N
 
 #else
 
-using fschar_t = char;
+using tchar = char;
 #define APP_STR(N) ##N
 
 #endif
