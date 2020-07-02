@@ -17,7 +17,7 @@ CTimeManager::~CTimeManager() {
 
 
 void CTimeManager::run() {
-    s64 last;
+    s64 last = mTimer.getCurrent();
     s64 curr;
     for (; mRunning;) {
         curr = CTimer::getRelativeTime();
