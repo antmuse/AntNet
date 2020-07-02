@@ -193,6 +193,7 @@
     <ClInclude Include="..\..\..\Include\Core\CQueueNode.h" />
     <ClInclude Include="..\..\..\Include\Core\CSpeedLimiter.h" />
     <ClInclude Include="..\..\..\Include\Core\CStreamFile.h" />
+    <ClInclude Include="..\..\..\Include\Core\CTimeManager.h" />
     <ClInclude Include="..\..\..\Include\Core\CTimerWheel.h" />
     <ClInclude Include="..\..\..\Include\Core\fast_atof.h" />
     <ClInclude Include="..\..\..\Include\Core\heapsort.h" />
@@ -283,6 +284,7 @@
     <ClCompile Include="..\..\..\Source\Core\CQueueNode.cpp" />
     <ClCompile Include="..\..\..\Source\Core\CSpeedLimiter.cpp" />
     <ClCompile Include="..\..\..\Source\Core\CStreamFile.cpp" />
+    <ClCompile Include="..\..\..\Source\Core\CTimeManager.cpp" />
     <ClCompile Include="..\..\..\Source\Core\CTimerWheel.cpp" />
     <ClCompile Include="..\..\..\Source\Core\HashMurmur.cpp" />
     <ClCompile Include="..\..\..\Source\Core\HashSIP.cpp" />

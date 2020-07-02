@@ -319,6 +319,9 @@
     <ClInclude Include="..\..\..\Include\Core\ILogReceiver.h">
       <Filter>Include\Core</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\CTimeManager.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\Net\CNetClientUDP.cpp">
@@ -493,6 +496,9 @@
       <Filter>Source\Core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Source\Core\CTimer.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Core\CTimeManager.cpp">
       <Filter>Source\Core</Filter>
     </ClCompile>
   </ItemGroup>
