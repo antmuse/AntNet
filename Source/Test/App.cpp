@@ -9,7 +9,7 @@
 #include "CNetEchoClient.h"
 #include "CNetHttpClient.h"
 #include "CNetHttpsClient.h"
-#include "CTimeoutManager.h"
+#include "CTimeManager.h"
 #include "HTTP/CNetHttpURL.h"
 #include "CNetProxy.h"
 #include "CNetHttpsServer.h"
@@ -268,7 +268,7 @@ void AppRunTimerWheel() {
         CThread mThread;
     };//CTimeAdder
 
-    CTimeoutManager tmanager(5);
+    core::CTimeManager tmanager(5);
     printf("@Input repeat times = ");
     u32 repeat = 0;
     scanf("%u", &repeat);

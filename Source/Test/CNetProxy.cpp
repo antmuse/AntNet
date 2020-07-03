@@ -20,18 +20,16 @@ bool CNetProxyNode::drop() {
 }
 
 s32 CNetProxyNode::onLink(u32 sessionID, const CNetAddress& local, const CNetAddress& remote) {
+    APP_ASSERT(mFrontNet);
     mConnetID = sessionID;
     mStatus = 2;
-    CNetProxyNode* back = new CNetProxyNode(mProxyHub, false);
-    setPairNode(back);
-    back->setPairNode(this);
-    u32 cid = mProxyHub->getServer().connect(mProxyHub->getProxyAddress(), back);
-    if (cid > 0) {
-        back->mConnetID = cid;
-        back->mStatus = 1;
-    } else {
+    s32 smax = 1000;
+    while (smax > 0 && 2 != mPairNode->mStatus) {
+        CThread::sleep(10);
+        smax -= 10;
+    }
+    if (2 != mPairNode->mStatus) {
         setPairNode(nullptr);
-        delete back;
         mProxyHub->getServer().disconnect(sessionID);
     }
     return mProxyHub->onLink(sessionID, local, remote);
@@ -49,20 +47,19 @@ s32 CNetProxyNode::onTimeout(u32 sessionID, const CNetAddress& local, const CNet
 }
 
 s32 CNetProxyNode::onDisconnect(u32 sessionID, const CNetAddress& local, const CNetAddress& remote) {
-    s32 ret = 0;
+    mConnetID = 0;
     if (mPairNode) {
         if (mPairNode->mUseCount > 1) {
             mProxyHub->getServer().disconnect(mPairNode->mConnetID);
         }
         setPairNode(nullptr);
-        if (mStatus == 1) { //had not connected success before
-            mProxyHub->onConnect(sessionID, local, remote);
-        }
-        ret = mProxyHub->onDisconnect(sessionID, local, remote);
+    }
+    if (2 == mStatus) {//mStatus<2意味着之前没有连接成功，未调用onConnect()
+        mProxyHub->onDisconnect(sessionID, local, remote);
     }
     mStatus = 0;
     drop();
-    return ret;
+    return 0;
 }
 
 s32 CNetProxyNode::onSend(u32 sessionID, void* buffer, s32 size, s32 result) {
@@ -75,17 +72,6 @@ s32 CNetProxyNode::onSend(u32 sessionID, void* buffer, s32 size, s32 result) {
 s32 CNetProxyNode::onReceive(const CNetAddress& remote, u32 sessionID, void* buffer, s32 size) {
     s32 ret = 0;
     if (mPairNode) {
-        if (mFrontNet) {
-            s32 smax = 1000;
-            while (smax > 0 && 1 == mPairNode->mStatus) {
-                CThread::sleep(10);
-                smax -= 10;
-            }
-            if (mPairNode->mStatus < 2) {//connect fail
-                mProxyHub->getServer().disconnect(mConnetID);
-                return ret;
-            }
-        }
         ret = mProxyHub->getServer().send(mPairNode->mConnetID, buffer, size);
     }
     return ret;
@@ -158,7 +144,20 @@ s32 CNetProxy::onTimeout(u32 sessionID, const CNetAddress& local, const CNetAddr
 
 
 INetEventer* CNetProxy::onAccept(const CNetAddress& local) {
-    return new CNetProxyNode(this, true);
+    CNetProxyNode* front = new CNetProxyNode(this, true);
+    CNetProxyNode* back = new CNetProxyNode(this, false);
+    front->setPairNode(back);
+    back->setPairNode(front);
+    u32 cid = mServer.connect(mRemoteAddr, back);
+    if (cid > 0) {
+        back->mConnetID = cid;
+        back->mStatus = 1;
+    } else {
+        delete front;
+        delete back;
+        front = nullptr;
+    }
+    return front;
 }
 
 

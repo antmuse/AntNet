@@ -53,6 +53,8 @@ private:
     u32 mConnetID;
     CNetProxyNode* mPairNode;
     CNetProxy* mProxyHub;
+
+    friend CNetProxy;
 };
 
 
