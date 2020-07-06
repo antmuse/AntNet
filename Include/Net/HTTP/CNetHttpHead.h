@@ -5,71 +5,10 @@
 #include "AppMap.h"
 
 
-#define APP_INIT_STRING(X) sizeof(X) - 1, X
-#define APP_NULL_STRING    0, NULL
-
-
 namespace app {
 namespace net {
 class CNetPacket;
 
-
-enum EHttpHeadID {
-    EHHID_HOST,
-    EHHID_LOCATION,
-    EHHID_KEEP_ALIVE,
-    EHRID_CONNECTION,
-    EHRID_ACCEPT,
-    EHHID_CONTENT_TYPE,
-    EHHID_CONTENT_SIZE,
-    EHHID_USER_AGENT,
-    EHRID_ACCEPT_ENCODE,
-    EHRID_REFERER,
-    EHRID_ACCEPT_LANGUAGE,
-    EHRID_ACCEPT_CHARSET,
-    EHRID_AUTHORIZATION,
-    EHRID_COOKIE,
-    EHRID_DATE,
-    EHRID_RANGE,
-    EHRID_CONTENT_MD5,
-    EHRID_CONTENT_RANGE,
-    EHRID_CONTENT_LOCATION,
-    EHRID_SERVER,
-    EHRID_X_POWERED_BY,
-    EHRID_TRANSFER_ENCODE,
-    EHRID_COUNT
-};
-
-struct SHttpHead {
-    u16 mID;
-    u8 mLen;
-    s8* mKey;
-};
-
-const SHttpHead AppHttpHeads[] = {
-    {EHHID_HOST, APP_INIT_STRING("Host")},
-    {EHHID_LOCATION, APP_INIT_STRING("Location")},
-    {EHHID_KEEP_ALIVE, APP_INIT_STRING("Keep-Alive")},
-    {EHRID_CONNECTION, APP_INIT_STRING("Connection")},
-    {EHRID_ACCEPT, APP_INIT_STRING("Accpet")},
-    {EHHID_CONTENT_TYPE, APP_INIT_STRING("Content-Type")},
-    {EHHID_CONTENT_SIZE, APP_INIT_STRING("Content-Length")},
-    {EHHID_USER_AGENT, APP_INIT_STRING("User-Agent")},
-    {EHRID_ACCEPT_ENCODE, APP_INIT_STRING("Accept-Encoding")},
-    {EHRID_REFERER, APP_INIT_STRING("Referer")},
-    {EHRID_ACCEPT_LANGUAGE, APP_INIT_STRING("Accept-Language")},
-    {EHRID_ACCEPT_CHARSET, APP_INIT_STRING("Accept-Charset")},
-    {EHRID_AUTHORIZATION, APP_INIT_STRING("Authorization")},
-    {EHRID_COOKIE, APP_INIT_STRING("Cookie")},
-    {EHRID_DATE, APP_INIT_STRING("Date")},
-    {EHRID_RANGE, APP_INIT_STRING("Range")},
-    {EHRID_CONTENT_MD5, APP_INIT_STRING("Content-MD5")},
-    {EHRID_CONTENT_RANGE, APP_INIT_STRING("Content-Range")},
-    {EHRID_CONTENT_LOCATION, APP_INIT_STRING("Content-Location")},
-    {EHRID_SERVER, APP_INIT_STRING("Server")},
-    {EHRID_X_POWERED_BY, APP_INIT_STRING("X-Powered-By")},
-    {EHRID_TRANSFER_ENCODE, APP_INIT_STRING("Transfer-Encoding")}
-};
 
 class CNetHttpHead {
 public:
@@ -78,18 +17,18 @@ public:
 
     ~CNetHttpHead();
 
-    const core::CString* getValue(EHttpHeadID id)const {
+    const core::CString* getValue(const core::CString& id)const {
         THttpHeadNode* it = mMapHead.find(id);
-        return (it ? &it->getValue() : 0);
+        return (it ? &it->getValue() : nullptr);
     }
 
 
-    void setValue(EHttpHeadID id, const core::CString& it) {
+    void setValue(const core::CString& id, const core::CString& it) {
         mMapHead.set(id, it);
     }
 
 
-    void removeHead(EHttpHeadID id) {
+    void removeHead(const core::CString& id) {
         mMapHead.remove(id);
     }
 
@@ -103,9 +42,9 @@ public:
 
 
 private:
-    typedef core::TMap<EHttpHeadID, core::CString>::Node THttpHeadNode;
-    typedef core::TMap<EHttpHeadID, core::CString>::Iterator THttpHeadIterator;
-    core::TMap<EHttpHeadID, core::CString> mMapHead;
+    typedef core::TMap<core::CString, core::CString>::Node THttpHeadNode;
+    typedef core::TMap<core::CString, core::CString>::Iterator THttpHeadIterator;
+    core::TMap<core::CString, core::CString> mMapHead;
 };
 
 

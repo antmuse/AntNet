@@ -2,13 +2,11 @@
 #define APP_CNETHTTPREQUEST_H
 
 #include "AppArray.h"
-#include "AppMap.h"
-#include "CNetHttpURL.h"
 #include "CNetHttpHead.h"
+#include "CNetHttpURL.h"
 
 namespace app {
 namespace net {
-class CNetPacket;
 
 class CNetHttpRequest {
 public:
@@ -27,17 +25,6 @@ public:
     CNetHttpHead& getHead() {
         return mHead;
     }
-
-
-    const core::CString& getHost()const {
-        return "";//        return mURL.getHost();
-    }
-
-
-    const core::CString& getPath()const {
-        return "";//        return mURL.getPath();
-    }
-
 
     const core::CString& getMethod()const {
         return mMethod;
@@ -59,6 +46,9 @@ public:
         mHttpVersion = it;
     }
 
+    void setKeepAlive(bool val) {
+        mHead.setValue("Connection", val ? "Keep-Alive" : "close");
+    }
 
     void getBuffer(CNetPacket& out)const;
 
@@ -69,7 +59,7 @@ private:
     core::CString mMethod;
     CNetHttpHead mHead;
     CNetHttpURL mURL;
-    //core::TMap<core::CString, core::CString> mParameter;
+    //u32 mKeepAlive : 1;
 };
 
 

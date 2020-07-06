@@ -178,7 +178,7 @@ const s8* CNetHttpResponse::parseHeadInner(const s8* iStart, const s8* const iEn
                     npos = goValue(iStart, linetail);
                     iStart = core::AppGoNextFlag(npos, linetail, '\r');
                     core::CString node(npos, u32(iStart - npos));
-                    mHead.setValue(EHHID_CONTENT_TYPE, node);
+                    //mHead.setValue(EHHID_CONTENT_TYPE, node);
                 } else if(core::AppCharEquals(*(iStart + 8), 'm')) {//Content-MD5: base64
                     iStart = goValue(iStart, linetail);
                 } else if(core::AppCharEquals(*(iStart + 8), 'r')) {//Content-Range: 
@@ -205,7 +205,7 @@ const s8* CNetHttpResponse::parseHeadInner(const s8* iStart, const s8* const iEn
                 npos = goValue(iStart, linetail);
                 iStart = core::AppGoNextFlag(npos, linetail, '\r');
                 core::CString node(npos, u32(iStart - npos));
-                mHead.setValue(EHHID_LOCATION, node);
+                //mHead.setValue(EHHID_LOCATION, node);
             } else if(core::AppCharEquals(*(iStart + 1), 'a')) {//Last-Modified:
                 iStart = goValue(iStart, linetail);
             }
@@ -229,7 +229,7 @@ const s8* CNetHttpResponse::parseHeadInner(const s8* iStart, const s8* const iEn
                     npos = iStart;
                     iStart = core::AppGoNextFlag(iStart, linetail, '\r');
                     core::CString val(npos, u32(iStart - npos));
-                    mHead.setValue(EHRID_SERVER, val);
+                    //mHead.setValue(EHRID_SERVER, val);
                 } else if(core::AppCharEquals(*(iStart + 2), 't')) {//Set-Cookie: path=/
                     iStart = goValue(iStart, linetail);
                 }
@@ -244,17 +244,17 @@ const s8* CNetHttpResponse::parseHeadInner(const s8* iStart, const s8* const iEn
                     npos = iStart;
                     iStart = core::AppGoNextFlag(iStart, linetail, '\r');
                     u32 xsize = u32(iStart - npos);
-                    const core::CString* oldval = mHead.getValue(EHRID_X_POWERED_BY);
+                    const core::CString* oldval = 0; //mHead.getValue(EHRID_X_POWERED_BY);
                     if(oldval) {
                         if(xsize + oldval->size() < APP_MAXSIZE_X_POWERED) {
                             core::CString val(npos, xsize);
                             val.append(',');
                             val += *oldval;
-                            mHead.setValue(EHRID_X_POWERED_BY, val);
+                            //mHead.setValue(EHRID_X_POWERED_BY, val);
                         }
                     } else {
                         core::CString val(npos, xsize);
-                        mHead.setValue(EHRID_X_POWERED_BY, val);
+                        //mHead.setValue(EHRID_X_POWERED_BY, val);
                     }
                 } else if(core::AppCharEquals(*(iStart + 2), 'c')) {//X-Cache: MISS from squid27
                     iStart = goValue(iStart, linetail);

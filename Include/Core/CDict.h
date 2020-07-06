@@ -436,7 +436,9 @@ private:
     size_t getTableStats(s8* buf, size_t bufsize, CHashTable* ht, s32 tableid);
 
     CDict(const CDict& it) = delete;
+    CDict(const CDict&& it) = delete;
     CDict& operator=(const CDict& it) = delete;
+    CDict& operator=(const CDict&& it) = delete;
 };
 
 

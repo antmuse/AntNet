@@ -22,8 +22,8 @@
  /**
  * @brief codes from https://github.com/nodejs/http-parser
  */
-#ifndef http_parser_h
-#define http_parser_h
+#ifndef APP_HTTPPARSER_H
+#define APP_HTTPPARSER_H
 
 #include "HConfig.h"
 
@@ -77,8 +77,8 @@ typedef struct http_parser_settings http_parser_settings;
  * many times for each string. E.G. you might get 10 callbacks for "on_url"
  * each providing just a few characters more data.
  */
-typedef int(*http_data_cb) (http_parser*, const char *at, size_t length);
-typedef int(*http_cb) (http_parser*);
+typedef s32(*http_data_cb) (http_parser*, const s8 *at, usz length);
+typedef s32(*http_cb) (http_parser*);
 
 
 /* Status Codes */
@@ -285,30 +285,30 @@ enum http_errno {
 
 struct http_parser {
     /** PRIVATE **/
-    unsigned int type : 2;         /* enum http_parser_type */
-    unsigned int flags : 8;       /* F_* values from 'flags' enum; semi-public */
-    unsigned int state : 7;        /* enum state from http_parser.c */
-    unsigned int header_state : 7; /* enum header_state from http_parser.c */
-    unsigned int index : 5;        /* index into current matcher */
-    unsigned int extra_flags : 2;
-    unsigned int lenient_http_headers : 1;
+    u32 type : 2;         /* enum http_parser_type */
+    u32 flags : 8;       /* F_* values from 'flags' enum; semi-public */
+    u32 state : 7;        /* enum state from http_parser.c */
+    u32 header_state : 7; /* enum header_state from http_parser.c */
+    u32 index : 5;        /* index into current matcher */
+    u32 extra_flags : 2;
+    u32 lenient_http_headers : 1;
 
     u32 nread;          /* # bytes read in various scenarios */
     u64 content_length; /* # bytes in body (0 if no Content-Length header) */
 
     /** READ-ONLY **/
-    unsigned short http_major;
-    unsigned short http_minor;
-    unsigned int status_code : 16; /* responses only */
-    unsigned int method : 8;       /* requests only */
-    unsigned int http_errno : 7;
+    u16 http_major;
+    u16 http_minor;
+    u32 status_code : 16; /* responses only */
+    u32 method : 8;       /* requests only */
+    u32 http_errno : 7;
 
     /* 1 = Upgrade header was present and the parser has exited because of that.
      * 0 = No upgrade header present.
      * Should be checked when http_parser_execute() returns in addition to
      * error checking.
      */
-    unsigned int upgrade : 1;
+    u32 upgrade : 1;
 
     /** PUBLIC **/
     void *data; /* A pointer to get hook to the "connection" or "socket" object */
@@ -372,7 +372,7 @@ struct http_parser_url {
  *   unsigned patch = version & 255;
  *   printf("http_parser v%u.%u.%u\n", major, minor, patch);
  */
-unsigned long http_parser_version(void);
+u64 http_parser_version(void);
 
 void http_parser_init(http_parser *parser, enum http_parser_type type);
 
@@ -384,10 +384,10 @@ void http_parser_settings_init(http_parser_settings *settings);
 
 /* Executes the parser. Returns number of parsed bytes. Sets
  * `parser->http_errno` on error. */
-size_t http_parser_execute(http_parser *parser,
+usz http_parser_execute(http_parser *parser,
     const http_parser_settings *settings,
-    const char *data,
-    size_t len);
+    const s8 *data,
+    usz len);
 
 
 /* If http_should_keep_alive() in the on_headers_complete or
@@ -396,33 +396,33 @@ size_t http_parser_execute(http_parser *parser,
  * If you are the server, respond with the "Connection: close" header.
  * If you are the client, close the connection.
  */
-int http_should_keep_alive(const http_parser *parser);
+s32 http_should_keep_alive(const http_parser *parser);
 
 /* Returns a string version of the HTTP method. */
-const char *http_method_str(enum http_method m);
+const s8 *http_method_str(enum http_method m);
 
 /* Returns a string version of the HTTP status code. */
-const char *http_status_str(enum http_status s);
+const s8 *http_status_str(enum http_status s);
 
 /* Return a string name of the given error */
-const char *http_errno_name(enum http_errno err);
+const s8 *http_errno_name(enum http_errno err);
 
 /* Return a string description of the given error */
-const char *http_errno_description(enum http_errno err);
+const s8 *http_errno_description(enum http_errno err);
 
 /* Initialize all http_parser_url members to 0 */
 void http_parser_url_init(struct http_parser_url *u);
 
 /* Parse a URL; return nonzero on failure */
-int http_parser_parse_url(const char *buf, size_t buflen,
-    int is_connect,
+s32 http_parser_parse_url(const s8 *buf, usz buflen,
+    s32 is_connect,
     struct http_parser_url *u);
 
 /* Pause or un-pause the parser; a nonzero value pauses */
-void http_parser_pause(http_parser *parser, int paused);
+void http_parser_pause(http_parser *parser, s32 paused);
 
 /* Checks if this is the final chunk of the body. */
-int http_body_is_final(const http_parser *parser);
+s32 http_body_is_final(const http_parser *parser);
 
 /* Change the maximum header size provided at compile time. */
 void http_parser_set_max_header_size(u32 size);
@@ -430,4 +430,4 @@ void http_parser_set_max_header_size(u32 size);
 }//namespace net
 }//namespace app
 
-#endif
+#endif //APP_HTTPPARSER_H

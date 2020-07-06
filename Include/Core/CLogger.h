@@ -9,8 +9,8 @@
  * @version   1.0.0
  * @date  2010年11月26日, 下午10:16
  */
-#ifndef APP_IAPPLOGGER_H
-#define	APP_IAPPLOGGER_H
+#ifndef APP_CLOGGER_H
+#define	APP_CLOGGER_H
 
 #include "HConfig.h"
 #include <stdarg.h>
@@ -143,5 +143,5 @@ private:
 
 } //namespace app
 
-#endif	/* APP_IAPPLOGGER_H */
+#endif	/* APP_CLOGGER_H */
 

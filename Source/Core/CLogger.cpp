@@ -180,7 +180,7 @@ void CLogger::postLog(ELogLevel level, const wchar_t* sender, const wchar_t* msg
         wchar_t tmstr[20];
         CTimer::getTimeAsString(tmstr, sizeof(tmstr));
 #if defined(APP_PLATFORM_WINDOWS)
-        _vsnwprintf(mTextBufferW, MAX_TEXT_BUFFER_SIZE, msg, args);
+        _vsnwprintf_s(mTextBufferW, MAX_TEXT_BUFFER_SIZE, msg, args);
         for(u32 it = 0; it < mAllReceiver.size(); ++it) {
             mAllReceiver[it]->log(level, tmstr, sender, mTextBufferW);
         }

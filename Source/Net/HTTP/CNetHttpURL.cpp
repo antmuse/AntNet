@@ -44,7 +44,7 @@ CNetHttpURL::~CNetHttpURL() {
 }
 
 CNetHttpURL& CNetHttpURL::operator=(const CNetHttpURL& other) {
-    if (this == &other) {
+    if(this == &other) {
         return *this;
     }
     mCache.setUsed(other.mCache.size());
@@ -54,10 +54,10 @@ CNetHttpURL& CNetHttpURL::operator=(const CNetHttpURL& other) {
 }
 
 bool CNetHttpURL::operator==(const CNetHttpURL& other) const {
-    if (this == &other) {
+    if(this == &other) {
         return true;
     }
-    if (mCache.size() != other.mCache.size()) {
+    if(mCache.size() != other.mCache.size()) {
         return false;
     }
     return 0 == memcmp(mCache.constPointer(), other.mCache.constPointer(), mCache.size());
@@ -72,11 +72,13 @@ bool CNetHttpURL::set(const core::CString& it) {
 }
 
 void CNetHttpURL::toLow(s32 idx) {
+    const s8* cstr;
     s8* str;
     s32 len;
-    if (getNode(idx, str, len)) {
-        for (; --len >= 0;) {
-            if (str[len] >= 'A' && str[len] <= 'Z') {
+    if(getNode(idx, cstr, len)) {
+        str = const_cast<s8*>(cstr);
+        for(; --len >= 0;) {
+            if(str[len] >= 'A' && str[len] <= 'Z') {
                 str[len] += 32;
             }
         }
@@ -84,14 +86,14 @@ void CNetHttpURL::toLow(s32 idx) {
 }
 
 bool CNetHttpURL::set(const s8* url, u64 len) {
-    if (nullptr != url) {
+    if(nullptr != url) {
         len = len > 0 ? len : strlen(url);
-        mCache.setUsed(len + 1);
+        mCache.setUsed((u32)len + 1);
         memcpy(mCache.pointer(), url, len + 1);
         http_parser_url_init(&mNodes);
         bool ret = 0 == http_parser_parse_url(url, len, 0, &mNodes);
-        if (ret) {
-            if (0 == mNodes.port) {
+        if(ret) {
+            if(0 == mNodes.port) {
                 mNodes.port = 80;
             }
             toLow(UF_SCHEMA);
@@ -103,11 +105,11 @@ bool CNetHttpURL::set(const s8* url, u64 len) {
 }
 
 void CNetHttpURL::show() {
-    s8* str;
+    const s8* str;
     s32 len;
     printf("[port=%d][bits=%X]\n", mNodes.port, mNodes.field_set);
-    for (s32 i = 0; i < net::UF_MAX; ++i) {
-        if (getNode(i, str, len)) {
+    for(s32 i = 0; i < net::UF_MAX; ++i) {
+        if(getNode(i, str, len)) {
             printf("item[%d][len=%u]=%.*s\n", i, len, len, str);
         }
     }

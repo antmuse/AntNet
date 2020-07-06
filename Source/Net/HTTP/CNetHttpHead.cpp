@@ -16,13 +16,12 @@ CNetHttpHead::~CNetHttpHead() {
 
 void CNetHttpHead::getBuffer(CNetPacket& out) const {
     THttpHeadNode* nd;
-    EHttpHeadID key;
     for(THttpHeadIterator it = mMapHead.getIterator(); !it.atEnd(); it++) {
         nd = it.getNode();
-        key = nd->getKey();
-        core::CString& value = nd->getValue();
-        out.addBuffer(AppHttpHeads[key].mKey, AppHttpHeads[key].mLen);
-        out.addBuffer(": ", 2);
+        const core::CString& key = nd->getKey();
+        const core::CString& value = nd->getValue();
+        out.addBuffer(key.c_str(), key.size());
+        out.add(':');
         out.addBuffer(value.c_str(), value.size());
         out.addBuffer("\r\n", 2);
     }

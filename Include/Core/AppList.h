@@ -1,9 +1,5 @@
-// Copyright (C) 2002-2012 Nikolaus Gebhardt
-// This file is part of the "Irrlicht Engine".
-// For conditions of distribution and use, see copyright notice in irrlicht.h
-
-#ifndef __IRR_LIST_H_INCLUDED__
-#define __IRR_LIST_H_INCLUDED__
+#ifndef APP_TLIST_H
+#define APP_TLIST_H
 
 #include "HConfig.h"
 #include "TAllocator.h"
@@ -20,7 +16,7 @@ private:
 
     //! List element node with pointer to previous and next element in the TList.
     struct SKListNode {
-        SKListNode(const T& e) : Next(0), Prev(0), Element(e) {}
+        SKListNode(const T& e) : Next(0), Prev(0), Element(e) { }
 
         SKListNode* Next;
         SKListNode* Prev;
@@ -33,7 +29,7 @@ public:
     //! List iterator.
     class Iterator {
     public:
-        Iterator() : Current(0) {}
+        Iterator() : Current(0) { }
 
         Iterator& operator ++() { Current = Current->Next; return *this; }
         Iterator& operator --() { Current = Current->Prev; return *this; }
@@ -41,10 +37,10 @@ public:
         Iterator  operator --(s32) { Iterator tmp = *this; Current = Current->Prev; return tmp; }
 
         Iterator& operator +=(s32 num) {
-            if (num > 0) {
-                while (num-- && this->Current != 0) ++(*this);
+            if(num > 0) {
+                while(num-- && this->Current != 0) ++(*this);
             } else {
-                while (num++ && this->Current != 0) --(*this);
+                while(num++ && this->Current != 0) --(*this);
             }
             return *this;
         }
@@ -53,8 +49,8 @@ public:
         Iterator& operator -=(s32 num) { return (*this) += (-num); }
         Iterator  operator - (s32 num) const { return (*this) + (-num); }
 
-        bool operator ==(const Iterator&      other) const { return Current == other.Current; }
-        bool operator !=(const Iterator&      other) const { return Current != other.Current; }
+        bool operator ==(const Iterator& other) const { return Current == other.Current; }
+        bool operator !=(const Iterator& other) const { return Current != other.Current; }
         bool operator ==(const ConstIterator& other) const { return Current == other.Current; }
         bool operator !=(const ConstIterator& other) const { return Current != other.Current; }
 
@@ -62,7 +58,7 @@ public:
         T* operator->() { return &Current->Element; }
 
     private:
-        explicit Iterator(SKListNode* begin) : Current(begin) {}
+        explicit Iterator(SKListNode* begin) : Current(begin) { }
 
         SKListNode* Current;
 
@@ -74,8 +70,8 @@ public:
     class ConstIterator {
     public:
 
-        ConstIterator() : Current(0) {}
-        ConstIterator(const Iterator& iter) : Current(iter.Current) {}
+        ConstIterator() : Current(0) { }
+        ConstIterator(const Iterator& iter) : Current(iter.Current) { }
 
         ConstIterator& operator ++() { Current = Current->Next; return *this; }
         ConstIterator& operator --() { Current = Current->Prev; return *this; }
@@ -83,10 +79,10 @@ public:
         ConstIterator  operator --(s32) { ConstIterator tmp = *this; Current = Current->Prev; return tmp; }
 
         ConstIterator& operator +=(s32 num) {
-            if (num > 0) {
-                while (num-- && this->Current != 0) ++(*this);
+            if(num > 0) {
+                while(num-- && this->Current != 0) ++(*this);
             } else {
-                while (num++ && this->Current != 0) --(*this);
+                while(num++ && this->Current != 0) --(*this);
             }
             return *this;
         }
@@ -97,16 +93,16 @@ public:
 
         bool operator ==(const ConstIterator& other) const { return Current == other.Current; }
         bool operator !=(const ConstIterator& other) const { return Current != other.Current; }
-        bool operator ==(const Iterator&      other) const { return Current == other.Current; }
-        bool operator !=(const Iterator&      other) const { return Current != other.Current; }
+        bool operator ==(const Iterator& other) const { return Current == other.Current; }
+        bool operator !=(const Iterator& other) const { return Current != other.Current; }
 
-        const T & operator * () { return Current->Element; }
-        const T * operator ->() { return &Current->Element; }
+        const T& operator * () { return Current->Element; }
+        const T* operator ->() { return &Current->Element; }
 
-        ConstIterator & operator =(const Iterator & iterator) { Current = iterator.Current; return *this; }
+        ConstIterator& operator =(const Iterator& iterator) { Current = iterator.Current; return *this; }
 
     private:
-        explicit ConstIterator(SKListNode* begin) : Current(begin) {}
+        explicit ConstIterator(SKListNode* begin) : Current(begin) { }
 
         SKListNode* Current;
 
@@ -116,7 +112,8 @@ public:
 
     //! Default constructor for empty TList.
     TList()
-        : First(0), Last(0), Size(0) {}
+        : First(0), Last(0), Size(0) {
+    }
 
 
     //! Copy constructor.
@@ -133,14 +130,14 @@ public:
 
     //! Assignment operator
     void operator=(const TList<T>& other) {
-        if (&other == this) {
+        if(&other == this) {
             return;
         }
 
         clear();
 
         SKListNode* node = other.First;
-        while (node) {
+        while(node) {
             pushBack(node->Element);
             node = node->Next;
         }
@@ -160,8 +157,8 @@ public:
     //! Clears the TList, deletes all elements in the TList.
     /** All existing iterators of this TList will be invalid. */
     void clear() {
-        while (First) {
-            SKListNode * next = First->Next;
+        while(First) {
+            SKListNode* next = First->Next;
             allocator.destruct(First);
             allocator.deallocate(First);
             First = next;
@@ -188,12 +185,12 @@ public:
 
         ++Size;
 
-        if (First == 0)
+        if(First == 0)
             First = node;
 
         node->Prev = Last;
 
-        if (Last != 0)
+        if(Last != 0)
             Last->Next = node;
 
         Last = node;
@@ -208,7 +205,7 @@ public:
 
         ++Size;
 
-        if (First == 0) {
+        if(First == 0) {
             Last = node;
             First = node;
         } else {
@@ -272,14 +269,14 @@ public:
 
         node->Next = it.Current->Next;
 
-        if (it.Current->Next)
+        if(it.Current->Next)
             it.Current->Next->Prev = node;
 
         node->Prev = it.Current;
         it.Current->Next = node;
         ++Size;
 
-        if (it.Current == Last)
+        if(it.Current == Last)
             Last = node;
     }
 
@@ -295,14 +292,14 @@ public:
 
         node->Prev = it.Current->Prev;
 
-        if (it.Current->Prev)
+        if(it.Current->Prev)
             it.Current->Prev->Next = node;
 
         node->Next = it.Current;
         it.Current->Prev = node;
         ++Size;
 
-        if (it.Current == First)
+        if(it.Current == First)
             First = node;
     }
 
@@ -317,13 +314,13 @@ public:
         Iterator returnIterator(it);
         ++returnIterator;
 
-        if (it.Current == First) {
+        if(it.Current == First) {
             First = it.Current->Next;
         } else {
             it.Current->Prev->Next = it.Current->Next;
         }
 
-        if (it.Current == Last) {
+        if(it.Current == Last) {
             Last = it.Current->Prev;
         } else {
             it.Current->Next->Prev = it.Current->Prev;
@@ -362,5 +359,5 @@ private:
 } // end namespace core
 }// end namespace app
 
-#endif
+#endif //APP_TLIST_H
 
