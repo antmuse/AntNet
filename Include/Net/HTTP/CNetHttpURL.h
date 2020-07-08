@@ -22,6 +22,9 @@ public:
 
     ~CNetHttpURL();
 
+    const s8* toStr()const {
+        return mCache.constPointer();
+    }
 
     CNetHttpURL& operator=(const CNetHttpURL& other);
 

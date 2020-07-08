@@ -13,14 +13,32 @@ public:
 
     CNetHttpRequest();
 
+    CNetHttpRequest(const CNetHttpRequest& val) :
+        mHead(val.mHead),
+        mURL(val.mURL),
+        mHttpVersion(val.mHttpVersion),
+        mMethod(val.mMethod) {
+    }
 
     ~CNetHttpRequest();
 
+    CNetHttpRequest& operator=(const CNetHttpRequest& val) {
+        if(this != &val) {
+            mHead = val.mHead;
+            mURL = val.mURL;
+            mHttpVersion = val.mHttpVersion;
+            mMethod = val.mMethod;
+        }
+        return *this;
+    }
 
     CNetHttpURL& getURL() {
         return mURL;
     }
 
+    void setHead(const CNetHttpHead& val) {
+        mHead = val;
+    }
 
     CNetHttpHead& getHead() {
         return mHead;
@@ -59,7 +77,6 @@ private:
     core::CString mMethod;
     CNetHttpHead mHead;
     CNetHttpURL mURL;
-    //u32 mKeepAlive : 1;
 };
 
 

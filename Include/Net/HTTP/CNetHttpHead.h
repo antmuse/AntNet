@@ -15,8 +15,17 @@ public:
 
     CNetHttpHead();
 
+    CNetHttpHead(const CNetHttpHead& val) {
+        *this = val;
+    }
+
     ~CNetHttpHead();
 
+    CNetHttpHead& operator=(const CNetHttpHead& val);
+
+    /**
+    * @return 查找成功返回不可修改或删除的value, 否则返回nullptr.
+    */
     const core::CString* getValue(const core::CString& id)const {
         THttpHeadNode* it = mMapHead.find(id);
         return (it ? &it->getValue() : nullptr);
@@ -40,10 +49,13 @@ public:
         mMapHead.clear();
     }
 
+    void show();
+
 
 private:
     typedef core::TMap<core::CString, core::CString>::Node THttpHeadNode;
     typedef core::TMap<core::CString, core::CString>::Iterator THttpHeadIterator;
+    typedef core::TMap<core::CString, core::CString>::ConstIterator THttpHeadConstIterator;
     core::TMap<core::CString, core::CString> mMapHead;
 };
 

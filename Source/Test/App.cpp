@@ -35,7 +35,7 @@ namespace app {
 void AppQuit() {
     //system("PAUSE");
     app::s8 key = '\0';
-    while ('*' != key) {
+    while('*' != key) {
         printf("@Please input [*] to quit");
         scanf("%c", &key);
     }
@@ -62,7 +62,7 @@ void AppRunEchoServer() {
     config->drop();
     //AppQuit();
     app::s8 key = '\0';
-    while ('*' != key) {
+    while('*' != key) {
         printf("@Please input [*] to quit");
         scanf("%c", &key);
         CLogger::log(ELOG_INFO, "AppRunEchoServer",
@@ -87,10 +87,10 @@ void AppRunEchoClient() {
     config->check();
     config->print();
 
-    s8 sip[32] = { 0 };
+    s8 sip[32] = {0};
     printf("@Please input server's IP = ");
     scanf("%s", sip);
-    if (strlen(sip) < 4) {
+    if(strlen(sip) < 4) {
         memcpy(sip, "127.0.0.1", sizeof("127.0.0.1"));
     }
     printf("@Will connect to server = %s:9981\n", sip);
@@ -110,10 +110,10 @@ void AppRunEchoClient() {
 
     net::CNetAddress addr(sip, 9981);
     s32 i;
-    for (i = 0; i < max; ++i) {
+    for(i = 0; i < max; ++i) {
         evt[i].setHub(&chub);
         evt[i].setAutoConnect(true);
-        if (0 == chub.connect(addr, &evt[i])) {
+        if(0 == chub.connect(addr, &evt[i])) {
             break;
         }
         //CThread::sleep(100);
@@ -121,7 +121,7 @@ void AppRunEchoClient() {
 
     //AppQuit();
     app::s8 key = '\0';
-    while ('*' != key) {
+    while('*' != key) {
         printf("@Please input [*] to quit");
         scanf("%c", &key);
         CLogger::log(ELOG_INFO, "AppRunEchoClient",
@@ -142,7 +142,7 @@ void AppRunEchoClient() {
         );
     }
 
-    for (i = 0; i < max; ++i) {
+    for(i = 0; i < max; ++i) {
         evt[i].setAutoConnect(false);
     }
     chub.stop();
@@ -159,7 +159,7 @@ void AppStartPing() {
 void AppStartSynPing() {
     app::net::CNetSynPing synping;
     s32 ret;
-    if (synping.init()) {
+    if(synping.init()) {
         //ret = synping.ping("61.135.169.121", 80);
         ret = synping.ping("221.204.177.67", 80);
         //ret = synping.ping("192.168.1.200", 3306);
@@ -191,7 +191,7 @@ void AppRunTimerWheel() {
         static void timeout(void* nd) {
             SNode* node = (SNode*)nd;
             s32 idx = AppAtomicDecrementFetch(node->mAdder->getCount());
-            if (node->mDeleteFlag) {
+            if(node->mDeleteFlag) {
                 printf("CTimeAdder::timeout>> delete[Adder=%p],[id = %d],[time = %d/%d],[idx = %d]\n",
                     node->mAdder, node->mID, node->mTimeNode.mTimeoutStep,
                     node->mAdder->getTimeWheelStep(), idx);
@@ -206,8 +206,8 @@ void AppRunTimerWheel() {
             return mTimer.getCurrentStep();
         }
         virtual void run() {
-            for (; mRunning;) {
-                if (0 == mIndex) {
+            for(; mRunning;) {
+                if(0 == mIndex) {
                     add();
                 }
                 CThread::sleep(mMaxStep);
@@ -217,9 +217,9 @@ void AppRunTimerWheel() {
             return &mIndex;
         }
         void start() {
-            if (!mRunning) {
+            if(!mRunning) {
                 mRunning = true;
-                if (mMaxRepeat == 0) {
+                if(mMaxRepeat == 0) {
                     mThread.start(*this);
                 } else {
                     mRepeatNode.mDeleteFlag = false;
@@ -232,9 +232,9 @@ void AppRunTimerWheel() {
             }
         }
         void stop() {
-            if (mRunning) {
+            if(mRunning) {
                 mRunning = false;
-                if (mMaxRepeat == 0) {
+                if(mMaxRepeat == 0) {
                     mThread.join();
                 } else {
                     mTimer.remove(mRepeatNode.mTimeNode);
@@ -295,10 +295,10 @@ void AppRunHttpsClient() {
     config->check();
     config->print();
 
-    s8 sip[32] = { 0 };
+    s8 sip[32] = {0};
     printf("@Please input server's Site = ");
     scanf("%s", sip);
-    if (strlen(sip) < 4) {
+    if(strlen(sip) < 4) {
         memcpy(sip, "www.baidu.com", sizeof("www.baidu.com"));
     }
     printf("@Will connect to server = %s:443\n", sip);
@@ -314,10 +314,10 @@ void AppRunHttpsClient() {
     net::CNetAddress addr(443);
     addr.setDomain(sip);
     s32 i;
-    for (i = 0; i < max; ++i) {
+    for(i = 0; i < max; ++i) {
         evt[i].setHub(&chub);
         evt[i].setAutoConnect(false);
-        if (0 == chub.connect(addr, &evt[i])) {
+        if(0 == chub.connect(addr, &evt[i])) {
             break;
         }
         //CThread::sleep(100);
@@ -325,7 +325,7 @@ void AppRunHttpsClient() {
 
     //AppQuit();
     app::s8 key = '\0';
-    while ('*' != key) {
+    while('*' != key) {
         printf("@Please input [*] to quit");
         scanf("%c", &key);
         CLogger::log(ELOG_INFO, "AppRunHttpsClient", "request=u");
@@ -346,11 +346,13 @@ void AppRunHttpClient() {
     config->check();
     config->print();
 
-    s8 sbuf[256] = { 0 };
+    s8 sbuf[256] = {0};
     printf("@Please input URL[256] = ");
     scanf("%s", sbuf);
-    if (strlen(sbuf) < 16) {
+    if(strlen(sbuf) < 16) {
         memcpy(sbuf, "http://redisdoc.com/hash/hkeys.html", sizeof("http://redisdoc.com/hash/hkeys.html"));
+        //Test Chunked Page:  
+        memcpy(sbuf, "http://www.bubuko.com/infodetail-2074409.html", sizeof("http://www.bubuko.com/infodetail-2074409.html"));
     }
     printf("@URL = %s\n", sbuf);
     printf("@How many tcp do you want = ");
@@ -363,15 +365,16 @@ void AppRunHttpClient() {
     config->drop();
 
     s32 i;
-    for (i = 0; i < max; ++i) {
+    for(i = 0; i < max; ++i) {
         evt[i].setHub(&chub);
-        evt[i].request(sbuf);
+        evt[i].getResp().setLowFlag(0);
+        evt[i].httpGet(sbuf);
         //CThread::sleep(100);
     }
 
     //AppQuit();
     app::s8 key = '\0';
-    while ('*' != key) {
+    while('*' != key) {
         printf("@Please input [*] to quit");
         scanf("%c", &key);
         CLogger::log(ELOG_INFO, "AppRunHttpClient", "request=u");
@@ -384,7 +387,6 @@ void AppRunHttpClient() {
 
 void AppRunProxy() {
     net::CNetProxy sev;
-    //sev.setProxyHost("10.1.120.82:60001");
     sev.setProxyHost("127.0.0.1:60000");
     sev.start(60001);
     sev.show();
@@ -406,7 +408,7 @@ int main(int argc, char** argv) {
     app::CLogger::getInstance().addReceiver(
         app::CLogger::ELRT_CONSOLE | app::CLogger::ELRT_FILE_TEXT);
     app::u32 key = 1;
-    while (key) {
+    while(key) {
         printf("@0 = Exit\n");
         printf("@1 = Net Server\n");
         printf("@2 = Net Client\n");
@@ -419,7 +421,7 @@ int main(int argc, char** argv) {
         printf("@9 = Net Https Server\n");
         printf("@Input menu id = ");
         scanf("%u", &key);
-        switch (key) {
+        switch(key) {
         case 1:
             app::AppRunEchoServer();
             break;
@@ -447,13 +449,13 @@ int main(int argc, char** argv) {
         case 9:
             app::AppRunHttpsServer();
             break;
-        case 91:
+        case 22:
         {
             //app::net::CNetHttpURL url("http://nginx.org/docs/guide.html?pa=1&pb=2#proxy");
             app::net::CNetHttpURL url("http://usr:passd@nginx.org:89/docs/guide.html?pa=1&pb=2#proxy");
             printf("-------------------------------------\n");
             url.show();
-            url.set("httP://redisdoc.com/hash/hkeys.html");
+            url.set("httPs://redisdoc.com/hash/hkeys.html");
             printf("-------------------------------------\n");
             url.show();
             url.isHTTP();

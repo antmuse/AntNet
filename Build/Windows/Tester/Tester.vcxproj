@@ -175,7 +175,6 @@
     <ClCompile Include="..\..\..\Source\Test\CNetCert.cpp" />
     <ClCompile Include="..\..\..\Source\Test\CNetEchoClient.cpp" />
     <ClCompile Include="..\..\..\Source\Test\CNetEchoServer.cpp" />
-    <ClCompile Include="..\..\..\Source\Test\CNetHttpClient.cpp" />
     <ClCompile Include="..\..\..\Source\Test\CNetHttpsClient.cpp" />
     <ClCompile Include="..\..\..\Source\Test\CNetHttpsServer.cpp" />
     <ClCompile Include="..\..\..\Source\Test\CNetProxy.cpp" />
@@ -184,7 +183,6 @@
     <ClInclude Include="..\..\..\Source\Test\CNetCert.h" />
     <ClInclude Include="..\..\..\Source\Test\CNetEchoClient.h" />
     <ClInclude Include="..\..\..\Source\Test\CNetEchoServer.h" />
-    <ClInclude Include="..\..\..\Source\Test\CNetHttpClient.h" />
     <ClInclude Include="..\..\..\Source\Test\CNetHttpsClient.h" />
     <ClInclude Include="..\..\..\Source\Test\CNetHttpsServer.h" />
     <ClInclude Include="..\..\..\Source\Test\CNetProxy.h" />

@@ -17,20 +17,17 @@ namespace net {
 
 class CNetHttpResponse {
 public:
-    //ContentType: text/html
-    enum EContentType {
-        ECT_TEXT,
-        ECT_VIDEO,
-        ECT_AUDIO,
-        ECT_IMAGE,
-        ECT_APPLICATION,
-    };
+
     CNetHttpResponse();
 
     ~CNetHttpResponse();
 
     CNetHttpHead& getHead() {
         return mHead;
+    }
+
+    void setHead(const CNetHttpHead& val) {
+        mHead = val;
     }
 
     const CNetHttpHead& getHead() const {
@@ -41,74 +38,77 @@ public:
         return mWebPage.getSize();
     }
 
-    const CNetPacket& getHTTP() const {
-        return mHTTP;
-    }
-
-    const CNetPacket& getPage() const {
+    CNetPacket& getPage() {
         return mWebPage;
     }
 
-    void writeHTTP(const s8* iBuffer, u32 size);
-
-    void writePage(const s8* iBuffer, u32 size);
-
-    u32 getStatusCode() const {
+    s32 getStatusCode() const {
         return mStatusCode;
-    }
-
-    const s8* import(const s8* iBuffer, u32 size);
-
-    bool isFull()const {
-        return mPageFull;
-    }
-
-    u32 getContentSize()const {
-        return mPageSize;
-    }
-
-    u32 getChunkSize()const {
-        return mChunkSize;
     }
 
     void clear();
 
-    bool isByChunk()const {
-        return mChunked;
+    //for parser
+    void setCurrentHeader(const s8* val, u32 len) {
+        mHttpHeader.setUsed(0);
+        mHttpHeader.append(val, len);
     }
 
-    bool isKeepAlive()const {
-        return mKeepAlive;
+    //for parser
+    void setCurrentValue(const s8* val, u32 len) {
+        core::CString tmp(val, len);
+        if((1 & mLowFlag) > 0) {
+            mHttpHeader.makeLower();
+        }
+        if((2 & mLowFlag) > 0) {
+            tmp.makeLower();
+        }
+        mHead.setValue(mHttpHeader, tmp);
+    }
+
+    //for parser
+    void setStatus(s32 val) {
+        mStatusCode = val;
+    }
+
+    //for parser
+    void appendBuf(const s8* val, u32 len) {
+        mWebPage.addBuffer(val, len);
+    }
+
+    //for parser
+    void setBuf(const s8* val, u32 len) {
+        mWebPage.setUsed(0);
+        mWebPage.addBuffer(val, len);
+    }
+
+    void show(bool head = true);
+
+    //for parser
+    void setFinished(bool val) {
+        mFinished = val;
+    }
+
+    bool getFinished() const {
+        return mFinished;
+    }
+
+    /**
+     * @brief for parser
+     * @param flag 1=header field, 2=header value, 3=all
+     */
+    void setLowFlag(s32 flag) {
+        mLowFlag = flag;
     }
 
 
 private:
-    /**
-    *@brief
-    *eg: "Connection: close" or "Connection:close"
-    */
-    const s8* goValue(const s8* iStart, const s8* const iEnd);
-
-    const s8* parseHead(const s8* const iBuffer, const s8* const iEnd);
-
-    const s8* parseChuck(const s8* const iStart, const s8* const iEnd);
-
-    const s8* parseHeadInner(const s8* const iStart, const s8* const iEnd);
-    //void createFile(u32 size);
-
-    EHttpStatus mStatusCode;
-    bool mPageFull;
-    bool mChunked;              ///<Transfer-Encoding: chunked
-    bool mKeepAlive;            ///<Connection: close/keep-alive
-    bool mReadHead;             ///<read head
-    bool mReadChunk;            ///<read chunk line
-    u32 mReadedSize;
-    u32 mChunkSize;
-    u32 mPageSize;
-    core::CString mHttpVersion;
+    bool mFinished;
+    u8 mLowFlag;
+    s32 mStatusCode;
+    core::CString mHttpHeader;
     CNetHttpHead mHead;
     CNetPacket mWebPage;
-    CNetPacket mHTTP;
 };
 
 

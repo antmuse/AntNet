@@ -13,6 +13,27 @@ CNetHttpHead::~CNetHttpHead() {
 
 }
 
+CNetHttpHead& CNetHttpHead::operator=(const CNetHttpHead& val) {
+    if(this != &val) {
+        clear();
+        const THttpHeadNode* nd;
+        for(THttpHeadConstIterator it = val.mMapHead.getConstIterator(); !it.atEnd(); it++) {
+            nd = it.getNode();
+            mMapHead.set(nd->getKey(), nd->getValue());
+        }
+    }
+    return *this;
+}
+
+
+void CNetHttpHead::show() {
+    //makeLowHeader(3);
+    THttpHeadNode* nd;
+    for(THttpHeadIterator it = mMapHead.getIterator(); !it.atEnd(); it++) {
+        nd = it.getNode();
+        printf("%s : %s\n", nd->getKey().c_str(), nd->getValue().c_str());
+    }
+}
 
 void CNetHttpHead::getBuffer(CNetPacket& out) const {
     THttpHeadNode* nd;

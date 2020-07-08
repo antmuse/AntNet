@@ -4,8 +4,12 @@
 #include "http_parser.h"
 #include "AppList.h"
 #include "INetEventer.h"
+#include "INetEventerHttp.h"
 #include "CNetPacket.h"
 #include "CNetHttpURL.h"
+#include "CNetHttpRequest.h"
+#include "CNetHttpResponse.h"
+
 
 namespace app {
 namespace net {
@@ -21,7 +25,23 @@ public:
         mServer = mServer ? mServer : hub;
     }
 
-    bool request(const s8* url);
+    CNetHttpRequest& getRequest() {
+        return mRequest;
+    }
+
+    CNetHttpResponse& getResp() {
+        return mResp;
+    }
+
+    INetEventerHttp* getEventer() {
+        return mEvent;
+    }
+
+    void setEventer(INetEventerHttp* val) {
+        mEvent = val;
+    }
+
+    bool httpGet(const s8* url);
 
     virtual INetEventer* onAccept(const CNetAddress& local)override {
         return this;
@@ -45,11 +65,13 @@ public:
 
 private:
     CNetServiceTCP* mServer;
+    INetEventerHttp* mEvent;
     CNetPacket mPack;
     http_parser_settings mSets;
     http_parser mParser;
     http_parser_type mParserType;
-    CNetHttpURL mURL;
+    CNetHttpRequest mRequest;
+    CNetHttpResponse mResp;
 };
 
 }//namespace net

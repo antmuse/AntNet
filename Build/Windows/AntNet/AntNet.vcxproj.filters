@@ -208,9 +208,6 @@
     <ClInclude Include="..\..\..\Include\Core\IUtility.h">
       <Filter>Include\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Include\Net\HTTP\CNetClientHttp.h">
-      <Filter>Include\Net\HTTP</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Include\Net\HTTP\CNetHttpHead.h">
       <Filter>Include\Net\HTTP</Filter>
     </ClInclude>
@@ -322,6 +319,9 @@
     <ClInclude Include="..\..\..\Include\Core\CTimeManager.h">
       <Filter>Include\Core</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Include\Net\HTTP\CNetHttpClient.h">
+      <Filter>Include\Net\HTTP</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\Net\CNetClientUDP.cpp">
@@ -371,9 +371,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Source\Net\CNetSocket.cpp">
       <Filter>Source\Net</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Source\Net\HTTP\CNetClientHttp.cpp">
-      <Filter>Source\Net\HTTP</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Source\Net\HTTP\CNetHttpHead.cpp">
       <Filter>Source\Net\HTTP</Filter>
@@ -500,6 +497,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Source\Core\CTimeManager.cpp">
       <Filter>Source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Net\HTTP\CNetHttpClient.cpp">
+      <Filter>Source\Net\HTTP</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

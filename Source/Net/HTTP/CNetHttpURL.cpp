@@ -78,6 +78,7 @@ void CNetHttpURL::toLow(s32 idx) {
     if(getNode(idx, cstr, len)) {
         str = const_cast<s8*>(cstr);
         for(; --len >= 0;) {
+            //str[len] = core::App2Lower(str[len]);
             if(str[len] >= 'A' && str[len] <= 'Z') {
                 str[len] += 32;
             }
@@ -93,11 +94,11 @@ bool CNetHttpURL::set(const s8* url, u64 len) {
         http_parser_url_init(&mNodes);
         bool ret = 0 == http_parser_parse_url(url, len, 0, &mNodes);
         if(ret) {
-            if(0 == mNodes.port) {
-                mNodes.port = 80;
-            }
             toLow(UF_SCHEMA);
             toLow(UF_HOST);
+            if(0 == mNodes.port) {
+                mNodes.port = isHTTP() ? 80 : 443;
+            }
         }
         return ret;
     }

@@ -30,9 +30,6 @@
     <ClCompile Include="..\..\..\Source\Test\CNetCert.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\Test\CNetHttpClient.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\Source\Test\CNetHttpsClient.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -51,9 +48,6 @@
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Source\Test\CNetCert.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\Test\CNetHttpClient.h">
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Source\Test\CNetHttpsClient.h">

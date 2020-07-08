@@ -236,7 +236,7 @@
     <ClInclude Include="..\..\..\Include\Net\HNetConfig.h" />
     <ClInclude Include="..\..\..\Include\Net\HNetHeader.h" />
     <ClInclude Include="..\..\..\Include\Net\HNetOperationType.h" />
-    <ClInclude Include="..\..\..\Include\Net\HTTP\CNetClientHttp.h" />
+    <ClInclude Include="..\..\..\Include\Net\HTTP\CNetHttpClient.h" />
     <ClInclude Include="..\..\..\Include\Net\HTTP\CNetHttpHead.h" />
     <ClInclude Include="..\..\..\Include\Net\HTTP\CNetHttpRequest.h" />
     <ClInclude Include="..\..\..\Include\Net\HTTP\CNetHttpResponse.h" />
@@ -317,7 +317,7 @@
     <ClCompile Include="..\..\..\Source\Net\CNetSocket.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CNetUtility.cpp" />
     <ClCompile Include="..\..\..\Source\Net\HNetConfig.cpp" />
-    <ClCompile Include="..\..\..\Source\Net\HTTP\CNetClientHttp.cpp" />
+    <ClCompile Include="..\..\..\Source\Net\HTTP\CNetHttpClient.cpp" />
     <ClCompile Include="..\..\..\Source\Net\HTTP\CNetHttpHead.cpp" />
     <ClCompile Include="..\..\..\Source\Net\HTTP\CNetHttpRequest.cpp" />
     <ClCompile Include="..\..\..\Source\Net\HTTP\CNetHttpResponse.cpp" />
