@@ -21,7 +21,7 @@ public:
 
     bool drop() const {
         // someone is doing bad reference counting.
-        APP_ASSERT(mCounter <= 0);
+        APP_ASSERT(mCounter > 0);
 
         --mCounter;
         if (!mCounter) {
