@@ -229,7 +229,7 @@ using tchar = wchar_t;
 #else
 
 using tchar = char;
-#define APP_STR(N) ##N
+#define APP_STR(N) N
 
 #endif
 
