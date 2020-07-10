@@ -39,6 +39,9 @@
     <ClCompile Include="..\..\..\Source\Test\CNetProxy.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Source\Test\CTlsContext.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\Test\CNetEchoClient.h">
@@ -57,6 +60,9 @@
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Source\Test\CNetProxy.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\Test\CTlsContext.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>

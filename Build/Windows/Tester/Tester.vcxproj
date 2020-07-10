@@ -178,6 +178,7 @@
     <ClCompile Include="..\..\..\Source\Test\CNetHttpsClient.cpp" />
     <ClCompile Include="..\..\..\Source\Test\CNetHttpsServer.cpp" />
     <ClCompile Include="..\..\..\Source\Test\CNetProxy.cpp" />
+    <ClCompile Include="..\..\..\Source\Test\CTlsContext.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\Test\CNetCert.h" />
@@ -186,6 +187,7 @@
     <ClInclude Include="..\..\..\Source\Test\CNetHttpsClient.h" />
     <ClInclude Include="..\..\..\Source\Test\CNetHttpsServer.h" />
     <ClInclude Include="..\..\..\Source\Test\CNetProxy.h" />
+    <ClInclude Include="..\..\..\Source\Test\CTlsContext.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\..\Source\Test\CMakeLists.txt" />

@@ -315,9 +315,8 @@ void AppRunHttpsClient() {
     addr.setDomain(sip);
     s32 i;
     for(i = 0; i < max; ++i) {
-        evt[i].setHub(&chub);
-        evt[i].setAutoConnect(false);
-        if(0 == chub.connect(addr, &evt[i])) {
+        evt[i].setHubHost(&chub, sip);
+        if(0 == chub.connect(addr, evt[i].getTlsEvent())) {
             break;
         }
         //CThread::sleep(100);

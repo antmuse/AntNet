@@ -168,9 +168,9 @@ s32 CNetHttpClient::onConnect(u32 sessionID, const CNetAddress& local, const CNe
         remote.getIPString(), remote.getPort()
     );
 
+    mResp.clear();
     mServer->send(sessionID, mPack.getConstPointer(), mPack.getSize());
     mPack.setUsed(0);
-    mResp.clear();
     return ret;
 }
 
@@ -181,6 +181,7 @@ s32 CNetHttpClient::onDisconnect(u32 sessionID, const CNetAddress& local, const 
         local.getIPString(), local.getPort(),
         remote.getIPString(), remote.getPort()
     );
+    //mPack.shrink(1024);
     return 0;
 }
 
