@@ -1,5 +1,5 @@
-#ifndef APP_IAPPTIMER_H
-#define APP_IAPPTIMER_H
+#ifndef APP_CTIMER_H
+#define APP_CTIMER_H
 
 #include "HConfig.h"
 
@@ -101,4 +101,4 @@ public:
 
 } // end namespace app
 
-#endif //APP_IAPPTIMER_H
+#endif //APP_CTIMER_H

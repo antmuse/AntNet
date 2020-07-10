@@ -64,12 +64,21 @@
 			<Add option="-fexceptions" />
 		</Compiler>
 		<Unit filename="../../Source/Test/App.cpp" />
+		<Unit filename="../../Source/Test/CMakeLists.txt" />
+		<Unit filename="../../Source/Test/CNetCert.cpp" />
+		<Unit filename="../../Source/Test/CNetCert.h" />
 		<Unit filename="../../Source/Test/CNetEchoClient.cpp" />
 		<Unit filename="../../Source/Test/CNetEchoClient.h" />
 		<Unit filename="../../Source/Test/CNetEchoServer.cpp" />
 		<Unit filename="../../Source/Test/CNetEchoServer.h" />
-		<Unit filename="../../Source/Test/CTimeoutManager.cpp" />
-		<Unit filename="../../Source/Test/CTimeoutManager.h" />
+		<Unit filename="../../Source/Test/CNetHttpsClient.cpp" />
+		<Unit filename="../../Source/Test/CNetHttpsClient.h" />
+		<Unit filename="../../Source/Test/CNetHttpsServer.cpp" />
+		<Unit filename="../../Source/Test/CNetHttpsServer.h" />
+		<Unit filename="../../Source/Test/CNetProxy.cpp" />
+		<Unit filename="../../Source/Test/CNetProxy.h" />
+		<Unit filename="../../Source/Test/CTlsContext.cpp" />
+		<Unit filename="../../Source/Test/CTlsContext.h" />
 		<Extensions>
 			<code_completion />
 			<debugger />

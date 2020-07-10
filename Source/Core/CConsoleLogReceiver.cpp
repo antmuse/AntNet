@@ -1,6 +1,6 @@
 #include "CConsoleLogReceiver.h"
 #include <stdio.h>
-
+#include <wchar.h>
 #if defined(APP_PLATFORM_ANDROID)
 #include <android/log.h>
 #endif
@@ -41,7 +41,7 @@ bool CConsoleLogReceiver::log(ELogLevel level, const wchar_t* timestr, const wch
 
 
 
-}//namespace app 
+}//namespace app
 
 
 

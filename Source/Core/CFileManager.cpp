@@ -166,7 +166,7 @@ CPathList* CFileManager::createFileList(bool readHide) {
             } else {
                 isDirectory = dirEntry->d_type == DT_DIR;
             }
-            r->addNode(dirEntry->d_name, isDirectory);
+            ret->addNode(dirEntry->d_name, isDirectory);
         }
         closedir(dirHandle);
     }

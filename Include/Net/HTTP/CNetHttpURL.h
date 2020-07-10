@@ -91,7 +91,7 @@ public:
         const s8* str;
         s32 len;
         if(getNode(UF_SCHEMA, str, len) && 4 == len) {
-            return *reinterpret_cast<s32*>("http") == *reinterpret_cast<const s32*>(str);
+            return *reinterpret_cast<const s32*>("http") == *reinterpret_cast<const s32*>(str);
         }
         return false;
     }
@@ -100,7 +100,7 @@ public:
         const s8* str;
         s32 len;
         if(getNode(UF_SCHEMA, str, len) && 5 == len) {
-            return *reinterpret_cast<s32*>("http") == *reinterpret_cast<const s32*>(str) && 's' == str[4];
+            return *reinterpret_cast<const s32*>("http") == *reinterpret_cast<const s32*>(str) && 's' == str[4];
         }
         return false;
     }

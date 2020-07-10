@@ -1,5 +1,6 @@
 #include "IUtility.h"
 #include <stdio.h>
+#include <wchar.h>
 
 #if defined(APP_USE_ICONV)
 #include "iconv.h"

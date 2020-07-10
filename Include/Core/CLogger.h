@@ -19,13 +19,11 @@
 #include "CMutex.h"
 
 
-
-#if defined(APP_DEBUG)
-#define APP_LOG(TYPE, FROM, FORMAT, ...)    (CLogger::log(TYPE, FROM, FORMAT,__VA_ARGS__))
+#if defined(APP_DEBUG) && defined(APP_PLATFORM_WINDOWS)
+#define APP_LOG(TYPE, FROM, FORMAT, ...)  CLogger::log(TYPE, FROM, FORMAT, __VA_ARGS__)
 #else
 #define APP_LOG(TYPE, FROM, FORMAT, ...)
 #endif
-
 
 namespace app {
 class ILogReceiver;
@@ -140,7 +138,6 @@ private:
 };
 
 //APP_API CLogger* getLogger();
-
 } //namespace app
 
 #endif	/* APP_CLOGGER_H */

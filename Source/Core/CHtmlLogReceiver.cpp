@@ -1,4 +1,5 @@
 ﻿#include "CHtmlLogReceiver.h"
+#include <wchar.h>
 
 namespace app {
 
@@ -88,5 +89,5 @@ bool CHtmlLogReceiver::log(ELogLevel level, const s8* timestr, const s8* sender,
     return true;
 }
 
-}//namespace app 
+}//namespace app
 

@@ -1,5 +1,6 @@
 #include "CFileWriter.h"
 #include <stdio.h>
+#include <wchar.h>
 
 namespace app {
 namespace io {

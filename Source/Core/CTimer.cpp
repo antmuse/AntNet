@@ -1,6 +1,7 @@
 #include "CTimer.h"
 #include <stdio.h>
 #include <time.h>
+#include <wchar.h>
 #if defined(APP_PLATFORM_WINDOWS)
 #include <windows.h>
 #elif defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_ANDROID)

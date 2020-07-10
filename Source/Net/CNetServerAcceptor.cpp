@@ -601,7 +601,7 @@ bool CNetServerAcceptor::removeServer(CNetServiceTCP* it) {
     for (u32 i = 0; i < sz; ++i) {
         if (it == mService[i]) {
             mService[i] = mService[sz - 1];
-            mService.set_used(sz - 1);
+            mService.setUsed(sz - 1);
             return true;
         }
     }

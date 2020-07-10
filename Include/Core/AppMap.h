@@ -170,9 +170,8 @@ public:
         }
 
         Node& operator*() {
-            APP_ASSERT(atEnd()) // access violation
-
-                return *Cur;
+            APP_ASSERT(atEnd()); // access violation
+            return *Cur;
         }
 
     private:
@@ -294,9 +293,8 @@ public:
         }
 
         const Node& operator*() {
-            APP_ASSERT(atEnd()) // access violation
-
-                return *Cur;
+            APP_ASSERT(atEnd()); // access violation
+            return *Cur;
         }
 
     private:
@@ -388,7 +386,6 @@ public:
         }
 
         bool atEnd() const {
-            _IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
             return Cur == 0;
         }
 
@@ -411,9 +408,8 @@ public:
         }
 
         Node& operator* () {
-            APP_ASSERT(atEnd()) // access violation
-
-                return *getNode();
+            APP_ASSERT(atEnd()); // access violation
+            return *getNode();
         }
 
     private:
@@ -494,10 +490,10 @@ public:
         }
 
         Node& operator* () {
-            APP_ASSERT(atEnd()) // access violation
-
-                return *getNode();
+            APP_ASSERT(atEnd()); // access violation
+            return *getNode();
         }
+
     private:
 
         Node* getMin(Node* n) {
@@ -554,9 +550,7 @@ public:
             Node* node = Tree.find(Key);
 
             // Not found
-            APP_ASSERT(node == 0) // access violation
-
-                _IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
+            APP_ASSERT(node == 0); // access violation
             return node->getValue();
         }
 

@@ -1,10 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_layout_file>
 	<FileVersion major="1" minor="0" />
-	<ActiveTarget name="Release" />
-	<File name="../../Include/HConfig.h" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<ActiveTarget name="Debug" />
+	<File name="../../Source/Net/CEventPoller.cpp" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1268" topLine="47" />
+			<Cursor1 position="4043" topLine="189" />
+		</Cursor>
+	</File>
+	<File name="../../Source/Net/CNetServiceWindows.cpp" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="156" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="../../Source/Net/CNetService.cpp" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="615" topLine="9" />
+		</Cursor>
+	</File>
+	<File name="../../Include/HConfig.h" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="535" topLine="9" />
 		</Cursor>
 	</File>
 	<File name="../../Include/Thread/CThreadPool.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -12,34 +27,49 @@
 			<Cursor1 position="228" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="../../Source/Net/CCheckCRC16.cpp" open="1" top="1" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../../Source/Net/CCheckSum.cpp" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="3002" topLine="54" />
+			<Cursor1 position="14" topLine="33" />
 		</Cursor>
 	</File>
-	<File name="../../Source/Net/CCheckCRC32.cpp" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../../Source/Net/CNetServiceLinux.cpp" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="0" topLine="61" />
+			<Cursor1 position="249" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="../../Source/Core/CMemoryHub.cpp" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../../Source/Core/CMemoryHub.cpp" open="0" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="73" topLine="0" />
+			<Cursor1 position="73" topLine="33" />
 		</Cursor>
 	</File>
-	<File name="../../Source/Core/CTimerWheel.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../../Source/Net/CNetClientTCP.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="5700" topLine="83" />
+			<Cursor1 position="648" topLine="59" />
 		</Cursor>
-		<Folding>
-			<Collapse line="70" />
-			<Collapse line="97" />
-			<Collapse line="116" />
-			<Collapse line="128" />
-			<Collapse line="142" />
-			<Collapse line="161" />
-			<Collapse line="174" />
-			<Collapse line="225" />
-		</Folding>
+	</File>
+	<File name="../../Source/Core/CTimerWheel.cpp" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="628" topLine="21" />
+		</Cursor>
+	</File>
+	<File name="../../Include/Core/CLogger.h" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="528" topLine="12" />
+		</Cursor>
+	</File>
+	<File name="../../Source/Net/CNetSession.cpp" open="0" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="0" topLine="12" />
+		</Cursor>
+	</File>
+	<File name="../../Source/Net/CNetSessionLinux.cpp" open="0" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1401" topLine="42" />
+		</Cursor>
+	</File>
+	<File name="../../Source/Core/CLogger.cpp" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="38" topLine="0" />
+		</Cursor>
 	</File>
 </CodeBlocks_layout_file>

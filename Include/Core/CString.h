@@ -1119,22 +1119,14 @@ public:
     CPath(const B* const c) : TString<tchar>(c) {
     }
 
-    //! Assignment operator
-    CPath& operator=(const TString<tchar>& other) {
-        if(this == &other) {
-            return *this;
-        }
-        mUsed = other.size() + 1;
-        if(mUsed > mAllocated) {
-            mAllocator.deallocate(mBuffer); // delete [] mBuffer;
-            mAllocated = mUsed;
-            mBuffer = mAllocator.allocate(mUsed); //new T[mUsed];
-        }
 
-        const tchar* p = other.c_str();
-        for(u32 i = 0; i < mUsed; ++i, ++p) {
-            mBuffer[i] = *p;
-        }
+    CPath& operator=(const TString<tchar>& other) {
+        TString<tchar>::operator=(other);
+        return *this;
+    }
+
+    CPath& operator=(const tchar* other) {
+        TString<tchar>::operator=(other);
         return *this;
     }
 
@@ -1172,17 +1164,19 @@ public:
 
     //! delete path from filename
     CPath& deletePathFromFilename() {
-        // delete path from filename
-        const tchar* s = c_str();
+        tchar* s = mBuffer;
         const tchar* p = s + size();
-
         // search for path separator or beginning
         while(*p != '/' && *p != '\\' && p != s) {
             p--;
         }
         if(p != s) {
             ++p;
-            *this = p;
+            //*this = p;
+            for(const tchar* epos = s + mUsed; p<epos; ++p){
+                s[0] = p[0];
+                ++s;
+            }
         }
         return *this;
     }

@@ -58,6 +58,7 @@
 #define APP_INLINE inline
 #define APP_FORCE_INLINE __attribute__((always_inline)) inline
 #define APP_ALIGN(N) __attribute__((__aligned__((N))))
+#include <cstddef>
 #endif
 #endif
 
@@ -219,10 +220,15 @@ using s64 = long long;
 using u64 = unsigned long long;
 using f32 = float;
 using f64 = double;
-using usz = size_t;
+
+#if defined(APP_OS_64BIT)
+using usz = u64;
+#else
+using usz = u32;
+#endif
 
 
-#if defined(APP_WCHAR_SYS)
+#if defined(APP_WCHAR_SYS) && defined(APP_PLATFORM_WINDOWS)
 using tchar = wchar_t;
 #define APP_STR(N) L##N
 
