@@ -5,9 +5,14 @@ Build/Windows/Temp/
 Build/Linux/Temp/
 Lib/
 Bin/
+Build64
+CMakeFiles
 
 
 # files
 Build/Windows/*.db
 Build/Windows/*.opendb
+CMakeCache.txt
+*.cmake
+
 
