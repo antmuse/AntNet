@@ -101,7 +101,9 @@ public:
     core::CPath getFilePath(const core::CPath& filename) const;
 
     //! determines if a file exists and would be able to be opened.
-    bool existFile(const core::CPath& filename) const;
+    static bool existFile(const core::CPath& filename);
+
+    static bool deleteFile(const core::CPath& filename);
 
     /**
     * @brief Creates a list of files and directories in the current working directory
