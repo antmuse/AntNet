@@ -322,6 +322,9 @@
     <ClInclude Include="..\..\..\Include\Net\HTTP\CNetHttpClient.h">
       <Filter>Include\Net\HTTP</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\StrConverter.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\Net\CNetClientUDP.cpp">
@@ -500,6 +503,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Source\Net\HTTP\CNetHttpClient.cpp">
       <Filter>Source\Net\HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Core\StrConverter.cpp">
+      <Filter>Source\Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

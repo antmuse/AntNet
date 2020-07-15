@@ -1,4 +1,5 @@
 ﻿#include "CHtmlLogReceiver.h"
+#include "StrConverter.h"
 #include <wchar.h>
 
 namespace app {
@@ -72,9 +73,13 @@ void CHtmlLogReceiver::writeHead() {
 }
 
 bool CHtmlLogReceiver::log(ELogLevel level, const wchar_t* timestr, const wchar_t* pSender, const wchar_t* pMessage) {
-    wchar_t wcache[1024];
-    swprintf(wcache, 1024, L"[%s][%s] %s> %s\n", timestr, AppWLogLevelNames[level], pSender, pMessage);
-    return true;
+    wchar_t wcache[2048];
+    swprintf(wcache, 2048, L"<tr>\n<td width=\"160\">%s</td>\n<td class=\"%s\"><pre>\n%s>%s\n</pre></td>\n</tr>\n",
+        timestr, AppWLogLevelNames[level], pSender, pMessage);
+
+    s8 s8cache[2048];
+    usz wsz = core::AppWcharToUTF8(wcache, s8cache, sizeof(s8cache));
+    return mFile.write(s8cache, wsz) > 0;
 }
 
 

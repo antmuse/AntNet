@@ -1,4 +1,5 @@
 ﻿#include "CFileLogReceiver.h"
+#include "StrConverter.h"
 
 #include <iostream>
 #include <fstream>
@@ -17,8 +18,10 @@ CFileLogReceiver::~CFileLogReceiver() {
 bool CFileLogReceiver::log(ELogLevel level, const wchar_t* timestr, const wchar_t* sender, const wchar_t* message) {
     wchar_t wcache[1024];
     swprintf(wcache, 1024, L"[%s][%s] %s> %s\n", timestr, AppWLogLevelNames[level], sender, message);
-    //mFile.writeWParams(L"[%s][%s] %s> %s\n", timestr, AppLogLevelNames[level], sender, message);
-    return true;
+
+    s8 s8cache[1024];
+    usz wsz = core::AppWcharToUTF8(wcache, s8cache, sizeof(s8cache));
+    return mFile.write(s8cache, wsz) > 0;
 }
 
 

@@ -204,6 +204,7 @@
     <ClInclude Include="..\..\..\Include\Core\CTimer.h" />
     <ClInclude Include="..\..\..\Include\Core\INoCopy.h" />
     <ClInclude Include="..\..\..\Include\Core\IReferenceCounted.h" />
+    <ClInclude Include="..\..\..\Include\Core\StrConverter.h" />
     <ClInclude Include="..\..\..\Include\Core\TAllocator.h" />
     <ClInclude Include="..\..\..\Include\Core\AppArray.h" />
     <ClInclude Include="..\..\..\Include\Core\AppList.h" />
@@ -292,6 +293,7 @@
     <ClCompile Include="..\..\..\Source\Core\CLogger.cpp" />
     <ClCompile Include="..\..\..\Source\Core\CTimer.cpp" />
     <ClCompile Include="..\..\..\Source\Core\IUtility.cpp" />
+    <ClCompile Include="..\..\..\Source\Core\StrConverter.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CBase64Coder.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CBufferQueue.cpp" />
     <ClCompile Include="..\..\..\Source\Net\CCheckCRC.cpp" />
