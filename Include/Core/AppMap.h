@@ -1,9 +1,5 @@
-// Copyright (C) 2006-2012 by Kat'Oun
-// This file is part of the "Irrlicht Engine".
-// For conditions of distribution and use, see copyright notice in irrlicht.h
-
-#ifndef __IRR_MAP_H_INCLUDED__
-#define __IRR_MAP_H_INCLUDED__
+#ifndef APP_TMAP_H
+#define APP_TMAP_H
 
 #include "HConfig.h"
 #include "AppMath.h"
@@ -26,13 +22,13 @@ class TMap {
 
         void setLeftChild(RBTree* p) {
             LeftChild = p;
-            if (p)
+            if(p)
                 p->setParent(this);
         }
 
         void setRightChild(RBTree* p) {
             RightChild = p;
-            if (p)
+            if(p)
                 p->setParent(this);
         }
 
@@ -83,7 +79,7 @@ class TMap {
         }
 
         unsigned int getLevel() const {
-            if (isRoot())
+            if(isRoot())
                 return 1;
             else
                 return getParent()->getLevel() + 1;
@@ -103,10 +99,10 @@ class TMap {
     private:
         RBTree();
 
-        RBTree*		LeftChild;
-        RBTree*		RightChild;
+        RBTree* LeftChild;
+        RBTree* RightChild;
 
-        RBTree*		Parent;
+        RBTree* Parent;
 
         KeyTypeRB	Key;
         ValueTypeRB	Value;
@@ -125,7 +121,7 @@ public:
         friend class ConstIterator;
     public:
 
-        Iterator() : Root(0), Cur(0) {}
+        Iterator() : Root(0), Cur(0) { }
 
         // Constructor(Node*)
         Iterator(Node* root) : Root(root) {
@@ -133,10 +129,10 @@ public:
         }
 
         // Copy constructor
-        Iterator(const Iterator& src) : Root(src.Root), Cur(src.Cur) {}
+        Iterator(const Iterator& src) : Root(src.Root), Cur(src.Cur) { }
 
         void reset(bool atLowest = true) {
-            if (atLowest)
+            if(atLowest)
                 Cur = getMin(Root);
             else
                 Cur = getMax(Root);
@@ -177,27 +173,27 @@ public:
     private:
 
         Node* getMin(Node* n) const {
-            while (n && n->getLeftChild())
+            while(n && n->getLeftChild())
                 n = n->getLeftChild();
             return n;
         }
 
         Node* getMax(Node* n) const {
-            while (n && n->getRightChild())
+            while(n && n->getRightChild())
                 n = n->getRightChild();
             return n;
         }
 
         void inc() {
             // Already at end?
-            if (Cur == 0)
+            if(Cur == 0)
                 return;
 
-            if (Cur->getRightChild()) {
+            if(Cur->getRightChild()) {
                 // If current node has a right child, the next higher node is the
                 // node with lowest key beneath the right child.
                 Cur = getMin(Cur->getRightChild());
-            } else if (Cur->isLeftChild()) {
+            } else if(Cur->isLeftChild()) {
                 // No right child? Well if current node is a left child then
                 // the next higher node is the parent
                 Cur = Cur->getParent();
@@ -207,7 +203,7 @@ public:
                 // The next higher node is the parent of the first non-right
                 // child (ie either a left child or the root) up in the
                 // hierarchy. Root's parent is 0.
-                while (Cur->isRightChild())
+                while(Cur->isRightChild())
                     Cur = Cur->getParent();
                 Cur = Cur->getParent();
             }
@@ -215,14 +211,14 @@ public:
 
         void dec() {
             // Already at end?
-            if (Cur == 0)
+            if(Cur == 0)
                 return;
 
-            if (Cur->getLeftChild()) {
+            if(Cur->getLeftChild()) {
                 // If current node has a left child, the next lower node is the
                 // node with highest key beneath the left child.
                 Cur = getMax(Cur->getLeftChild());
-            } else if (Cur->isRightChild()) {
+            } else if(Cur->isRightChild()) {
                 // No left child? Well if current node is a right child then
                 // the next lower node is the parent
                 Cur = Cur->getParent();
@@ -233,7 +229,7 @@ public:
                 // child (ie either a right child or the root) up in the
                 // hierarchy. Root's parent is 0.
 
-                while (Cur->isLeftChild())
+                while(Cur->isLeftChild())
                     Cur = Cur->getParent();
                 Cur = Cur->getParent();
             }
@@ -248,7 +244,7 @@ public:
         friend class Iterator;
     public:
 
-        ConstIterator() : Root(0), Cur(0) {}
+        ConstIterator() : Root(0), Cur(0) { }
 
         // Constructor(Node*)
         ConstIterator(const Node* root) : Root(root) {
@@ -256,11 +252,11 @@ public:
         }
 
         // Copy constructor
-        ConstIterator(const ConstIterator& src) : Root(src.Root), Cur(src.Cur) {}
-        ConstIterator(const Iterator& src) : Root(src.Root), Cur(src.Cur) {}
+        ConstIterator(const ConstIterator& src) : Root(src.Root), Cur(src.Cur) { }
+        ConstIterator(const Iterator& src) : Root(src.Root), Cur(src.Cur) { }
 
         void reset(bool atLowest = true) {
-            if (atLowest)
+            if(atLowest)
                 Cur = getMin(Root);
             else
                 Cur = getMax(Root);
@@ -300,27 +296,27 @@ public:
     private:
 
         const Node* getMin(const Node* n) const {
-            while (n && n->getLeftChild())
+            while(n && n->getLeftChild())
                 n = n->getLeftChild();
             return n;
         }
 
         const Node* getMax(const Node* n) const {
-            while (n && n->getRightChild())
+            while(n && n->getRightChild())
                 n = n->getRightChild();
             return n;
         }
 
         void inc() {
             // Already at end?
-            if (Cur == 0)
+            if(Cur == 0)
                 return;
 
-            if (Cur->getRightChild()) {
+            if(Cur->getRightChild()) {
                 // If current node has a right child, the next higher node is the
                 // node with lowest key beneath the right child.
                 Cur = getMin(Cur->getRightChild());
-            } else if (Cur->isLeftChild()) {
+            } else if(Cur->isLeftChild()) {
                 // No right child? Well if current node is a left child then
                 // the next higher node is the parent
                 Cur = Cur->getParent();
@@ -330,7 +326,7 @@ public:
                 // The next higher node is the parent of the first non-right
                 // child (ie either a left child or the root) up in the
                 // hierarchy. Root's parent is 0.
-                while (Cur->isRightChild())
+                while(Cur->isRightChild())
                     Cur = Cur->getParent();
                 Cur = Cur->getParent();
             }
@@ -338,14 +334,14 @@ public:
 
         void dec() {
             // Already at end?
-            if (Cur == 0)
+            if(Cur == 0)
                 return;
 
-            if (Cur->getLeftChild()) {
+            if(Cur->getLeftChild()) {
                 // If current node has a left child, the next lower node is the
                 // node with highest key beneath the left child.
                 Cur = getMax(Cur->getLeftChild());
-            } else if (Cur->isRightChild()) {
+            } else if(Cur->isRightChild()) {
                 // No left child? Well if current node is a right child then
                 // the next lower node is the parent
                 Cur = Cur->getParent();
@@ -356,7 +352,7 @@ public:
                 // child (ie either a right child or the root) up in the
                 // hierarchy. Root's parent is 0.
 
-                while (Cur->isLeftChild())
+                while(Cur->isLeftChild())
                     Cur = Cur->getParent();
                 Cur = Cur->getParent();
             }
@@ -375,7 +371,7 @@ public:
     class ParentFirstIterator {
     public:
 
-        ParentFirstIterator() : Root(0), Cur(0) {}
+        ParentFirstIterator() : Root(0), Cur(0) { }
 
         explicit ParentFirstIterator(Node* root) : Root(root), Cur(0) {
             reset();
@@ -416,24 +412,24 @@ public:
 
         void inc() {
             // Already at end?
-            if (Cur == 0)
+            if(Cur == 0)
                 return;
 
             // First we try down to the left
-            if (Cur->getLeftChild()) {
+            if(Cur->getLeftChild()) {
                 Cur = Cur->getLeftChild();
-            } else if (Cur->getRightChild()) {
+            } else if(Cur->getRightChild()) {
                 // No left child? The we go down to the right.
                 Cur = Cur->getRightChild();
             } else {
                 // No children? Move up in the hierarcy until
                 // we either reach 0 (and are finished) or
                 // find a right uncle.
-                while (Cur != 0) {
+                while(Cur != 0) {
                     // But if parent is left child and has a right "uncle" the parent
                     // has already been processed but the uncle hasn't. Move to
                     // the uncle.
-                    if (Cur->isLeftChild() && Cur->getParent()->getRightChild()) {
+                    if(Cur->isLeftChild() && Cur->getParent()->getRightChild()) {
                         Cur = Cur->getParent()->getRightChild();
                         return;
                     }
@@ -456,7 +452,7 @@ public:
     class ParentLastIterator {
     public:
 
-        ParentLastIterator() : Root(0), Cur(0) {}
+        ParentLastIterator() : Root(0), Cur(0) { }
 
         explicit ParentLastIterator(Node* root) : Root(root), Cur(0) {
             reset();
@@ -497,8 +493,8 @@ public:
     private:
 
         Node* getMin(Node* n) {
-            while (n != 0 && (n->getLeftChild() != 0 || n->getRightChild() != 0)) {
-                if (n->getLeftChild())
+            while(n != 0 && (n->getLeftChild() != 0 || n->getRightChild() != 0)) {
+                if(n->getLeftChild())
                     n = n->getLeftChild();
                 else
                     n = n->getRightChild();
@@ -508,7 +504,7 @@ public:
 
         void inc() {
             // Already at end?
-            if (Cur == 0)
+            if(Cur == 0)
                 return;
 
             // Note: Starting point is the node as far down to the left as possible.
@@ -516,7 +512,7 @@ public:
             // If current node has an uncle to the right, go to the
             // node as far down to the left from the uncle as possible
             // else just go up a level to the parent.
-            if (Cur->isLeftChild() && Cur->getParent()->getRightChild()) {
+            if(Cur->isLeftChild() && Cur->getParent()->getRightChild()) {
                 Cur = getMin(Cur->getParent()->getRightChild());
             } else
                 Cur = Cur->getParent();
@@ -556,7 +552,7 @@ public:
 
     private:
 
-        AccessClass(TMap& tree, const KeyType& key) : Tree(tree), Key(key) {}
+        AccessClass(TMap& tree, const KeyType& key) : Tree(tree), Key(key) { }
 
         AccessClass();
 
@@ -566,7 +562,7 @@ public:
 
 
     // Constructor.
-    TMap() : Root(0), Size(0) {}
+    TMap() : Root(0), Size(0) { }
 
     // Destructor
     ~TMap() {
@@ -584,18 +580,18 @@ public:
     bool insert(const KeyType& keyNew, const ValueType& v) {
         // First insert node the "usual" way (no fancy balance logic yet)
         Node* newNode = new Node(keyNew, v);
-        if (!insert(newNode)) {
+        if(!insert(newNode)) {
             delete newNode;
             //_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
             return false;
         }
 
         // Then attend a balancing party
-        while (!newNode->isRoot() && (newNode->getParent()->isRed())) {
-            if (newNode->getParent()->isLeftChild()) {
+        while(!newNode->isRoot() && (newNode->getParent()->isRed())) {
+            if(newNode->getParent()->isLeftChild()) {
                 // If newNode is a left child, get its right 'uncle'
                 Node* newNodesUncle = newNode->getParent()->getParent()->getRightChild();
-                if (newNodesUncle != 0 && newNodesUncle->isRed()) {
+                if(newNodesUncle != 0 && newNodesUncle->isRed()) {
                     // case 1 - change the colors
                     newNode->getParent()->setBlack();
                     newNodesUncle->setBlack();
@@ -604,7 +600,7 @@ public:
                     newNode = newNode->getParent()->getParent();
                 } else {
                     // newNodesUncle is a black node
-                    if (newNode->isRightChild()) {
+                    if(newNode->isRightChild()) {
                         // and newNode is to the right
                         // case 2 - move newNode up and rotate
                         newNode = newNode->getParent();
@@ -618,7 +614,7 @@ public:
             } else {
                 // If newNode is a right child, get its left 'uncle'
                 Node* newNodesUncle = newNode->getParent()->getParent()->getLeftChild();
-                if (newNodesUncle != 0 && newNodesUncle->isRed()) {
+                if(newNodesUncle != 0 && newNodesUncle->isRed()) {
                     // case 1 - change the colors
                     newNode->getParent()->setBlack();
                     newNodesUncle->setBlack();
@@ -627,7 +623,7 @@ public:
                     newNode = newNode->getParent()->getParent();
                 } else {
                     // newNodesUncle is a black node
-                    if (newNode->isLeftChild()) {
+                    if(newNode->isLeftChild()) {
                         // and newNode is to the left
                         // case 2 - move newNode up and rotate
                         newNode = newNode->getParent();
@@ -651,7 +647,7 @@ public:
     \param v The new value of */
     void set(const KeyType& k, const ValueType& v) {
         Node* p = find(k);
-        if (p)
+        if(p)
             p->setValue(v);
         else
             insert(k, v);
@@ -663,12 +659,12 @@ public:
     \return A pointer to the node, or 0 if not found */
     Node* delink(const KeyType& k) {
         Node* p = find(k);
-        if (p == 0)
+        if(p == 0)
             return 0;
 
         // Rotate p down to the left until it has no right child, will get there
         // sooner or later.
-        while (p->getRightChild()) {
+        while(p->getRightChild()) {
             // "Pull up my right child and let it knock me down to the left"
             rotateLeft(p);
         }
@@ -676,10 +672,10 @@ public:
         Node* left = p->getLeftChild();
 
         // Let p's parent point to p's child instead of point to p
-        if (p->isLeftChild())
+        if(p->isLeftChild())
             p->getParent()->setLeftChild(left);
 
-        else if (p->isRightChild())
+        else if(p->isRightChild())
             p->getParent()->setRightChild(left);
 
         else {
@@ -705,14 +701,14 @@ public:
     //! Removes a node from the tree and deletes it.
     /** \return True if the node was found and deleted */
     bool remove(Node* p) {
-        if (p == 0) {
+        if(p == 0) {
             //_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
             return false;
         }
 
         // Rotate p down to the left until it has no right child, will get there
         // sooner or later.
-        while (p->getRightChild()) {
+        while(p->getRightChild()) {
             // "Pull up my right child and let it knock me down to the left"
             rotateLeft(p);
         }
@@ -720,10 +716,10 @@ public:
         Node* left = p->getLeftChild();
 
         // Let p's parent point to p's child instead of point to p
-        if (p->isLeftChild())
+        if(p->isLeftChild())
             p->getParent()->setLeftChild(left);
 
-        else if (p->isRightChild())
+        else if(p->isRightChild())
             p->getParent()->setRightChild(left);
 
         else {
@@ -744,7 +740,7 @@ public:
     void clear() {
         ParentLastIterator i(getParentLastIterator());
 
-        while (!i.atEnd()) {
+        while(!i.atEnd()) {
             Node* p = i.getNode();
             i++; // Increment it before it is deleted
                 // else iterator will get quite confused.
@@ -770,12 +766,12 @@ public:
     Node* find(const KeyType& keyToFind) const {
         Node* pNode = Root;
 
-        while (pNode != 0) {
+        while(pNode != 0) {
             const KeyType& key = pNode->getKey();
 
-            if (keyToFind == key)
+            if(keyToFind == key)
                 return pNode;
-            else if (keyToFind < key)
+            else if(keyToFind < key)
                 pNode = pNode->getLeftChild();
             else //keyToFind > key
                 pNode = pNode->getRightChild();
@@ -869,7 +865,7 @@ private:
     */
     void setRoot(Node* newRoot) {
         Root = newRoot;
-        if (Root != 0) {
+        if(Root != 0) {
             Root->setParent(0);
             Root->setBlack();
         }
@@ -880,27 +876,27 @@ private:
     bool insert(Node* newNode) {
         bool result = true; // Assume success
 
-        if (Root == 0) {
+        if(Root == 0) {
             setRoot(newNode);
             Size = 1;
         } else {
             Node* pNode = Root;
             const KeyType& keyNew = newNode->getKey();
-            while (pNode) {
+            while(pNode) {
                 const KeyType& key = pNode->getKey();
 
-                if (keyNew == key) {
+                if(keyNew == key) {
                     result = false;
                     pNode = 0;
-                } else if (keyNew < key) {
-                    if (pNode->getLeftChild() == 0) {
+                } else if(keyNew < key) {
+                    if(pNode->getLeftChild() == 0) {
                         pNode->setLeftChild(newNode);
                         pNode = 0;
                     } else
                         pNode = pNode->getLeftChild();
                 } else // keyNew > key
                 {
-                    if (pNode->getRightChild() == 0) {
+                    if(pNode->getRightChild() == 0) {
                         pNode->setRightChild(newNode);
                         pNode = 0;
                     } else {
@@ -909,7 +905,7 @@ private:
                 }
             }
 
-            if (result)
+            if(result)
                 ++Size;
         }
 
@@ -924,9 +920,9 @@ private:
 
         p->setRightChild(right->getLeftChild());
 
-        if (p->isLeftChild())
+        if(p->isLeftChild())
             p->getParent()->setLeftChild(right);
-        else if (p->isRightChild())
+        else if(p->isRightChild())
             p->getParent()->setRightChild(right);
         else
             setRoot(right);
@@ -941,9 +937,9 @@ private:
 
         p->setLeftChild(left->getRightChild());
 
-        if (p->isLeftChild())
+        if(p->isLeftChild())
             p->getParent()->setLeftChild(left);
-        else if (p->isRightChild())
+        else if(p->isRightChild())
             p->getParent()->setRightChild(left);
         else
             setRoot(left);
@@ -961,5 +957,5 @@ private:
 } // end namespace core
 } // end namespace app
 
-#endif // __IRR_MAP_H_INCLUDED__
+#endif // APP_TMAP_H
 

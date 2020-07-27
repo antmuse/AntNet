@@ -195,8 +195,8 @@
     <ClInclude Include="..\..\..\Include\Core\CStreamFile.h" />
     <ClInclude Include="..\..\..\Include\Core\CTimeManager.h" />
     <ClInclude Include="..\..\..\Include\Core\CTimerWheel.h" />
-    <ClInclude Include="..\..\..\Include\Core\fast_atof.h" />
-    <ClInclude Include="..\..\..\Include\Core\heapsort.h" />
+    <ClInclude Include="..\..\..\Include\Core\AppConverter.h" />
+    <ClInclude Include="..\..\..\Include\Core\AppHeapSort.h" />
     <ClInclude Include="..\..\..\Include\Core\HEngineLog.h" />
     <ClInclude Include="..\..\..\Include\Core\HHashFunctions.h" />
     <ClInclude Include="..\..\..\Include\Core\ILogReceiver.h" />

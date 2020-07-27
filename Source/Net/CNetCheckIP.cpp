@@ -133,10 +133,10 @@ u32 CNetCheckIP::convertToIP(const s8* str) {
     }
 #endif
     if(str) {
-        ret = (core::strtoul10(str, &str) & 0x000000FF) << 24;
-        ret |= (core::strtoul10('.' == *str ? ++str : str, &str) & 0x000000FF) << 16;
-        ret |= (core::strtoul10('.' == *str ? ++str : str, &str) & 0x000000FF) << 8;
-        ret |= (core::strtoul10('.' == *str ? ++str : str, &str) & 0x000000FF);
+        ret = (core::App10StrToU32(str, &str) & 0x000000FF) << 24;
+        ret |= (core::App10StrToU32('.' == *str ? ++str : str, &str) & 0x000000FF) << 16;
+        ret |= (core::App10StrToU32('.' == *str ? ++str : str, &str) & 0x000000FF) << 8;
+        ret |= (core::App10StrToU32('.' == *str ? ++str : str, &str) & 0x000000FF);
     }
     return ret;
 }

@@ -187,12 +187,6 @@
     <ClInclude Include="..\..\..\Include\Core\CTimerWheel.h">
       <Filter>Include\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Include\Core\fast_atof.h">
-      <Filter>Include\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Include\Core\heapsort.h">
-      <Filter>Include\Core</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Include\Core\HEngineLog.h">
       <Filter>Include\Core</Filter>
     </ClInclude>
@@ -323,6 +317,12 @@
       <Filter>Include\Net\HTTP</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Include\Core\StrConverter.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\AppHeapSort.h">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Include\Core\AppConverter.h">
       <Filter>Include\Core</Filter>
     </ClInclude>
   </ItemGroup>

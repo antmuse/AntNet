@@ -2,7 +2,7 @@
 #define APP_APPARRAY_H
 
 #include "HConfig.h"
-#include "heapsort.h"
+#include "AppHeapSort.h"
 #include "TAllocator.h"
 #include "AppMath.h"
 
@@ -344,12 +344,12 @@ public:
     }
 
 
-    //! Sorts the TArray using heapsort.
+    //! Sorts the TArray using AppHeapSort.
     /** There is no additional memory waste and the algorithm performs
     O(n*log n) in worst case. */
     void sort() {
         if (!mIsSorted && mUsed > 1) {
-            heapsort(mData, mUsed);
+            AppHeapSort(mData, mUsed);
         }
         mIsSorted = true;
     }

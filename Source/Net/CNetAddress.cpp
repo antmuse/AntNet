@@ -1,5 +1,5 @@
 #include "CNetAddress.h"
-#include "fast_atof.h"
+#include "AppConverter.h"
 //#include "IUtility.h"
 
 #if defined(APP_PLATFORM_WINDOWS)
@@ -255,7 +255,7 @@ void CNetAddress::setIPort(const s8* ipAndPort) {
         ++ipAndPort;
     }
     if(*ipAndPort == ':') {
-        setPort((u16) core::strtoul10(++ipAndPort));
+        setPort((u16) core::App10StrToU32(++ipAndPort));
     }
 }
 
@@ -413,13 +413,13 @@ void CNetAddress::convertStringToIP(const s8* buffer, CNetAddress::IP& result) {
     ::inet_pton(AF_INET6, buffer, &result);
 #else
     const s8* end;
-    result = core::strtoul10(buffer, &end);
+    result = core::App10StrToU32(buffer, &end);
     buffer = 1 + end;
-    result |= core::strtoul10(buffer, &end) << 8;
+    result |= core::App10StrToU32(buffer, &end) << 8;
     buffer = 1 + end;
-    result |= core::strtoul10(buffer, &end) << 16;
+    result |= core::App10StrToU32(buffer, &end) << 16;
     buffer = 1 + end;
-    result |= core::strtoul10(buffer, &end) << 24;
+    result |= core::App10StrToU32(buffer, &end) << 24;
 #endif
 }
 
